@@ -152,15 +152,15 @@ class DB2JSON_GUI(Tk):
 
     def search_for_resource(self):
         f = askopenfilename(parent=self, title='Choose a file',
-                            filetypes=[("Forbidden-resource files", "*.forbres")])
+                            filetypes=[("Forbidden-resource files", "*.frs")])
         self.forbiddenResourcesPathVariable.set(f)
 
     def search_for_extension(self):
-        f = askopenfilename(parent=self, title='Choose a file', filetypes=[("Forbidden-extension files", "*.forbext")])
+        f = askopenfilename(parent=self, title='Choose a file', filetypes=[("Forbidden-extension files", "*.fex")])
         self.forbiddenExtsPathVariable.set(f)
 
     def search_for_aliases(self):
-        f = askopenfilename(parent=self, title='Choose a file', filetypes=[("User-alias files", "*.usralias")])
+        f = askopenfilename(parent=self, title='Choose a file', filetypes=[("User-alias files", "*.nal")])
         self.aliasingUsersPathVariable.set(f)
 
     def launch_thread_execute(self):
@@ -181,13 +181,9 @@ class DB2JSON_GUI(Tk):
 
     def validator_export(self):
         flag = True
-        if self.repoPathVariable.get() == "":
-            self.repoPathVariable.set("path cannot be empty!")
+        if self.JSONPathVariable.get() == "":
+            self.JSONPathVariable.set("path cannot be empty!")
             flag = False
-        else:
-            if not self.check_path_existance(self.repoPathVariable.get()):
-                self.repoPathVariable.set("not valid path!")
-                flag = False
 
         if self.DBNameVariable.get() == "":
             self.DBNameVariable.set("cannot be empty!")
@@ -200,8 +196,8 @@ class DB2JSON_GUI(Tk):
                 self.forbiddenExtsPathVariable.set("not valid!")
                 flag = False
             else:
-                if not self.check_extension(self.forbiddenExtsPathVariable.get(), 'forbext'):
-                    self.forbiddenExtsPathVariable.set("not valid ext (.forbext)!")
+                if not self.check_extension(self.forbiddenExtsPathVariable.get(), 'fex'):
+                    self.forbiddenExtsPathVariable.set("not valid ext (.fex)!")
                     flag = False
 
         if self.aliasingUsersPathVariable.get() != "":
@@ -209,12 +205,16 @@ class DB2JSON_GUI(Tk):
                 self.aliasingUsersPathVariable.set("not valid!")
                 flag = False
             else:
-                if not self.check_extension(self.aliasingUsersPathVariable.get(), 'usralias'):
-                    self.aliasingUsersPathVariable.set("not valid ext (.usralias)!")
+                if not self.check_extension(self.aliasingUsersPathVariable.get(), 'nal'):
+                    self.aliasingUsersPathVariable.set("not valid ext (.nal)!")
                     flag = False
 
         if flag:
             self.execute_export()
+        else:
+            self.info_execution.set("Validation errors")
+            self.buttonFinish.config(state=NORMAL)
+            self.buttonAbort.config(state=DISABLED)
 
     def interrupt(self):
         self.info_execution.set("Aborting...")
@@ -236,49 +236,56 @@ class DB2JSON_GUI(Tk):
         return flag
 
     def execute_export(self):
-        self.DBNAME = self.DBNameVariable.get()
-        self.OUTPUT_JSON = self.JSONPath.get()
-        self.FORBIDDEN_RESOURCES_PATH = self.forbiddenResourcesPathVariable.get()
-        self.FORBIDDEN_EXTENSION_PATH = self.forbiddenExtsPathVariable.get()
-        self.USER_ALIASES_PATH = self.aliasingUsersPathVariable.get()
-        if self.detailLevelVariable.get() == "line":
-             self.LINE_DETAILS = True
-        else:
-            self.LINE_DETAILS = False
-
-        if self.filteringTypeVariable.get() == "filter in":
-            self.FILTER = "in"
-        else:
-            self.FILTER = "out"
-
-        g = Gitana(self.DBNAME)
-        g.db2json(self.DBNAME, self.OUTPUT_JSON, self.LINE_DETAILS)
-
-        if self.FORBIDDEN_RESOURCES_PATH != "" or self.FORBIDDEN_EXTENSION_PATH != "":
-            self.OUTPUT_FILTERED_JSON = self.dir_json_output + '/' + DB2JSON_GUI.FILTERED + '.' + self.FILTER + '.' + self.OUTPUT_JSON
-            g.filtering(self.OUTPUT_JSON,
-                        self.OUTPUT_FILTERED_JSON,
-                        self.self.FORBIDDEN_RESOURCES_PATH,
-                        self.FORBIDDEN_EXTENSION_PATH,
-                        self.FILTER)
-
-        if self.USER_ALIASES_PATH != "":
-            if self.OUTPUT_FILTERED_JSON:
-                self.OUTPUT_ALIASES_JSON = self.dir_json_output + '/' + DB2JSON_GUI.FILTERED + '.' + self.FILTER + '.' + DB2JSON_GUI.ALIASED + '.' + self.OUTPUT_JSON
+        try:
+            self.DBNAME = self.DBNameVariable.get()
+            self.OUTPUT_JSON = self.JSONPathVariable.get()
+            self.FORBIDDEN_RESOURCES_PATH = self.forbiddenResourcesPathVariable.get()
+            self.FORBIDDEN_EXTENSION_PATH = self.forbiddenExtsPathVariable.get()
+            self.USER_ALIASES_PATH = self.aliasingUsersPathVariable.get()
+            if self.detailLevelVariable.get() == "line":
+                 self.LINE_DETAILS = True
             else:
-                self.OUTPUT_ALIASES_JSON = self.dir_json_output + '/' + DB2JSON_GUI.ALIASED + '.' + self.OUTPUT_JSON
+                self.LINE_DETAILS = False
 
-            g.aliasing(self.OUTPUT_JSON,
-                       self.OUTPUT_ALIASES_JSON,
-                       self.USER_ALIASES_PATH)
+            if self.filteringTypeVariable.get() == "filter in":
+                self.FILTER = "in"
+            else:
+                self.FILTER = "out"
 
-        self.info_execution.set("Finished")
-        self.buttonFinish.config(state=NORMAL)
-        self.buttonAbort.config(state=DISABLED)
+            g = Gitana(self.DBNAME)
+            g.db2json(self.DBNAME, self.OUTPUT_JSON, self.LINE_DETAILS)
+
+            if self.FORBIDDEN_RESOURCES_PATH != "" or self.FORBIDDEN_EXTENSION_PATH != "":
+                self.OUTPUT_FILTERED_JSON = self.dir_json_output + '/' + DB2JSON_GUI.FILTERED + '.' + self.FILTER + '.' + DB2JSON_GUI.JSON_PATH
+                g.filtering(self.OUTPUT_JSON,
+                            self.OUTPUT_FILTERED_JSON,
+                            self.FORBIDDEN_RESOURCES_PATH,
+                            self.FORBIDDEN_EXTENSION_PATH,
+                            self.FILTER)
+
+            if self.USER_ALIASES_PATH != "":
+                if self.OUTPUT_FILTERED_JSON:
+                    self.OUTPUT_ALIASES_JSON = self.dir_json_output + '/' + DB2JSON_GUI.FILTERED + '.' + self.FILTER + '.' + DB2JSON_GUI.ALIASED + '.' + DB2JSON_GUI.JSON_PATH
+                else:
+                    self.OUTPUT_ALIASES_JSON = self.dir_json_output + '/' + DB2JSON_GUI.ALIASED + '.' + DB2JSON_GUI.JSON_PATH
+
+                g.aliasing(self.OUTPUT_JSON,
+                           self.OUTPUT_ALIASES_JSON,
+                           self.USER_ALIASES_PATH)
+
+            self.info_execution.set("Finished")
+            self.buttonFinish.config(state=NORMAL)
+            self.buttonAbort.config(state=DISABLED)
+        except Exception as e:
+            print e
+            self.info_execution.set("Failed")
+            self.buttonFinish.config(state=NORMAL)
+            self.buttonAbort.config(state=DISABLED)
 
     def start_export(self):
         label = Label(self, text=id)
         label.pack(side="top", fill="both", padx=10, pady=10)
+
 
 def main():
      DB2JSON_GUI()
