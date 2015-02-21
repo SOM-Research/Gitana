@@ -12,12 +12,16 @@ the analysis of the repository data with other technologies.
 
 ### Technical details
 
-Gitana is written in Python 2.7.6 and relies on the version 0.3.1 of GitPython (https://pypi.python.org/pypi/GitPython), a library
-to interact with Git repositories. The database integrated to Gitana has been implemented in MySQL
+Gitana is written in Python 2.7.6, it relies on 
+
+- GitPython >=0.3.1-beta2 (https://pypi.python.org/pypi/GitPython)
+- Git-1.9.4 (https://github.com/msysgit/msysgit/releases)
+- MySQL Server 5.6 (http://dev.mysql.com/downloads/installer/)
+
 
 ### How to use Gitana
 
-Launch the script gui.py (https://github.com/valeriocos/Gitana/blob/master/gui.py) and a GUI interface will allow you 
+Launch the script gitana_gui.py (https://github.com/valeriocos/Gitana/blob/master/gitana_gui.py) and a GUI will allow you 
 to:
 
 - extract your Git repository to a database
