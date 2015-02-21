@@ -27,3 +27,7 @@ to:
 - extract your Git repository to a database
 - update your database with the latest Git repository modifications
 - export your database to JSON
+
+### Gitana extensions
+
+- Bus factor for Git repositories (https://github.com/valeriocos/BusFactor)
