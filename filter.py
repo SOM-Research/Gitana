@@ -12,13 +12,13 @@ class Filter():
 
     FILTERED_EXTENSIONS = []
 
-    def __init__(self, json_repo_path, json_filtered_repo_path, filtered_resources_path, filtered_extensions_path, type, logging):
+    def __init__(self, json_repo_path, json_filtered_repo_path, filtered_resources_path, filtered_extensions_path, type, logger):
         self.JSON_REPO_PATH = json_repo_path
         self.JSON_REPO_FILTERED_PATH = json_filtered_repo_path
         self.FILTERED_RESOURCES_PATH = filtered_resources_path
         self.FILTERED_EXTENSIONS_PATH = filtered_extensions_path
         self.type = type
-        self.logging = logging
+        self.logger = logger
 
     def get_filtered_files_to_dict(self):
         filtered_file = codecs.open(self.FILTERED_RESOURCES_PATH, 'r', 'utf-8')
@@ -115,7 +115,7 @@ class Filter():
             if not filtered:
                 filtered_repo_json.write(json.dumps(json_entry) + '\n')
             else:
-                self.logging.info("Filtering:" + ref + " - " + dirs[0] + " - " + file + " - " + ext + " --> filtered")
+                self.logger.info("Filtering:" + ref + " - " + dirs[0] + " - " + file + " - " + ext + " --> filtered")
 
         repo_json.close()
         filtered_repo_json.close()
@@ -143,7 +143,7 @@ class Filter():
             if not filtered:
                 filtered_repo_json.write(json.dumps(json_entry) + '\n')
             else:
-                self.logging.info("Filtering:" + ref + " - " + dirs[0] + " - " + file + " - " + ext + " --> filtered")
+                self.logger.info("Filtering:" + ref + " - " + dirs[0] + " - " + file + " - " + ext + " --> filtered")
 
         repo_json.close()
         filtered_repo_json.close()
@@ -160,9 +160,9 @@ class Filter():
         elif self.type == "out":
             self.reject_files()
         else:
-            self.logging.error("Filtering: no action type = " + self.type)
+            self.logger.error("Filtering: no action type = " + self.type)
         end_time = datetime.now()
 
         minutes_and_seconds = divmod((end_time-start_time).total_seconds(), 60)
-        self.logging.info("Filtering: process finished after " + str(minutes_and_seconds[0])
+        self.logger.info("Filtering: process finished after " + str(minutes_and_seconds[0])
                      + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")

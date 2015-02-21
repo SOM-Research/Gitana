@@ -6,6 +6,7 @@ import threading
 import os
 import re
 from gitana import Gitana
+import traceback
 
 class UpdateDB_GUI(Tk):
 
@@ -131,14 +132,20 @@ class UpdateDB_GUI(Tk):
         return flag
 
     def execute_update(self):
-        self.REPO_PATH = self.repoPathVariable.get()
-        self.DBNAME = self.DBNameVariable.get()
-        g = Gitana(self.DBNAME)
-        g.updatedb(self.DBNAME, self.REPO_PATH)
+        try:
+            self.REPO_PATH = self.repoPathVariable.get()
+            self.DBNAME = self.DBNameVariable.get()
+            g = Gitana(self.DBNAME)
+            g.updatedb(self.DBNAME, self.REPO_PATH)
 
-        self.info_execution.set("Finished")
-        self.buttonFinish.config(state=NORMAL)
-        self.buttonAbort.config(state=DISABLED)
+            self.info_execution.set("Finished")
+            self.buttonFinish.config(state=NORMAL)
+            self.buttonAbort.config(state=DISABLED)
+        except:
+            print traceback.format_exc()
+            self.info_execution.set("Failed")
+            self.buttonFinish.config(state=NORMAL)
+            self.buttonAbort.config(state=DISABLED)
 
     def start_export(self):
         label = Label(self, text=id)

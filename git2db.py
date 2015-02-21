@@ -10,12 +10,12 @@ from gitquerier import GitQuerier
 
 class Git2Db():
 
-    def __init__(self, db_name, git_repo_path, before_date, logging):
-        self.logging = logging
+    def __init__(self, db_name, git_repo_path, before_date, logger):
+        self.logger = logger
         self.git_repo_path = git_repo_path
         self.db_name = db_name
         self.before_date = before_date
-        self.querier = GitQuerier(git_repo_path, logging)
+        self.querier = GitQuerier(git_repo_path, logger)
 
         CONFIG = {
             'user': 'root',
@@ -118,7 +118,7 @@ class Git2Db():
                 parent_id = self.select_commit(parent.hexsha)
             except:
                 parent_id = None
-                self.logging.warning("Git2Db: parent commit id not found! SHA parent " + str(parent.hexsha))
+                self.logger.warning("Git2Db: parent commit id not found! SHA parent " + str(parent.hexsha))
 
             query = "INSERT IGNORE INTO " + self.db_name + ".commit_parent " \
                     "VALUES (%s, %s, %s, %s, %s)"
@@ -322,10 +322,10 @@ class Git2Db():
                         previous_file_id = self.select_file_id(repo_id, file_previous, ref_id)
 
                         if not previous_file_id:
-                            self.logging.warning("Git2Db: previous file id not found. commit message " + commit.message)
+                            self.logger.warning("Git2Db: previous file id not found. commit message " + commit.message)
 
                         if current_file_id == previous_file_id:
-                            self.logging.warning("Git2Db: previous file id is equal to current file id (" + str(current_file_id) + ") " + commit.message)
+                            self.logger.warning("Git2Db: previous file id is equal to current file id (" + str(current_file_id) + ") " + commit.message)
 
                         self.insert_file_renamed(repo_id, current_file_id, previous_file_id)
                         self.insert_file_modification(commit_id, current_file_id, "renamed", 0, 0, 0, None)
@@ -351,9 +351,9 @@ class Git2Db():
                             for line_detail in line_details:
                                 self.insert_line_details(last_file_modification, line_detail)
                         except:
-                            self.logging.warning("Git2Db: GitPython null file path " + str(sha) + " - " + str(message))
+                            self.logger.warning("Git2Db: GitPython null file path " + str(sha) + " - " + str(message))
         except AttributeError as e:
-            self.logging.error("Git2Db: GitPython just failed on commit " + str(sha) + " - " + str(message) + ". Details: " + str(e))
+            self.logger.error("Git2Db: GitPython just failed on commit " + str(sha) + " - " + str(message) + ". Details: " + str(e))
         finally:
             return
 
@@ -361,7 +361,7 @@ class Git2Db():
         ref_id = self.select_reference_id(repo_id, ref)
 
         for c in commits:
-            self.logging.info("Git2Db: analysing reference: " + ref + " -- commit " + str(commits.index(c)+1) + "/" + str(len(commits)) + " -- " + c.message)
+            self.logger.info("Git2Db: analysing reference: " + ref + " -- commit " + str(commits.index(c)+1) + "/" + str(len(commits)) + " -- " + c.message)
             self.analyse_commit(c, ref_id, repo_id)
         return
 
@@ -394,6 +394,6 @@ class Git2Db():
         self.cnx.close()
 
         minutes_and_seconds = divmod((end_time-start_time).total_seconds(), 60)
-        self.logging.info("Git2Db: process finished after " + str(minutes_and_seconds[0])
+        self.logger.info("Git2Db: process finished after " + str(minutes_and_seconds[0])
                      + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
         return

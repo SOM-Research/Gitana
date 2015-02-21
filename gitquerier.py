@@ -10,8 +10,8 @@ class GitQuerier():
     #python, java, html, xml, sql, javascript, c, c++, scala, php, ruby, matlab
     ALLOWED_EXTENSION = ['py', 'java', 'html', 'xml', 'sql', 'js', 'c', 'cpp', 'cc', 'scala', 'php', 'rb', 'm']
 
-    def __init__(self, git_repo_path, logging):
-        self.logging = logging
+    def __init__(self, git_repo_path, logger):
+        self.logger = logger
         self.repo = Repo(git_repo_path)
         self.no_treated_extensions = set()
 
@@ -29,7 +29,7 @@ class GitQuerier():
     def get_files_in_ref(self, ref):
         files = []
         git = self.repo.git
-        content = git.execute(["git", "ls-tree", "-r", "--name-only", ref])
+        content = git.execute(["git", "rev-list"])
         for line in content.split("\n"):
             files.append(line)
         return files
@@ -63,7 +63,7 @@ class GitQuerier():
         if file_a:
             diffs.append((file_a, content))
         else:
-            self.logging.warning("GitQuerier: diff with first commit not found")
+            self.logger.warning("GitQuerier: diff with first commit not found")
         return diffs
 
     def get_status(self, stats, diff):
@@ -83,7 +83,8 @@ class GitQuerier():
                     status = "deleted"
                 elif additions == 0 and deletions == 0:
                     status = "added"
-                    self.logging.warning("GitQuerier: addition and deletion = 0 - diff: " + str(diff))
+                    #self.logger.warning("GitQuerier: addition and deletion = 0 - diff: " + str(diff))
+                    self.logger.warning("GitQuerier: addition and deletion = 0")
                 else:
                     status = "modified"
             except:
@@ -109,7 +110,7 @@ class GitQuerier():
                 stats_for_file = (stats.get('insertions'), stats.get('deletions'), stats.get('lines'))
         if not stats_for_file:
             stats_for_file = (0, 0, 0)
-            self.logging.warning("GitQuerier: stats for file " + file_name + " not found!")
+            self.logger.warning("GitQuerier: stats for file " + file_name + " not found!")
         return stats_for_file
 
     def get_references(self):
@@ -121,10 +122,9 @@ class GitQuerier():
             elif type(ref) == TagReference:
                 references.append((ref.name, 'tag'))
             else:
-                self.logging.warning("Git2Db: " + str(type(ref)) + " not handled in the extractor")
+                self.logger.warning("Git2Db: " + str(type(ref)) + " not handled in the extractor")
 
         return references
-
 
     def get_commits(self, ref_name):
         commits = []
@@ -320,7 +320,7 @@ class GitQuerier():
 
     def add_no_treated_extensions_to_log(self):
         for ext in list(self.no_treated_extensions):
-            self.logging.warning("GitQuerier: extension " + str(ext) + " is not treated!")
+            self.logger.warning("GitQuerier: extension " + str(ext) + " is not treated!")
         return
 
     def line_is_commented(self, type_change, previous_block_comment, previous_line_number, current_line_number, block_comment, details, line, file_extension):
@@ -547,7 +547,7 @@ class GitQuerier():
                     re.match(r"^(\+|\-)(.*)(%\{)(.*)(%\})", line):
                 flag = True
         else:
-            self.logging.warning("GitQuerier: impossible to identify comments for extension: " + ext)
+            self.logger.warning("GitQuerier: impossible to identify comments for extension: " + ext)
 
         return flag
 
@@ -577,7 +577,7 @@ class GitQuerier():
                     re.match(r"^(\+|\-)(\s*)(%\{)(.*)(%\})(\s*)$", line):
                 flag = True
         else:
-            self.logging.warning("GitQuerier: impossible to identify comments for extension: " + ext)
+            self.logger.warning("GitQuerier: impossible to identify comments for extension: " + ext)
 
         return flag
 

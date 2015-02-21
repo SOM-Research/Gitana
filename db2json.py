@@ -10,8 +10,8 @@ import codecs
 
 class Db2Json:
 
-    def __init__(self, db_name, json_repo_path, line_details, logging):
-        self.logging = logging
+    def __init__(self, db_name, json_repo_path, line_details, logger):
+        self.logger = logger
         self.db_name = db_name
         self.repo_id = 0
         self.json_repo_path = json_repo_path
@@ -122,8 +122,8 @@ class Db2Json:
                     line_info.update({'line': line_number, 'line_changes': [{'author': author,
                                                                              'committer': committer,
                                                                              'authored_date': authored_date,
-                                                                              'committed_date': committed_date,
-                                                                              'sha': sha,
+                                                                             'committed_date': committed_date,
+                                                                             'sha': sha,
                                                                              'commented': is_commented,
                                                                              'partially_commented': is_partially_commented,
                                                                              'is_empty': is_empty}]})
@@ -131,8 +131,8 @@ class Db2Json:
                 line_info.update({'line': line_number, 'line_changes': [{'author': author,
                                                                          'committer': committer,
                                                                          'authored_date': authored_date,
-                                                                          'committed_date': committed_date,
-                                                                          'sha': sha,
+                                                                         'committed_date': committed_date,
+                                                                         'sha': sha,
                                                                          'commented': is_commented,
                                                                          'partially_commented': is_partially_commented,
                                                                          'is_empty': is_empty}]})
@@ -327,17 +327,17 @@ class Db2Json:
                 status = row[0]
             else:
                 status = ""
-                self.logging.warning("Db2Json: status of file id " + str(file_id) + " not found")
+                self.logger.warning("Db2Json: status of file id " + str(file_id) + " not found")
 
             if row[1]:
                 last_modification = str(row[1])
             else:
                 last_modification = ""
-                self.logging.warning("Db2Json: last modification of file id " + str(file_id) + " not found")
+                self.logger.warning("Db2Json: last modification of file id " + str(file_id) + " not found")
         else:
             status = ""
             last_modification = ""
-            self.logging.warning("Db2Json: status and last modification of file id " + str(file_id) + " not found")
+            self.logger.warning("Db2Json: status and last modification of file id " + str(file_id) + " not found")
 
         return {'status': status, 'last_modification': last_modification}
 
@@ -358,7 +358,7 @@ class Db2Json:
             name = row[2]
             ext = row[3]
 
-            self.logging.info("Db2Json: adding info for ref/file: " + ref + "/" + name)
+            self.logger.info("Db2Json: adding info for ref/file: " + ref + "/" + name)
 
             if ext:
                 ext = ext.split('.')[-1].lower()
@@ -408,5 +408,5 @@ class Db2Json:
         self.cnx.close()
 
         minutes_and_seconds = divmod((end_time-start_time).total_seconds(), 60)
-        self.logging.info("Db2Json: process finished after " + str(minutes_and_seconds[0])
+        self.logger.info("Db2Json: process finished after " + str(minutes_and_seconds[0])
                      + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")

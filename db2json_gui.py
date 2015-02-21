@@ -6,11 +6,14 @@ import ttk
 import threading
 import os
 import re
+import traceback
 from gitana import Gitana
+
 
 class DB2JSON_GUI(Tk):
 
-    JSON_PATH = 'output.json'
+    JSON_FILE_NAME = 'output.json'
+    JSON_DIRECTORY_PATH = './json'
     ALIASED = 'aliased'
     FILTERED = 'filtered'
 
@@ -34,17 +37,6 @@ class DB2JSON_GUI(Tk):
         self.DBNameVariable = StringVar()
         self.entryDBName = Entry(self, textvariable=self.DBNameVariable, width=30)
         self.entryDBName.grid(column=1, row=3, sticky='W')
-
-        #select JSON path
-        JSONPath = Label(self, text=u"JSON path", anchor="w")
-        JSONPath.grid(column=0, row=4, sticky='W')
-
-        self.JSONPathVariable = StringVar()
-        self.entryJSONPath = Entry(self, textvariable=self.JSONPathVariable, width=30)
-        self.entryJSONPath.grid(column=1, row=4, sticky='W')
-
-        buttonSearchRepo = Button(self, text=u"search", command=self.search_for_directory)
-        buttonSearchRepo.grid(column=2, row=4, sticky="E")
 
         ##########################
         #empty label
@@ -146,10 +138,6 @@ class DB2JSON_GUI(Tk):
 
         self.resizable(False, False)
 
-    def search_for_directory(self):
-        self.dir_json_output = askdirectory(parent=self, title='Choose a directory')
-        self.JSONPathVariable.set(self.dir_json_output + '/' + DB2JSON_GUI.JSON_PATH)
-
     def search_for_resource(self):
         f = askopenfilename(parent=self, title='Choose a file',
                             filetypes=[("Forbidden-resource files", "*.frs")])
@@ -181,9 +169,6 @@ class DB2JSON_GUI(Tk):
 
     def validator_export(self):
         flag = True
-        if self.JSONPathVariable.get() == "":
-            self.JSONPathVariable.set("path cannot be empty!")
-            flag = False
 
         if self.DBNameVariable.get() == "":
             self.DBNameVariable.set("cannot be empty!")
@@ -238,7 +223,7 @@ class DB2JSON_GUI(Tk):
     def execute_export(self):
         try:
             self.DBNAME = self.DBNameVariable.get()
-            self.OUTPUT_JSON = self.JSONPathVariable.get()
+            self.OUTPUT_JSON = DB2JSON_GUI.JSON_DIRECTORY_PATH + '/' + DB2JSON_GUI.JSON_FILE_NAME
             self.FORBIDDEN_RESOURCES_PATH = self.forbiddenResourcesPathVariable.get()
             self.FORBIDDEN_EXTENSION_PATH = self.forbiddenExtsPathVariable.get()
             self.USER_ALIASES_PATH = self.aliasingUsersPathVariable.get()
@@ -256,7 +241,7 @@ class DB2JSON_GUI(Tk):
             g.db2json(self.DBNAME, self.OUTPUT_JSON, self.LINE_DETAILS)
 
             if self.FORBIDDEN_RESOURCES_PATH != "" or self.FORBIDDEN_EXTENSION_PATH != "":
-                self.OUTPUT_FILTERED_JSON = self.dir_json_output + '/' + DB2JSON_GUI.FILTERED + '.' + self.FILTER + '.' + DB2JSON_GUI.JSON_PATH
+                self.OUTPUT_FILTERED_JSON = DB2JSON_GUI.JSON_DIRECTORY_PATH + '/' + DB2JSON_GUI.FILTERED + '.' + self.FILTER + '.' + DB2JSON_GUI.JSON_FILE_NAME
                 g.filtering(self.OUTPUT_JSON,
                             self.OUTPUT_FILTERED_JSON,
                             self.FORBIDDEN_RESOURCES_PATH,
@@ -265,9 +250,9 @@ class DB2JSON_GUI(Tk):
 
             if self.USER_ALIASES_PATH != "":
                 if self.OUTPUT_FILTERED_JSON:
-                    self.OUTPUT_ALIASES_JSON = self.dir_json_output + '/' + DB2JSON_GUI.FILTERED + '.' + self.FILTER + '.' + DB2JSON_GUI.ALIASED + '.' + DB2JSON_GUI.JSON_PATH
+                    self.OUTPUT_ALIASES_JSON = DB2JSON_GUI.JSON_DIRECTORY_PATH + '/' + DB2JSON_GUI.FILTERED + '.' + self.FILTER + '.' + DB2JSON_GUI.ALIASED + '.' + DB2JSON_GUI.JSON_FILE_NAME
                 else:
-                    self.OUTPUT_ALIASES_JSON = self.dir_json_output + '/' + DB2JSON_GUI.ALIASED + '.' + DB2JSON_GUI.JSON_PATH
+                    self.OUTPUT_ALIASES_JSON = DB2JSON_GUI.JSON_DIRECTORY_PATH + '/' + DB2JSON_GUI.ALIASED + '.' + DB2JSON_GUI.JSON_FILE_NAME
 
                 g.aliasing(self.OUTPUT_JSON,
                            self.OUTPUT_ALIASES_JSON,
@@ -277,7 +262,7 @@ class DB2JSON_GUI(Tk):
             self.buttonFinish.config(state=NORMAL)
             self.buttonAbort.config(state=DISABLED)
         except Exception as e:
-            print e
+            print traceback.format_exc()
             self.info_execution.set("Failed")
             self.buttonFinish.config(state=NORMAL)
             self.buttonAbort.config(state=DISABLED)

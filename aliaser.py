@@ -8,12 +8,12 @@ from datetime import datetime
 class Aliaser():
     NAME_ALIASES = {}
 
-    def __init__(self, json_source_path, json_target_path, name_aliases_path, logging):
+    def __init__(self, json_source_path, json_target_path, name_aliases_path, logger):
         self.json_source_path = json_source_path
         self.json_target_path = json_target_path
         self.name_aliases_path = name_aliases_path
 
-        self.logging = logging
+        self.logger = logger
 
     def get_users_to_dict(self):
         file = codecs.open(self.name_aliases_path, 'r', 'utf-8')
@@ -92,7 +92,7 @@ class Aliaser():
                                              'commented': commented,
                                              'partially_commented': partially_commented,
                                              'is_empty': is_empty})
-            updated_lines.append({'line': line_number, 'changes': updated_line_changes})
+            updated_lines.append({'line': line_number, 'line_changes': updated_line_changes})
 
         return updated_lines
 
@@ -155,5 +155,5 @@ class Aliaser():
         end_time = datetime.now()
 
         minutes_and_seconds = divmod((end_time - start_time).total_seconds(), 60)
-        self.logging.info("Aliasing: process finished after " + str(minutes_and_seconds[0])
+        self.logger.info("Aliasing: process finished after " + str(minutes_and_seconds[0])
                           + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")

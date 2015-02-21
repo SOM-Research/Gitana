@@ -10,13 +10,13 @@ from git import *
 
 class UpdateDb():
 
-    def __init__(self, db_name, git_repo_path, before_date, logging):
-        self.logging = logging
+    def __init__(self, db_name, git_repo_path, before_date, logger):
+        self.logger = logger
         self.git_repo_path = git_repo_path
         self.db_name = db_name
         self.before_date = before_date
         self.existing_refs = []
-        self.querier = GitQuerier(git_repo_path, logging)
+        self.querier = GitQuerier(git_repo_path, logger)
 
         CONFIG = {
             'user': 'root',
@@ -59,9 +59,9 @@ class UpdateDb():
 
                 if not commits:
                     if self.before_date:
-                        self.logging.warning("UpdateDb: no commits to analyse after sha: " + str(sha) + " and before date: " + self.before_date)
+                        self.logger.warning("UpdateDb: no commits to analyse after sha: " + str(sha) + " and before date: " + self.before_date)
                     else:
-                        self.logging.warning("UpdateDb: no commits to analyse after sha: " + str(sha))
+                        self.logger.warning("UpdateDb: no commits to analyse after sha: " + str(sha))
                 else:
                     git2db.analyse_commits(commits, reference_name, repo_id)
         return
@@ -98,7 +98,7 @@ class UpdateDb():
         return
 
     def update_repo(self, repo_id):
-        git2db = Git2Db(self.db_name, self.git_repo_path, None, self.logging)
+        git2db = Git2Db(self.db_name, self.git_repo_path, None, self.logger)
         self.update_existing_references(git2db, repo_id)
         self.add_new_references(git2db, repo_id)
         return
@@ -109,6 +109,6 @@ class UpdateDb():
         self.update_repo(repo_id)
         end_time = datetime.now()
         minutes_and_seconds = divmod((end_time-start_time).total_seconds(), 60)
-        self.logging.info("UpdateDb: process finished after " + str(minutes_and_seconds[0])
+        self.logger.info("UpdateDb: process finished after " + str(minutes_and_seconds[0])
                      + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
         return

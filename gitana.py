@@ -63,39 +63,3 @@ class Gitana():
         updater = UpdateDb(db_name, git_path, before, logging)
         updater.update()
         return
-
-
-# def main():
-#     g = Gitana()
-#     #g.init_dbschema("gila_atlanmod")
-#     #g.init_dbschema("collaboro_atlanmod")
-#     #g.init_dbschema("angular_angularjs")
-#
-#     #g.git2db("angular_angularjs", "C:\Users\\atlanmod\Desktop\\angular.js")
-#
-#     #g.git2db("gila_atlanmod", "C:\Users\\atlanmod\Desktop\gila")
-#     #g.git2db_before_date("gila_atlanmod", "C:\Users\\atlanmod\Desktop\gila", "2014-07-30")
-#
-#     #g.updatedb("gila_atlanmod", "C:\Users\\atlanmod\Desktop\gila")
-#     #g.updatedb_before_date("gila_atlanmod", "C:\Users\\atlanmod\Desktop\gila", "2014-09-30")
-#     #
-#     #g.db2json("gila_atlanmod", "C:\Users\\atlanmod\Desktop\gila\gila.json", True)
-#     #
-#     # g.aliasing("C:\Users\\atlanmod\Desktop\gila\gila.json",
-#     #               "C:\Users\\atlanmod\Desktop\gila\gila.aliased.json",
-#     #               "C:\Users\\atlanmod\Desktop\gitana\settings\gila.nal")
-#     #
-#     # g.filtering("C:\Users\\atlanmod\Desktop\gila\gila.json",
-#     #                "C:\Users\\atlanmod\Desktop\gila\gila.filtered.select.json",
-#     #                "C:\Users\\atlanmod\Desktop\gitana\settings\gila.frs",
-#     #                "C:\Users\\atlanmod\Desktop\gitana\settings\gila.fex",
-#     #                "select")
-#     #
-#     # g.filtering("C:\Users\\atlanmod\Desktop\gila\gila.json",
-#     #                "C:\Users\\atlanmod\Desktop\gila\gila.filtered.reject.json",
-#     #                "C:\Users\\atlanmod\Desktop\gitana\settings\gila.frs",
-#     #                "C:\Users\\atlanmod\Desktop\gitana\settings\gila.fex",
-#     #                "reject")
-#
-# if __name__ == "__main__":
-#     main()

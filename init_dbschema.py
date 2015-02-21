@@ -9,8 +9,8 @@ class InitDbSchema():
 
 
 
-    def __init__(self, db_name, logging):
-        self.logging = logging
+    def __init__(self, db_name, logger):
+        self.logger = logger
         self.DB_NAME = db_name
 
         CONFIG = {
@@ -548,6 +548,6 @@ class InitDbSchema():
         end_time = datetime.now()
 
         minutes_and_seconds = divmod((end_time-start_time).total_seconds(), 60)
-        self.logging.info("InitDbSchema: process finished after " + str(minutes_and_seconds[0])
+        self.logger.info("InitDbSchema: process finished after " + str(minutes_and_seconds[0])
                          + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
         return

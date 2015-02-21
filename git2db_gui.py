@@ -6,6 +6,7 @@ import threading
 import os
 import re
 from gitana import Gitana
+import traceback
 
 class Git2DB_GUI(Tk):
 
@@ -140,17 +141,26 @@ class Git2DB_GUI(Tk):
         return flag
 
     def execute_import(self):
-        self.REPO_PATH = self.repoPathVariable.get()
-        self.REPO_NAME = self.repoNameVariable.get()
-        self.REPO_OWNER = self.repoOwnerVariable.get()
-        schema = self.REPO_OWNER + "_" + self.REPO_NAME
-        g = Gitana(schema)
-        g.init_dbschema(schema)
-        g.git2db_before_date(schema, self.REPO_PATH)
+        try:
+            self.REPO_PATH = self.repoPathVariable.get()
+            self.REPO_NAME = self.repoNameVariable.get()
+            self.REPO_OWNER = self.repoOwnerVariable.get()
+            self.BEFORE_DATE = None
+            if self.beforeDateVariable.get() != '':
+                self.BEFORE_DATE = self.beforeDateVariable.get()
+            schema = self.REPO_OWNER + "_" + self.REPO_NAME
+            g = Gitana(schema)
+            g.init_dbschema(schema)
+            g.git2db_before_date(schema, self.REPO_PATH, self.BEFORE_DATE)
 
-        self.info_execution.set("Finished")
-        self.buttonFinish.config(state=NORMAL)
-        self.buttonAbort.config(state=DISABLED)
+            self.info_execution.set("Finished")
+            self.buttonFinish.config(state=NORMAL)
+            self.buttonAbort.config(state=DISABLED)
+        except:
+            print traceback.format_exc()
+            self.info_execution.set("Failed")
+            self.buttonFinish.config(state=NORMAL)
+            self.buttonAbort.config(state=DISABLED)
 
     def start_export(self):
         label = Label(self, text=id)
