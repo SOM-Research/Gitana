@@ -44,11 +44,11 @@ to complete the following steps:
  -  *line changes*: all the line changes on the file. Each line change contains the modified number of line, the related commit and the patch for that specific line.
 
  - **Parametrizations of the export step:**
- - **Filtering.** It allows to filter in/out single files, directories, entire references (branches or tags). In addition, the files can be filter in/out also according to their file extensions. Example of filterings are available at https://github.com/valeriocos/Gitana/blob/master/settings/gila.frs and https://github.com/valeriocos/Gitana/blob/master/settings/gila.fex
+  - **Filtering.** It allows to filter in/out single files, directories, entire references (branches or tags). In addition, the files can be filter in/out also according to their file extensions. Example of filterings are available at https://github.com/valeriocos/Gitana/blob/master/settings/gila.frs and https://github.com/valeriocos/Gitana/blob/master/settings/gila.fex
  
- - **Aliasing.** It allows to assign aliases to developers in order, for instance, to merge different user names corresponding to the same physical person or to group developers according to the development (sub)team they belong to.
+  - **Aliasing.** It allows to assign aliases to developers in order, for instance, to merge different user names corresponding to the same physical person or to group developers according to the development (sub)team they belong to.
  
- - **Detail Level.** It allows to export fine-grained information (line changes) or just the modifications at file level (file changes)
+  - **Detail Level.** It allows to export fine-grained information (line changes) or just the modifications at file level (file changes)
  
  
 
