@@ -7,8 +7,6 @@ from datetime import datetime
 
 class InitDbSchema():
 
-
-
     def __init__(self, db_name, logger):
         self.logger = logger
         self.DB_NAME = db_name

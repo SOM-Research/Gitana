@@ -5,36 +5,46 @@ import mysql.connector
 from mysql.connector import errorcode
 from gitquerier import GitQuerier
 from analyse_commit_thread import AnalyseCommitThread
+import config
 
-MAX_THREADS_FOR_COMMITS = 200
 
 class AnalyseReferenceThread(threading.Thread):
 
-    def __init__(self, ref_name, ref_type, repo_id, before_date, git_repo_path, db_name, logger):
+    def __init__(self, ref_name, ref_type, repo_id, before_sha, before_date, git_repo_path, db_name, logger):
         super(AnalyseReferenceThread, self).__init__()
         self.ref_name = ref_name
         self.ref_type = ref_type
         self.repo_id = repo_id
+        self.before_sha = before_sha
         self.before_date = before_date
         self.git_repo_path = git_repo_path
         self.db_name = db_name
         self.logger = logger
 
-        CONFIG = {
-            'user': 'root',
-            'password': 'root',
-            'host': 'localhost',
-            'port': '3306',
-            'raise_on_warnings': False,
-            'charset': 'utf8',
-            'buffered': True
-        }
-
-        self.cnx = mysql.connector.connect(**CONFIG)
+        self.cnx = mysql.connector.connect(**config.CONFIG)
 
     def run(self):
-        self.analyse_reference(self.ref_name, self.ref_type, self.repo_id, self.before_date)
+        if self.before_sha:
+            self.update_reference(self.ref_name, self.repo_id, self.before_sha, self.before_date)
+        else:
+            self.analyse_reference(self.ref_name, self.ref_type, self.repo_id, self.before_date)
         self.cnx.close()
+
+    def update_reference(self, ref_name, repo_id, before_sha, before_date):
+        querier = GitQuerier(self.git_repo_path, self.logger)
+
+        if before_date:
+            commits = querier.collect_all_commits_after_sha_before_date(ref_name, before_sha, before_date)
+        else:
+            commits = querier.collect_all_commits_after_sha(ref_name, before_sha)
+
+        if not commits:
+            if before_date:
+                self.logger.warning("UpdateDb: no commits to analyse after sha: " + str(before_sha) + " and before date: " + self.before_date)
+            else:
+                self.logger.warning("UpdateDb: no commits to analyse after sha: " + str(before_sha))
+
+        self.analyse_commits(commits, ref_name, repo_id)
 
     def analyse_reference(self, ref_name, ref_type, repo_id, before_date):
         querier = GitQuerier(self.git_repo_path, self.logger)
@@ -55,7 +65,7 @@ class AnalyseReferenceThread(threading.Thread):
         counter = 0
 
         for c in commits:
-            if counter <= MAX_THREADS_FOR_COMMITS:
+            if counter <= config.MAX_THREADS_FOR_COMMITS:
                 self.logger.info("Git2Db: analysing reference: " + ref + " -- commit " + str(commits.index(c)+1) + "/" + str(len(commits)) + " -- " + c.message)
                 worker = AnalyseCommitThread(c.hexsha, ref_id, repo_id, self.git_repo_path, self.db_name, self.logger)
                 workers.append(worker)
@@ -93,19 +103,6 @@ class AnalyseReferenceThread(threading.Thread):
 
         cursor.close()
         return
-
-    def select_reference_name(self, repo_id, ref_id):
-        cursor = self.cnx.cursor()
-
-        query = "SELECT name" \
-                "FROM " + self.db_name + ".reference " \
-                "WHERE id = %s and repo_id = %s"
-        arguments = [ref_id, repo_id]
-        cursor.execute(query, arguments)
-        name = cursor.fetchone()[0]
-
-        cursor.close()
-        return name
 
     def select_reference_id(self, repo_id, ref_name):
         cursor = self.cnx.cursor()

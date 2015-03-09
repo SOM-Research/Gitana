@@ -6,8 +6,9 @@ import re
 from datetime import datetime
 from gitquerier import GitQuerier
 from analyse_reference_thread import AnalyseReferenceThread
+import config
 
-MAX_THREADS_FOR_REFERENCES = 5
+
 
 class Git2Db():
 
@@ -17,17 +18,7 @@ class Git2Db():
         self.db_name = db_name
         self.before_date = before_date
 
-        CONFIG = {
-            'user': 'root',
-            'password': 'root',
-            'host': 'localhost',
-            'port': '3306',
-            'raise_on_warnings': False,
-            'charset': 'utf8',
-            'buffered': True
-        }
-
-        self.cnx = mysql.connector.connect(**CONFIG)
+        self.cnx = mysql.connector.connect(**config.CONFIG)
 
     def insert_repo(self):
         cursor = self.cnx.cursor()
@@ -48,6 +39,21 @@ class Git2Db():
         cursor.close()
         return id
 
+    def select_reference(self, repo_id, ref_id):
+        cursor = self.cnx.cursor()
+
+        query = "SELECT name, type " \
+                "FROM " + self.db_name + ".reference " \
+                "WHERE id = %s and repo_id = %s"
+        arguments = [ref_id, repo_id]
+        cursor.execute(query, arguments)
+        row = cursor.fetchone()
+        name = row[0]
+        type = row[1]
+
+        cursor.close()
+        return (name,type)
+
     def get_info_contribution(self):
         querier = GitQuerier(self.git_repo_path, self.logger)
         repo_id = self.insert_repo()
@@ -56,14 +62,16 @@ class Git2Db():
         counter = 0
 
         for reference in querier.get_references():
-            if counter <= MAX_THREADS_FOR_REFERENCES:
+            #if the counter is less or equal to the maximum value, the process keeps adding workers to the list "workers"
+            if counter <= config.MAX_THREADS_FOR_REFERENCES:
                 ref_name = reference[0]
                 ref_type = reference[1]
 
-                worker = AnalyseReferenceThread(ref_name, ref_type, repo_id, self.before_date, self.git_repo_path, self.db_name, self.logger)
+                worker = AnalyseReferenceThread(ref_name, ref_type, repo_id, None, self.before_date, self.git_repo_path, self.db_name, self.logger)
                 workers.append(worker)
 
                 counter += 1
+            #if the counter is greater than the maximum value, the process executes the threads in the list "workers"
             else:
                 for w in workers:
                     w.start()
@@ -73,7 +81,7 @@ class Git2Db():
 
                 counter = 0
                 workers = []
-
+        #check whether in the list "workers" there are still some threads to execute
         if workers:
             for w in workers:
                     w.start()

@@ -5,7 +5,9 @@ from mysql.connector import errorcode
 from gitquerier import GitQuerier
 from datetime import datetime
 from git2db import Git2Db
+from analyse_reference_thread import AnalyseReferenceThread
 from git import *
+import config
 
 
 class UpdateDb():
@@ -18,21 +20,11 @@ class UpdateDb():
         self.existing_refs = []
         self.querier = GitQuerier(git_repo_path, logger)
 
-        CONFIG = {
-            'user': 'root',
-            'password': 'root',
-            'host': 'localhost',
-            'port': '3306',
-            'database': db_name,
-            'raise_on_warnings': False,
-            'buffered': True
-        }
-
-        self.cnx = mysql.connector.connect(**CONFIG)
+        self.cnx = mysql.connector.connect(**config.CONFIG)
 
     def select_repo_id(self, repo_name):
         cursor = self.cnx.cursor()
-        query = "SELECT id FROM repository WHERE name = %s"
+        query = "SELECT id FROM " + self.db_name + ".repository WHERE name = %s"
         arguments = [repo_name]
         cursor.execute(query, arguments)
 
@@ -45,32 +37,50 @@ class UpdateDb():
         return repo_id
 
     def update_from_commit_in_ref(self, sha, git2db, ref_id, repo_id):
-        ref_name = git2db.select_reference_name(repo_id, ref_id)
+        ref = git2db.select_reference(repo_id, ref_id)
+        ref_name = ref[0]
+        ref_type = ref[1]
 
+        #counter threads for references
+        counter = 0
+        #worker threads for reference
+        workers = []
         for reference in self.querier.get_references():
             reference_name = reference[0]
             if reference_name == ref_name:
-                self.existing_refs.append(ref_name)
+                #if the counter is less or equal to the maximum value, the process keeps adding workers to the list "workers"
+                if counter <= config.MAX_THREADS_FOR_REFERENCES:
+                    self.existing_refs.append(ref_name)
 
-                if self.before_date:
-                    commits = self.querier.collect_all_commits_after_sha_before_date(reference_name, sha, self.before_date)
+                    worker = AnalyseReferenceThread(ref_name, ref_type, repo_id, sha, self.before_date, self.git_repo_path, self.db_name, self.logger)
+                    workers.append(worker)
+                    counter += 1
+                #if the counter is greater than the maximum value, the process executes the threads in the list "workers"
                 else:
-                    commits = self.querier.collect_all_commits_after_sha(reference_name, sha)
+                    for w in workers:
+                        w.start()
 
-                if not commits:
-                    if self.before_date:
-                        self.logger.warning("UpdateDb: no commits to analyse after sha: " + str(sha) + " and before date: " + self.before_date)
-                    else:
-                        self.logger.warning("UpdateDb: no commits to analyse after sha: " + str(sha))
-                else:
-                    git2db.analyse_commits(commits, reference_name, repo_id)
+                    for w in workers:
+                        w.join()
+
+                    counter = 0
+                    workers = []
+        #check whether in the list "workers" there are still some threads to execute
+        if workers:
+            for w in workers:
+                    w.start()
+
+            for w in workers:
+                w.join()
+
+            workers = []
         return
 
     def update_existing_references(self, git2db, repo_id):
         cursor = self.cnx.cursor()
         query = "SELECT c.sha, lc.ref_id " \
-                "FROM commit c " \
-                "JOIN (SELECT ref_id, max(commit_id) as last_commit_id_in_ref FROM commit_in_reference WHERE repo_id = %s GROUP BY ref_id) as lc " \
+                "FROM " + self.db_name + ".commit c " \
+                "JOIN (SELECT ref_id, max(commit_id) as last_commit_id_in_ref FROM " + self.db_name + ".commit_in_reference WHERE repo_id = %s GROUP BY ref_id) as lc " \
                 "ON c.id = lc.last_commit_id_in_ref"
         arguments = [repo_id]
         cursor.execute(query, arguments)
@@ -84,23 +94,46 @@ class UpdateDb():
         cursor.close()
         return
 
-    def add_new_references(self, git2db, repo_id):
-        for reference in self.querier.repo.references:
+    def add_new_references(self, repo_id):
+        workers = []
+        counter = 0
+        for reference in self.querier.get_references():
             reference_name = reference[0]
             reference_type = reference[1]
             if reference_name not in self.existing_refs and reference_name != "origin/HEAD":
-                if self.before_date:
-                    commits = self.querier.collect_all_commits_before_date(reference_name, self.before_date)
+                #if the counter is less or equal to the maximum value, the process keeps adding workers to the list "workers"
+                if counter <= config.MAX_THREADS_FOR_REFERENCES:
+                    worker = AnalyseReferenceThread(reference_name, reference_type, repo_id,
+                                                    None, self.before_date, self.git_repo_path, self.db_name, self.logger)
+                    workers.append(worker)
+
+                    counter += 1
+                #if the counter is greater than the maximum value, the process executes the threads in the list "workers"
                 else:
-                    commits = self.querier.collect_all_commits(reference_name)
-                git2db.analyse_reference(self, reference_name, reference_type, repo_id)
-                git2db.analyse_commits(self, commits, reference_name, repo_id)
+                    for w in workers:
+                        w.start()
+
+                    for w in workers:
+                        w.join()
+
+                    counter = 0
+                    workers = []
+        #check whether in the list "workers" there are still some threads to execute
+        if workers:
+            for w in workers:
+                    w.start()
+
+            for w in workers:
+                w.join()
+
+            workers = []
+
         return
 
     def update_repo(self, repo_id):
         git2db = Git2Db(self.db_name, self.git_repo_path, None, self.logger)
         self.update_existing_references(git2db, repo_id)
-        self.add_new_references(git2db, repo_id)
+        self.add_new_references(repo_id)
         return
 
     def update(self):

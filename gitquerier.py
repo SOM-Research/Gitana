@@ -2,6 +2,7 @@ __author__ = 'atlanmod'
 
 from git import *
 import re
+import _strptime
 from datetime import datetime
 
 

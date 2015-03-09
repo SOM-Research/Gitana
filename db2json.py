@@ -6,6 +6,7 @@ from datetime import datetime
 import simplejson as json
 import re
 import codecs
+import config
 
 
 class Db2Json:
@@ -17,18 +18,7 @@ class Db2Json:
         self.json_repo_path = json_repo_path
         self.line_details = line_details
 
-        CONFIG = {
-            'user': 'root',
-            'password': 'root',
-            'host': 'localhost',
-            'port': '3306',
-            'database': db_name,
-            'raise_on_warnings': False,
-            'charset': 'utf8',
-            'buffered': True
-        }
-
-        self.cnx = mysql.connector.connect(**CONFIG)
+        self.cnx = mysql.connector.connect(**config.CONFIG)
 
     def set_repo_id(self):
         cursor = self.cnx.cursor()
