@@ -423,6 +423,9 @@ class InitDbSchema():
         cursor.execute("set global innodb_large_prefix = ON")
         cursor.execute("set global character_set_server = utf8")
 
+        #git2db.MAX_THREADS_FOR_REFERENCES * analyse_reference_thread.MAX_THREADS_FOR_COMMITS + 1 (git2db connection)
+        cursor.execute("set global max_connections = 1100")
+
         create_table_repositories = "CREATE TABLE " + self.DB_NAME + ".repository( " \
                                 "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
                                 "name varchar(255), " \
@@ -508,8 +511,10 @@ class InitDbSchema():
                                           "deletions numeric(10), " \
                                           "changes numeric(10), " \
                                           "patch longblob, " \
+                                          "authored_date TIMESTAMP, " \
                                           "INDEX c (commit_id), " \
-                                          "INDEX f (file_id) " \
+                                          "INDEX f (file_id), " \
+                                          "CONSTRAINT cofida UNIQUE (commit_id, file_id, authored_date) " \
                                           ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 
         create_table_lines = "CREATE TABLE " + self.DB_NAME + ".line_detail( " \

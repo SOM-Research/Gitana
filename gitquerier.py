@@ -9,11 +9,15 @@ class GitQuerier():
 
     #python, java, html, xml, sql, javascript, c, c++, scala, php, ruby, matlab
     ALLOWED_EXTENSION = ['py', 'java', 'html', 'xml', 'sql', 'js', 'c', 'cpp', 'cc', 'scala', 'php', 'rb', 'm']
+    no_treated_extensions = set()
 
     def __init__(self, git_repo_path, logger):
         self.logger = logger
         self.repo = Repo(git_repo_path)
-        self.no_treated_extensions = set()
+
+    def get_commit_by_sha(self, hexsha):
+        return self.repo.commit(hexsha)
+        #content = git.execute(["git", "show", hexsha])
 
     def get_diffs(self, commit):
         return commit.parents[0].diff(commit, create_patch=True)
@@ -62,8 +66,8 @@ class GitQuerier():
 
         if file_a:
             diffs.append((file_a, content))
-        else:
-            self.logger.warning("GitQuerier: diff with first commit not found")
+        # else:
+        #     self.logger.warning("GitQuerier: diff with first commit not found")
         return diffs
 
     def get_status(self, stats, diff):
@@ -84,7 +88,7 @@ class GitQuerier():
                 elif additions == 0 and deletions == 0:
                     status = "added"
                     #self.logger.warning("GitQuerier: addition and deletion = 0 - diff: " + str(diff))
-                    self.logger.warning("GitQuerier: addition and deletion = 0")
+                    #self.logger.warning("GitQuerier: addition and deletion = 0")
                 else:
                     status = "modified"
             except:
@@ -110,7 +114,7 @@ class GitQuerier():
                 stats_for_file = (stats.get('insertions'), stats.get('deletions'), stats.get('lines'))
         if not stats_for_file:
             stats_for_file = (0, 0, 0)
-            self.logger.warning("GitQuerier: stats for file " + file_name + " not found!")
+            #self.logger.warning("GitQuerier: stats for file " + file_name + " not found!")
         return stats_for_file
 
     def get_references(self):
@@ -121,8 +125,8 @@ class GitQuerier():
                     references.append((ref.name, 'branch'))
             elif type(ref) == TagReference:
                 references.append((ref.name, 'tag'))
-            else:
-                self.logger.warning("Git2Db: " + str(type(ref)) + " not handled in the extractor")
+            # else:
+            #     self.logger.warning("Git2Db: " + str(type(ref)) + " not handled in the extractor")
 
         return references
 
@@ -284,7 +288,7 @@ class GitQuerier():
                             is_commented = result[3]
                             is_partially_commented = result[4]
                         #else:
-                            #self.no_treated_extensions.add(file_extension)
+                            #no_treated_extensions.add(file_extension)
                             #check if the comment contains code or documentation (natural language)
                             #if is_commented:
                             #    guess = guess_lexer(line)
@@ -319,8 +323,8 @@ class GitQuerier():
         return details
 
     def add_no_treated_extensions_to_log(self):
-        for ext in list(self.no_treated_extensions):
-            self.logger.warning("GitQuerier: extension " + str(ext) + " is not treated!")
+        # for ext in list(no_treated_extensions):
+        #     self.logger.warning("GitQuerier: extension " + str(ext) + " is not treated!")
         return
 
     def line_is_commented(self, type_change, previous_block_comment, previous_line_number, current_line_number, block_comment, details, line, file_extension):
@@ -546,8 +550,8 @@ class GitQuerier():
             if re.match(r'^(\+|\-)(.*)(%)', line) or \
                     re.match(r"^(\+|\-)(.*)(%\{)(.*)(%\})", line):
                 flag = True
-        else:
-            self.logger.warning("GitQuerier: impossible to identify comments for extension: " + ext)
+        # else:
+        #     self.logger.warning("GitQuerier: impossible to identify comments for extension: " + ext)
 
         return flag
 
@@ -576,8 +580,8 @@ class GitQuerier():
             if re.match(r'^(\+|\-)(\s*)(%)', line) or \
                     re.match(r"^(\+|\-)(\s*)(%\{)(.*)(%\})(\s*)$", line):
                 flag = True
-        else:
-            self.logger.warning("GitQuerier: impossible to identify comments for extension: " + ext)
+        # else:
+        #     self.logger.warning("GitQuerier: impossible to identify comments for extension: " + ext)
 
         return flag
 
