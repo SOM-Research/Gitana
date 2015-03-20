@@ -3,6 +3,7 @@ __author__ = 'atlanmod'
 import mysql.connector
 from mysql.connector import errorcode
 from datetime import datetime
+import config
 
 
 class InitDbSchema():
@@ -291,9 +292,9 @@ class InitDbSchema():
 
             /* returns either the content per line or the compacted version */
             IF by_line THEN
-                CALL get_file_history_by_line(@_file_ids, _date);
+                CALL get_file_version_by_line(@_file_ids, _date);
             ELSE
-                CALL get_file_history_compact(@_file_ids, _date);
+                CALL get_file_version_compact(@_file_ids, _date);
             END IF;
         END"""
 
@@ -422,7 +423,8 @@ class InitDbSchema():
         cursor.execute("set global character_set_server = utf8")
 
         #git2db.MAX_THREADS_FOR_REFERENCES * analyse_reference_thread.MAX_THREADS_FOR_COMMITS + 1 (git2db connection)
-        cursor.execute("set global max_connections = 1100")
+        max_connections = config.MAX_THREADS_FOR_COMMITS * config.MAX_THREADS_FOR_REFERENCES + 50
+        cursor.execute("set global max_connections = " + max_connections)
 
         create_table_repositories = "CREATE TABLE " + self.DB_NAME + ".repository( " \
                                 "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
