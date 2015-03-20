@@ -21,8 +21,18 @@ Gitana is written in Python 2.7.6, it relies on
 
 ### How to use Gitana
 
-In order to use Gitana, your machine needs to fulfill the technical details. Then, you can launch the script gitana_gui.py (https://github.com/valeriocos/Gitana/blob/master/gitana_gui.py) and a GUI will allow you 
-to complete the following steps:
+In order to use Gitana, you need to:
+
+- set your MySQL credentials in the config file (https://github.com/atlanmod/Gitana/blob/master/config.py)
+- have installed in your machine GitPython >=0.3.1-beta2 , Git-1.9.4, MySQL Server 5.6
+- have installed in your Python installation the following packages:
+  - simplejson
+  - codecs
+  - mysql.connector
+  - Tkinter
+  - PIL
+
+Then, you can launch the script gitana_gui.py (https://github.com/valeriocos/Gitana/blob/master/gitana_gui.py) and a GUI will allow you to complete the following steps:
 
 - import your Git repository to a database (**Import Git to DB**)
 - update your database with the latest Git repository modifications (**Update DB**)
