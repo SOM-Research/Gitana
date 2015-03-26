@@ -1,0 +1,119 @@
+2015-03-25 10:39:52:INFO:InitDbSchema: process finished after 0.0 minutes and 0.2 secs
+2015-03-25 10:39:52:INFO:Git2Db: analysing reference: (branch) origin/master
+2015-03-25 10:39:52:INFO:Git2Db: analysing reference: (tag) v3.0.0.alpha3
+2015-03-25 10:39:52:INFO:Git2Db: analysing reference: (tag) v3.0.0.alpha4
+2015-03-25 10:39:52:INFO:Git2Db: analysing reference: (tag) v3.0.0.alpha5
+2015-03-25 10:39:52:INFO:Git2Db: analysing reference: (tag) v3.0.0.alpha6
+2015-03-25 10:39:52:INFO:Git2Db: analysing reference: (tag) v3.0.0.alpha7
+2015-03-25 10:39:52:INFO:Git2Db: analysing reference: (tag) v3.0.0.alpha8
+2015-03-25 10:39:53:WARNING:Git2Db: GitPython null file path 113a464f314b0a6825bcff572cb9c4253f86dc8b - Assign bin/octopress 0755 permissions
+
+2015-03-25 10:39:54:WARNING:Git2Db: GitPython null file path 113a464f314b0a6825bcff572cb9c4253f86dc8b - Assign bin/octopress 0755 permissions
+
+2015-03-25 10:39:54:WARNING:Git2Db: GitPython null file path 113a464f314b0a6825bcff572cb9c4253f86dc8b - Assign bin/octopress 0755 permissions
+
+2015-03-25 10:39:54:WARNING:Git2Db: GitPython null file path 113a464f314b0a6825bcff572cb9c4253f86dc8b - Assign bin/octopress 0755 permissions
+
+2015-03-25 10:39:55:WARNING:Git2Db: GitPython null file path 113a464f314b0a6825bcff572cb9c4253f86dc8b - Assign bin/octopress 0755 permissions
+
+2015-03-25 10:39:55:WARNING:Git2Db: GitPython null file path 113a464f314b0a6825bcff572cb9c4253f86dc8b - Assign bin/octopress 0755 permissions
+
+2015-03-25 10:41:13:INFO:Git2Db: analysing reference: (tag) v3.0.0.rc.1
+2015-03-25 10:41:13:INFO:Git2Db: analysing reference: (tag) v3.0.0.rc.10
+2015-03-25 10:41:13:INFO:Git2Db: analysing reference: (tag) v3.0.0.rc.11
+2015-03-25 10:41:13:INFO:Git2Db: analysing reference: (tag) v3.0.0.rc.12
+2015-03-25 10:41:13:INFO:Git2Db: analysing reference: (tag) v3.0.0.rc.13
+2015-03-25 10:41:13:INFO:Git2Db: analysing reference: (tag) v3.0.0.rc.14
+2015-03-25 10:41:14:WARNING:Git2Db: GitPython null file path 113a464f314b0a6825bcff572cb9c4253f86dc8b - Assign bin/octopress 0755 permissions
+
+2015-03-25 10:41:14:WARNING:Git2Db: GitPython null file path 113a464f314b0a6825bcff572cb9c4253f86dc8b - Assign bin/octopress 0755 permissions
+
+2015-03-25 10:41:15:WARNING:Git2Db: GitPython null file path 113a464f314b0a6825bcff572cb9c4253f86dc8b - Assign bin/octopress 0755 permissions
+
+2015-03-25 10:41:15:WARNING:Git2Db: GitPython null file path 113a464f314b0a6825bcff572cb9c4253f86dc8b - Assign bin/octopress 0755 permissions
+
+2015-03-25 10:41:16:WARNING:Git2Db: GitPython null file path 113a464f314b0a6825bcff572cb9c4253f86dc8b - Assign bin/octopress 0755 permissions
+
+2015-03-25 10:41:16:WARNING:Git2Db: GitPython null file path 113a464f314b0a6825bcff572cb9c4253f86dc8b - Assign bin/octopress 0755 permissions
+
+2015-03-25 10:43:04:INFO:Git2Db: analysing reference: (tag) v3.0.0.rc.15
+2015-03-25 10:43:04:INFO:Git2Db: analysing reference: (tag) v3.0.0.rc.16
+2015-03-25 10:43:04:INFO:Git2Db: analysing reference: (tag) v3.0.0.rc.17
+2015-03-25 10:43:04:INFO:Git2Db: analysing reference: (tag) v3.0.0.rc.18
+2015-03-25 10:43:04:INFO:Git2Db: analysing reference: (tag) v3.0.0.rc.19
+2015-03-25 10:43:04:INFO:Git2Db: analysing reference: (tag) v3.0.0.rc.2
+2015-03-25 10:43:06:WARNING:Git2Db: GitPython null file path 113a464f314b0a6825bcff572cb9c4253f86dc8b - Assign bin/octopress 0755 permissions
+
+2015-03-25 10:43:06:WARNING:Git2Db: GitPython null file path 113a464f314b0a6825bcff572cb9c4253f86dc8b - Assign bin/octopress 0755 permissions
+
+2015-03-25 10:43:06:WARNING:Git2Db: GitPython null file path 113a464f314b0a6825bcff572cb9c4253f86dc8b - Assign bin/octopress 0755 permissions
+
+2015-03-25 10:43:07:WARNING:Git2Db: GitPython null file path 113a464f314b0a6825bcff572cb9c4253f86dc8b - Assign bin/octopress 0755 permissions
+
+2015-03-25 10:43:07:WARNING:Git2Db: GitPython null file path 113a464f314b0a6825bcff572cb9c4253f86dc8b - Assign bin/octopress 0755 permissions
+
+2015-03-25 10:43:07:WARNING:Git2Db: GitPython null file path 113a464f314b0a6825bcff572cb9c4253f86dc8b - Assign bin/octopress 0755 permissions
+
+2015-03-25 10:45:49:INFO:Git2Db: analysing reference: (tag) v3.0.0.rc.20
+2015-03-25 10:45:49:INFO:Git2Db: analysing reference: (tag) v3.0.0.rc.21
+2015-03-25 10:45:49:INFO:Git2Db: analysing reference: (tag) v3.0.0.rc.22
+2015-03-25 10:45:49:INFO:Git2Db: analysing reference: (tag) v3.0.0.rc.23
+2015-03-25 10:45:49:INFO:Git2Db: analysing reference: (tag) v3.0.0.rc.24
+2015-03-25 10:45:49:INFO:Git2Db: analysing reference: (tag) v3.0.0.rc.25
+2015-03-25 10:45:50:WARNING:Git2Db: GitPython null file path 113a464f314b0a6825bcff572cb9c4253f86dc8b - Assign bin/octopress 0755 permissions
+
+2015-03-25 10:45:50:WARNING:Git2Db: GitPython null file path 113a464f314b0a6825bcff572cb9c4253f86dc8b - Assign bin/octopress 0755 permissions
+
+2015-03-25 10:45:52:WARNING:Git2Db: GitPython null file path 113a464f314b0a6825bcff572cb9c4253f86dc8b - Assign bin/octopress 0755 permissions
+
+2015-03-25 10:45:52:WARNING:Git2Db: GitPython null file path 113a464f314b0a6825bcff572cb9c4253f86dc8b - Assign bin/octopress 0755 permissions
+
+2015-03-25 10:45:52:WARNING:Git2Db: GitPython null file path 113a464f314b0a6825bcff572cb9c4253f86dc8b - Assign bin/octopress 0755 permissions
+
+2015-03-25 10:45:52:WARNING:Git2Db: GitPython null file path 113a464f314b0a6825bcff572cb9c4253f86dc8b - Assign bin/octopress 0755 permissions
+
+2015-03-25 10:48:55:INFO:Git2Db: analysing reference: (tag) v3.0.0.rc.26
+2015-03-25 10:48:55:INFO:Git2Db: analysing reference: (tag) v3.0.0.rc.27
+2015-03-25 10:48:55:INFO:Git2Db: analysing reference: (tag) v3.0.0.rc.28
+2015-03-25 10:48:55:INFO:Git2Db: analysing reference: (tag) v3.0.0.rc.29
+2015-03-25 10:48:55:INFO:Git2Db: analysing reference: (tag) v3.0.0.rc.3
+2015-03-25 10:48:55:INFO:Git2Db: analysing reference: (tag) v3.0.0.rc.30
+2015-03-25 10:48:56:WARNING:Git2Db: GitPython null file path 113a464f314b0a6825bcff572cb9c4253f86dc8b - Assign bin/octopress 0755 permissions
+
+2015-03-25 10:48:56:WARNING:Git2Db: GitPython null file path 113a464f314b0a6825bcff572cb9c4253f86dc8b - Assign bin/octopress 0755 permissions
+
+2015-03-25 10:48:58:WARNING:Git2Db: GitPython null file path 113a464f314b0a6825bcff572cb9c4253f86dc8b - Assign bin/octopress 0755 permissions
+
+2015-03-25 10:48:58:WARNING:Git2Db: GitPython null file path 113a464f314b0a6825bcff572cb9c4253f86dc8b - Assign bin/octopress 0755 permissions
+
+2015-03-25 10:48:58:WARNING:Git2Db: GitPython null file path 113a464f314b0a6825bcff572cb9c4253f86dc8b - Assign bin/octopress 0755 permissions
+
+2015-03-25 10:48:59:WARNING:Git2Db: GitPython null file path 113a464f314b0a6825bcff572cb9c4253f86dc8b - Assign bin/octopress 0755 permissions
+
+2015-03-25 10:52:17:INFO:Git2Db: analysing reference: (tag) v3.0.0.rc.31
+2015-03-25 10:52:17:INFO:Git2Db: analysing reference: (tag) v3.0.0.rc.32
+2015-03-25 10:52:17:INFO:Git2Db: analysing reference: (tag) v3.0.0.rc.4
+2015-03-25 10:52:17:INFO:Git2Db: analysing reference: (tag) v3.0.0.rc.5
+2015-03-25 10:52:17:INFO:Git2Db: analysing reference: (tag) v3.0.0.rc.6
+2015-03-25 10:52:17:INFO:Git2Db: analysing reference: (tag) v3.0.0.rc.7
+2015-03-25 10:52:18:WARNING:Git2Db: GitPython null file path 113a464f314b0a6825bcff572cb9c4253f86dc8b - Assign bin/octopress 0755 permissions
+
+2015-03-25 10:52:19:WARNING:Git2Db: GitPython null file path 113a464f314b0a6825bcff572cb9c4253f86dc8b - Assign bin/octopress 0755 permissions
+
+2015-03-25 10:52:19:WARNING:Git2Db: GitPython null file path 113a464f314b0a6825bcff572cb9c4253f86dc8b - Assign bin/octopress 0755 permissions
+
+2015-03-25 10:52:19:WARNING:Git2Db: GitPython null file path 113a464f314b0a6825bcff572cb9c4253f86dc8b - Assign bin/octopress 0755 permissions
+
+2015-03-25 10:52:21:WARNING:Git2Db: GitPython null file path 113a464f314b0a6825bcff572cb9c4253f86dc8b - Assign bin/octopress 0755 permissions
+
+2015-03-25 10:52:21:WARNING:Git2Db: GitPython null file path 113a464f314b0a6825bcff572cb9c4253f86dc8b - Assign bin/octopress 0755 permissions
+
+2015-03-25 10:55:10:INFO:Git2Db: analysing reference: (tag) v3.0.0.rc.8
+2015-03-25 10:55:10:INFO:Git2Db: analysing reference: (tag) v3.0.0.rc.9
+2015-03-25 10:55:10:WARNING:Git2Db: GitPython null file path 113a464f314b0a6825bcff572cb9c4253f86dc8b - Assign bin/octopress 0755 permissions
+
+2015-03-25 10:55:11:WARNING:Git2Db: GitPython null file path 113a464f314b0a6825bcff572cb9c4253f86dc8b - Assign bin/octopress 0755 permissions
+
+2015-03-25 10:55:11:WARNING:Git2Db: GitPython null file path 113a464f314b0a6825bcff572cb9c4253f86dc8b - Assign bin/octopress 0755 permissions
+
+2015-03-25 10:56:10:INFO:Git2Db: process finished after 16.0 minutes and 18.0 secs

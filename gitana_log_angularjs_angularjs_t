@@ -1,0 +1,65 @@
+2015-03-25 15:55:21:INFO:InitDbSchema: process finished after 0.0 minutes and 0.2 secs
+2015-03-25 15:55:21:INFO:Git2Db: analysing reference: (branch) origin/even-more-perf-rebased
+2015-03-25 15:55:21:INFO:Git2Db: analysing reference: (branch) origin/g3_v1_0
+2015-03-25 15:55:21:INFO:Git2Db: analysing reference: (branch) origin/g3_v1_2
+2015-03-25 15:55:21:INFO:Git2Db: analysing reference: (branch) origin/g3_v1_3
+2015-03-25 15:55:21:INFO:Git2Db: analysing reference: (branch) origin/g3_v1_4
+2015-03-25 15:55:21:INFO:Git2Db: analysing reference: (branch) origin/master
+2015-03-25 15:55:21:INFO:Git2Db: analysing reference: (branch) origin/materialize
+2015-03-25 16:25:50:ERROR:Git2Db: commit with sha cd9a7b9608707c34bec2316ee8c789a617d22a7b not retrieved
+2015-03-25 16:25:50:ERROR:Git2Db: commit with sha acb4338b7050a08a1cd1538a24108aa5a85ec6d4 not retrieved
+2015-03-25 16:25:51:ERROR:Git2Db: commit with sha 0bf611087b2773fd36cf95c938d1cda8e65ffb2b not retrieved
+2015-03-25 16:25:51:ERROR:Git2Db: commit with sha 08029c7b72a857ffe52f302ed79ae12db9efcc08 not retrieved
+2015-03-25 16:25:51:ERROR:Git2Db: commit with sha f2119c752425661e0ef4c772f14a3b6755b44525 not retrieved
+2015-03-25 16:25:51:ERROR:Git2Db: commit with sha 5c197660638b8f4f603ed087bedf88cb1c980832 not retrieved
+2015-03-25 16:25:51:ERROR:Git2Db: commit with sha d47ec772c3d6b418121c81bbaf2dcb8a24742125 not retrieved
+2015-03-25 16:25:51:ERROR:Git2Db: commit with sha 63cca9afbcf7a772086eb4582d2f409c39e0ed12 not retrieved
+2015-03-25 16:25:51:ERROR:Git2Db: commit with sha a13b5ed3bc337a493029815c595b89c39eb95af6 not retrieved
+2015-03-25 16:25:51:ERROR:Git2Db: commit with sha b911e303ecad8b7b54589e26f3c551395bf47405 not retrieved
+2015-03-25 16:25:51:ERROR:Git2Db: commit with sha 23f8da7cbb59c8f53f0f5c1e48102faeb4b7fd85 not retrieved
+2015-03-25 16:25:51:ERROR:Git2Db: commit with sha 67338ce06140f60fe08bf59f7eb6c9814743e907 not retrieved
+2015-03-25 16:25:51:ERROR:Git2Db: commit with sha b8960c3710f20a3c56ecc27f382b2500f6dc1e05 not retrieved
+2015-03-25 16:25:51:ERROR:Git2Db: commit with sha c76a120bfea6f78d6530fa63a8129dfc40af7d86 not retrieved
+2015-03-25 16:25:51:ERROR:Git2Db: commit with sha 11cb9423a7a68ea65fee09241179fa04a5cb2eec not retrieved
+2015-03-25 16:25:51:ERROR:Git2Db: commit with sha 7146f7063602b82383211533d98e78f7eb2c03db not retrieved
+2015-03-25 16:25:51:ERROR:Git2Db: commit with sha 614fd3d55a0d141067c7cd744a29787b1f93b008 not retrieved
+2015-03-25 16:25:51:ERROR:Git2Db: commit with sha e0b4b107ee3256847f842721c34a19fa0ba3665e not retrieved
+2015-03-25 16:25:51:ERROR:Git2Db: commit with sha 3c3e6980b3584b0a63f03afaaf956dba3b8d93e0 not retrieved
+2015-03-25 16:25:51:ERROR:Git2Db: commit with sha afd25446d23f24872eb20ac79c8fbd2cff203ef0 not retrieved
+2015-03-25 16:25:51:ERROR:Git2Db: commit with sha 5143e7bf065a3cbdf8400cf095b653d51bc83b8f not retrieved
+2015-03-25 16:25:51:ERROR:Git2Db: commit with sha cd9a7b9608707c34bec2316ee8c789a617d22a7b not retrieved
+2015-03-25 16:25:51:ERROR:Git2Db: commit with sha acb4338b7050a08a1cd1538a24108aa5a85ec6d4 not retrieved
+2015-03-25 16:25:52:ERROR:Git2Db: commit with sha 0bf611087b2773fd36cf95c938d1cda8e65ffb2b not retrieved
+2015-03-25 16:25:52:ERROR:Git2Db: commit with sha 08029c7b72a857ffe52f302ed79ae12db9efcc08 not retrieved
+2015-03-25 16:25:52:ERROR:Git2Db: commit with sha f2119c752425661e0ef4c772f14a3b6755b44525 not retrieved
+2015-03-25 16:25:52:ERROR:Git2Db: commit with sha 5c197660638b8f4f603ed087bedf88cb1c980832 not retrieved
+2015-03-25 16:25:52:ERROR:Git2Db: commit with sha d47ec772c3d6b418121c81bbaf2dcb8a24742125 not retrieved
+2015-03-25 16:25:52:ERROR:Git2Db: commit with sha 63cca9afbcf7a772086eb4582d2f409c39e0ed12 not retrieved
+2015-03-25 16:25:52:ERROR:Git2Db: commit with sha a13b5ed3bc337a493029815c595b89c39eb95af6 not retrieved
+2015-03-25 16:25:52:ERROR:Git2Db: commit with sha b911e303ecad8b7b54589e26f3c551395bf47405 not retrieved
+2015-03-25 16:25:52:ERROR:Git2Db: commit with sha 23f8da7cbb59c8f53f0f5c1e48102faeb4b7fd85 not retrieved
+2015-03-25 16:25:52:ERROR:Git2Db: commit with sha 67338ce06140f60fe08bf59f7eb6c9814743e907 not retrieved
+2015-03-25 16:25:52:ERROR:Git2Db: commit with sha b8960c3710f20a3c56ecc27f382b2500f6dc1e05 not retrieved
+2015-03-25 16:25:52:ERROR:Git2Db: commit with sha c76a120bfea6f78d6530fa63a8129dfc40af7d86 not retrieved
+2015-03-25 16:25:52:ERROR:Git2Db: commit with sha 11cb9423a7a68ea65fee09241179fa04a5cb2eec not retrieved
+2015-03-25 16:25:52:ERROR:Git2Db: commit with sha 7146f7063602b82383211533d98e78f7eb2c03db not retrieved
+2015-03-25 16:25:52:ERROR:Git2Db: commit with sha 614fd3d55a0d141067c7cd744a29787b1f93b008 not retrieved
+2015-03-25 16:25:52:ERROR:Git2Db: commit with sha e0b4b107ee3256847f842721c34a19fa0ba3665e not retrieved
+2015-03-25 16:25:52:ERROR:Git2Db: commit with sha 3c3e6980b3584b0a63f03afaaf956dba3b8d93e0 not retrieved
+2015-03-25 16:25:52:ERROR:Git2Db: commit with sha afd25446d23f24872eb20ac79c8fbd2cff203ef0 not retrieved
+2015-03-25 16:25:52:ERROR:Git2Db: commit with sha 5143e7bf065a3cbdf8400cf095b653d51bc83b8f not retrieved
+2015-03-25 16:25:52:ERROR:Git2Db: commit with sha c6ea1be0536b9d4564f028554fd1762feba58994 not retrieved
+2015-03-25 16:25:52:ERROR:Git2Db: commit with sha 28114de8dcf86c69f533b924ce205533bc265786 not retrieved
+2015-03-25 16:25:53:ERROR:Git2Db: commit with sha 9a8dbfef5151e8e92dc010a597b670e7687ebe9b not retrieved
+2015-03-25 16:25:53:ERROR:Git2Db: commit with sha d648d709f3edcac56132e9e2a84a0fc65f5b48ac not retrieved
+2015-03-25 16:25:53:ERROR:Git2Db: commit with sha e1e0ddb910590a0c67482f60c0bbb2abfcd5a82e not retrieved
+2015-03-25 16:25:53:ERROR:Git2Db: commit with sha 5164ae545b10723b4e9ec454f436f6698dc93e24 not retrieved
+2015-03-25 16:25:53:ERROR:Git2Db: commit with sha 249c89c0911254873c68cd753d903ea5606344ac not retrieved
+2015-03-25 16:25:53:ERROR:Git2Db: commit with sha 985d3d75586a16020d78564753f9b46ec9091929 not retrieved
+2015-03-25 16:25:53:ERROR:Git2Db: commit with sha 15fd735793cffe89fdf9662275409cdcdb3e801a not retrieved
+2015-03-25 16:25:53:ERROR:Git2Db: commit with sha e7a23e4b6585d497112935a7d00cb6906d8c8417 not retrieved
+2015-03-25 16:25:53:ERROR:Git2Db: commit with sha 46691c2721735c27426b721d780e8816d502b9f2 not retrieved
+2015-03-25 16:25:53:ERROR:Git2Db: commit with sha d2ba4c5170f604f2610aaef1d205137e2848a791 not retrieved
+2015-03-25 16:25:53:ERROR:Git2Db: commit with sha 939c8e8fac0487da12e56291d69c5199a8ed9a30 not retrieved
+2015-03-25 16:25:53:ERROR:Git2Db: commit with sha b7f4d8c3c3c537f895d3cd7369f5b23ec94820e0 not retrieved
+2015-03-25 16:25:53:ERROR:Git2Db: commit with sha 16a40c626fc3da688596928afa028a596204a683 not retrieved

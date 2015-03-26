@@ -1,0 +1,4 @@
+2015-03-24 16:28:03:INFO:InitDbSchema: process finished after 0.0 minutes and 0.2 secs
+2015-03-24 16:28:03:INFO:Git2Db: analysing reference: (branch) origin/gh-pages
+2015-03-24 16:28:03:INFO:Git2Db: analysing reference: (branch) origin/master
+2015-03-24 16:32:32:INFO:Git2Db: process finished after 4.0 minutes and 29.3 secs
