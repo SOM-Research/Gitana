@@ -58,7 +58,7 @@ class Git2Db():
 
     def select_reference_name(self, repo_id, ref_id):
         cursor = self.cnx.cursor()
-        query = "SELECT name" \
+        query = "SELECT name " \
                 "FROM " + self.db_name + ".reference " \
                 "WHERE id = %s and repo_id = %s"
         arguments = [ref_id, repo_id]
@@ -240,14 +240,14 @@ class Git2Db():
             print (ref_name + ',' + ref_type)
 
             if self.before_date:
-                 commits = self.querier.collect_all_commits_before_date(ref_name, self.before_date)
+                commits = self.querier.collect_all_commits_before_date(ref_name, self.before_date)
             else:
-                 commits = self.querier.collect_all_commits(ref_name)
+                commits = self.querier.collect_all_commits(ref_name)
 
             self.analyse_reference(ref_name, ref_type, repo_id)
             self.analyse_commits(commits, ref_name, repo_id)
-        #fix parent table for missing parents
-        self.fix_commit_parent_table(repo_id)
+            #fix parent table for missing parents
+            self.fix_commit_parent_table(repo_id)
         return
 
     def analyse_reference(self, ref_name, ref_type, repo_id):

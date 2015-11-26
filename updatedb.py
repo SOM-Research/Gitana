@@ -85,7 +85,7 @@ class UpdateDb():
         return
 
     def add_new_references(self, git2db, repo_id):
-        for reference in self.querier.repo.references:
+        for reference in self.querier.get_references():
             reference_name = reference[0]
             reference_type = reference[1]
             if reference_name not in self.existing_refs and reference_name != "origin/HEAD":
@@ -93,8 +93,8 @@ class UpdateDb():
                     commits = self.querier.collect_all_commits_before_date(reference_name, self.before_date)
                 else:
                     commits = self.querier.collect_all_commits(reference_name)
-                git2db.analyse_reference(self, reference_name, reference_type, repo_id)
-                git2db.analyse_commits(self, commits, reference_name, repo_id)
+                git2db.analyse_reference(reference_name, reference_type, repo_id)
+                git2db.analyse_commits(commits, reference_name, repo_id)
         return
 
     def update_repo(self, repo_id):
