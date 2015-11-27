@@ -279,7 +279,7 @@ class Db2Json:
         row = cursor.fetchone()
         while row:
             sha = str(row[0])
-            message = str(row[1])
+            message = str(row[1].encode('utf8'))
             ref = str(row[2])
             author_name = row[3]
             author_email = row[4]
