@@ -169,7 +169,7 @@ class Db2Json:
             authored_date = str(row[7])
             additions = str(row[8])
             deletions = str(row[9])
-            patch = row[10]
+            patch = str(row[10])
 
             patch_info = self.get_patch_info(patch)
             author = {'name': author_name, 'email': author_email}
