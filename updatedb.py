@@ -6,6 +6,7 @@ from gitquerier import GitQuerier
 from datetime import datetime
 from git2db import Git2Db
 from git import *
+import config_db
 
 
 class UpdateDb():
@@ -18,17 +19,7 @@ class UpdateDb():
         self.existing_refs = []
         self.querier = GitQuerier(git_repo_path, logger)
 
-        CONFIG = {
-            'user': 'root',
-            'password': 'root',
-            'host': 'localhost',
-            'port': '3306',
-            'database': db_name,
-            'raise_on_warnings': False,
-            'buffered': True
-        }
-
-        self.cnx = mysql.connector.connect(**CONFIG)
+        self.cnx = mysql.connector.connect(**config_db.CONFIG)
 
     def select_repo_id(self, repo_name):
         cursor = self.cnx.cursor()
@@ -103,8 +94,15 @@ class UpdateDb():
         self.add_new_references(git2db, repo_id)
         return
 
+    def set_database(self):
+        cursor = self.cnx.cursor()
+        use_database = "USE " + self.db_name
+        cursor.execute(use_database)
+        cursor.close()
+
     def update(self):
         start_time = datetime.now()
+        self.set_database()
         repo_id = self.select_repo_id(self.db_name)
         self.update_repo(repo_id)
         end_time = datetime.now()

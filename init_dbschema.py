@@ -3,33 +3,45 @@ __author__ = 'atlanmod'
 import mysql.connector
 from mysql.connector import errorcode
 from datetime import datetime
+import config_db
 
 
 class InitDbSchema():
 
-
-
     def __init__(self, db_name, logger):
         self.logger = logger
-        self.DB_NAME = db_name
+        self.db_name = db_name
 
-        CONFIG = {
-            'user': 'root',
-            'password': 'root',
-            'host': 'localhost',
-            'port': '3306',
-            'raise_on_warnings': False,
-            'charset': 'utf8',
-            'buffered': True
-        }
-
-        self.cnx = mysql.connector.connect(**CONFIG)
+        self.cnx = mysql.connector.connect(**config_db.CONFIG)
 
     def init_database(self):
+        self.create_database()
+        self.set_database()
         self.init_tables()
         self.init_views()
         self.init_functions()
         self.init_stored_procedures()
+
+    def set_database(self):
+        cursor = self.cnx.cursor()
+        use_database = "USE " + self.db_name
+        cursor.execute(use_database)
+        cursor.close()
+
+    def create_database(self):
+        cursor = self.cnx.cursor()
+
+        drop_database_if_exists = "DROP DATABASE IF EXISTS " + self.db_name
+        cursor.execute(drop_database_if_exists)
+
+        create_database = "CREATE DATABASE " + self.db_name
+        cursor.execute(create_database)
+
+        cursor.execute("set global innodb_file_format = BARRACUDA")
+        cursor.execute("set global innodb_file_format_max = BARRACUDA")
+        cursor.execute("set global innodb_large_prefix = ON")
+        cursor.execute("set global character_set_server = utf8")
+        cursor.close()
 
     def init_views(self):
         cursor = self.cnx.cursor()
@@ -485,25 +497,14 @@ class InitDbSchema():
     def init_tables(self):
         cursor = self.cnx.cursor()
 
-        drop_database_if_exists = "DROP DATABASE IF EXISTS " + self.DB_NAME
-        cursor.execute(drop_database_if_exists)
-
-        create_database = "CREATE DATABASE " + self.DB_NAME
-        cursor.execute(create_database)
-
-        cursor.execute("set global innodb_file_format = BARRACUDA")
-        cursor.execute("set global innodb_file_format_max = BARRACUDA")
-        cursor.execute("set global innodb_large_prefix = ON")
-        cursor.execute("set global character_set_server = utf8")
-
-        create_table_repositories = "CREATE TABLE " + self.DB_NAME + ".repository( " \
+        create_table_repositories = "CREATE TABLE repository( " \
                                 "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
                                 "name varchar(255), " \
                                 "INDEX n (name), " \
                                 "CONSTRAINT name UNIQUE (name)" \
                                 ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 
-        create_table_references = "CREATE TABLE " + self.DB_NAME + ".reference( " \
+        create_table_references = "CREATE TABLE reference( " \
                                   "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
                                   "repo_id int(20), " \
                                   "name varchar(255), " \
@@ -512,7 +513,7 @@ class InitDbSchema():
                                   "CONSTRAINT name UNIQUE (name) " \
                                   ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 
-        create_table_developers = "CREATE TABLE " + self.DB_NAME + ".developer( " \
+        create_table_developers = "CREATE TABLE developer( " \
                                   "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
                                   "name varchar(256), " \
                                   "email varchar(256), " \
@@ -520,7 +521,7 @@ class InitDbSchema():
                                   "CONSTRAINT naem UNIQUE (name, email) " \
                                   ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 
-        create_table_commits = "CREATE TABLE " + self.DB_NAME + ".commit(" \
+        create_table_commits = "CREATE TABLE commit(" \
                                "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
                                "repo_id int(20), " \
                                "sha varchar(512), " \
@@ -534,7 +535,7 @@ class InitDbSchema():
                                "CONSTRAINT s UNIQUE (sha) " \
                                ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 
-        create_table_commit_parent = "CREATE TABLE " + self.DB_NAME + ".commit_parent(" \
+        create_table_commit_parent = "CREATE TABLE commit_parent(" \
                                      "repo_id int(20), " \
                                      "commit_id int(20), " \
                                      "commit_sha varchar(512), " \
@@ -546,14 +547,14 @@ class InitDbSchema():
                                      "CONSTRAINT cshapsha UNIQUE (repo_id, commit_id, parent_sha) " \
                                      ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 
-        create_table_commits2reference = "CREATE TABLE " + self.DB_NAME + ".commit_in_reference(" \
+        create_table_commits2reference = "CREATE TABLE commit_in_reference(" \
                                          "repo_id int(20), " \
                                          "commit_id int(20), " \
                                          "ref_id int(20), " \
                                          "PRIMARY KEY core (commit_id, ref_id) " \
                                          ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 
-        create_table_files = "CREATE TABLE " + self.DB_NAME + ".file( " \
+        create_table_files = "CREATE TABLE file( " \
                              "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
                              "repo_id int(20), " \
                              "name varchar(255), " \
@@ -563,7 +564,7 @@ class InitDbSchema():
                              "CONSTRAINT rerena UNIQUE (repo_id, ref_id, name) " \
                              ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 
-        create_table_file_renamed = "CREATE TABLE " + self.DB_NAME + ".file_renamed ( " \
+        create_table_file_renamed = "CREATE TABLE file_renamed ( " \
                                     "repo_id int(20), " \
                                     "current_file_id int(20), " \
                                     "previous_file_id int(20), " \
@@ -572,7 +573,7 @@ class InitDbSchema():
                                     "INDEX previous (previous_file_id) " \
                                     ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 
-        create_table_file_modifications = "CREATE TABLE " + self.DB_NAME + ".file_modification( " \
+        create_table_file_modifications = "CREATE TABLE file_modification( " \
                                           "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
                                           "commit_id int(20), " \
                                           "file_id int(20), " \
@@ -585,7 +586,7 @@ class InitDbSchema():
                                           "INDEX f (file_id) " \
                                           ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 
-        create_table_lines = "CREATE TABLE " + self.DB_NAME + ".line_detail( " \
+        create_table_lines = "CREATE TABLE line_detail( " \
                              "file_modification_id int(11)," \
                              "type varchar(25), " \
                              "line_number numeric(20), " \
@@ -597,7 +598,7 @@ class InitDbSchema():
                              "INDEX fi (file_modification_id) " \
                              ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 
-        use_database = "USE " + self.DB_NAME
+
 
         cursor.execute(create_table_repositories)
         cursor.execute(create_table_references)
@@ -609,8 +610,6 @@ class InitDbSchema():
         cursor.execute(create_table_file_renamed)
         cursor.execute(create_table_file_modifications)
         cursor.execute(create_table_lines)
-        cursor.execute(use_database)
-        cursor.close()
         return
 
     def execute(self):

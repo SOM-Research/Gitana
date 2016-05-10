@@ -6,6 +6,7 @@ import re
 from datetime import datetime
 from git import *
 from gitquerier import GitQuerier
+import config_db
 
 
 class Git2Db():
@@ -17,28 +18,18 @@ class Git2Db():
         self.before_date = before_date
         self.querier = GitQuerier(git_repo_path, logger)
 
-        CONFIG = {
-            'user': 'root',
-            'password': 'root',
-            'host': 'localhost',
-            'port': '3306',
-            'raise_on_warnings': False,
-            'charset': 'utf8',
-            'buffered': True
-        }
-
-        self.cnx = mysql.connector.connect(**CONFIG)
+        self.cnx = mysql.connector.connect(**config_db.CONFIG)
 
     def insert_repo(self):
         cursor = self.cnx.cursor()
-        query = "INSERT IGNORE INTO " + self.db_name + ".repository " \
+        query = "INSERT IGNORE INTO repository " \
                 "VALUES (%s, %s)"
         arguments = [None, self.db_name]
         cursor.execute(query, arguments)
         self.cnx.commit()
 
         query = "SELECT id " \
-                "FROM " + self.db_name + ".repository " \
+                "FROM repository " \
                 "WHERE name = %s"
         arguments = [self.db_name]
         cursor.execute(query, arguments)
@@ -48,7 +39,7 @@ class Git2Db():
 
     def insert_reference(self, repo_id, ref_name, ref_type):
         cursor = self.cnx.cursor()
-        query = "INSERT IGNORE INTO " + self.db_name + ".reference " \
+        query = "INSERT IGNORE INTO reference " \
                 "VALUES (%s, %s, %s, %s)"
         arguments = [None, repo_id, ref_name, ref_type]
         cursor.execute(query, arguments)
@@ -59,7 +50,7 @@ class Git2Db():
     def select_reference_name(self, repo_id, ref_id):
         cursor = self.cnx.cursor()
         query = "SELECT name " \
-                "FROM " + self.db_name + ".reference " \
+                "FROM reference " \
                 "WHERE id = %s and repo_id = %s"
         arguments = [ref_id, repo_id]
         cursor.execute(query, arguments)
@@ -70,7 +61,7 @@ class Git2Db():
     def select_reference_id(self, repo_id, ref_name):
         cursor = self.cnx.cursor()
         query = "SELECT id " \
-                "FROM " + self.db_name + ".reference " \
+                "FROM reference " \
                 "WHERE name = %s and repo_id = %s"
         arguments = [ref_name, repo_id]
         cursor.execute(query, arguments)
@@ -86,14 +77,14 @@ class Git2Db():
         if not email:
             email = '_unknown'
 
-        query = "INSERT IGNORE INTO " + self.db_name + ".developer " \
+        query = "INSERT IGNORE INTO developer " \
                 "VALUES (%s, %s, %s)"
         arguments = [None, name, email]
         cursor.execute(query, arguments)
         self.cnx.commit()
 
         query = "SELECT id " \
-                "FROM " + self.db_name + ".developer " \
+                "FROM developer " \
                 "WHERE name = %s AND email = %s"
         arguments = [name, email]
         cursor.execute(query, arguments)
@@ -103,7 +94,7 @@ class Git2Db():
 
     def insert_commit(self, repo_id, sha, message, author_id, committer_id, authored_date, committed_date, size):
         cursor = self.cnx.cursor()
-        query = "INSERT IGNORE INTO " + self.db_name + ".commit " \
+        query = "INSERT IGNORE INTO commit " \
                 "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
         arguments = [None, repo_id, sha, message.strip(), author_id, committer_id, authored_date, committed_date, size]
         cursor.execute(query, arguments)
@@ -120,7 +111,7 @@ class Git2Db():
                 parent_id = None
                 self.logger.warning("Git2Db: parent commit id not found! SHA parent " + str(parent.hexsha))
 
-            query = "INSERT IGNORE INTO " + self.db_name + ".commit_parent " \
+            query = "INSERT IGNORE INTO commit_parent " \
                     "VALUES (%s, %s, %s, %s, %s)"
 
             if parent_id:
@@ -136,7 +127,7 @@ class Git2Db():
 
     def insert_commit_in_reference(self, repo_id, commit_id, ref_id):
         cursor = self.cnx.cursor()
-        query = "INSERT INTO " + self.db_name + ".commit_in_reference " \
+        query = "INSERT INTO commit_in_reference " \
                 "VALUES (%s, %s, %s)"
         arguments = [repo_id, commit_id, ref_id]
         cursor.execute(query, arguments)
@@ -158,7 +149,7 @@ class Git2Db():
     def select_file_id(self, repo_id, name, ref_id):
         cursor = self.cnx.cursor()
         query = "SELECT id " \
-                "FROM " + self.db_name + ".file " \
+                "FROM file " \
                 "WHERE name = %s AND repo_id = %s AND ref_id = %s"
         arguments = [name, repo_id, ref_id]
         cursor.execute(query, arguments)
@@ -171,7 +162,7 @@ class Git2Db():
 
     def insert_file(self, repo_id, name, ext, ref_id):
         cursor = self.cnx.cursor()
-        query = "INSERT IGNORE INTO " + self.db_name + ".file " \
+        query = "INSERT IGNORE INTO file " \
                 "VALUES (%s, %s, %s, %s, %s)"
         arguments = [None, repo_id, name, ext, ref_id]
         cursor.execute(query, arguments)
@@ -182,7 +173,7 @@ class Git2Db():
     def insert_file_renamed(self, repo_id, current_file_id, previous_file_id):
         cursor = self.cnx.cursor()
 
-        query = "INSERT IGNORE INTO " + self.db_name + ".file_renamed " \
+        query = "INSERT IGNORE INTO file_renamed " \
                 "VALUES (%s, %s, %s)"
         arguments = [repo_id, current_file_id, previous_file_id]
         cursor.execute(query, arguments)
@@ -192,7 +183,7 @@ class Git2Db():
 
     def insert_file_modification(self, commit_id, file_id, status, additions, deletions, changes, patch_content):
         cursor = self.cnx.cursor()
-        query = "INSERT INTO " + self.db_name + ".file_modification " \
+        query = "INSERT INTO file_modification " \
                 "VALUES (NULL, %s, %s, %s, %s, %s, %s, %s)"
         arguments = [commit_id, file_id, status, additions, deletions, changes, patch_content]
         cursor.execute(query, arguments)
@@ -203,7 +194,7 @@ class Git2Db():
 
     def insert_line_details(self, file_modification_id, detail):
         cursor = self.cnx.cursor()
-        query = "INSERT INTO " + self.db_name + ".line_detail " \
+        query = "INSERT INTO line_detail " \
                 "VALUES (%s, %s, %s, %s, %s, %s, %s)"
 
         arguments = [file_modification_id, detail[0], detail[1], detail[2], detail[3], detail[4], detail[5]]
@@ -368,7 +359,7 @@ class Git2Db():
     def fix_commit_parent_table(self, repo_id):
         cursor = self.cnx.cursor()
         query_select = "SELECT parent_sha " \
-                       "FROM " + self.db_name + ".commit_parent " \
+                       "FROM commit_parent " \
                        "WHERE parent_id IS NULL AND repo_id = %s"
         arguments = [repo_id]
         cursor.execute(query_select, arguments)
@@ -376,7 +367,7 @@ class Git2Db():
         while row:
             parent_sha = row[0]
             parent_id = self.select_commit(parent_sha)
-            query_update = "UPDATE " + self.db_name + ".commit_parent " \
+            query_update = "UPDATE commit_parent " \
                            "SET parent_id = %s " \
                            "WHERE parent_id IS NULL AND parent_sha = %s AND repo_id = %s "
             arguments = [parent_id, parent_sha, repo_id]
@@ -386,8 +377,15 @@ class Git2Db():
         cursor.close()
         return
 
+    def set_database(self):
+        cursor = self.cnx.cursor()
+        use_database = "USE " + self.db_name
+        cursor.execute(use_database)
+        cursor.close()
+
     def extract(self):
         start_time = datetime.now()
+        self.set_database()
         self.get_info_contribution()
         self.querier.add_no_treated_extensions_to_log()
         end_time = datetime.now()
