@@ -610,6 +610,7 @@ class InitDbSchema():
         cursor.execute(create_table_file_renamed)
         cursor.execute(create_table_file_modifications)
         cursor.execute(create_table_lines)
+        cursor.close()
         return
 
     def execute(self):
