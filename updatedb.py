@@ -20,6 +20,7 @@ class UpdateDb():
         self.querier = GitQuerier(git_repo_path, logger)
 
         self.cnx = mysql.connector.connect(**config_db.CONFIG)
+        self.set_database()
 
     def select_repo_id(self, repo_name):
         cursor = self.cnx.cursor()
@@ -102,10 +103,10 @@ class UpdateDb():
 
     def update(self):
         start_time = datetime.now()
-        self.set_database()
         repo_id = self.select_repo_id(self.db_name)
         self.update_repo(repo_id)
         end_time = datetime.now()
+        self.cnx.close()
         minutes_and_seconds = divmod((end_time-start_time).total_seconds(), 60)
         self.logger.info("UpdateDb: process finished after " + str(minutes_and_seconds[0])
                      + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")

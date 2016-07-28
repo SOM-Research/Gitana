@@ -19,6 +19,7 @@ class Git2Db():
         self.querier = GitQuerier(git_repo_path, logger)
 
         self.cnx = mysql.connector.connect(**config_db.CONFIG)
+        self.set_database()
 
     def insert_repo(self):
         cursor = self.cnx.cursor()
@@ -222,6 +223,23 @@ class Git2Db():
             type = "binary"
         return type
 
+    def get_file_path(self, diff):
+        file_path = None
+        #if it is a modification of an existing file
+        if diff.a_blob:
+            if diff.a_blob.path:
+                file_path = diff.a_blob.path
+            else:
+                file_path = diff.a_path
+        else:
+            #if it is a new file
+            if diff.b_blob.path:
+                file_path = diff.b_blob.path
+            else:
+                file_path = diff.b_path
+
+        return file_path
+
     def get_info_contribution(self):
         repo_id = self.insert_repo()
         for reference in self.querier.get_references():
@@ -324,13 +342,16 @@ class Git2Db():
                         #insert file
                         #if the file does not have a path, it won't be inserted
                         try:
-                            file_path = diff.a_blob.path
+                            file_path = self.get_file_path(diff)
+
                             ext = self.get_ext(file_path)
 
                             stats = self.querier.get_stats_for_file(commit, file_path)
                             status = self.querier.get_status(stats, diff)
 
-                            self.insert_file(repo_id, file_path, ext, ref_id)
+                            #if the file is new, add it
+                            if diff.new_file:
+                                self.insert_file(repo_id, file_path, ext, ref_id)
                             file_id = self.select_file_id(repo_id, file_path, ref_id)
 
                             #insert file modification (additions, deletions)
@@ -385,7 +406,6 @@ class Git2Db():
 
     def extract(self):
         start_time = datetime.now()
-        self.set_database()
         self.get_info_contribution()
         self.querier.add_no_treated_extensions_to_log()
         end_time = datetime.now()

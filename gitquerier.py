@@ -12,7 +12,7 @@ class GitQuerier():
 
     def __init__(self, git_repo_path, logger):
         self.logger = logger
-        self.repo = Repo(git_repo_path)
+        self.repo = Repo(git_repo_path, odbt=GitCmdObjectDB)
         self.no_treated_extensions = set()
 
     def get_diffs(self, commit):
