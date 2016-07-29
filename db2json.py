@@ -332,6 +332,25 @@ class Db2Json:
 
         return {'status': status, 'last_modification': last_modification}
 
+    def line_detail_table_is_empty(self, repo_id):
+        cursor = self.cnx.cursor()
+        query = "SELECT COUNT(*) FROM file f " \
+                "JOIN file_modification fm ON f.id = fm.file_id " \
+                "JOIN line_detail ld ON fm.id = ld.file_modification_id " \
+                "WHERE repo_id = %s"
+        arguments = [repo_id]
+        cursor.execute(query, arguments)
+
+        row = cursor.fetchone()
+
+        count = 0
+        if row:
+            count = int(row[0])
+
+        cursor.close()
+
+        return count == 0
+
     def add_file_info_to_json(self, repo_json):
         cursor = self.cnx.cursor()
         query = "SELECT f.id, r.name, f.name, f.ext " \
@@ -362,7 +381,7 @@ class Db2Json:
             file_history = self.get_history_for_file(file_id)
             changes_info = self.get_changes_for_file(file_history)
 
-            if self.line_details:
+            if self.line_details and not self.line_detail_table_is_empty(self.repo_id):
                 lines_info = self.get_lines_for_file(file_history)
                 file_info = {'repo': self.db_name,
                              'info': status,
@@ -387,6 +406,12 @@ class Db2Json:
                              'file_changes': changes_info}
             repo_json.write(json.dumps(file_info) + "\n")
             row = cursor.fetchone()
+        cursor.close()
+
+    def set_database(self):
+        cursor = self.cnx.cursor()
+        use_database = "USE " + self.db_name
+        cursor.execute(use_database)
         cursor.close()
 
     def export(self):

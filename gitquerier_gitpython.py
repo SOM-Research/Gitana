@@ -13,10 +13,20 @@ class GitQuerier():
     def __init__(self, git_repo_path, logger):
         self.logger = logger
         self.repo = Repo(git_repo_path, odbt=GitCmdObjectDB)
+        self.gitt = self.repo.git
         self.no_treated_extensions = set()
 
     def get_diffs(self, commit):
         return commit.parents[0].diff(commit, create_patch=True)
+        # parent = commit.parents[0]
+        # patches = self.gitt.diff(parent.hexsha, commit.hexsha).split('diff --git')[1:]
+        # diffs = parent.diff(commit)
+        #
+        # result = []
+        # for i in range(0, len(diffs)):
+        #     result.append((diffs[i], patches[i]))
+        # return result
+
 
     def commit_has_no_parents(self, commit):
         flag = False;
@@ -48,7 +58,7 @@ class GitQuerier():
                 if file_a:
                     diffs.append((file_a, content))
                     flag = False
-                file_a = line_content.split(' ')[0].replace("a/", "")
+                file_a = line_content.split(' ')[0].replace("a/", "", 1)
             elif re.match("^@@", line):
                 if not flag:
                     flag = True
@@ -65,6 +75,31 @@ class GitQuerier():
         else:
             self.logger.warning("GitQuerier: diff with first commit not found")
         return diffs
+
+    def get_file_path(self, diff):
+        file_path = None
+        #if it is a modification of an existing file
+        if diff.a_blob:
+            if diff.a_blob.path:
+                file_path = diff.a_blob.path
+            else:
+                file_path = diff.a_path
+        else:
+            #if it is a new file
+            if diff.b_blob.path:
+                file_path = diff.b_blob.path
+            else:
+                file_path = diff.b_path
+
+        return file_path
+
+    def get_file_current(self, diff):
+        if diff.rename_to:
+            file_current = diff.rename_to
+        else:
+            file_current = diff.diff.split('\n')[2].replace('rename to ', '')
+
+        return file_current
 
     def get_status(self, stats, diff):
         additions = stats[0]
@@ -92,13 +127,13 @@ class GitQuerier():
 
         return status
 
-    def is_renamed(self, diff):
+    def is_renamed(self, diff, patch):
         flag = False
         if diff.renamed:
             flag = True
         #sometimes the library does not set the renamed value to True even if the file is actually renamed
         elif (not diff.a_blob) and (not diff.b_blob):
-            if re.match(r"^(.*)\nrename from(.*)\nrename to(.*)$", diff.diff, re.M):
+            if re.match(r"^(.*)\nrename from(.*)\nrename to(.*)$", patch, re.M):
                flag = True
         return flag
 
@@ -125,6 +160,44 @@ class GitQuerier():
                 self.logger.warning("Git2Db: " + str(type(ref)) + " not handled in the extractor")
 
         return references
+
+    def get_commit_property(self, commit, prop):
+        found = None
+        if prop == "message":
+            found = commit.message
+        elif prop == "author.name":
+            found = commit.author.name
+        elif prop == "author.email":
+            found = commit.author.email
+        elif prop == "committer.name":
+            found = commit.committer.name
+        elif prop == "committer.email":
+            found = commit.committer.email
+        elif prop == "size":
+            found = commit.size
+        elif prop == "hexsha":
+            found = commit.hexsha
+        elif prop == "authored_date":
+            found = commit.authored_date
+        elif prop == "committed_date":
+            found = commit.committed_date
+
+        return found
+
+
+    def get_patch_content(self, diff):
+        return re.sub(r'^(\w|\W)*\n@@', '@@', diff.diff)
+
+    def is_new_file(self, diff):
+        return diff.new_file
+
+    def get_rename_from(self, diff):
+        if diff.rename_from:
+            file_previous = diff.rename_from
+        else:
+            file_previous = diff.diff.split('\n')[1].replace('rename from ', '')
+
+        return file_previous
 
     def get_commits(self, ref_name):
         commits = []

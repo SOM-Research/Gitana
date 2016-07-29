@@ -5,17 +5,18 @@ from mysql.connector import errorcode
 import re
 from datetime import datetime
 from git import *
-from gitquerier import GitQuerier
+from gitquerier_gitpython import GitQuerier
 import config_db
 
 
 class Git2Db():
 
-    def __init__(self, db_name, git_repo_path, before_date, logger):
+    def __init__(self, db_name, git_repo_path, before_date, line_details, logger):
         self.logger = logger
         self.git_repo_path = git_repo_path
         self.db_name = db_name
         self.before_date = before_date
+        self.get_line_details = line_details
         self.querier = GitQuerier(git_repo_path, logger)
 
         self.cnx = mysql.connector.connect(**config_db.CONFIG)
@@ -223,23 +224,6 @@ class Git2Db():
             type = "binary"
         return type
 
-    def get_file_path(self, diff):
-        file_path = None
-        #if it is a modification of an existing file
-        if diff.a_blob:
-            if diff.a_blob.path:
-                file_path = diff.a_blob.path
-            else:
-                file_path = diff.a_path
-        else:
-            #if it is a new file
-            if diff.b_blob.path:
-                file_path = diff.b_blob.path
-            else:
-                file_path = diff.b_path
-
-        return file_path
-
     def get_info_contribution(self):
         repo_id = self.insert_repo()
         for reference in self.querier.get_references():
@@ -264,15 +248,15 @@ class Git2Db():
         return
 
     def analyse_commit(self, commit, ref_id, repo_id):
-        message = commit.message
-        author_name = commit.author.name
-        author_email = commit.author.email
-        committer_name = commit.committer.name
-        committer_email = commit.committer.email
-        size = commit.size
-        sha = commit.hexsha
-        authored_date = datetime.fromtimestamp(commit.authored_date).strftime("%Y-%m-%d %H:%M:%S")
-        committed_date = datetime.fromtimestamp(commit.committed_date).strftime("%Y-%m-%d %H:%M:%S")
+        message = self.querier.get_commit_property(commit, "message")
+        author_name = self.querier.get_commit_property(commit, "author.name")
+        author_email = self.querier.get_commit_property(commit, "author.email")
+        committer_name = self.querier.get_commit_property(commit, "committer.name")
+        committer_email = self.querier.get_commit_property(commit, "committer.email")
+        size = self.querier.get_commit_property(commit, "size")
+        sha = self.querier.get_commit_property(commit, "hexsha")
+        authored_date = datetime.fromtimestamp(self.querier.get_commit_property(commit, "authored_date")).strftime("%Y-%m-%d %H:%M:%S")
+        committed_date = datetime.fromtimestamp(self.querier.get_commit_property(commit, "committed_date")).strftime("%Y-%m-%d %H:%M:%S")
         #insert author
         author_id = self.insert_developer(author_name, author_email)
         committer_id = self.insert_developer(committer_name, committer_email)
@@ -303,23 +287,17 @@ class Git2Db():
                     last_file_modification = self.insert_file_modification(commit_id, file_id, status,
                                                                       stats[0], stats[1], stats[2],
                                                                       patch_content)
-                    line_details = self.querier.get_line_details(patch_content, ext)
-                    for line_detail in line_details:
-                        self.insert_line_details(last_file_modification, line_detail)
+                    if self.get_line_details:
+                        line_details = self.querier.get_line_details(patch_content, ext)
+                        for line_detail in line_details:
+                            self.insert_line_details(last_file_modification, line_detail)
             else:
                 for diff in self.querier.get_diffs(commit):
                     if self.querier.is_renamed(diff):
-                        if diff.rename_from:
-                            file_previous = diff.rename_from
-                        else:
-                            file_previous = diff.diff.split('\n')[1].replace('rename from ', '')
-
+                        file_previous = self.querier.get_rename_from(diff)
                         ext_current = self.get_ext(file_previous)
 
-                        if diff.rename_to:
-                            file_current = diff.rename_to
-                        else:
-                            file_current = diff.diff.split('\n')[2].replace('rename to ', '')
+                        file_current = self.querier.get_file_current(diff)
 
                         #insert new file
                         self.insert_file(repo_id, file_current, ext_current, ref_id)
@@ -342,7 +320,7 @@ class Git2Db():
                         #insert file
                         #if the file does not have a path, it won't be inserted
                         try:
-                            file_path = self.get_file_path(diff)
+                            file_path = self.querier.get_file_path(diff)
 
                             ext = self.get_ext(file_path)
 
@@ -350,18 +328,19 @@ class Git2Db():
                             status = self.querier.get_status(stats, diff)
 
                             #if the file is new, add it
-                            if diff.new_file:
+                            if self.querier.is_new_file(diff):
                                 self.insert_file(repo_id, file_path, ext, ref_id)
                             file_id = self.select_file_id(repo_id, file_path, ref_id)
 
                             #insert file modification (additions, deletions)
-                            patch_content = re.sub(r'^(\w|\W)*\n@@', '@@', diff.diff)
+                            patch_content = self.querier.get_patch_content(diff)
                             last_file_modification = self.insert_file_modification(commit_id, file_id, status,
                                                                               stats[0], stats[1], stats[2], patch_content)
 
-                            line_details = self.querier.get_line_details(patch_content, ext)
-                            for line_detail in line_details:
-                                self.insert_line_details(last_file_modification, line_detail)
+                            if self.get_line_details:
+                                line_details = self.querier.get_line_details(patch_content, ext)
+                                for line_detail in line_details:
+                                    self.insert_line_details(last_file_modification, line_detail)
                         except:
                             self.logger.warning("Git2Db: GitPython null file path " + str(sha) + " - " + str(message))
         except AttributeError as e:

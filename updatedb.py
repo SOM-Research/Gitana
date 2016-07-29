@@ -2,10 +2,9 @@ __author__ = 'atlanmod'
 
 import mysql.connector
 from mysql.connector import errorcode
-from gitquerier import GitQuerier
+from gitquerier_gitpython import GitQuerier
 from datetime import datetime
 from git2db import Git2Db
-from git import *
 import config_db
 
 
@@ -89,11 +88,30 @@ class UpdateDb():
                 git2db.analyse_commits(commits, reference_name, repo_id)
         return
 
-    def update_repo(self, repo_id):
-        git2db = Git2Db(self.db_name, self.git_repo_path, None, self.logger)
+    def update_repo(self, repo_id, line_details):
+        git2db = Git2Db(self.db_name, self.git_repo_path, None, line_details, self.logger)
         self.update_existing_references(git2db, repo_id)
         self.add_new_references(git2db, repo_id)
         return
+
+    def line_detail_table_is_empty(self, repo_id):
+        cursor = self.cnx.cursor()
+        query = "SELECT COUNT(*) FROM file f " \
+                "JOIN file_modification fm ON f.id = fm.file_id " \
+                "JOIN line_detail ld ON fm.id = ld.file_modification_id " \
+                "WHERE repo_id = %s"
+        arguments = [repo_id]
+        cursor.execute(query, arguments)
+
+        row = cursor.fetchone()
+
+        count = 0
+        if row:
+            count = int(row[0])
+
+        cursor.close()
+
+        return count == 0
 
     def set_database(self):
         cursor = self.cnx.cursor()
@@ -104,7 +122,8 @@ class UpdateDb():
     def update(self):
         start_time = datetime.now()
         repo_id = self.select_repo_id(self.db_name)
-        self.update_repo(repo_id)
+
+        self.update_repo(repo_id, not self.line_detail_table_is_empty(repo_id))
         end_time = datetime.now()
         self.cnx.close()
         minutes_and_seconds = divmod((end_time-start_time).total_seconds(), 60)

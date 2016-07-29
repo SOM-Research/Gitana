@@ -34,8 +34,8 @@ class Gitana():
         extractor.extract()
         return
 
-    def git2db_before_date(self, db_name, git_path, before):
-        extractor = Git2Db(db_name, git_path, before, self.logger)
+    def git2db_before_date(self, db_name, git_path, before, line_details):
+        extractor = Git2Db(db_name, git_path, before, line_details, self.logger)
         extractor.extract()
         return
 
