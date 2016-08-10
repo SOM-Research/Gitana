@@ -10,11 +10,12 @@ import config_db
 
 class UpdateDb():
 
-    def __init__(self, db_name, git_repo_path, before_date, logger):
+    def __init__(self, db_name, git_repo_path, before_date, import_last_commit, logger):
         self.logger = logger
         self.git_repo_path = git_repo_path
         self.db_name = db_name
         self.before_date = before_date
+        self.import_last_commit = import_last_commit
         self.existing_refs = []
         self.querier = GitQuerier(git_repo_path, logger)
 
@@ -88,30 +89,128 @@ class UpdateDb():
                 git2db.analyse_commits(commits, reference_name, repo_id)
         return
 
-    def update_repo(self, repo_id, line_details):
-        git2db = Git2Db(self.db_name, self.git_repo_path, None, line_details, self.logger)
+    def delete_commit(self, commit_id, repo_id):
+        cursor = self.cnx.cursor()
+        query = "DELETE FROM commit WHERE id = %s AND repo_id = %s"
+        arguments = [commit_id, repo_id]
+        cursor.execute(query, arguments)
+        self.cnx.commit()
+        cursor.close()
+
+    def delete_commit_parent(self, commit_id, repo_id):
+        cursor = self.cnx.cursor()
+        query = "DELETE FROM commit_parent WHERE commit_id = %s AND repo_id = %s"
+        arguments = [commit_id, repo_id]
+        cursor.execute(query, arguments)
+        self.cnx.commit()
+        cursor.close()
+
+    def delete_commit_in_reference(self, commit_id, repo_id):
+        cursor = self.cnx.cursor()
+        query = "DELETE FROM commit_in_reference WHERE commit_id = %s AND repo_id = %s"
+        arguments = [commit_id, repo_id]
+        cursor.execute(query, arguments)
+        self.cnx.commit()
+        cursor.close()
+
+    def delete_line_details(self, file_modification_id):
+        cursor = self.cnx.cursor()
+        query = "DELETE FROM line_detail WHERE file_modification_id = %s"
+        arguments = [file_modification_id]
+        cursor.execute(query, arguments)
+        self.cnx.commit()
+        cursor.close()
+
+    def delete_file_modifications(self, commit_id):
+        cursor = self.cnx.cursor()
+        query = "SELECT id " \
+                "FROM file_modification f " \
+                "WHERE commit_id = %s"
+        arguments = [commit_id]
+        cursor.execute(query, arguments)
+
+        row = cursor.fetchone()
+
+        while row:
+            file_modification_id = row[0]
+            self.delete_line_details(file_modification_id)
+            row = cursor.fetchone()
+
+        query = "DELETE FROM file_modification WHERE commit_id = %s"
+        arguments = [commit_id]
+        cursor.execute(query, arguments)
+        self.cnx.commit()
+
+        cursor.close()
+
+    def delete_last_commit_info(self, repo_id):
+        cursor = self.cnx.cursor()
+        query = "SELECT MAX(id) as last_commit_id " \
+                "FROM commit c " \
+                "WHERE repo_id = %s"
+        arguments = [repo_id]
+        cursor.execute(query, arguments)
+
+        row = cursor.fetchone()
+        cursor.close()
+        if row:
+            last_commit_id = row[0]
+            self.delete_commit(last_commit_id, repo_id)
+            self.delete_commit_in_reference(last_commit_id, repo_id)
+            self.delete_commit_parent(last_commit_id, repo_id)
+            self.delete_file_modifications(last_commit_id)
+
+    def update_repo(self, repo_id, import_type):
+        git2db = Git2Db(self.db_name, self.git_repo_path, self.before_date, self.import_last_commit, import_type, self.logger)
+
+        if self.import_last_commit:
+            self.delete_last_commit_info(repo_id)
+
         self.update_existing_references(git2db, repo_id)
         self.add_new_references(git2db, repo_id)
         return
 
     def line_detail_table_is_empty(self, repo_id):
         cursor = self.cnx.cursor()
-        query = "SELECT COUNT(*) FROM file f " \
-                "JOIN file_modification fm ON f.id = fm.file_id " \
-                "JOIN line_detail ld ON fm.id = ld.file_modification_id " \
-                "WHERE repo_id = %s"
+        query = "SELECT COUNT(*) " \
+                "FROM commit c " \
+                "JOIN file_modification fm ON c.id = fm.commit_id " \
+                "JOIN line_detail l ON fm.id = l.file_modification_id " \
+                "WHERE l.content IS NOT NULL AND repo_id = %s"
         arguments = [repo_id]
         cursor.execute(query, arguments)
 
         row = cursor.fetchone()
-
         count = 0
         if row:
             count = int(row[0])
 
         cursor.close()
 
-        return count == 0
+        return int(count > 0)
+
+    def file_modification_patch_is_empty(self, repo_id):
+        cursor = self.cnx.cursor()
+        query = "SELECT COUNT(*) " \
+                "FROM commit c " \
+                "JOIN file_modification fm ON c.id = fm.commit_id " \
+                "WHERE patch IS NOT NULL and repo_id = %s"
+        arguments = [repo_id]
+        cursor.execute(query, arguments)
+
+        row = cursor.fetchone()
+        count = 0
+        if row:
+            count = int(row[0])
+
+        cursor.close()
+
+        return int(count > 0)
+
+    def get_import_type(self, repo_id):
+        import_type = 1
+        import_type += self.line_detail_table_is_empty(repo_id) + self.file_modification_patch_is_empty(repo_id)
+        return import_type
 
     def set_database(self):
         cursor = self.cnx.cursor()
@@ -123,7 +222,7 @@ class UpdateDb():
         start_time = datetime.now()
         repo_id = self.select_repo_id(self.db_name)
 
-        self.update_repo(repo_id, not self.line_detail_table_is_empty(repo_id))
+        self.update_repo(repo_id, self.get_import_type(repo_id))
         end_time = datetime.now()
         self.cnx.close()
         minutes_and_seconds = divmod((end_time-start_time).total_seconds(), 60)

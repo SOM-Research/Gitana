@@ -29,13 +29,8 @@ class Gitana():
         i.execute()
         return
 
-    def git2db(self, db_name, git_path):
-        extractor = Git2Db(db_name, git_path, None, self.logger)
-        extractor.extract()
-        return
-
-    def git2db_before_date(self, db_name, git_path, before, line_details):
-        extractor = Git2Db(db_name, git_path, before, line_details, self.logger)
+    def git2db(self, db_name, git_path, before, import_type):
+        extractor = Git2Db(db_name, git_path, before, None, import_type, self.logger)
         extractor.extract()
         return
 
@@ -54,12 +49,7 @@ class Gitana():
         filter.filter()
         return
 
-    def updatedb(self, db_name, git_path):
-        updater = UpdateDb(db_name, git_path, None, logging)
-        updater.update()
-        return
-
-    def updatedb_before_date(self, db_name, git_path, before):
-        updater = UpdateDb(db_name, git_path, before, logging)
+    def updatedb(self, db_name, git_path, before_date, import_last_commit):
+        updater = UpdateDb(db_name, git_path, before_date, import_last_commit, self.logger)
         updater.update()
         return

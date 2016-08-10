@@ -8,6 +8,7 @@ import re
 from gitana import Gitana
 import traceback
 
+
 class UpdateDB_GUI(Tk):
 
     def __init__(self):
@@ -50,24 +51,29 @@ class UpdateDB_GUI(Tk):
         self.beforeDate = Entry(self, textvariable=self.beforeDateVariable, width=30)
         self.beforeDate.grid(column=1, row=4, sticky='W')
 
+        #last commit corrupted
+        self.lastCommitCorruptedVariable = IntVar()
+        self.lastCommitCorrupted = Checkbutton(self, text="Re-import last commit", variable=self.lastCommitCorruptedVariable)
+        self.lastCommitCorrupted.grid(column=0, row=5, sticky='W')
+
         ##########################
         #empty label
         emptyLabel = Label(self, anchor="w")
-        emptyLabel.grid(column=0, row=5, sticky='WE')
+        emptyLabel.grid(column=0, row=6, sticky='WE')
         ##########################
 
         #Finish button
         self.buttonFinish = Button(self, text=u"Update", command=self.launch_thread_execute)
-        self.buttonFinish.grid(column=1, row=6, sticky="E")
+        self.buttonFinish.grid(column=1, row=7, sticky="E")
 
         #Abort interrupt
         self.buttonAbort = Button(self, text=u"Abort", command=self.launch_thread_interrupt)
-        self.buttonAbort.grid(column=2, row=6, sticky="E")
+        self.buttonAbort.grid(column=2, row=7, sticky="E")
         self.buttonAbort.config(state=DISABLED)
 
         self.info_execution = StringVar()
         labelExecuting = Label(self, textvariable=self.info_execution, anchor="w")
-        labelExecuting.grid(column=0, row=6, sticky='EW')
+        labelExecuting.grid(column=0, row=7, sticky='EW')
 
         self.resizable(False, False)
 
@@ -135,8 +141,10 @@ class UpdateDB_GUI(Tk):
         try:
             self.REPO_PATH = self.repoPathVariable.get()
             self.DBNAME = self.DBNameVariable.get()
+            self.BEFORE_DATE = self.beforeDateVariable.get()
+            self.IMPORT_LAST_COMMIT = self.lastCommitCorruptedVariable.get()
             g = Gitana(self.DBNAME)
-            g.updatedb(self.DBNAME, self.REPO_PATH)
+            g.updatedb(self.DBNAME, self.REPO_PATH, self.BEFORE_DATE, self.IMPORT_LAST_COMMIT)
 
             self.info_execution.set("Finished")
             self.buttonFinish.config(state=NORMAL)
@@ -150,6 +158,7 @@ class UpdateDB_GUI(Tk):
     def start_export(self):
         label = Label(self, text=id)
         label.pack(side="top", fill="both", padx=10, pady=10)
+
 
 def main():
      UpdateDB_GUI()

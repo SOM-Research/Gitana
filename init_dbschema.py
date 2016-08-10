@@ -498,11 +498,11 @@ class InitDbSchema():
         cursor = self.cnx.cursor()
 
         create_table_repositories = "CREATE TABLE repository( " \
-                                "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
-                                "name varchar(255), " \
-                                "INDEX n (name), " \
-                                "CONSTRAINT name UNIQUE (name)" \
-                                ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
+                                    "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
+                                    "name varchar(255), " \
+                                    "INDEX n (name), " \
+                                    "CONSTRAINT name UNIQUE (name)" \
+                                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 
         create_table_references = "CREATE TABLE reference( " \
                                   "id int(20) AUTO_INCREMENT PRIMARY KEY, " \

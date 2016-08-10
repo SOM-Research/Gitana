@@ -8,19 +8,38 @@ from git import *
 from gitquerier_gitpython import GitQuerier
 import config_db
 
+LIGHT_IMPORT_TYPE = 1
+MEDIUM_IMPORT_TYPE = 2
+FULL_IMPORT_TYPE = 3
+
 
 class Git2Db():
 
-    def __init__(self, db_name, git_repo_path, before_date, line_details, logger):
+    def __init__(self, db_name, git_repo_path, before_date, import_last_commit, import_type, logger):
         self.logger = logger
         self.git_repo_path = git_repo_path
         self.db_name = db_name
         self.before_date = before_date
-        self.get_line_details = line_details
+        self.import_last_commit = import_last_commit
+        self.import_type = import_type
         self.querier = GitQuerier(git_repo_path, logger)
 
         self.cnx = mysql.connector.connect(**config_db.CONFIG)
         self.set_database()
+
+    def restart_connection(self):
+        self.cnx = mysql.connector.connect(**config_db.CONFIG)
+
+    def check_connection_alive(self):
+        try:
+            cursor = self.cnx.cursor()
+            cursor.execute("SELECT VERSION()")
+            results = cursor.fetchone()
+            ver = results[0]
+            if not ver:
+                self.restart_connection()
+        except:
+            return self.restart_connection()
 
     def insert_repo(self):
         cursor = self.cnx.cursor()
@@ -247,6 +266,14 @@ class Git2Db():
         self.insert_reference(repo_id, ref_name, ref_type)
         return
 
+    def get_diffs_from_commit(self, commit):
+        if self.import_type > LIGHT_IMPORT_TYPE:
+            diffs = self.querier.get_diffs(commit, True)
+        else:
+            diffs = self.querier.get_diffs(commit, False)
+
+        return diffs
+
     def analyse_commit(self, commit, ref_id, repo_id):
         message = self.querier.get_commit_property(commit, "message")
         author_name = self.querier.get_commit_property(commit, "author.name")
@@ -279,7 +306,11 @@ class Git2Db():
                     self.insert_file(repo_id, file_path, ext, ref_id)
                     file_id = self.select_file_id(repo_id, file_path, ref_id)
 
-                    patch_content = re.sub(r'^(\w|\W)*\n@@', '@@', diff[1])
+                    if self.import_type > LIGHT_IMPORT_TYPE:
+                        patch_content = re.sub(r'^(\w|\W)*\n@@', '@@', diff[1])
+                    else:
+                        patch_content = None
+
                     stats = self.querier.get_stats_for_file(commit, file_path)
                     status = self.querier.get_status(stats, diff)
 
@@ -287,12 +318,14 @@ class Git2Db():
                     last_file_modification = self.insert_file_modification(commit_id, file_id, status,
                                                                       stats[0], stats[1], stats[2],
                                                                       patch_content)
-                    if self.get_line_details:
+                    if self.import_type == FULL_IMPORT_TYPE:
                         line_details = self.querier.get_line_details(patch_content, ext)
                         for line_detail in line_details:
                             self.insert_line_details(last_file_modification, line_detail)
             else:
-                for diff in self.querier.get_diffs(commit):
+
+                for diff in self.get_diffs_from_commit(commit):
+                    self.check_connection_alive()
                     if self.querier.is_renamed(diff):
                         file_previous = self.querier.get_rename_from(diff)
                         ext_current = self.get_ext(file_previous)
@@ -332,12 +365,16 @@ class Git2Db():
                                 self.insert_file(repo_id, file_path, ext, ref_id)
                             file_id = self.select_file_id(repo_id, file_path, ref_id)
 
-                            #insert file modification (additions, deletions)
-                            patch_content = self.querier.get_patch_content(diff)
+                            if self.import_type > LIGHT_IMPORT_TYPE:
+                                #insert file modification (additions, deletions)
+                                patch_content = self.querier.get_patch_content(diff)
+                            else:
+                                patch_content = None
+
                             last_file_modification = self.insert_file_modification(commit_id, file_id, status,
                                                                               stats[0], stats[1], stats[2], patch_content)
 
-                            if self.get_line_details:
+                            if self.import_type == FULL_IMPORT_TYPE:
                                 line_details = self.querier.get_line_details(patch_content, ext)
                                 for line_detail in line_details:
                                     self.insert_line_details(last_file_modification, line_detail)

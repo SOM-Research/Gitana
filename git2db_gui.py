@@ -58,28 +58,41 @@ class Git2DB_GUI(Tk):
         self.beforeDate = Entry(self, textvariable=self.beforeDateVariable, width=30)
         self.beforeDate.grid(column=1, row=5, sticky='W')
 
-        self.importLineDetailsVariable = IntVar()
-        self.importLineDetails = Checkbutton(self, text="Import Line Details (time-consuming operation)", variable=self.importLineDetailsVariable)
-        self.importLineDetails.grid(column=0, row=6, sticky='W')
+        ##########################
+        #empty label
+        emptyLabel = Label(self, anchor="w")
+        emptyLabel.grid(column=0, row=6, sticky='WE')
+        ##########################
+
+        #select import process
+        self.importProcessTypeVariable = IntVar()
+        self.importProcessTypeVariable.set(3)
+        self.importProcessType1 = Radiobutton(self, text="Light mode (patch statistics [#additions, #deletions, #changes])", variable=self.importProcessTypeVariable, value=1)
+        self.importProcessType2 = Radiobutton(self, text="Medium mode (patch contents)", variable=self.importProcessTypeVariable, value=2)
+        self.importProcessType3 = Radiobutton(self, text="Full mode (patch line details)", variable=self.importProcessTypeVariable, value=3)
+
+        self.importProcessType1.grid(column=0, row=7, sticky='W')
+        self.importProcessType2.grid(column=0, row=8, sticky='W')
+        self.importProcessType3.grid(column=0, row=9, sticky='W')
 
         ##########################
         #empty label
         emptyLabel = Label(self, anchor="w")
-        emptyLabel.grid(column=0, row=7, sticky='WE')
+        emptyLabel.grid(column=0, row=10, sticky='WE')
         ##########################
 
         #Finish button
         self.buttonFinish = Button(self, text=u"Import", command=self.launch_thread_execute)
-        self.buttonFinish.grid(column=1, row=8, sticky="E")
+        self.buttonFinish.grid(column=1, row=11, sticky="E")
 
         #Abort interrupt
         self.buttonAbort = Button(self, text=u"Abort", command=self.launch_thread_interrupt)
-        self.buttonAbort.grid(column=2, row=8, sticky="E")
+        self.buttonAbort.grid(column=2, row=11, sticky="E")
         self.buttonAbort.config(state=DISABLED)
 
         self.info_execution = StringVar()
         labelExecuting = Label(self, textvariable=self.info_execution, anchor="w")
-        labelExecuting.grid(column=0, row=8, sticky='EW')
+        labelExecuting.grid(column=0, row=11, sticky='EW')
 
         self.resizable(False, False)
 
@@ -153,10 +166,10 @@ class Git2DB_GUI(Tk):
             if self.beforeDateVariable.get() != '':
                 self.BEFORE_DATE = self.beforeDateVariable.get()
             schema = self.REPO_OWNER + "_" + self.REPO_NAME
-            self.IMPORT_DETAILS = self.importLineDetailsVariable.get()
+            self.IMPORT_TYPE = self.importProcessTypeVariable.get()
             g = Gitana(schema)
             g.init_dbschema(schema)
-            g.git2db_before_date(schema, self.REPO_PATH, self.BEFORE_DATE, self.IMPORT_DETAILS)
+            g.git2db(schema, self.REPO_PATH, self.BEFORE_DATE, self.IMPORT_TYPE)
 
             self.info_execution.set("Finished")
             self.buttonFinish.config(state=NORMAL)

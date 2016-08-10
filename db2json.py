@@ -381,7 +381,7 @@ class Db2Json:
             file_history = self.get_history_for_file(file_id)
             changes_info = self.get_changes_for_file(file_history)
 
-            if self.line_details and not self.line_detail_table_is_empty(self.repo_id):
+            if self.line_details:
                 lines_info = self.get_lines_for_file(file_history)
                 file_info = {'repo': self.db_name,
                              'info': status,

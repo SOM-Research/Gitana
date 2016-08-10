@@ -16,17 +16,28 @@ class GitQuerier():
         self.gitt = self.repo.git
         self.no_treated_extensions = set()
 
-    def get_diffs(self, commit):
-        return commit.parents[0].diff(commit, create_patch=True)
-        # parent = commit.parents[0]
-        # patches = self.gitt.diff(parent.hexsha, commit.hexsha).split('diff --git')[1:]
-        # diffs = parent.diff(commit)
-        #
-        # result = []
-        # for i in range(0, len(diffs)):
-        #     result.append((diffs[i], patches[i]))
-        # return result
+    def get_diffs(self, commit, retrieve_patch):
+        diffs_info = commit.parents[0].diff(commit)
+        diffs = []
+        for d in diffs_info:
+            if d.a_path == d.b_path:
+                paths_to_include = d.a_path
+            elif d.a_path is None and d.b_path is not None:
+                paths_to_include = d.b_path
+            elif d.a_path is not None and d.b_path is None:
+                paths_to_include = d.a_path
+            else:
+                paths_to_include = d.a_path + ' , ' + d.b_path
 
+            if retrieve_patch:
+                diff = commit.parents[0].diff(commit, paths=paths_to_include, create_patch=True)
+            else:
+                diff = commit.parents[0].diff(commit, paths=paths_to_include)
+
+            diffs = diffs + diff
+
+        return diffs
+        #return commit.parents[0].diff(commit, create_patch=True)
 
     def commit_has_no_parents(self, commit):
         flag = False;
@@ -127,13 +138,13 @@ class GitQuerier():
 
         return status
 
-    def is_renamed(self, diff, patch):
+    def is_renamed(self, diff):
         flag = False
         if diff.renamed:
             flag = True
         #sometimes the library does not set the renamed value to True even if the file is actually renamed
         elif (not diff.a_blob) and (not diff.b_blob):
-            if re.match(r"^(.*)\nrename from(.*)\nrename to(.*)$", patch, re.M):
+            if re.match(r"^(.*)\nrename from(.*)\nrename to(.*)$", diff.diff, re.M):
                flag = True
         return flag
 
@@ -183,7 +194,6 @@ class GitQuerier():
             found = commit.committed_date
 
         return found
-
 
     def get_patch_content(self, diff):
         return re.sub(r'^(\w|\W)*\n@@', '@@', diff.diff)
