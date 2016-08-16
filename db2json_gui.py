@@ -223,7 +223,6 @@ class DB2JSON_GUI(Tk):
     def execute_export(self):
         try:
             self.DBNAME = self.DBNameVariable.get()
-            self.OUTPUT_JSON = DB2JSON_GUI.JSON_DIRECTORY_PATH + '/' + DB2JSON_GUI.JSON_FILE_NAME
             self.FORBIDDEN_RESOURCES_PATH = self.forbiddenResourcesPathVariable.get()
             self.FORBIDDEN_EXTENSION_PATH = self.forbiddenExtsPathVariable.get()
             self.USER_ALIASES_PATH = self.aliasingUsersPathVariable.get()
@@ -239,12 +238,17 @@ class DB2JSON_GUI(Tk):
             else:
                 self.FILTER = "out"
 
+            OUTPUT_JSON_FILE = self.DBNAME + "." + self.detailLevelVariable.get() + "." + DB2JSON_GUI.JSON_FILE_NAME
+            self.OUTPUT_JSON_PATH = DB2JSON_GUI.JSON_DIRECTORY_PATH + '/' + OUTPUT_JSON_FILE
+
             g = Gitana(self.DBNAME)
-            g.db2json(self.DBNAME, self.OUTPUT_JSON, self.LINE_DETAILS)
+
+            if not os.path.isfile(self.OUTPUT_JSON_PATH):
+                g.db2json(self.DBNAME, self.OUTPUT_JSON_PATH, self.LINE_DETAILS)
 
             if self.FORBIDDEN_RESOURCES_PATH != "" or self.FORBIDDEN_EXTENSION_PATH != "":
-                self.OUTPUT_FILTERED_JSON = DB2JSON_GUI.JSON_DIRECTORY_PATH + '/' + DB2JSON_GUI.FILTERED + '.' + self.FILTER + '.' + DB2JSON_GUI.JSON_FILE_NAME
-                g.filtering(self.OUTPUT_JSON,
+                self.OUTPUT_FILTERED_JSON = DB2JSON_GUI.JSON_DIRECTORY_PATH + '/' + DB2JSON_GUI.FILTERED + '.' + self.FILTER + '.' + OUTPUT_JSON_FILE
+                g.filtering(self.OUTPUT_JSON_PATH,
                             self.OUTPUT_FILTERED_JSON,
                             self.FORBIDDEN_RESOURCES_PATH,
                             self.FORBIDDEN_EXTENSION_PATH,
@@ -252,11 +256,12 @@ class DB2JSON_GUI(Tk):
 
             if self.USER_ALIASES_PATH != "":
                 if self.OUTPUT_FILTERED_JSON:
-                    self.OUTPUT_ALIASES_JSON = DB2JSON_GUI.JSON_DIRECTORY_PATH + '/' + DB2JSON_GUI.FILTERED + '.' + self.FILTER + '.' + DB2JSON_GUI.ALIASED + '.' + DB2JSON_GUI.JSON_FILE_NAME
+                    self.OUTPUT_JSON_PATH = self.OUTPUT_FILTERED_JSON
+                    self.OUTPUT_ALIASES_JSON = DB2JSON_GUI.JSON_DIRECTORY_PATH + '/' + DB2JSON_GUI.FILTERED + '.' + self.FILTER + '.' + DB2JSON_GUI.ALIASED + '.' + OUTPUT_JSON_FILE
                 else:
-                    self.OUTPUT_ALIASES_JSON = DB2JSON_GUI.JSON_DIRECTORY_PATH + '/' + DB2JSON_GUI.ALIASED + '.' + DB2JSON_GUI.JSON_FILE_NAME
+                    self.OUTPUT_ALIASES_JSON = DB2JSON_GUI.JSON_DIRECTORY_PATH + '/' + DB2JSON_GUI.ALIASED + '.' + OUTPUT_JSON_FILE
 
-                g.aliasing(self.OUTPUT_JSON,
+                g.aliasing(self.OUTPUT_JSON_PATH,
                            self.OUTPUT_ALIASES_JSON,
                            self.USER_ALIASES_PATH)
 
