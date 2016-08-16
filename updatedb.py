@@ -22,6 +22,9 @@ class UpdateDb():
         self.cnx = mysql.connector.connect(**config_db.CONFIG)
         self.set_database()
 
+    def array2string(self, array):
+        return ','.join(str(x) for x in array)
+
     def select_repo_id(self, repo_name):
         cursor = self.cnx.cursor()
         query = "SELECT id FROM repository WHERE name = %s"
@@ -113,17 +116,24 @@ class UpdateDb():
         self.cnx.commit()
         cursor.close()
 
-    def delete_line_details(self, file_modification_id):
+    def delete_file_modification(self, commit_id):
         cursor = self.cnx.cursor()
-        query = "DELETE FROM line_detail WHERE file_modification_id = %s"
-        arguments = [file_modification_id]
+        query = "DELETE FROM file_modification WHERE commit_id = %s"
+        arguments = [commit_id]
         cursor.execute(query, arguments)
         self.cnx.commit()
         cursor.close()
 
-    def delete_file_modifications(self, commit_id):
+    def delete_line_details(self, file_modification_ids):
         cursor = self.cnx.cursor()
-        query = "SELECT id " \
+        query = "DELETE FROM line_detail WHERE file_modification_id IN (" + self.array2string(file_modification_ids) + ")"
+        cursor.execute(query)
+        self.cnx.commit()
+        cursor.close()
+
+    def delete_file_related_info(self, commit_id):
+        cursor = self.cnx.cursor()
+        query = "SELECT id, file_id " \
                 "FROM file_modification f " \
                 "WHERE commit_id = %s"
         arguments = [commit_id]
@@ -131,17 +141,14 @@ class UpdateDb():
 
         row = cursor.fetchone()
 
+        file_modification_ids = []
         while row:
-            file_modification_id = row[0]
-            self.delete_line_details(file_modification_id)
+            file_modification_ids.append(row[0])
             row = cursor.fetchone()
-
-        query = "DELETE FROM file_modification WHERE commit_id = %s"
-        arguments = [commit_id]
-        cursor.execute(query, arguments)
-        self.cnx.commit()
-
         cursor.close()
+
+        self.delete_line_details(file_modification_ids)
+        self.delete_file_modification(commit_id)
 
     def delete_last_commit_info(self, repo_id):
         cursor = self.cnx.cursor()
@@ -158,7 +165,7 @@ class UpdateDb():
             self.delete_commit(last_commit_id, repo_id)
             self.delete_commit_in_reference(last_commit_id, repo_id)
             self.delete_commit_parent(last_commit_id, repo_id)
-            self.delete_file_modifications(last_commit_id)
+            self.delete_file_related_info(last_commit_id)
 
     def update_repo(self, repo_id, import_type):
         git2db = Git2Db(self.db_name, self.git_repo_path, self.before_date, self.import_last_commit, import_type, self.logger)

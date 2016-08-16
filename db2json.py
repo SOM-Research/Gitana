@@ -381,30 +381,33 @@ class Db2Json:
             file_history = self.get_history_for_file(file_id)
             changes_info = self.get_changes_for_file(file_history)
 
-            if self.line_details:
-                lines_info = self.get_lines_for_file(file_history)
-                file_info = {'repo': self.db_name,
-                             'info': status,
-                             'commits': commits,
-                             'ref': ref,
-                             'id': str(file_id),
-                             'name': name.split('/')[-1],
-                             'ext': ext,
-                             'dirs': directories_info,
-                             'line_count': len(lines_info),
-                             'lines': lines_info,
-                             'file_changes': changes_info}
+            if changes_info:
+                if self.line_details:
+                    lines_info = self.get_lines_for_file(file_history)
+                    file_info = {'repo': self.db_name,
+                                 'info': status,
+                                 'commits': commits,
+                                 'ref': ref,
+                                 'id': str(file_id),
+                                 'name': name.split('/')[-1],
+                                 'ext': ext,
+                                 'dirs': directories_info,
+                                 'line_count': len(lines_info),
+                                 'lines': lines_info,
+                                 'file_changes': changes_info}
+                else:
+                    file_info = {'repo': self.db_name,
+                                 'info': status,
+                                 'commits': commits,
+                                 'ref': ref,
+                                 'id': str(file_id),
+                                 'name': name.split('/')[-1],
+                                 'ext': ext,
+                                 'dirs': directories_info,
+                                 'file_changes': changes_info}
+                repo_json.write(json.dumps(file_info) + "\n")
             else:
-                file_info = {'repo': self.db_name,
-                             'info': status,
-                             'commits': commits,
-                             'ref': ref,
-                             'id': str(file_id),
-                             'name': name.split('/')[-1],
-                             'ext': ext,
-                             'dirs': directories_info,
-                             'file_changes': changes_info}
-            repo_json.write(json.dumps(file_info) + "\n")
+                self.logger.warning("Db2Json: changes info for file  " + name + " not found")
             row = cursor.fetchone()
         cursor.close()
 

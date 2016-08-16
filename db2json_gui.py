@@ -227,6 +227,8 @@ class DB2JSON_GUI(Tk):
             self.FORBIDDEN_RESOURCES_PATH = self.forbiddenResourcesPathVariable.get()
             self.FORBIDDEN_EXTENSION_PATH = self.forbiddenExtsPathVariable.get()
             self.USER_ALIASES_PATH = self.aliasingUsersPathVariable.get()
+            self.OUTPUT_FILTERED_JSON = None
+
             if self.detailLevelVariable.get() == "line":
                  self.LINE_DETAILS = True
             else:

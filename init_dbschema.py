@@ -557,7 +557,7 @@ class InitDbSchema():
         create_table_files = "CREATE TABLE file( " \
                              "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
                              "repo_id int(20), " \
-                             "name varchar(255), " \
+                             "name varchar(512), " \
                              "ext varchar(255), " \
                              "ref_id int(20), " \
                              "INDEX rrn (repo_id, ref_id, name), " \

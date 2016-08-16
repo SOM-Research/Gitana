@@ -226,15 +226,9 @@ class Git2Db():
         return
 
     def get_ext(self, str):
-        ext = str.split('.')[-1]
+        file_name = str.split('/')[-1]
+        ext = file_name.split('.')[-1]
         return ext
-        # try:
-        #     searchObj = re.search(r"(\.([a-zA-Z])+)+$", str, re.M | re.I)
-        #     ext = searchObj.group().strip(".")
-        # except:
-        #     self.logging.warning("Git2Db: file " + str + " has not extension")
-        #     ext = None
-        # return ext
 
     #not used, future extension
     def get_type(self, str):
