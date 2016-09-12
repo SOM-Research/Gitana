@@ -5,7 +5,7 @@ from mysql.connector import errorcode
 from querier_git import GitQuerier
 from datetime import datetime
 import git2db_main
-from init_db import config_db
+from extractor.init_db import config_db
 import logging
 import logging.handlers
 from subprocess import *

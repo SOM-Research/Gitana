@@ -3,7 +3,7 @@ __author__ = 'valerio cosentino'
 import mysql.connector
 from mysql.connector import errorcode
 from datetime import datetime
-from init_db import config_db
+from extractor.init_db import config_db
 import logging
 import logging.handlers
 from subprocess import *
@@ -17,6 +17,7 @@ PROCESSES = 10
 
 # DEPRECATED. This script updates only the issues already stored in the db.
 # Please, use the issue2db script
+
 
 def _instance_method_alias(obj, arg):
     obj.get_info_issue(arg)

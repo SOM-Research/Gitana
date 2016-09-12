@@ -4,22 +4,26 @@ import mysql.connector
 from mysql.connector import errorcode
 from datetime import datetime
 from querier_git import GitQuerier
-from init_db import config_db
+from extractor.init_db import config_db
 from subprocess import *
 import logging
 import logging.handlers
 import glob
 import os
 
+#do not import patches
 LIGHT_IMPORT_TYPE = 1
+#import patches but not at line level
 MEDIUM_IMPORT_TYPE = 2
+#import patches also at line level
 FULL_IMPORT_TYPE = 3
 
+#select the references (tags or branches) to import
 REFERENCES = ["0.7.0", "0.7.1", "0.7.2", "0.7.3", "0.7.4", "0.8.0", "0.9.0",
               "0.10.0", "1.0.0", "1.0.1", "1.1.2", "1.1.3", "1.1.4", "2.0.0",
               "0.10.1_RC4", "0.10.2_RC5", "0.8.1_RC4", "0.8.2_RC4", "0.9.1_RC4", "0.9.2_RC3", "1.0.2_RC4", "1.1.0_RC4", "1.2.0M5"]
 
-PROCESSES = len(REFERENCES)
+PROCESSES = 20 #len(REFERENCES)
 
 
 class Git2DbMain():

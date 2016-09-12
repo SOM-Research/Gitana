@@ -4,7 +4,7 @@ import mysql.connector
 from mysql.connector import errorcode
 from datetime import datetime
 from querier_bugzilla import BugzillaQuerier
-from init_db import config_db
+from extractor.init_db import config_db
 from subprocess import *
 import logging
 import logging.handlers

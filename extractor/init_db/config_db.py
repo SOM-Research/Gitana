@@ -3,7 +3,6 @@ __author__ = 'valerio cosentino'
 DB_NAME = "pat_papyrus_new"
 REPO_NAME = "papyrus"
 GIT_REPO_PATH = "C:\\Users\\atlanmod\\Desktop\\org.eclipse.papyrus"
-JSON_REPO_PATH = '../json/output.json'
 
 CONFIG = {
             'user': 'root',

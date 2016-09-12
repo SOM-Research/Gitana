@@ -5,14 +5,17 @@ from mysql.connector import errorcode
 import re
 from datetime import datetime
 from querier_git import GitQuerier
-from init_db import config_db
+from extractor.init_db import config_db
 import getopt
 import sys
 import logging
 import logging.handlers
 
+#do not import patches
 LIGHT_IMPORT_TYPE = 1
+#import patches but not at line level
 MEDIUM_IMPORT_TYPE = 2
+#import patches also at line level
 FULL_IMPORT_TYPE = 3
 
 
