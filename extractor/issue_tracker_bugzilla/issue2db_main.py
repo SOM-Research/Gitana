@@ -17,7 +17,7 @@ PRODUCT = "papyrus"
 BEFORE_DATE = None
 RECOVER_IMPORT = False
 
-PROCESSES = 10
+PROCESSES = 50
 
 
 class Issue2DbMain():

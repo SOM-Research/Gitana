@@ -549,7 +549,7 @@ class InitDbSchema():
                                   "name varchar(255), " \
                                   "type varchar(255), " \
                                   "INDEX n (name), " \
-                                  "CONSTRAINT name UNIQUE (name) " \
+                                  "CONSTRAINT name UNIQUE (repo_id, name, type) " \
                                   ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 
         create_table_users = "CREATE TABLE user ( " \
