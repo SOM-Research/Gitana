@@ -1,8 +1,8 @@
 __author__ = 'valerio cosentino'
 
-DB_NAME = "db_2048" #"db_halflife"
-REPO_NAME = "repo_2048" #"repo_halflife"
-GIT_REPO_PATH = "C:\\Users\\atlanmod\\Desktop\\2048" #"C:\\Users\\atlanmod\\Desktop\\halflife"
+DB_NAME = "db_rails" #"db_halflife"
+REPO_NAME = "repo_rails" #"repo_halflife"
+GIT_REPO_PATH = "C:\\Users\\atlanmod\\Desktop\\rails" #"C:\\Users\\atlanmod\\Desktop\\halflife"
 
 CONFIG = {
             'user': 'root',

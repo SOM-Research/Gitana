@@ -285,12 +285,12 @@ class Git2DbReference():
                     self.analyse_commits(commits, reference_name, repo_id)
                 else:
                     if self.before_date:
-                        commits = self.querier.collect_all_commits_before_date(ref_name, self.before_date)
+                        commits = self.querier.collect_all_commits_before_date(reference_name, self.before_date)
                     else:
-                        commits = self.querier.collect_all_commits(ref_name)
+                        commits = self.querier.collect_all_commits(reference_name)
 
-                    self.analyse_reference(ref_name, ref_type, repo_id)
-                    self.analyse_commits(commits, ref_name, repo_id)
+                    self.analyse_reference(reference_name, ref_type, repo_id)
+                    self.analyse_commits(commits, reference_name, repo_id)
                 #fix parent table for missing parents
                 self.fix_commit_parent_table(repo_id)
                 break
@@ -420,9 +420,9 @@ class Git2DbReference():
                                     for line_detail in line_details:
                                         self.insert_line_details(file_modification_id, line_detail)
                             except:
-                                self.logger.warning("Git2Db: GitPython null file path " + str(sha) + " - " + str(message))
+                                self.logger.warning("Git2Db: GitPython null file path " + str(sha))
             except AttributeError as e:
-                self.logger.error("Git2Db: GitPython just failed on commit " + str(sha) + " - " + str(message) + ". Details: " + str(e))
+                self.logger.error("Git2Db: GitPython just failed on commit " + str(sha) + ". Details: " + str(e))
 
         else:
             #insert parents of the commit

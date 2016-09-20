@@ -3,6 +3,7 @@ __author__ = 'valerio cosentino'
 from git import *
 import re
 from datetime import datetime
+import string
 
 
 class GitQuerier():
@@ -206,14 +207,18 @@ class GitQuerier():
     def get_references(self):
         references = []
         for ref in self.repo.references:
-            if type(ref) == RemoteReference:
-                if ref.name != "origin/HEAD":
-                    references.append((ref.name, 'branch'))
-            elif type(ref) == TagReference:
-                references.append((ref.name, 'tag'))
-            else:
-                self.logger.warning("Git2Db: " + str(type(ref)) + " not handled in the extractor")
+            if all(c in string.printable for c in ref.name):
+                ref_name = ref.name
 
+                if type(ref) == RemoteReference:
+                    if ref_name != "origin/HEAD":
+                        references.append((ref_name, 'branch'))
+                elif type(ref) == TagReference:
+                    references.append((ref_name, 'tag'))
+                else:
+                    self.logger.warning("Git2Db: " + str(type(ref)) + " not handled in the extractor")
+            else:
+                self.logger.warning("Git2Db: reference: " + ref.name + " won't be processed!")
         return references
 
     def get_commit_property(self, commit, prop):

@@ -1,5 +1,8 @@
 __author__ = 'valerio cosentino'
 
+import sys
+sys.path.insert(0, "..")
+
 import networkx as nx
 from extractor.init_db import config_db
 import mysql.connector
