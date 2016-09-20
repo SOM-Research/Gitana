@@ -1,5 +1,8 @@
 __author__ = 'valerio cosentino'
 
+import sys
+sys.path.insert(0, "..\\..")
+
 import mysql.connector
 from mysql.connector import errorcode
 import re
@@ -7,7 +10,6 @@ from datetime import datetime
 from querier_git import GitQuerier
 from extractor.init_db import config_db
 import getopt
-import sys
 import logging
 import logging.handlers
 

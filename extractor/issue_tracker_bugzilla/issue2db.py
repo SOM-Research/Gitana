@@ -1,5 +1,8 @@
 __author__ = 'valerio cosentino'
 
+import sys
+sys.path.insert(0, "..\\..")
+
 import mysql.connector
 from mysql.connector import errorcode
 from datetime import datetime
@@ -8,7 +11,6 @@ from extractor.init_db import config_db
 import re
 from email.utils import parseaddr
 import getopt
-import sys
 
 import logging
 import logging.handlers

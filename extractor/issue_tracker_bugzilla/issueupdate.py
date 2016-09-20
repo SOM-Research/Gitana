@@ -8,6 +8,9 @@ import logging
 import logging.handlers
 from subprocess import *
 
+import sys
+sys.path.insert(0, "..\\..")
+
 TYPE = "bugzilla"
 URL = "https://bugs.eclipse.org/bugs/xmlrpc.cgi"
 PRODUCT = "papyrus"

@@ -1,5 +1,8 @@
 __author__ = 'valerio cosentino'
 
+import sys
+sys.path.insert(0, "..\\..")
+
 import mysql.connector
 from mysql.connector import errorcode
 from querier_git import GitQuerier
