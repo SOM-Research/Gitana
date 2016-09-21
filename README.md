@@ -18,13 +18,27 @@ Gitana is written in Python 2.7.6, it relies on
 
 ### How to use Gitana
 
-In order to use Gitana, your machine needs to fulfill the technical details. Then, you can use the different scripts to instantiate and populate the DB
+In order to use Gitana, your machine needs to fulfill the technical details. 
+
+Set the following parameters in the extractor/init_db/config_db.py:
+
+- DB_NAME: the name of the database to be created in your MySQL instance
+- REPO_NAME: the name of the repository to analyse
+- GIT_REPO_PATH: the path to the Git repository to analyse
+- CONFIG: the credentials to access your MySQL instance
+
+Then, you can use the different scripts to instantiate and populate the DB
 
 - the script extractor/init_db/init_dbschema.py initializes the DB schema in your MySQL instance
 - the script extractor/git_tracker/git2db_main.py imports the data from a Git repository
+
+ - you can set the name of the REFERENCES to import and the number of PROCESSES (default 30) launched to extract the data from the Git repository
+
 - the script extractor/git_tracker/gitupdate.py updates the DB content with the latest modifications tracked in the Git repo
 - the script extractor/issue_tracker_bugzilla/issue2db_main.py imports the data from the Bugzilla tracker
+ - you can set the URL to the Bugzilla repository, the number of PROCESSES (default 30) launched to extract the data from it and the target PRODUCT 
 - the script extractor/issue_tracker_bugzilla/issueupdate.py updates the DB content with the lastest modifications in the Bugzilla tracker
+ - Note that this script will update the issues already stored in Gitana. This operation is automatically performed by issue2db_main.py 
 
 ### Gitana extensions
 
