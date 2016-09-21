@@ -450,8 +450,8 @@ class InitDbSchema():
                              "severity varchar(256), " \
                              "reference_id int(20), " \
                              "reporter_id int(20), " \
-                             "created_at timestamp, " \
-                             "last_change_at timestamp, " \
+                             "created_at timestamp DEFAULT '0000-00-00 00:00:00', " \
+                             "last_change_at timestamp DEFAULT '0000-00-00 00:00:00', " \
                              "INDEX u (reporter_id), " \
                              "INDEX r (reference_id) " \
                              ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
@@ -474,7 +474,7 @@ class InitDbSchema():
                                    "event_type_id int(20), " \
                                    "detail varchar(256), " \
                                    "creator_id int(20), " \
-                                   "created_at timestamp, " \
+                                   "created_at timestamp DEFAULT '0000-00-00 00:00:00', " \
                                    "target_user_id int(20), " \
                                    "CONSTRAINT iecc UNIQUE (issue_id, event_type_id, creator_id, created_at, detail) " \
                                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
@@ -505,7 +505,7 @@ class InitDbSchema():
                                      "issue_id int(20), " \
                                      "body longblob, " \
                                      "author_id int(20), " \
-                                     "created_at timestamp," \
+                                     "created_at timestamp DEFAULT '0000-00-00 00:00:00'," \
                                      "CONSTRAINT ip UNIQUE (issue_id, pos) " \
                                      ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 
@@ -580,8 +580,8 @@ class InitDbSchema():
                                "message varchar(512), " \
                                "author_id int(20), " \
                                "committer_id int(20), " \
-                               "authored_date timestamp, " \
-                               "committed_date timestamp, " \
+                               "authored_date timestamp DEFAULT '0000-00-00 00:00:00', " \
+                               "committed_date timestamp DEFAULT '0000-00-00 00:00:00', " \
                                "size int(20), " \
                                "INDEX sha (sha), " \
                                "CONSTRAINT s UNIQUE (sha) " \
