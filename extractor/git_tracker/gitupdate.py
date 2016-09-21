@@ -20,6 +20,7 @@ IMPORT_LAST_COMMIT = False
 IMPORT_NEW_REFERENCES = True
 LOG_FOLDER = "logs"
 
+
 class GitUpdate():
 
     def __init__(self, db_name, repo_name, git_repo_path, before_date, import_last_commit):

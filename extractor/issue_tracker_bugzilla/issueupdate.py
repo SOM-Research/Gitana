@@ -21,7 +21,7 @@ LOG_FOLDER = "logs"
 PROCESSES = 10
 
 # DEPRECATED. This script updates only the issues already stored in the db.
-# Please, use the issue2db script
+# Please, use the issue2db_main script
 
 
 def _instance_method_alias(obj, arg):
