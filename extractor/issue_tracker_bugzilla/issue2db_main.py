@@ -19,6 +19,7 @@ URL = "https://bugs.eclipse.org/bugs/xmlrpc.cgi"
 PRODUCT = "papyrus"
 BEFORE_DATE = None
 RECOVER_IMPORT = False
+LOG_FOLDER = "logs"
 
 PROCESSES = 50
 
@@ -26,8 +27,9 @@ PROCESSES = 50
 class Issue2DbMain():
 
     def __init__(self, db_name, repo_name, type, url, product, before_date, recover_import):
-        LOG_FILENAME = "logs/issue2db_main"
-        self.delete_previous_logs("logs")
+        self.create_log_folder(LOG_FOLDER)
+        LOG_FILENAME = LOG_FOLDER + "/issue2db_main"
+        self.delete_previous_logs(LOG_FOLDER)
         self.logger = logging.getLogger(LOG_FILENAME)
         fileHandler = logging.FileHandler(LOG_FILENAME + "-" + db_name + ".log", mode='w')
         formatter = logging.Formatter("%(asctime)s:%(levelname)s:%(message)s", "%Y-%m-%d %H:%M:%S")
@@ -49,10 +51,17 @@ class Issue2DbMain():
         self.set_database()
         self.set_settings()
 
+    def create_log_folder(self, name):
+        if not os.path.exists(name):
+            os.makedirs(name)
+
     def delete_previous_logs(self, path):
         files = glob.glob(path + "/*")
         for f in files:
-            os.remove(f)
+            try:
+                os.remove(f)
+            except:
+                continue
 
     def select_repo(self):
         cursor = self.cnx.cursor()

@@ -13,6 +13,7 @@ import glob
 import os
 from datetime import datetime
 
+LOG_FOLDER = "logs"
 GRAPH_TYPE = "directed"
 GRAPH_MODE = "dynamic"
 OUTPUT_PATH = "./output/"
@@ -57,11 +58,11 @@ WHERE r.name = %s
 GROUP BY author_id, file_id;
 """
 
-
 class GexfExporter():
     def __init__(self, db_name, repo_name):
-        LOG_FILENAME = "logs/exporter"
-        self.delete_previous_logs("logs")
+        self.create_log_folder(LOG_FOLDER)
+        LOG_FILENAME = LOG_FOLDER + "/exporter"
+        self.delete_previous_logs(LOG_FOLDER)
         self.logger = logging.getLogger(LOG_FILENAME)
         fileHandler = logging.FileHandler(LOG_FILENAME + "-" + db_name + ".log", mode='w')
         formatter = logging.Formatter("%(asctime)s:%(levelname)s:%(message)s", "%Y-%m-%d %H:%M:%S")
@@ -77,10 +78,17 @@ class GexfExporter():
         self.set_database()
         self.set_settings()
 
+    def create_log_folder(self, name):
+        if not os.path.exists(name):
+            os.makedirs(name)
+
     def delete_previous_logs(self, path):
         files = glob.glob(path + "/*")
         for f in files:
-            os.remove(f)
+            try:
+                os.remove(f)
+            except:
+                continue
 
     def set_database(self):
         cursor = self.cnx.cursor()

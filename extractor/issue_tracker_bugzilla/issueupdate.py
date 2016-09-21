@@ -7,15 +7,17 @@ from extractor.init_db import config_db
 import logging
 import logging.handlers
 from subprocess import *
+import glob
+import os
 
 import sys
-sys.path.insert(0, "..\\..")
+sys.path.insert(0, "..//..")
 
 TYPE = "bugzilla"
 URL = "https://bugs.eclipse.org/bugs/xmlrpc.cgi"
 PRODUCT = "papyrus"
 BEFORE_DATE = None
-
+LOG_FOLDER = "logs"
 PROCESSES = 10
 
 # DEPRECATED. This script updates only the issues already stored in the db.
@@ -30,7 +32,9 @@ def _instance_method_alias(obj, arg):
 class IssueUpdate():
 
     def __init__(self, db_name, repo_name, type, url, product, before_date):
-        LOG_FILENAME = "logs/issueupdate"
+        self.create_log_folder(LOG_FOLDER)
+        LOG_FILENAME = LOG_FOLDER + "/issueupdate"
+        self.delete_previous_logs(LOG_FOLDER)
         self.logger = logging.getLogger(LOG_FILENAME)
         fileHandler = logging.FileHandler(LOG_FILENAME + "-" + db_name + ".log", mode='w')
         formatter = logging.Formatter("%(asctime)s:%(levelname)s:%(message)s", "%Y-%m-%d %H:%M:%S")
@@ -49,6 +53,18 @@ class IssueUpdate():
         self.cnx = mysql.connector.connect(**config_db.CONFIG)
         self.set_database()
         self.set_settings()
+
+    def create_log_folder(self, name):
+        if not os.path.exists(name):
+            os.makedirs(name)
+
+    def delete_previous_logs(self, path):
+        files = glob.glob(path + "/*")
+        for f in files:
+            try:
+                os.remove(f)
+            except:
+                continue
 
     def select_repo(self):
         cursor = self.cnx.cursor()

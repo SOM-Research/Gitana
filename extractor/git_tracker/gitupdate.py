@@ -1,7 +1,7 @@
 __author__ = 'valerio cosentino'
 
 import sys
-sys.path.insert(0, "..\\..")
+sys.path.insert(0, "..//..")
 
 import mysql.connector
 from mysql.connector import errorcode
@@ -12,16 +12,20 @@ from extractor.init_db import config_db
 import logging
 import logging.handlers
 from subprocess import *
+import glob
+import os
 
 BEFORE_DATE = ""
 IMPORT_LAST_COMMIT = False
 IMPORT_NEW_REFERENCES = True
-
+LOG_FOLDER = "logs"
 
 class GitUpdate():
 
     def __init__(self, db_name, repo_name, git_repo_path, before_date, import_last_commit):
-        LOG_FILENAME = "logs/gitupdate"
+        self.create_log_folder(LOG_FOLDER)
+        LOG_FILENAME = LOG_FOLDER + "/gitupdate"
+        self.delete_previous_logs(LOG_FOLDER)
         self.logger = logging.getLogger(LOG_FILENAME)
         fileHandler = logging.FileHandler(LOG_FILENAME + "-" + db_name + ".log", mode='w')
         formatter = logging.Formatter("%(asctime)s:%(levelname)s:%(message)s", "%Y-%m-%d %H:%M:%S")
@@ -40,6 +44,18 @@ class GitUpdate():
 
         self.cnx = mysql.connector.connect(**config_db.CONFIG)
         self.set_database()
+
+    def create_log_folder(self, name):
+        if not os.path.exists(name):
+            os.makedirs(name)
+
+    def delete_previous_logs(self, path):
+        files = glob.glob(path + "/*")
+        for f in files:
+            try:
+                os.remove(f)
+            except:
+                continue
 
     def array2string(self, array):
         return ','.join(str(x) for x in array)
@@ -111,7 +127,7 @@ class GitUpdate():
         while processes:
             for p in processes:
                 p.poll()
-                if p.returncode:
+                if p.returncode is not None:
                     processes.remove(p)
 
         cursor.close()

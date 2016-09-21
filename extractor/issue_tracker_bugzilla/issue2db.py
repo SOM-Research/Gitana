@@ -1,7 +1,7 @@
 __author__ = 'valerio cosentino'
 
 import sys
-sys.path.insert(0, "..\\..")
+sys.path.insert(0, "..//..")
 
 import mysql.connector
 from mysql.connector import errorcode
@@ -11,15 +11,18 @@ from extractor.init_db import config_db
 import re
 from email.utils import parseaddr
 import getopt
+import os
 
 import logging
 import logging.handlers
 
+LOG_FOLDER = "logs"
 
 class Issue2Db():
 
     def __init__(self, type, url, product, db_name, repo_id, issue_tracker_id, from_issue_id, to_issue_id):
-        LOG_FILENAME = "logs/issue2db"
+        self.create_log_folder(LOG_FOLDER)
+        LOG_FILENAME = LOG_FOLDER + "/issue2db"
         self.logger = logging.getLogger(LOG_FILENAME)
         fileHandler = logging.FileHandler(LOG_FILENAME + "-" + db_name + "-" + str(from_issue_id) + "-" + str(to_issue_id) + ".log", mode='w')
         formatter = logging.Formatter("%(asctime)s:%(levelname)s:%(message)s", "%Y-%m-%d %H:%M:%S")
@@ -40,6 +43,10 @@ class Issue2Db():
 
         self.cnx = mysql.connector.connect(**config_db.CONFIG)
         self.set_database()
+
+    def create_log_folder(self, name):
+        if not os.path.exists(name):
+            os.makedirs(name)
 
     def restart_connection(self):
         self.cnx = mysql.connector.connect(**config_db.CONFIG)

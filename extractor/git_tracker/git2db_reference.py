@@ -1,7 +1,7 @@
 __author__ = 'valerio cosentino'
 
 import sys
-sys.path.insert(0, "..\\..")
+sys.path.insert(0, "..//..")
 
 import mysql.connector
 from mysql.connector import errorcode
@@ -12,7 +12,9 @@ from extractor.init_db import config_db
 import getopt
 import logging
 import logging.handlers
+import os
 
+LOG_FOLDER = "logs"
 #do not import patches
 LIGHT_IMPORT_TYPE = 1
 #import patches but not at line level
@@ -24,7 +26,8 @@ FULL_IMPORT_TYPE = 3
 class Git2DbReference():
 
     def __init__(self, repo_id, db_name, git_repo_path, before_date, import_last_commit, import_type, ref_name, counter, from_sha):
-        LOG_FILENAME = "logs/git2db_ref"
+        self.create_log_folder(LOG_FOLDER)
+        LOG_FILENAME = LOG_FOLDER + "/git2db_ref"
         self.logger = logging.getLogger(LOG_FILENAME)
         fileHandler = logging.FileHandler(LOG_FILENAME + "-" + db_name + "-" + str(counter) + ".log", mode='w')
         formatter = logging.Formatter("%(asctime)s:%(levelname)s:%(message)s", "%Y-%m-%d %H:%M:%S")
@@ -45,6 +48,10 @@ class Git2DbReference():
 
         self.cnx = mysql.connector.connect(**config_db.CONFIG)
         self.set_database()
+
+    def create_log_folder(self, name):
+        if not os.path.exists(name):
+            os.makedirs(name)
 
     def restart_connection(self):
         self.cnx = mysql.connector.connect(**config_db.CONFIG)
