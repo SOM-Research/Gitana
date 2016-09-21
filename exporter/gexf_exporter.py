@@ -14,7 +14,7 @@ import os
 from datetime import datetime
 
 LOG_FOLDER = "logs"
-GRAPH_TYPE = "directed"
+GRAPH_TYPE = "undirected"
 GRAPH_MODE = "dynamic"
 OUTPUT_PATH = "./output/"
 EXT = ".gexf"
@@ -29,38 +29,41 @@ COLORS = {
         "yellow": (255, 255, 0),
         "red": (255, 0, 0),
         "brown": (165, 42, 42),
-        "oranges": (255, 69, 0),
+        "orange": (255, 69, 0),
         "pink": (255, 192, 203),
         "purple": (160, 32, 240),
         "violet": (148, 0, 211)
         }
 
 SQL_NODES = """
-SELECT CONCAT('U', c.author_id) AS id, u.email AS label, COUNT(distinct file_id) AS size, 1 AS color
-FROM commit c JOIN file_modification fm ON c.id = fm.commit_id
-JOIN file f ON f.id = fm.file_id
-JOIN user u ON u.id = c.author_id
-JOIN repository r ON r.id = f.repo_id
+SELECT author_id as id, u.email AS label, COUNT(DISTINCT issue_id) AS size, 'blue' AS color
+FROM issue_comment ic JOIN user u ON ic.author_id = u.id
+JOIN issue i ON i.id = ic.issue_id
+JOIN issue_tracker it ON it.id = i.issue_tracker_id
+JOIN repository r ON r.id = it.repo_id
 WHERE r.name = %s
-GROUP BY c.author_id
-UNION
-SELECT CONCAT('F', f.id) AS id, f.name AS label, 1 AS size, 6 AS color
-FROM file f JOIN repository r ON r.id = f.repo_id
-WHERE r.name = %s
+GROUP BY author_id;
 """
 
 SQL_EDGES = """
-SELECT CONCAT('U', author_id) AS source, CONCAT('F', file_id) AS target, COUNT(*) AS weight
-FROM commit c JOIN file_modification fm ON c.id = fm.commit_id
-JOIN file f ON f.id = fm.file_id
-JOIN repository r ON r.id = f.repo_id
-WHERE r.name = %s
-GROUP BY author_id, file_id;
+SELECT source, target, COUNT(*) AS weight
+FROM (
+SELECT ic1.issue_id, ic1.author_id AS source, ic2.author_id AS target, CONCAT(ic1.author_id, '-', ic2.author_id) AS pair
+from issue_comment ic1
+JOIN issue_comment ic2 ON ic1.id <> ic2.id
+AND ic1.issue_id = ic2.issue_id
+AND ic1.author_id <> ic2.author_id
+AND ic1.author_id > ic2.author_id
+JOIN issue i ON ic1.issue_id = i.id
+JOIN issue_tracker it ON it.id = i.issue_tracker_id
+JOIN repository r ON r.id = it.repo_id
+WHERE r.name = %s) AS issue_interaction
+GROUP BY pair;
 """
 
 class GexfExporter():
     def __init__(self, db_name, repo_name):
-        self.create_log_folder(LOG_FOLDER)
+        self.create_folder(LOG_FOLDER)
         LOG_FILENAME = LOG_FOLDER + "/exporter"
         self.delete_previous_logs(LOG_FOLDER)
         self.logger = logging.getLogger(LOG_FILENAME)
@@ -78,7 +81,7 @@ class GexfExporter():
         self.set_database()
         self.set_settings()
 
-    def create_log_folder(self, name):
+    def create_folder(self, name):
         if not os.path.exists(name):
             os.makedirs(name)
 
@@ -104,13 +107,12 @@ class GexfExporter():
         cursor.execute("set global character_set_server = utf8")
         cursor.close()
 
-    def get_color(self, color_number):
-        color = COLORS.keys()[int(color_number)]
-        return COLORS.get(color)
+    def get_color(self, color_name):
+        return COLORS.get(color_name)
 
     def add_nodes(self, graph):
         cursor = self.cnx.cursor()
-        arguments = [self.repo_name, self.repo_name]
+        arguments = [self.repo_name]
         cursor.execute(SQL_NODES, arguments)
 
         row = cursor.fetchone()
@@ -167,6 +169,7 @@ class GexfExporter():
         self.add_nodes(graph)
         self.add_edges(graph)
 
+        self.create_folder(OUTPUT_PATH)
         nx.write_gexf(graph, OUTPUT_PATH + file_name + EXT)
 
         end_time = datetime.now()

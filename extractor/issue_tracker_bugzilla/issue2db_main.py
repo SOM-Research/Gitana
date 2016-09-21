@@ -21,7 +21,7 @@ BEFORE_DATE = None
 RECOVER_IMPORT = False
 LOG_FOLDER = "logs"
 
-PROCESSES = 50
+PROCESSES = 30
 
 
 class Issue2DbMain():

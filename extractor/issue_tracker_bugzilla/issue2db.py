@@ -66,7 +66,7 @@ class Issue2Db():
         cursor = self.cnx.cursor()
         query = "INSERT IGNORE INTO issue_tracker " \
                 "VALUES (%s, %s, %s)"
-        arguments = [None, 1, self.url]
+        arguments = [None, self.repo_id, self.url]
         cursor.execute(query, arguments)
         self.cnx.commit()
 

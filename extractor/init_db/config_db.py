@@ -1,8 +1,8 @@
 __author__ = 'valerio cosentino'
 
-DB_NAME = "db_2048" #"db_halflife"
-REPO_NAME = "repo_2048" #"repo_halflife"
-GIT_REPO_PATH = "C:\\Users\\atlanmod\\Desktop\\2048" #"C:\\Users\\atlanmod\\Desktop\\halflife"
+DB_NAME = "db_papyrus" #"db_halflife" "db_2048"
+REPO_NAME = "repo_papyrus" #"repo_halflife" "repo_2048"
+GIT_REPO_PATH = "C:\\Users\\atlanmod\\Desktop\\org.eclipse.papyrus" #"C:\\Users\\atlanmod\\Desktop\\halflife" "C:\\Users\\atlanmod\\Desktop\\2048"
 
 CONFIG = {
             'user': 'root',
