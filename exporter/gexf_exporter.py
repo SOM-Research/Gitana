@@ -46,7 +46,7 @@ GROUP BY author_id;
 """
 
 SQL_EDGES = """
-SELECT source, target, COUNT(*) AS weight
+SELECT source, target, COUNT(*) AS weight, 'gray' AS color
 FROM (
 SELECT ic1.issue_id, ic1.author_id AS source, ic2.author_id AS target, CONCAT(ic1.author_id, '-', ic2.author_id) AS pair
 from issue_comment ic1
@@ -125,9 +125,9 @@ class GexfExporter():
             try:
                 r, g, b = self.get_color(node_color)
                 graph.add_node(node_id)
+                graph.node[node_id]['label'] = node_label
                 graph.node[node_id]['viz'] = {'color': {'r': r, 'g': g, 'b': b, 'a': 0},
-                                              'size': node_size,
-                                              'label': node_label}
+                                              'size': node_size}
             except:
                 self.logger.warning(
                     "GexfExporter: problem when inserting node(id, label, size): (" + str(node_id) + "," + str(node_label) + ")")
@@ -147,9 +147,12 @@ class GexfExporter():
             source_id = str(row[0])
             target_id = str(row[1])
             weight = str(row[2])
+            edge_color = str(row[3])
 
             try:
+                r, g, b = self.get_color(edge_color)
                 graph.add_edge(source_id, target_id, weight=weight)
+                graph[source_id][target_id]['viz'] = {'color': {'r': r, 'g': g, 'b': b, 'a': 0}}
             except:
                 self.logger.warning("GexfExporter: problem when inserting edge(source_id, target_id, weight): (" + str(source_id) + "," + str(target_id) + "," + str(weight) + ")")
 
