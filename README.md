@@ -14,7 +14,7 @@ Gitana is written in Python 2.7.6, it relies on
 - python-bugzilla >= 1.2.2 (https://pypi.python.org/pypi/python-bugzilla/1.2.2)
 - Git-1.9.4 (https://github.com/msysgit/msysgit/releases)
 - MySQL Server 5.6 (http://dev.mysql.com/downloads/installer/)
-- mysql-connector-python (https://pypi.python.org/pypi/mysql-connector-python)
+- mysql-connector (https://pypi.python.org/pypi/mysql-connector)
 
 ### How to use Gitana
 
