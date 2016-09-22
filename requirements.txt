@@ -1,0 +1,5 @@
+networkx
+mysql-connector
+gitpython
+python-bugzilla
+pygithub
