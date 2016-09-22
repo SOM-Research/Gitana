@@ -43,7 +43,9 @@ Then, you can use the different scripts to instantiate and populate the DB
 - **extractor/issue_tracker_bugzilla/issue2db_main.py** imports the data from the Bugzilla tracker
  - you can set the **URL** to the Bugzilla repository, the number of **PROCESSES** (default 30) launched to extract the data from it and the target **PRODUCT** 
 - **extractor/issue_tracker_bugzilla/issueupdate.py** updates the DB content with the lastest modifications in the Bugzilla tracker
- - Note that this script will update only the issues already stored in Gitana. This operation is automatically performed by issue2db_main.py 
+ - Note that this script will update only the issues already stored in Gitana. This operation is automatically performed by issue2db_main.py
+- **exporter/gexf_exporter.py** exports the data stored in the DB to a GEXF file, that can be analysed with Gephi.
+  Currently, the export generates a graph where nodes represent users and their sizes are the number of issue comments written by the user. An edge exists between two nodes if the two corresponding users have commented on the same issue.
 
 ### Gitana extensions
 
