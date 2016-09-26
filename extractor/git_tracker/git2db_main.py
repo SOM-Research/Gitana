@@ -24,17 +24,17 @@ MEDIUM_IMPORT_TYPE = 2
 FULL_IMPORT_TYPE = 3
 
 #select the references (tags or branches) to import
-REFERENCES = []
-# REFERENCES = ["0.7.0", "0.7.1", "0.7.2", "0.7.3", "0.7.4", "0.8.0", "0.9.0",
-#                "0.10.0", "1.0.0", "1.0.1", "1.1.2", "1.1.3", "1.1.4", "2.0.0",
-#                "0.10.1_RC4", "0.10.2_RC5", "0.8.1_RC4", "0.8.2_RC4", "0.9.1_RC4", "0.9.2_RC3", "1.0.2_RC4", "1.1.0_RC4", "1.2.0M5"]
+#REFERENCES = []
+REFERENCES = ["0.7.0", "0.7.1", "0.7.2", "0.7.3", "0.7.4", "0.8.0", "0.9.0",
+                "0.10.0", "1.0.0", "1.0.1", "1.1.2", "1.1.3", "1.1.4", "2.0.0",
+                "0.10.1_RC4", "0.10.2_RC5", "0.8.1_RC4", "0.8.2_RC4", "0.9.1_RC4", "0.9.2_RC3", "1.0.2_RC4", "1.1.0_RC4", "1.2.0M5"]
 
-PROCESSES = 30 #len(REFERENCES)
+PROCESSES = len(REFERENCES) #30 len(REFERENCES)
 
 
 class Git2DbMain():
 
-    def __init__(self, db_name, repo_name, git_repo_path, before_date, import_last_commit, import_type):
+    def __init__(self, project_name, db_name, repo_name, git_repo_path, before_date, import_last_commit, import_type):
         self.create_log_folder(LOG_FOLDER)
         LOG_FILENAME = LOG_FOLDER + "/git2db_main"
         self.delete_previous_logs(LOG_FOLDER)
@@ -47,6 +47,7 @@ class Git2DbMain():
         self.logger.addHandler(fileHandler)
 
         self.git_repo_path = git_repo_path
+        self.project_name = project_name
         self.db_name = db_name
         self.repo_name = repo_name
         self.before_date = before_date
@@ -69,25 +70,43 @@ class Git2DbMain():
             except:
                 continue
 
-    def insert_repo(self):
+    def insert_project(self):
+        cursor = self.cnx.cursor()
+        query = "INSERT IGNORE INTO project " \
+                "VALUES (%s, %s)"
+        arguments = [None, self.project_name]
+        cursor.execute(query, arguments)
+        self.cnx.commit()
+
+        query = "SELECT id " \
+                "FROM project " \
+                "WHERE name = %s"
+        arguments = [self.project_name]
+        cursor.execute(query, arguments)
+        id = cursor.fetchone()[0]
+        cursor.close()
+        return id
+
+    def insert_repo(self, project_id):
         cursor = self.cnx.cursor()
         query = "INSERT IGNORE INTO repository " \
-                "VALUES (%s, %s)"
-        arguments = [None, self.repo_name]
+                "VALUES (%s, %s, %s)"
+        arguments = [None, project_id, self.repo_name]
         cursor.execute(query, arguments)
         self.cnx.commit()
 
         query = "SELECT id " \
                 "FROM repository " \
-                "WHERE name = %s"
-        arguments = [self.repo_name]
+                "WHERE name = %s AND project_id = %s"
+        arguments = [self.repo_name, project_id]
         cursor.execute(query, arguments)
         id = cursor.fetchone()[0]
         cursor.close()
         return id
 
     def get_info_contribution(self):
-        repo_id = self.insert_repo()
+        project_id = self.insert_project()
+        repo_id = self.insert_repo(project_id)
 
         processes = []
         counter = 0
@@ -138,7 +157,7 @@ class Git2DbMain():
 
 
 def main():
-    a = Git2DbMain(config_db.DB_NAME, config_db.REPO_NAME, config_db.GIT_REPO_PATH, "", False, 1)
+    a = Git2DbMain(config_db.PROJECT_NAME, config_db.DB_NAME, config_db.REPO_NAME, config_db.GIT_REPO_PATH, "", False, 1)
     a.extract()
 
 if __name__ == "__main__":

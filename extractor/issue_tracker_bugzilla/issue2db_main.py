@@ -26,7 +26,7 @@ PROCESSES = 30
 
 class Issue2DbMain():
 
-    def __init__(self, db_name, repo_name, type, url, product, before_date, recover_import):
+    def __init__(self, project_name, db_name, repo_name, type, url, product, before_date, recover_import):
         self.create_log_folder(LOG_FOLDER)
         LOG_FILENAME = LOG_FOLDER + "/issue2db_main"
         self.delete_previous_logs(LOG_FOLDER)
@@ -40,6 +40,7 @@ class Issue2DbMain():
 
         self.type = type
         self.url = url
+        self.project_name = project_name
         self.db_name = db_name
         self.repo_name = repo_name
         self.before_date = before_date
@@ -65,10 +66,10 @@ class Issue2DbMain():
 
     def select_repo(self):
         cursor = self.cnx.cursor()
-        query = "SELECT id " \
-                "FROM repository " \
-                "WHERE name = %s"
-        arguments = [self.repo_name]
+        query = "SELECT r.id " \
+                "FROM repository r JOIN project p ON r.project_id = p.id " \
+                "WHERE r.name = %s AND p.name = %s"
+        arguments = [self.repo_name, self.project_name]
         cursor.execute(query, arguments)
         id = cursor.fetchone()[0]
         cursor.close()
@@ -91,11 +92,14 @@ class Issue2DbMain():
         cursor.close()
         return id
 
-    def get_already_imported_issue_ids(self, issue_tracker_id):
+    def get_already_imported_issue_ids(self, issue_tracker_id, repo_id):
         issue_ids = []
         cursor = self.cnx.cursor()
-        query = "SELECT id FROM issue WHERE issue_tracker_id = %s"
-        arguments = [issue_tracker_id]
+        query = "SELECT i.id FROM issue i " \
+                "JOIN issue_tracker it ON i.issue_tracker_id = it.id " \
+                "WHERE issue_tracker_id = %s AND repo_id = %s " \
+                "ORDER BY i.id ASC"
+        arguments = [issue_tracker_id, repo_id]
         cursor.execute(query, arguments)
         row = cursor.fetchone()
 
@@ -123,20 +127,15 @@ class Issue2DbMain():
 
         return intervals
 
-    def split_issue_extraction(self):
-        repo_id = self.select_repo()
-        issue_tracker_id = self.insert_issue_tracker(repo_id)
+    def insert_issue_data(self, repo_id, issue_tracker_id):
         if self.recover_import:
-            imported = self.get_already_imported_issue_ids(issue_tracker_id)
+            imported = self.get_already_imported_issue_ids(issue_tracker_id, repo_id)
             issues = list(set(self.querier.get_issue_ids(None, None)) - set(imported))
             issues.sort()
         else:
             issues = self.querier.get_issue_ids(None, None)
 
-        self.cnx.close()
-
         intervals = self.get_intervals([id for id in issues])
-
         processes = []
         for interval in intervals:
             p = Popen(['python', 'issue2db.py', self.type, URL, PRODUCT, self.db_name, str(repo_id), str(issue_tracker_id), str(interval[0]), str(interval[1])])
@@ -153,6 +152,32 @@ class Issue2DbMain():
                 p.poll()
                 if p.returncode is not None:
                     processes.remove(p)
+
+    def insert_issue_dependencies(self, repo_id, issue_tracker_id):
+        issues = self.get_already_imported_issue_ids(issue_tracker_id, repo_id)
+        intervals = self.get_intervals([id for id in issues])
+        processes = []
+        for interval in intervals:
+            p = Popen(['python', 'issue_dependency2db.py', self.type, URL, PRODUCT, self.db_name, str(repo_id), str(issue_tracker_id), str(interval[0]), str(interval[1])])
+            processes.append(p)
+
+            while len(processes) == PROCESSES:
+                for p in processes:
+                    p.poll()
+                    if p.returncode is not None:
+                        processes.remove(p)
+
+        while processes:
+            for p in processes:
+                p.poll()
+                if p.returncode is not None:
+                    processes.remove(p)
+
+    def split_issue_extraction(self):
+        repo_id = self.select_repo()
+        issue_tracker_id = self.insert_issue_tracker(repo_id)
+        #self.insert_issue_data(repo_id, issue_tracker_id)
+        self.insert_issue_dependencies(repo_id, issue_tracker_id)
 
         return
 
@@ -183,7 +208,7 @@ class Issue2DbMain():
 
 
 def main():
-    a = Issue2DbMain(config_db.DB_NAME, config_db.REPO_NAME, TYPE, URL, PRODUCT, BEFORE_DATE, RECOVER_IMPORT)
+    a = Issue2DbMain(config_db.PROJECT_NAME, config_db.DB_NAME, config_db.REPO_NAME, TYPE, URL, PRODUCT, BEFORE_DATE, RECOVER_IMPORT)
     a.extract()
 
 if __name__ == "__main__":

@@ -48,78 +48,81 @@ class InitDbSchema():
         self.create_database()
         self.set_database()
         self.set_settings()
+        self.init_shared_tables()
         self.init_git_tables()
         self.init_issue_tracker_tables()
+        self.init_forum_tables()
+        self.init_instant_messaging_tables()
         self.init_functions()
         self.init_stored_procedures()
 
-    def reset_git_tables(self):
-        self.set_database()
-        self.set_settings()
-        cursor = self.cnx.cursor()
-
-        delete_table_repositories = "DROP TABLE IF EXISTS repository;"
-        delete_table_references = "DROP TABLE IF EXISTS reference;"
-        delete_table_users = "DROP TABLE IF EXISTS user;"
-        delete_table_commits = "DROP TABLE IF EXISTS commit;"
-        delete_table_commit_parent = "DROP TABLE IF EXISTS commit_parent;"
-        delete_table_commits2reference = "DROP TABLE IF EXISTS commit_in_reference;"
-        delete_table_files = "DROP TABLE IF EXISTS file;"
-        delete_table_file_renamed = "DROP TABLE IF EXISTS file_renamed;"
-        delete_table_file_modifications = "DROP TABLE IF EXISTS file_modification;"
-        delete_table_line_detail = "DROP TABLE IF EXISTS line_detail;"
-
-        cursor.execute(delete_table_repositories)
-        cursor.execute(delete_table_references)
-        cursor.execute(delete_table_users)
-        cursor.execute(delete_table_commits)
-        cursor.execute(delete_table_commit_parent)
-        cursor.execute(delete_table_commits2reference)
-        cursor.execute(delete_table_files)
-        cursor.execute(delete_table_file_renamed)
-        cursor.execute(delete_table_file_modifications)
-        cursor.execute(delete_table_line_detail)
-        cursor.close()
-
-        self.init_git_tables()
-
-        return
-
-    def reset_issue_tracker_tables(self):
-        self.set_database()
-        self.set_settings()
-        cursor = self.cnx.cursor()
-
-        delete_table_issue_tracker = "DROP TABLE IF EXISTS issue_tracker;"
-        delete_table_issue = "DROP TABLE IF EXISTS issue;"
-        delete_table_issue_assignee = "DROP TABLE IF EXISTS issue_assignee;"
-        delete_table_issue_subscriber = "DROP TABLE IF EXISTS issue_subscriber;"
-        delete_table_issue_event = "DROP TABLE IF EXISTS issue_event;"
-        delete_table_issue_event_type = "DROP TABLE IF EXISTS issue_event_type;"
-        delete_table_issue_labelled = "DROP TABLE IF EXISTS issue_labelled;"
-        delete_table_issue_label = "DROP TABLE IF EXISTS issue_label;"
-        delete_table_issue_comment = "DROP TABLE IF EXISTS issue_comment;"
-        delete_table_issue_comment_attachment = "DROP TABLE IF EXISTS issue_comment_attachment;"
-        delete_issue_commit_dependency = "DROP TABLE IF EXISTS issue_commit_dependency;"
-        delete_table_issue_dependency = "DROP TABLE IF EXISTS issue_dependency;"
-
-        cursor.execute(delete_table_issue_tracker)
-        cursor.execute(delete_table_issue)
-        cursor.execute(delete_table_issue_assignee)
-        cursor.execute(delete_table_issue_subscriber)
-        cursor.execute(delete_table_issue_event)
-        cursor.execute(delete_table_issue_event_type)
-        cursor.execute(delete_table_issue_labelled)
-        cursor.execute(delete_table_issue_label)
-        cursor.execute(delete_table_issue_comment)
-        cursor.execute(delete_table_issue_comment_attachment)
-        cursor.execute(delete_issue_commit_dependency)
-        cursor.execute(delete_table_issue_dependency)
-        cursor.close()
-
-        self.init_issue_tracker_tables()
-
-        return
+    # def reset_git_tables(self):
+    #     self.set_database()
+    #     self.set_settings()
+    #     cursor = self.cnx.cursor()
+    #
+    #     delete_table_repositories = "DROP TABLE IF EXISTS repository;"
+    #     delete_table_references = "DROP TABLE IF EXISTS reference;"
+    #     delete_table_users = "DROP TABLE IF EXISTS user;"
+    #     delete_table_commits = "DROP TABLE IF EXISTS commit;"
+    #     delete_table_commit_parent = "DROP TABLE IF EXISTS commit_parent;"
+    #     delete_table_commits2reference = "DROP TABLE IF EXISTS commit_in_reference;"
+    #     delete_table_files = "DROP TABLE IF EXISTS file;"
+    #     delete_table_file_renamed = "DROP TABLE IF EXISTS file_renamed;"
+    #     delete_table_file_modifications = "DROP TABLE IF EXISTS file_modification;"
+    #     delete_table_line_detail = "DROP TABLE IF EXISTS line_detail;"
+    #
+    #     cursor.execute(delete_table_repositories)
+    #     cursor.execute(delete_table_references)
+    #     cursor.execute(delete_table_users)
+    #     cursor.execute(delete_table_commits)
+    #     cursor.execute(delete_table_commit_parent)
+    #     cursor.execute(delete_table_commits2reference)
+    #     cursor.execute(delete_table_files)
+    #     cursor.execute(delete_table_file_renamed)
+    #     cursor.execute(delete_table_file_modifications)
+    #     cursor.execute(delete_table_line_detail)
+    #     cursor.close()
+    #
+    #     self.init_git_tables()
+    #
+    #     return
+    #
+    # def reset_issue_tracker_tables(self):
+    #     self.set_database()
+    #     self.set_settings()
+    #     cursor = self.cnx.cursor()
+    #
+    #     delete_table_issue_tracker = "DROP TABLE IF EXISTS issue_tracker;"
+    #     delete_table_issue = "DROP TABLE IF EXISTS issue;"
+    #     delete_table_issue_assignee = "DROP TABLE IF EXISTS issue_assignee;"
+    #     delete_table_issue_subscriber = "DROP TABLE IF EXISTS issue_subscriber;"
+    #     delete_table_issue_event = "DROP TABLE IF EXISTS issue_event;"
+    #     delete_table_issue_event_type = "DROP TABLE IF EXISTS issue_event_type;"
+    #     delete_table_issue_labelled = "DROP TABLE IF EXISTS issue_labelled;"
+    #     delete_table_issue_label = "DROP TABLE IF EXISTS label;"
+    #     delete_table_issue_comment = "DROP TABLE IF EXISTS message;"
+    #     delete_table_issue_comment_attachment = "DROP TABLE IF EXISTS attachment;"
+    #     delete_issue_commit_dependency = "DROP TABLE IF EXISTS issue_commit_dependency;"
+    #     delete_table_issue_dependency = "DROP TABLE IF EXISTS issue_dependency;"
+    #
+    #     cursor.execute(delete_table_issue_tracker)
+    #     cursor.execute(delete_table_issue)
+    #     cursor.execute(delete_table_issue_assignee)
+    #     cursor.execute(delete_table_issue_subscriber)
+    #     cursor.execute(delete_table_issue_event)
+    #     cursor.execute(delete_table_issue_event_type)
+    #     cursor.execute(delete_table_issue_labelled)
+    #     cursor.execute(delete_table_issue_label)
+    #     cursor.execute(delete_table_issue_comment)
+    #     cursor.execute(delete_table_issue_comment_attachment)
+    #     cursor.execute(delete_issue_commit_dependency)
+    #     cursor.execute(delete_table_issue_dependency)
+    #     cursor.close()
+    #
+    #     self.init_issue_tracker_tables()
+    #
+    #     return
 
     def set_database(self):
         cursor = self.cnx.cursor()
@@ -428,6 +431,209 @@ class InitDbSchema():
 
         cursor.close()
 
+    def init_shared_tables(self):
+        cursor = self.cnx.cursor()
+
+        create_table_project = "CREATE TABLE project( " \
+                               "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
+                               "name varchar(255), " \
+                               "INDEX n (name), " \
+                               "CONSTRAINT name UNIQUE (name)" \
+                               ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
+
+        create_table_user = "CREATE TABLE user ( " \
+                            "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
+                            "name varchar(256), " \
+                            "email varchar(256), " \
+                            "CONSTRAINT namem UNIQUE (name, email), " \
+                            "INDEX ne (name, email) " \
+                            ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
+
+        create_table_label = "CREATE TABLE label ( " \
+                             "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
+                             "name varchar(256), " \
+                             "CONSTRAINT name UNIQUE (name), " \
+                             "INDEX n (name) " \
+                             ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
+
+        create_table_message = "CREATE TABLE message ( " \
+                               "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
+                               "own_id int(20), " \
+                               "pos int(10), " \
+                               "type int(20), " \
+                               "source_id int(20), " \
+                               "source_type_id int(20), " \
+                               "body longblob, " \
+                               "votes int(20), " \
+                               "author_id int(20), " \
+                               "created_at timestamp DEFAULT '0000-00-00 00:00:00'," \
+                               "CONSTRAINT ip UNIQUE (source_id, source_type_id, own_id) " \
+                               ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
+
+        create_table_message_dependency = "CREATE TABLE message_dependency ( " \
+                                          "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
+                                          "source_message_id int(20), " \
+                                          "target_message_id int(20), " \
+                                          "CONSTRAINT ip UNIQUE (source_message_id, target_message_id) " \
+                                          ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
+
+        create_table_message_type = "CREATE TABLE message_type ( " \
+                                    "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
+                                    "name varchar(255), " \
+                                    "CONSTRAINT name UNIQUE (name) " \
+                                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
+
+        insert_message_types = "INSERT INTO message_type VALUES (NULL, 'question'), " \
+                                                               "(NULL, 'answer'), " \
+                                                               "(NULL, 'comment'), " \
+                                                               "(NULL, 'accepted_answer'), " \
+                                                               "(NULL, 'reply'), " \
+                                                               "(NULL, 'file_upload');"
+
+        create_table_source_message_type = "CREATE TABLE source_message_type ( " \
+                                           "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
+                                           "name varchar(255), " \
+                                           "CONSTRAINT name UNIQUE (name) " \
+                                           ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
+
+        insert_source_message_types = "INSERT INTO source_message_type VALUES (NULL, 'issue'), " \
+                                                                             "(NULL, 'topic'), " \
+                                                                             "(NULL, 'channel');"
+
+        create_table_attachment = "CREATE TABLE attachment ( " \
+                                  "id int(20) PRIMARY KEY, " \
+                                  "own_id int(20), " \
+                                  "message_id int(20), " \
+                                  "name varchar(256), " \
+                                  "extension varchar(10), " \
+                                  "bytes int(20), " \
+                                  "url varchar(512), " \
+                                  "CONSTRAINT ip UNIQUE (message_id, own_id) " \
+                                  ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
+
+        cursor.execute(create_table_project)
+        cursor.execute(create_table_user)
+        cursor.execute(create_table_label)
+        cursor.execute(create_table_message)
+        cursor.execute(create_table_message_dependency)
+        cursor.execute(create_table_message_type)
+        cursor.execute(insert_message_types)
+        cursor.execute(create_table_source_message_type)
+        cursor.execute(insert_source_message_types)
+        cursor.execute(create_table_attachment)
+
+        cursor.close()
+
+    def init_git_tables(self):
+        cursor = self.cnx.cursor()
+
+        create_table_repository = "CREATE TABLE repository( " \
+                                  "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
+                                  "project_id int(20), " \
+                                  "name varchar(255), " \
+                                  "INDEX n (name), " \
+                                  "CONSTRAINT name UNIQUE (project_id, name)" \
+                                  ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
+
+        create_table_reference = "CREATE TABLE reference( " \
+                                 "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
+                                 "repo_id int(20), " \
+                                 "name varchar(255), " \
+                                 "type varchar(255), " \
+                                 "INDEX n (name), " \
+                                 "CONSTRAINT name UNIQUE (repo_id, name, type) " \
+                                 ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
+
+        create_table_commit = "CREATE TABLE commit(" \
+                              "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
+                              "repo_id int(20), " \
+                              "sha varchar(512), " \
+                              "message varchar(512), " \
+                              "author_id int(20), " \
+                              "committer_id int(20), " \
+                              "authored_date timestamp DEFAULT '0000-00-00 00:00:00', " \
+                              "committed_date timestamp DEFAULT '0000-00-00 00:00:00', " \
+                              "size int(20), " \
+                              "INDEX sha (sha), " \
+                              "CONSTRAINT s UNIQUE (sha) " \
+                              ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
+
+        create_table_commit_parent = "CREATE TABLE commit_parent(" \
+                                     "repo_id int(20), " \
+                                     "commit_id int(20), " \
+                                     "commit_sha varchar(512), " \
+                                     "parent_id int(20), " \
+                                     "parent_sha varchar(512), " \
+                                     "PRIMARY KEY copa (repo_id, commit_id, parent_id), " \
+                                     "INDEX csha (commit_sha), " \
+                                     "INDEX psha (parent_sha), " \
+                                     "CONSTRAINT cshapsha UNIQUE (repo_id, commit_id, parent_sha) " \
+                                     ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
+
+        create_table_commits2reference = "CREATE TABLE commit_in_reference(" \
+                                         "repo_id int(20), " \
+                                         "commit_id int(20), " \
+                                         "ref_id int(20), " \
+                                         "PRIMARY KEY core (commit_id, ref_id) " \
+                                         ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
+
+        create_table_file = "CREATE TABLE file( " \
+                            "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
+                            "repo_id int(20), " \
+                            "name varchar(512), " \
+                            "ext varchar(255), " \
+                            "INDEX rrn (repo_id, name), " \
+                            "CONSTRAINT rerena UNIQUE (repo_id, name) " \
+                            ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
+
+        create_table_file_renamed = "CREATE TABLE file_renamed ( " \
+                                    "repo_id int(20), " \
+                                    "current_file_id int(20), " \
+                                    "previous_file_id int(20), " \
+                                    "PRIMARY KEY cpc (current_file_id, previous_file_id), " \
+                                    "INDEX current (current_file_id), " \
+                                    "INDEX previous (previous_file_id) " \
+                                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
+
+        create_table_file_modification = "CREATE TABLE file_modification ( " \
+                                         "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
+                                         "commit_id int(20), " \
+                                         "file_id int(20), " \
+                                         "status varchar(10), " \
+                                         "additions numeric(10), " \
+                                         "deletions numeric(10), " \
+                                         "changes numeric(10), " \
+                                         "patch longblob, " \
+                                         "CONSTRAINT cf UNIQUE (commit_id, file_id), " \
+                                         "INDEX c (commit_id), " \
+                                         "INDEX f (file_id) " \
+                                         ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
+
+        create_table_line_detail = "CREATE TABLE line_detail( " \
+                                   "file_modification_id int(20)," \
+                                   "type varchar(25), " \
+                                   "line_number numeric(20), " \
+                                   "is_commented numeric(1), " \
+                                   "is_partially_commented numeric(1), " \
+                                   "is_empty numeric(1), " \
+                                   "content longblob, " \
+                                   "PRIMARY KEY fityli (file_modification_id, type, line_number), " \
+                                   "INDEX fi (file_modification_id) " \
+                                   ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
+
+
+        cursor.execute(create_table_repository)
+        cursor.execute(create_table_reference)
+        cursor.execute(create_table_commit)
+        cursor.execute(create_table_commit_parent)
+        cursor.execute(create_table_commits2reference)
+        cursor.execute(create_table_file)
+        cursor.execute(create_table_file_renamed)
+        cursor.execute(create_table_file_modification)
+        cursor.execute(create_table_line_detail)
+        cursor.close()
+        return
+
     def init_issue_tracker_tables(self):
         cursor = self.cnx.cursor()
 
@@ -440,7 +646,8 @@ class InitDbSchema():
                                      ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 
         create_table_issue = "CREATE TABLE issue ( " \
-                             "id int(20) PRIMARY KEY, " \
+                             "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
+                             "own_id int(20), " \
                              "issue_tracker_id int(20), " \
                              "summary varchar(512), " \
                              "component varchar(256), " \
@@ -452,6 +659,7 @@ class InitDbSchema():
                              "reporter_id int(20), " \
                              "created_at timestamp DEFAULT '0000-00-00 00:00:00', " \
                              "last_change_at timestamp DEFAULT '0000-00-00 00:00:00', " \
+                             "CONSTRAINT ioi UNIQUE (issue_tracker_id, own_id), " \
                              "INDEX u (reporter_id), " \
                              "INDEX r (reference_id) " \
                              ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
@@ -492,32 +700,6 @@ class InitDbSchema():
                                       "PRIMARY KEY il (issue_id, label_id) " \
                                       ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 
-        create_table_issue_label = "CREATE TABLE issue_label ( " \
-                                   "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
-                                   "name varchar(256), " \
-                                   "CONSTRAINT name UNIQUE (name), " \
-                                   "INDEX n (name) " \
-                                   ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
-
-        create_table_issue_comment = "CREATE TABLE issue_comment( " \
-                                     "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
-                                     "pos int(10), " \
-                                     "issue_id int(20), " \
-                                     "body longblob, " \
-                                     "author_id int(20), " \
-                                     "created_at timestamp DEFAULT '0000-00-00 00:00:00'," \
-                                     "CONSTRAINT ip UNIQUE (issue_id, pos) " \
-                                     ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
-
-        create_table_issue_comment_attachment = "CREATE TABLE issue_comment_attachment ( " \
-                                                "id int(20) PRIMARY KEY, " \
-                                                "issue_comment_id int(20), " \
-                                                "name varchar(256), " \
-                                                "extension varchar(10), " \
-                                                "bytes int(20), " \
-                                                "CONSTRAINT ip UNIQUE (issue_comment_id, name, extension) " \
-                                                ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
-
         create_issue_commit_dependency = "CREATE TABLE issue_commit_dependency ( " \
                                          "issue_id int(20), " \
                                          "commit_id int(20), " \
@@ -538,129 +720,62 @@ class InitDbSchema():
         cursor.execute(create_table_issue_event)
         cursor.execute(create_table_issue_event_type)
         cursor.execute(create_table_issue_labelled)
-        cursor.execute(create_table_issue_label)
-        cursor.execute(create_table_issue_comment)
-        cursor.execute(create_table_issue_comment_attachment)
         cursor.execute(create_issue_commit_dependency)
         cursor.execute(create_table_issue_dependency)
         cursor.close()
         return
 
-    def init_git_tables(self):
+    def init_forum_tables(self):
         cursor = self.cnx.cursor()
 
-        create_table_repositories = "CREATE TABLE repository( " \
-                                    "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
-                                    "name varchar(255), " \
-                                    "INDEX n (name), " \
-                                    "CONSTRAINT name UNIQUE (name)" \
-                                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
-
-        create_table_references = "CREATE TABLE reference( " \
-                                  "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
-                                  "repo_id int(20), " \
-                                  "name varchar(255), " \
-                                  "type varchar(255), " \
-                                  "INDEX n (name), " \
-                                  "CONSTRAINT name UNIQUE (repo_id, name, type) " \
-                                  ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
-
-        create_table_users = "CREATE TABLE user ( " \
-                                  "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
-                                  "name varchar(256), " \
-                                  "email varchar(256), " \
-                                  "CONSTRAINT namem UNIQUE (name, email), " \
-                                  "INDEX ne (name, email) " \
-                                  ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
-
-        create_table_commits = "CREATE TABLE commit(" \
-                               "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
-                               "repo_id int(20), " \
-                               "sha varchar(512), " \
-                               "message varchar(512), " \
-                               "author_id int(20), " \
-                               "committer_id int(20), " \
-                               "authored_date timestamp DEFAULT '0000-00-00 00:00:00', " \
-                               "committed_date timestamp DEFAULT '0000-00-00 00:00:00', " \
-                               "size int(20), " \
-                               "INDEX sha (sha), " \
-                               "CONSTRAINT s UNIQUE (sha) " \
-                               ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
-
-        create_table_commit_parent = "CREATE TABLE commit_parent(" \
-                                     "repo_id int(20), " \
-                                     "commit_id int(20), " \
-                                     "commit_sha varchar(512), " \
-                                     "parent_id int(20), " \
-                                     "parent_sha varchar(512), " \
-                                     "PRIMARY KEY copa (repo_id, commit_id, parent_id), " \
-                                     "INDEX csha (commit_sha), " \
-                                     "INDEX psha (parent_sha), " \
-                                     "CONSTRAINT cshapsha UNIQUE (repo_id, commit_id, parent_sha) " \
-                                     ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
-
-        create_table_commits2reference = "CREATE TABLE commit_in_reference(" \
-                                         "repo_id int(20), " \
-                                         "commit_id int(20), " \
-                                         "ref_id int(20), " \
-                                         "PRIMARY KEY core (commit_id, ref_id) " \
-                                         ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
-
-        create_table_files = "CREATE TABLE file( " \
+        create_table_forum = "CREATE TABLE forum ( " \
                              "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
-                             "repo_id int(20), " \
-                             "name varchar(512), " \
-                             "ext varchar(255), " \
-                             "INDEX rrn (repo_id, name), " \
-                             "CONSTRAINT rerena UNIQUE (repo_id, name) " \
+                             "project_id int(20), " \
+                             "url varchar(512), " \
+                             "type varchar(512), " \
+                             "CONSTRAINT name UNIQUE (project_id, url)" \
                              ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 
-        create_table_file_renamed = "CREATE TABLE file_renamed ( " \
-                                    "repo_id int(20), " \
-                                    "current_file_id int(20), " \
-                                    "previous_file_id int(20), " \
-                                    "PRIMARY KEY cpc (current_file_id, previous_file_id), " \
-                                    "INDEX current (current_file_id), " \
-                                    "INDEX previous (previous_file_id) " \
-                                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
+        create_table_topic = "CREATE TABLE topic ( " \
+                             "id int(20) PRIMARY KEY, " \
+                             "own_id int(20), " \
+                             "forum_id int(20), " \
+                             "name varchar(256), " \
+                             "votes int(10), " \
+                             "views int(10), " \
+                             "created_at timestamp DEFAULT '0000-00-00 00:00:00', " \
+                             "last_changed_at timestamp DEFAULT '0000-00-00 00:00:00', " \
+                             "CONSTRAINT name UNIQUE (forum_id, own_id)" \
+                             ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 
-        create_table_file_modifications = "CREATE TABLE file_modification ( " \
-                                          "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
-                                          "commit_id int(20), " \
-                                          "file_id int(20), " \
-                                          "status varchar(10), " \
-                                          "additions numeric(10), " \
-                                          "deletions numeric(10), " \
-                                          "changes numeric(10), " \
-                                          "patch longblob, " \
-                                          "CONSTRAINT cf UNIQUE (commit_id, file_id), " \
-                                          "INDEX c (commit_id), " \
-                                          "INDEX f (file_id) " \
-                                          ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
+        cursor.execute(create_table_forum)
+        cursor.execute(create_table_topic)
 
-        create_table_line_detail = "CREATE TABLE line_detail( " \
-                                   "file_modification_id int(20)," \
-                                   "type varchar(25), " \
-                                   "line_number numeric(20), " \
-                                   "is_commented numeric(1), " \
-                                   "is_partially_commented numeric(1), " \
-                                   "is_empty numeric(1), " \
-                                   "content longblob, " \
-                                   "PRIMARY KEY fityli (file_modification_id, type, line_number), " \
-                                   "INDEX fi (file_modification_id) " \
-                                   ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
+        cursor.close()
 
+    def init_instant_messaging_tables(self):
+        cursor = self.cnx.cursor()
 
-        cursor.execute(create_table_repositories)
-        cursor.execute(create_table_references)
-        cursor.execute(create_table_users)
-        cursor.execute(create_table_commits)
-        cursor.execute(create_table_commit_parent)
-        cursor.execute(create_table_commits2reference)
-        cursor.execute(create_table_files)
-        cursor.execute(create_table_file_renamed)
-        cursor.execute(create_table_file_modifications)
-        cursor.execute(create_table_line_detail)
+        create_table_instant_messaging = "CREATE TABLE instant_messaging ( " \
+                                         "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
+                                         "project_id int(20), " \
+                                         "url varchar(512), " \
+                                         "type varchar(512), " \
+                                         "CONSTRAINT name UNIQUE (project_id, url)" \
+                                         ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
+
+        create_table_channel = "CREATE TABLE channel ( " \
+                               "id int(20) PRIMARY KEY, " \
+                               "own_id int(20), " \
+                               "instant_messaging_id int(20), " \
+                               "name varchar(256), " \
+                               "description varchar(512), " \
+                               "created_at timestamp DEFAULT '0000-00-00 00:00:00', " \
+                               "CONSTRAINT name UNIQUE (instant_messaging_id, own_id)" \
+                               ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
+
+        cursor.execute(create_table_instant_messaging)
+        cursor.execute(create_table_channel)
         cursor.close()
         return
 

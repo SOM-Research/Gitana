@@ -62,23 +62,6 @@ class Issue2Db():
         except:
             return self.restart_connection()
 
-    def insert_issue_tracker(self):
-        cursor = self.cnx.cursor()
-        query = "INSERT IGNORE INTO issue_tracker " \
-                "VALUES (%s, %s, %s)"
-        arguments = [None, self.repo_id, self.url]
-        cursor.execute(query, arguments)
-        self.cnx.commit()
-
-        query = "SELECT id " \
-                "FROM issue_tracker " \
-                "WHERE url = %s"
-        arguments = [self.url]
-        cursor.execute(query, arguments)
-        id = cursor.fetchone()[0]
-        cursor.close()
-        return id
-
     def insert_user(self, user_name, user_email, issue_id):
         try:
             cursor = self.cnx.cursor()
@@ -97,28 +80,27 @@ class Issue2Db():
         arguments = [user_email]
         cursor.execute(query, arguments)
         row = cursor.fetchone()
+        cursor.close()
 
         found = None
         if row:
             found = row[0]
 
-        cursor.close()
-
         return found
 
     def update_issue(self, issue_id, issue_tracker_id, summary, component, version, hardware, priority, severity, reference_id, last_change_at):
         cursor = self.cnx.cursor()
-        query = "UPDATE issue SET last_change_at = %s, summary = %s, component = %s, version = %s, hardware = %s, priority = %s, severity = %s, reference_id = %s WHERE id = %s AND issue_tracker_id = %s"
+        query = "UPDATE issue SET last_change_at = %s, summary = %s, component = %s, version = %s, hardware = %s, priority = %s, severity = %s, reference_id = %s WHERE own_id = %s AND issue_tracker_id = %s"
         arguments = [last_change_at, summary, component, version, hardware, priority, severity, reference_id, issue_id, issue_tracker_id]
         cursor.execute(query, arguments)
         self.cnx.commit()
         cursor.close()
 
-    def insert_issue(self, issue_id, issue_tracker_id, summary, component, version, hardware, priority, severity, reference_id, user_id, created_at, last_change_at):
+    def insert_issue(self, issue_own_id, issue_tracker_id, summary, component, version, hardware, priority, severity, reference_id, user_id, created_at, last_change_at):
         cursor = self.cnx.cursor()
         query = "INSERT IGNORE INTO issue " \
-                "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-        arguments = [issue_id, issue_tracker_id, summary, component, version, hardware, priority, severity, reference_id, user_id, created_at, last_change_at]
+                "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+        arguments = [None, issue_own_id, issue_tracker_id, summary, component, version, hardware, priority, severity, reference_id, user_id, created_at, last_change_at]
         cursor.execute(query, arguments)
         self.cnx.commit()
         cursor.close()
@@ -127,16 +109,18 @@ class Issue2Db():
         found = None
 
         cursor = self.cnx.cursor()
-        query = "SELECT last_change_at FROM issue WHERE id = %s"
-        arguments = [issue_id]
+        query = "SELECT i.last_change_at " \
+                "FROM issue i JOIN issue_tracker it ON i.issue_tracker_id = it.id " \
+                "WHERE own_id = %s AND issue_tracker_id = %s AND repo_id = %s"
+        arguments = [issue_id, self.issue_tracker_id, self.repo_id]
         cursor.execute(query, arguments)
 
         row = cursor.fetchone()
-        cursor.close()
 
         if row:
             found = row[0]
 
+        cursor.close()
         return found
 
     def find_reference_id(self, version, issue_id):
@@ -171,7 +155,7 @@ class Issue2Db():
 
     def insert_label(self, name):
         cursor = self.cnx.cursor()
-        query = "INSERT IGNORE INTO issue_label " \
+        query = "INSERT IGNORE INTO label " \
                 "VALUES (%s, %s)"
         arguments = [None, name]
         cursor.execute(query, arguments)
@@ -180,7 +164,7 @@ class Issue2Db():
 
     def select_label_id(self, name):
         cursor = self.cnx.cursor()
-        query = "SELECT id FROM issue_label WHERE name = %s"
+        query = "SELECT id FROM label WHERE name = %s"
         arguments = [name]
         cursor.execute(query, arguments)
         row = cursor.fetchone()
@@ -200,19 +184,48 @@ class Issue2Db():
         self.cnx.commit()
         cursor.close()
 
+    def get_source_type_id(self, name):
+        found = None
+        cursor = self.cnx.cursor()
+        query = "SELECT id FROM source_message_type WHERE name = %s"
+        arguments = [name]
+        cursor.execute(query, arguments)
+        row = cursor.fetchone()
+        cursor.close()
+
+        if row:
+            found = row[0]
+
+        return found
+
+    def get_message_type_id(self, name):
+        found = None
+        cursor = self.cnx.cursor()
+        query = "SELECT id FROM message_type WHERE name = %s"
+        arguments = [name]
+        cursor.execute(query, arguments)
+        row = cursor.fetchone()
+        cursor.close()
+
+        if row:
+            found = row[0]
+
+        return found
+
     def insert_issue_comment(self, position, issue_id, body, author_id, created_at):
         cursor = self.cnx.cursor()
-        query = "INSERT IGNORE INTO issue_comment " \
-                "VALUES (%s, %s, %s, %s, %s, %s)"
-        arguments = [None, position, issue_id, body, author_id, created_at]
+        query = "INSERT IGNORE INTO message " \
+                "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+        arguments = [None, None, position, self.get_message_type_id("reply"),
+                     issue_id, self.get_source_type_id("issue"), body, None, author_id, created_at]
         cursor.execute(query, arguments)
         self.cnx.commit()
         cursor.close()
 
     def select_issue_comment_id(self, issue_id, created_at):
         cursor = self.cnx.cursor()
-        query = "SELECT id FROM issue_comment WHERE issue_id = %s AND created_at = %s"
-        arguments = [issue_id, created_at]
+        query = "SELECT id FROM message WHERE source_id = %s AND source_type_id = %s AND created_at = %s"
+        arguments = [issue_id, self.get_source_type_id("issue"), created_at]
         cursor.execute(query, arguments)
         row = cursor.fetchone()
         found = None
@@ -222,11 +235,11 @@ class Issue2Db():
 
         return found
 
-    def insert_issue_comment_attachment(self, attachment_id, issue_comment_id, name, extension, size):
+    def insert_attachment(self, attachment_id, issue_comment_id, name, extension, size):
         cursor = self.cnx.cursor()
-        query = "INSERT IGNORE INTO issue_comment_attachment " \
-                "VALUES (%s, %s, %s, %s, %s)"
-        arguments = [attachment_id, issue_comment_id, name, extension, size]
+        query = "INSERT IGNORE INTO attachment " \
+                "VALUES (%s, %s, %s, %s, %s, %s, %s)"
+        arguments = [None, attachment_id, issue_comment_id, name, extension, size, None]
         cursor.execute(query, arguments)
         self.cnx.commit()
         cursor.close()
@@ -262,15 +275,6 @@ class Issue2Db():
         self.cnx.commit()
         cursor.close()
 
-    def insert_issue_dependency(self, issue_source_id, issue_target_id, type):
-        cursor = self.cnx.cursor()
-        query = "INSERT IGNORE INTO issue_dependency " \
-                "VALUES (%s, %s, %s)"
-        arguments = [issue_source_id, issue_target_id, type]
-        cursor.execute(query, arguments)
-        self.cnx.commit()
-        cursor.close()
-
     def insert_issue_commit_dependency(self, issue_id, commit_id):
         cursor = self.cnx.cursor()
         query = "INSERT IGNORE INTO issue_commit_dependency " \
@@ -289,7 +293,6 @@ class Issue2Db():
 
         return user_id
 
-
     def is_email(self, str):
         return parseaddr(str)[1] != '' and '@' in str
 
@@ -303,7 +306,7 @@ class Issue2Db():
             extension = "patch"
 
         size = sys.getsizeof(attachment_info)
-        self.insert_issue_comment_attachment(attachment_id, issue_comment_id, name, extension, size)
+        self.insert_attachment(attachment_id, issue_comment_id, name, extension, size)
 
     def extract_issue_event(self, action, action_content, creator_id, created_at, issue_id, field_name):
         event_type = action + '-' + field_name
@@ -393,8 +396,10 @@ class Issue2Db():
 
     def get_last_issue_id(self, issue_tracker_id):
         cursor = self.cnx.cursor()
-        query = "SELECT MAX(id) FROM issue WHERE issue_tracker_id = %s"
-        arguments = [issue_tracker_id]
+        query = "SELECT MAX(i.id) " \
+                "FROM issue i JOIN issue_tracker it ON i.issue_tracker_id = it.id " \
+                "WHERE issue_tracker_id = %s AND repo_id = %s"
+        arguments = [issue_tracker_id, self.repo_id]
         cursor.execute(query, arguments)
         row = cursor.fetchone()
         found = None
@@ -420,16 +425,22 @@ class Issue2Db():
 
         return found
 
-    def extract_single_issue_dependency(self, issue_id, data, type):
-        extracted= None
-        if isinstance(data, int):
-            extracted = data
-        else:
-            if "show_bug" in data:
-                extracted = data.split("?id=")[1]
+    def select_issue_id(self, issue_own_id):
+        found = None
+        cursor = self.cnx.cursor()
+        query = "SELECT i.id FROM issue i " \
+                "JOIN issue_tracker it ON i.issue_tracker_id = it.id " \
+                "WHERE own_id = %s AND issue_tracker_id = %s AND repo_id = %s"
+        arguments = [issue_own_id, self.issue_tracker_id, self.repo_id]
+        cursor.execute(query, arguments)
 
-        if extracted:
-            self.insert_issue_dependency(issue_id, extracted, type)
+        row = cursor.fetchone()
+        cursor.close()
+
+        if row:
+            found = row[0]
+
+        return found
 
     def insert_subscriber(self, issue_id, subscriber_id):
         cursor = self.cnx.cursor()
@@ -449,13 +460,6 @@ class Issue2Db():
         self.cnx.commit()
         cursor.close()
 
-    def extract_issue_dependency(self, issue_id, obj, type):
-        if isinstance(obj, list):
-            for issue in obj:
-                self.extract_single_issue_dependency(issue_id, issue, type)
-        else:
-            self.extract_single_issue_dependency(issue_id, obj, type)
-
     def extract_issue_commit_dependency(self, issue_id, commits):
         flattened_list = [y for x in commits for y in x]
         for id in flattened_list:
@@ -473,10 +477,10 @@ class Issue2Db():
 
         return flag
 
-    def get_issue_info(self, issue_id):
+    def get_issue_info(self, issue_own_id):
         flag_insert_issue_data = False
 
-        issue = self.querier.get_issue(issue_id)
+        issue = self.querier.get_issue(issue_own_id)
         summary = issue.summary
         component = issue.component
         version = issue.version
@@ -486,20 +490,21 @@ class Issue2Db():
         created_at = self.get_timestamp(issue.creation_time)
         last_change_at = self.get_timestamp(issue.last_change_time)
 
-        reference_id = self.find_reference_id(issue.version, issue_id)
+        reference_id = self.find_reference_id(issue.version, issue_own_id)
 
-        user_id = self.get_user_id(issue.creator, issue_id)
+        user_id = self.get_user_id(issue.creator, issue_own_id)
 
-        stored_issue_last_change = self.select_last_change_issue(issue_id)
+        stored_issue_last_change = self.select_last_change_issue(issue_own_id)
         if stored_issue_last_change:
             if last_change_at != stored_issue_last_change:
                 flag_insert_issue_data = True
-                self.update_issue(issue_id, self.issue_tracker_id, summary, component, version, hardware, priority, severity, reference_id, last_change_at)
+                self.update_issue(issue_own_id, self.issue_tracker_id, summary, component, version, hardware, priority, severity, reference_id, last_change_at)
         else:
             flag_insert_issue_data = True
-            self.insert_issue(issue_id, self.issue_tracker_id, summary, component, version, hardware, priority, severity, reference_id, user_id, created_at, last_change_at)
+            self.insert_issue(issue_own_id, self.issue_tracker_id, summary, component, version, hardware, priority, severity, reference_id, user_id, created_at, last_change_at)
 
         if flag_insert_issue_data:
+            issue_id = self.select_issue_id(issue_own_id)
             #tags and keywords are mapped as labels
             try:
                 self.extract_labels(issue_id, issue.gettags())
@@ -527,19 +532,8 @@ class Issue2Db():
             if issue.assigned_to:
                 self.extract_assignee(issue_id, issue.assigned_to)
 
-            if issue.blocks:
-                self.extract_issue_dependency(issue_id, issue.blocks, "block")
-
-            if issue.depends_on:
-                self.extract_issue_dependency(issue_id, issue.depends_on, "depends")
-
             if issue.see_also:
-                self.extract_issue_dependency(issue_id, issue.see_also, "related")
                 self.extract_issue_commit_dependency(issue_id, [issue.see_also])
-
-            if self.is_duplicated(issue):
-                if issue.dupe_of:
-                    self.extract_issue_dependency(issue_id, issue.dupe_of, "duplicated")
 
     def get_issues(self):
         for issue_id in self.querier.get_issue_ids(self.from_issue_id, self.to_issue_id):
@@ -563,7 +557,7 @@ class Issue2Db():
 
         minutes_and_seconds = divmod((end_time-start_time).total_seconds(), 60)
         self.logger.info("Issue2Db: process finished after " + str(minutes_and_seconds[0])
-                     + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
+                       + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
         return
 
 
