@@ -8,17 +8,22 @@ database content with the latest project activities.
 
 ### Technical details
 
-Gitana is written in Python 2.7.6, it relies on 
+Gitana is developed on Windows 7 and it relies on:
+- Python 2.7.6
+- MySQL Server 5.6 (http://dev.mysql.com/downloads/installer/) 
 
-- GitPython >=0.3.1-beta2 (https://pypi.python.org/pypi/GitPython)
-- python-bugzilla >= 1.2.2 (https://pypi.python.org/pypi/python-bugzilla/1.2.2)
-- Git-1.9.4 (https://github.com/msysgit/msysgit/releases)
-- MySQL Server 5.6 (http://dev.mysql.com/downloads/installer/)
-- mysql-connector (https://pypi.python.org/pypi/mysql-connector)
+### Installation
+
+After installing MySQL Server and Python 2.7.6, follow the instructions below to download the packages used by Gitana:
+- set pip to be used from the command prompt (CMD)
+- in the CMD
+ - cd to the directory where requirements.txt is located
+ - run the following command:
+   ```
+   pip install -r requirements.txt
+   ```
 
 ### How to use Gitana
-
-In order to use Gitana, your machine needs to fulfill the technical details. 
 
 Set the following parameters in the extractor/init_db/config_db.py:
 
@@ -38,7 +43,9 @@ Then, you can use the different scripts to instantiate and populate the DB
 - **extractor/issue_tracker_bugzilla/issue2db_main.py** imports the data from the Bugzilla tracker
  - you can set the **URL** to the Bugzilla repository, the number of **PROCESSES** (default 30) launched to extract the data from it and the target **PRODUCT** 
 - **extractor/issue_tracker_bugzilla/issueupdate.py** updates the DB content with the lastest modifications in the Bugzilla tracker
- - Note that this script will update the issues already stored in Gitana. This operation is automatically performed by issue2db_main.py 
+ - Note that this script will update only the issues already stored in Gitana. This operation is automatically performed by issue2db_main.py
+- **exporter/gexf_exporter.py** exports the data stored in the DB to a GEXF file, that can be analysed with Gephi.
+  Currently, the export generates a graph where nodes represent users and their sizes are the number of issue comments written by the user. An edge exists between two nodes if the two corresponding users have commented on the same issue.
 
 ### Gitana extensions
 
