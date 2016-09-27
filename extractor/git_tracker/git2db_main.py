@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 __author__ = 'valerio cosentino'
 
 import sys
@@ -24,12 +26,12 @@ MEDIUM_IMPORT_TYPE = 2
 FULL_IMPORT_TYPE = 3
 
 #select the references (tags or branches) to import
-#REFERENCES = []
-REFERENCES = ["0.7.0", "0.7.1", "0.7.2", "0.7.3", "0.7.4", "0.8.0", "0.9.0",
-                "0.10.0", "1.0.0", "1.0.1", "1.1.2", "1.1.3", "1.1.4", "2.0.0",
-                "0.10.1_RC4", "0.10.2_RC5", "0.8.1_RC4", "0.8.2_RC4", "0.9.1_RC4", "0.9.2_RC3", "1.0.2_RC4", "1.1.0_RC4", "1.2.0M5"]
+REFERENCES = []
+#REFERENCES = ["0.7.0", "0.7.1", "0.7.2", "0.7.3", "0.7.4", "0.8.0", "0.9.0",
+#              "0.10.0", "1.0.0", "1.0.1", "1.1.2", "1.1.3", "1.1.4", "2.0.0",
+#              "0.10.1_RC4", "0.10.2_RC5", "0.8.1_RC4", "0.8.2_RC4", "0.9.1_RC4", "0.9.2_RC3", "1.0.2_RC4", "1.1.0_RC4", "1.2.0M5"]
 
-PROCESSES = len(REFERENCES) #30 len(REFERENCES)
+PROCESSES = 30 #30 len(REFERENCES)
 
 
 class Git2DbMain():
@@ -114,11 +116,11 @@ class Git2DbMain():
             if REFERENCES:
                 if reference[0] in REFERENCES:
                     p = Popen(['python', 'git2db_reference.py', str(repo_id), reference[0], self.db_name, self.git_repo_path,
-                              str(self.before_date), str(self.import_last_commit), str(self.import_type), str(counter), ""])
+                              str(self.before_date), str(self.import_last_commit), str(self.import_type), str(counter), "", "--encoding", "utf-8"])
                     processes.append(p)
             else:
                 p = Popen(['python', 'git2db_reference.py', str(repo_id), reference[0], self.db_name, self.git_repo_path,
-                              str(self.before_date), str(self.import_last_commit), str(self.import_type), str(counter), ""])
+                           str(self.before_date), str(self.import_last_commit), str(self.import_type), str(counter), "", "--encoding", "utf-8"])
                 processes.append(p)
 
             while len(processes) == PROCESSES:

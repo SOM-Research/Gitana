@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 __author__ = 'valerio cosentino'
 
 import sys
@@ -488,14 +490,14 @@ def main(argv):
     opts, args = getopt.getopt(argv, "rr", ["rr="])
 
     repo_id = int(args[0])
-    reference_name = str(args[1])
-    db_name = str(args[2])
-    git_repo_path = str(args[3])
-    before_date = str(args[4])
-    import_last_commit = str(args[5])
+    reference_name = args[1]
+    db_name = args[2]
+    git_repo_path = args[3]
+    before_date = args[4]
+    import_last_commit = args[5]
     import_type = int(args[6])
     counter = int(args[7])
-    from_sha = str(args[8])
+    from_sha = args[8]
 
     extractor = Git2DbReference(repo_id, db_name, git_repo_path, before_date, import_last_commit, import_type, reference_name, counter, from_sha)
     extractor.extract()

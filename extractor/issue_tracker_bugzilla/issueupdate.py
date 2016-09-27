@@ -1,4 +1,8 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 __author__ = 'valerio cosentino'
+
+#deprecated. Please use issue2db_main
 
 import mysql.connector
 from mysql.connector import errorcode
@@ -18,7 +22,8 @@ URL = "https://bugs.eclipse.org/bugs/xmlrpc.cgi"
 PRODUCT = "papyrus"
 BEFORE_DATE = None
 LOG_FOLDER = "logs"
-PROCESSES = 10
+
+PROCESSES = 30
 
 # DEPRECATED. This script updates only the issues already stored in the db.
 # Please, use the issue2db_main script

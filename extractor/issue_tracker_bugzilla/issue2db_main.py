@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 __author__ = 'valerio cosentino'
 
 import sys
@@ -176,7 +178,7 @@ class Issue2DbMain():
     def split_issue_extraction(self):
         repo_id = self.select_repo()
         issue_tracker_id = self.insert_issue_tracker(repo_id)
-        #self.insert_issue_data(repo_id, issue_tracker_id)
+        self.insert_issue_data(repo_id, issue_tracker_id)
         self.insert_issue_dependencies(repo_id, issue_tracker_id)
 
         return

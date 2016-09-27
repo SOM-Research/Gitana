@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 __author__ = 'valerio cosentino'
 
 from git import *
@@ -14,10 +16,11 @@ def get_commits(repo, ref_name):
 
 def main():
     repo = Repo(GIT_REPO_PATH, odbt=GitCmdObjectDB)
-    for ref in repo.references:
-        print ref.name
-        print str(len(get_commits(repo, ref.name)))
-        print "---"
+    for ref in repo.references[31:]:
+        if ref.name:
+            print ref.name
+            print str(len(get_commits(repo, ref.name)))
+            print "---"
 
 if __name__ == "__main__":
     main()

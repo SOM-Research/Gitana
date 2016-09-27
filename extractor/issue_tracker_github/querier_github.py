@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 __author__ = '...'
 
 # Data about project's issues should be obtained using the GitHub API through OAuth tokens.
