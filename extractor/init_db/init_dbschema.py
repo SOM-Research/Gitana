@@ -2,13 +2,13 @@
 # -*- coding: utf-8 -*-
 __author__ = 'valerio cosentino'
 
+import config_db # I had to change this import to the beginning to make everything work
 import sys
 sys.path.insert(0, "..//..")
 
 import mysql.connector
 from mysql.connector import errorcode
 from datetime import datetime
-import config_db
 import logging
 import logging.handlers
 import glob
@@ -21,14 +21,11 @@ class InitDbSchema():
 
     def __init__(self, config):
         """
-        This constructor creates a new InitDbSchema but does not rely on an external config file. Instead, the config
-        information is passed as argument.
+        This constructor creates a new InitDbSchema instance.
 
         The config object has to comply with an structure similar to:
-        PROJECT_NAME = "<ProjectName>"
+
         DB_NAME = "<Name to give to the database>"
-        REPO_NAME = "<Name to give to the repo>"
-        GIT_REPO_PATH = "<Path to the repo in disc>"
         CONFIG = {
             'user': 'DB_USER',
             'password': 'DB_PASS',
@@ -37,21 +34,22 @@ class InitDbSchema():
             'raise_on_warnings': False,
             'buffered': True
         }
+
         :param config: The config object with the fields previously described
         """
-        self.db_name = config_db.DB_NAME
+        self.db_name = config.DB_NAME
         self.create_log_folder(LOG_FOLDER)
         LOG_FILENAME = LOG_FOLDER + "/init_db_schema"
         self.delete_previous_logs(LOG_FOLDER)
         self.logger = logging.getLogger(LOG_FILENAME)
-        fileHandler = logging.FileHandler(LOG_FILENAME + "-" + config_db.DB_NAME + ".log", mode='w')
+        fileHandler = logging.FileHandler(LOG_FILENAME + "-" + config.DB_NAME + ".log", mode='w')
         formatter = logging.Formatter("%(asctime)s:%(levelname)s:%(message)s", "%Y-%m-%d %H:%M:%S")
 
         fileHandler.setFormatter(formatter)
         self.logger.setLevel(logging.INFO)
         self.logger.addHandler(fileHandler)
 
-        self.cnx = mysql.connector.connect(**config_db.CONFIG)
+        self.cnx = mysql.connector.connect(**config.CONFIG)
 
     def create_log_folder(self, name):
         if not os.path.exists(name):
@@ -506,11 +504,11 @@ class InitDbSchema():
                                     ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 
         insert_message_types = "INSERT INTO message_type VALUES (NULL, 'question'), " \
-                                                               "(NULL, 'answer'), " \
-                                                               "(NULL, 'comment'), " \
-                                                               "(NULL, 'accepted_answer'), " \
-                                                               "(NULL, 'reply'), " \
-                                                               "(NULL, 'file_upload');"
+                               "(NULL, 'answer'), " \
+                               "(NULL, 'comment'), " \
+                               "(NULL, 'accepted_answer'), " \
+                               "(NULL, 'reply'), " \
+                               "(NULL, 'file_upload');"
 
         create_table_attachment = "CREATE TABLE attachment ( " \
                                   "id int(20) PRIMARY KEY, " \
