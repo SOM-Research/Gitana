@@ -19,13 +19,32 @@ LOG_FOLDER = "logs"
 
 class InitDbSchema():
 
-    def __init__(self, db_name):
+    def __init__(self, config):
+        """
+        This constructor creates a new InitDbSchema but does not rely on an external config file. Instead, the config
+        information is passed as argument.
+
+        The config object has to comply with an structure similar to:
+        PROJECT_NAME = "<ProjectName>"
+        DB_NAME = "<Name to give to the database>"
+        REPO_NAME = "<Name to give to the repo>"
+        GIT_REPO_PATH = "<Path to the repo in disc>"
+        CONFIG = {
+            'user': 'DB_USER',
+            'password': 'DB_PASS',
+            'host': 'DB_HOST',
+            'port': 'DB_PORT',
+            'raise_on_warnings': False,
+            'buffered': True
+        }
+        :param config: The config object with the fields previously described
+        """
         self.db_name = config_db.DB_NAME
         self.create_log_folder(LOG_FOLDER)
         LOG_FILENAME = LOG_FOLDER + "/init_db_schema"
         self.delete_previous_logs(LOG_FOLDER)
         self.logger = logging.getLogger(LOG_FILENAME)
-        fileHandler = logging.FileHandler(LOG_FILENAME + "-" + db_name + ".log", mode='w')
+        fileHandler = logging.FileHandler(LOG_FILENAME + "-" + config_db.DB_NAME + ".log", mode='w')
         formatter = logging.Formatter("%(asctime)s:%(levelname)s:%(message)s", "%Y-%m-%d %H:%M:%S")
 
         fileHandler.setFormatter(formatter)
@@ -784,7 +803,7 @@ class InitDbSchema():
 
 
 def main():
-    a = InitDbSchema(config_db.DB_NAME)
+    a = InitDbSchema(config_db)
     a.execute()
 
 if __name__ == "__main__":
