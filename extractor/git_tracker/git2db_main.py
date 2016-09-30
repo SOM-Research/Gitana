@@ -36,7 +36,24 @@ PROCESSES = 30 #30 len(REFERENCES)
 
 class Git2DbMain():
 
-    def __init__(self, project_name, db_name, repo_name, git_repo_path, before_date, import_last_commit, import_type):
+    def __init__(self, project_name, db_name, repo_name, git_repo_path, before_date, import_last_commit, import_type,
+                 config):
+        """
+        This constructor creates a new InitDbSchema instance.
+
+        The config object has to comply with an structure similar to:
+
+        CONFIG = {
+            'user': 'DB_USER',
+            'password': 'DB_PASS',
+            'host': 'DB_HOST',
+            'port': 'DB_PORT',
+            'raise_on_warnings': False,
+            'buffered': True
+        }
+
+        :param config: The config object with the fields previously described
+        """
         self.create_log_folder(LOG_FOLDER)
         LOG_FILENAME = LOG_FOLDER + "/git2db_main"
         self.delete_previous_logs(LOG_FOLDER)
@@ -57,7 +74,7 @@ class Git2DbMain():
         self.import_type = import_type
         self.querier = GitQuerier(git_repo_path, self.logger)
 
-        self.cnx = mysql.connector.connect(**config_db.CONFIG)
+        self.cnx = mysql.connector.connect(**config.CONFIG)
         self.set_database()
 
     def create_log_folder(self, name):
@@ -116,7 +133,7 @@ class Git2DbMain():
             if REFERENCES:
                 if reference[0] in REFERENCES:
                     p = Popen(['python', 'git2db_reference.py', str(repo_id), reference[0], self.db_name, self.git_repo_path,
-                              str(self.before_date), str(self.import_last_commit), str(self.import_type), str(counter), "", "--encoding", "utf-8"])
+                               str(self.before_date), str(self.import_last_commit), str(self.import_type), str(counter), "", "--encoding", "utf-8"])
                     processes.append(p)
             else:
                 p = Popen(['python', 'git2db_reference.py', str(repo_id), reference[0], self.db_name, self.git_repo_path,
@@ -154,12 +171,12 @@ class Git2DbMain():
 
         minutes_and_seconds = divmod((end_time-start_time).total_seconds(), 60)
         self.logger.info("Git2Db: process finished after " + str(minutes_and_seconds[0])
-                     + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
+                         + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
         return
 
 
 def main():
-    a = Git2DbMain(config_db.PROJECT_NAME, config_db.DB_NAME, config_db.REPO_NAME, config_db.GIT_REPO_PATH, "", False, 1)
+    a = Git2DbMain(config_db.PROJECT_NAME, config_db.DB_NAME, config_db.REPO_NAME, config_db.GIT_REPO_PATH, "", False, 1, config_db)
     a.extract()
 
 if __name__ == "__main__":

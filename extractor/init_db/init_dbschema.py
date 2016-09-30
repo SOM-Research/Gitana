@@ -2,13 +2,13 @@
 # -*- coding: utf-8 -*-
 __author__ = 'valerio cosentino'
 
+import config_db # I had to change this import to the beginning to make everything work
 import sys
 sys.path.insert(0, "..//..")
 
 import mysql.connector
 from mysql.connector import errorcode
 from datetime import datetime
-import config_db
 import logging
 import logging.handlers
 import glob
@@ -19,20 +19,37 @@ LOG_FOLDER = "logs"
 
 class InitDbSchema():
 
-    def __init__(self, db_name):
-        self.db_name = config_db.DB_NAME
+    def __init__(self, config):
+        """
+        This constructor creates a new InitDbSchema instance.
+
+        The config object has to comply with an structure similar to:
+
+        DB_NAME = "<Name to give to the database>"
+        CONFIG = {
+            'user': 'DB_USER',
+            'password': 'DB_PASS',
+            'host': 'DB_HOST',
+            'port': 'DB_PORT',
+            'raise_on_warnings': False,
+            'buffered': True
+        }
+
+        :param config: The config object with the fields previously described
+        """
+        self.db_name = config.DB_NAME
         self.create_log_folder(LOG_FOLDER)
         LOG_FILENAME = LOG_FOLDER + "/init_db_schema"
         self.delete_previous_logs(LOG_FOLDER)
         self.logger = logging.getLogger(LOG_FILENAME)
-        fileHandler = logging.FileHandler(LOG_FILENAME + "-" + db_name + ".log", mode='w')
+        fileHandler = logging.FileHandler(LOG_FILENAME + "-" + config.DB_NAME + ".log", mode='w')
         formatter = logging.Formatter("%(asctime)s:%(levelname)s:%(message)s", "%Y-%m-%d %H:%M:%S")
 
         fileHandler.setFormatter(formatter)
         self.logger.setLevel(logging.INFO)
         self.logger.addHandler(fileHandler)
 
-        self.cnx = mysql.connector.connect(**config_db.CONFIG)
+        self.cnx = mysql.connector.connect(**config.CONFIG)
 
     def create_log_folder(self, name):
         if not os.path.exists(name):
@@ -487,11 +504,11 @@ class InitDbSchema():
                                     ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 
         insert_message_types = "INSERT INTO message_type VALUES (NULL, 'question'), " \
-                                                               "(NULL, 'answer'), " \
-                                                               "(NULL, 'comment'), " \
-                                                               "(NULL, 'accepted_answer'), " \
-                                                               "(NULL, 'reply'), " \
-                                                               "(NULL, 'file_upload');"
+                               "(NULL, 'answer'), " \
+                               "(NULL, 'comment'), " \
+                               "(NULL, 'accepted_answer'), " \
+                               "(NULL, 'reply'), " \
+                               "(NULL, 'file_upload');"
 
         create_table_attachment = "CREATE TABLE attachment ( " \
                                   "id int(20) PRIMARY KEY, " \
@@ -784,7 +801,7 @@ class InitDbSchema():
 
 
 def main():
-    a = InitDbSchema(config_db.DB_NAME)
+    a = InitDbSchema(config_db)
     a.execute()
 
 if __name__ == "__main__":
