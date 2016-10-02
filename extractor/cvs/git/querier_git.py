@@ -17,7 +17,6 @@ class GitQuerier():
         self.logger = logger
         self.repo = Repo(git_repo_path, odbt=GitCmdObjectDB)
         self.gitt = self.repo.git
-        self.no_treated_extensions = set()
 
     def get_diffs_manually(self, parent, commit, retrieve_patch):
         diffs = []
@@ -217,10 +216,8 @@ class GitQuerier():
                         references.append((ref_name, 'branch'))
                 elif type(ref) == TagReference:
                     references.append((ref_name, 'tag'))
-                else:
-                    self.logger.warning("Git2Db: " + str(type(ref)) + " not handled in the extractor")
             else:
-                self.logger.warning("Git2Db: reference: " + ref.name + " won't be processed!")
+                self.logger.warning("Git2Db: reference: " + ref.name + " contains unprintable chars and won't be processed!")
         return references
 
     def get_commit_property(self, commit, prop):
@@ -421,11 +418,7 @@ class GitQuerier():
                             block_comment = result[2]
                             is_commented = result[3]
                             is_partially_commented = result[4]
-                        #else:
-                            #self.no_treated_extensions.add(file_extension)
-                            #check if the comment contains code or documentation (natural language)
-                            #if is_commented:
-                            #    guess = guess_lexer(line)
+
                         self.add_to_details(details, "addition", new_line, is_commented, is_partially_commented, False, line)
 
                     previous_new_line = new_line
@@ -455,11 +448,6 @@ class GitQuerier():
                         new_line += 1
 
         return details
-
-    def add_no_treated_extensions_to_log(self):
-        for ext in list(self.no_treated_extensions):
-            self.logger.warning("GitQuerier: extension " + str(ext) + " is not treated!")
-        return
 
     def line_is_commented(self, type_change, previous_block_comment, previous_line_number, current_line_number, block_comment, details, line, file_extension):
         is_commented = False

@@ -1,0 +1,127 @@
+__author__ = 'valerio cosentino'
+
+import mysql.connector
+from mysql.connector import errorcode
+import os
+import logging
+import logging.handlers
+import glob
+
+from extractor.db.dbschema import DbSchema
+from extractor.cvs.git.git2db_extract_main import Git2DbMain
+from extractor.cvs.git.git2db_update import Git2DbUpdate
+from extractor.issue_tracker.bugzilla.issue2db_extract_main import Issue2DbMain
+from extractor.issue_tracker.bugzilla.issue2db_update import Issue2DbUpdate
+
+CONFIG = {
+            'user': 'root',
+            'password': 'root',
+            'host': 'localhost',
+            'port': '3306',
+            'raise_on_warnings': False,
+            'buffered': True
+        }
+
+LOG_FOLDER_PATH = "logs"
+LOG_NAME = "gitana.log"
+
+#REFERENCES = ["0.7.0", "0.7.1", "0.7.2", "0.7.3", "0.7.4", "0.8.0", "0.9.0",
+#              "0.10.0", "1.0.0", "1.0.1", "1.1.2", "1.1.3", "1.1.4", "2.0.0",
+#              "0.10.1_RC4", "0.10.2_RC5", "0.8.1_RC4", "0.8.2_RC4", "0.9.1_RC4", "0.9.2_RC3", "1.0.2_RC4", "1.1.0_RC4", "1.2.0M5"]
+
+
+class Gitana():
+
+    def __init__(self, config, log_folder_path):
+        self.config = config
+        self.cnx = mysql.connector.connect(**self.config)
+
+        if log_folder_path:
+            self.create_log_folder(log_folder_path)
+            self.log_folder_path = log_folder_path
+        else:
+            self.create_log_folder(LOG_FOLDER_PATH)
+            self.log_folder_path = LOG_FOLDER_PATH
+
+        self.log_path = self.log_folder_path + "/" + LOG_NAME
+        self.logger = logging.getLogger(self.log_path)
+        fileHandler = logging.FileHandler(self.log_path, mode='w')
+        formatter = logging.Formatter("%(asctime)s:%(levelname)s:%(message)s", "%Y-%m-%d %H:%M:%S")
+
+        fileHandler.setFormatter(formatter)
+        self.logger.setLevel(logging.INFO)
+        self.logger.addHandler(fileHandler)
+
+    def create_log_folder(self, name):
+        if not os.path.exists(name):
+            os.makedirs(name)
+
+    def delete_previous_logs(self):
+        files = glob.glob(self.log_folder_path + "/*")
+        for f in files:
+            try:
+                os.remove(f)
+            except:
+                continue
+
+    def init_db(self, db_name):
+        db = DbSchema(self.cnx, self.logger)
+        db.init_database(db_name)
+
+    def create_project(self, db_name, project_name):
+        db = DbSchema(self.cnx, self.logger)
+        db.create_project(db_name, project_name)
+
+    def list_projects(self, db_name):
+        db = DbSchema(self.cnx, self.logger)
+        projects = db.list_projects(db_name)
+        for p in projects:
+            print p
+
+    def import_git_data(self, db_name, project_name, repo_name, git_repo_path, before_date, import_type, references, processes):
+        git2db = Git2DbMain(db_name, project_name,
+                                   repo_name, git_repo_path, before_date, import_type, references, processes,
+                                   self.config, self.logger)
+        git2db.extract()
+
+    def update_git_data(self, db_name, project_name, repo_name, git_repo_path, before_date, recover_import, import_new_references, processes):
+        git2db = Git2DbUpdate(db_name, project_name,
+                              repo_name, git_repo_path, before_date, recover_import, import_new_references, processes,
+                              self.config, self.logger)
+        git2db.update()
+
+    def import_bugzilla_tracker_data(self, db_name, project_name, repo_name, url, product, before_date, recover_import, processes):
+        issue2db = Issue2DbMain(db_name, project_name,
+                                repo_name, "bugzilla", url, product, before_date, recover_import, processes,
+                                self.config, self.logger)
+        issue2db.extract()
+
+    def update_bugzilla_tracker_data(self, db_name, project_name, repo_name, url, product, processes):
+        issue2db = Issue2DbUpdate(db_name, project_name,
+                                  repo_name, url, product, processes,
+                                  self.config, self.logger)
+        issue2db.update()
+
+    def import_github_tracker_data(self, db_name, project_name, repo_name, github_repo_full_name, before_date, recover_import, tokens):
+        #TODO
+        print "here"
+
+    def import_eclipse_forum_data(self, project_name, eclipse_forum_url, before_date, recover_import):
+        #TODO
+        print "here"
+
+
+def main():
+    g = Gitana(CONFIG, None)
+    g.delete_previous_logs()
+    g.init_db("test_test")
+    g.create_project("test_test", "test_project")
+
+    g.import_git_data("test_test", "test_project", "test_repo", "C:\\Users\\atlanmod\\Desktop\\org.eclipse.papyrus", "2008-10-07", 1, ["origin/master"], 20)
+    g.update_git_data("test_test", "test_project", "test_repo", "C:\\Users\\atlanmod\\Desktop\\org.eclipse.papyrus", "2008-12-10", False, True, 20)
+
+    g.import_bugzilla_tracker_data("test_test", "test_project", "test_repo", "https://bugs.eclipse.org/bugs/xmlrpc.cgi", "papyrus", "2008-10-07", False, 1)
+    g.update_bugzilla_tracker_data("test_test", "test_project", "test_repo", "https://bugs.eclipse.org/bugs/xmlrpc.cgi", "papyrus", 20)
+
+if __name__ == "__main__":
+    main()

@@ -2,63 +2,50 @@
 # -*- coding: utf-8 -*-
 __author__ = 'valerio cosentino'
 
-import sys
-sys.path.insert(0, "..//..")
-
-import mysql.connector
-from mysql.connector import errorcode
-from querier_git import GitQuerier
 from datetime import datetime
-import git2db_main
-from extractor.init_db import config_db
 import logging
 import logging.handlers
-from subprocess import *
-import glob
-import os
+import multiprocessing
+import mysql.connector
+from mysql.connector import errorcode
+import sys
+sys.path.insert(0, "..//..//..")
+
+from querier_git import GitQuerier
+from extractor.cvs.git.git2db_extract_reference import Git2DbReference
+from extractor.util import consumer
 
 BEFORE_DATE = ""
 IMPORT_LAST_COMMIT = False
 IMPORT_NEW_REFERENCES = True
-LOG_FOLDER = "logs"
 
 
-class GitUpdate():
+class Git2DbUpdate():
 
-    def __init__(self, db_name, repo_name, git_repo_path, before_date, import_last_commit):
-        self.create_log_folder(LOG_FOLDER)
-        LOG_FILENAME = LOG_FOLDER + "/gitupdate"
-        self.delete_previous_logs(LOG_FOLDER)
-        self.logger = logging.getLogger(LOG_FILENAME)
-        fileHandler = logging.FileHandler(LOG_FILENAME + "-" + db_name + ".log", mode='w')
-        formatter = logging.Formatter("%(asctime)s:%(levelname)s:%(message)s", "%Y-%m-%d %H:%M:%S")
-
-        fileHandler.setFormatter(formatter)
-        self.logger.setLevel(logging.INFO)
-        self.logger.addHandler(fileHandler)
-
+    def __init__(self, db_name, project_name,
+                 repo_name, git_repo_path, before_date, import_last_commit, import_new_references,
+                 num_processes, config, logger):
+        self.logger = logger
+        self.log_path = self.logger.name.rsplit('.', 1)[0]
         self.git_repo_path = git_repo_path
+        self.project_name = project_name
         self.db_name = db_name
         self.repo_name = repo_name
         self.before_date = before_date
         self.import_last_commit = import_last_commit
+        self.import_new_references = import_new_references
         self.existing_refs = []
-        self.querier = GitQuerier(git_repo_path, self.logger)
 
-        self.cnx = mysql.connector.connect(**config_db.CONFIG)
-        self.set_database()
+        self.num_processes = num_processes
 
-    def create_log_folder(self, name):
-        if not os.path.exists(name):
-            os.makedirs(name)
+        config.update({'database': db_name})
+        self.config = config
 
-    def delete_previous_logs(self, path):
-        files = glob.glob(path + "/*")
-        for f in files:
-            try:
-                os.remove(f)
-            except:
-                continue
+        try:
+            self.querier = GitQuerier(git_repo_path, self.logger)
+            self.cnx = mysql.connector.connect(**self.config)
+        except:
+            self.logger.error("Git2Db update failed", exc_info=True)
 
     def array2string(self, array):
         return ','.join(str(x) for x in array)
@@ -97,8 +84,9 @@ class GitUpdate():
         arguments = [repo_id]
         cursor.execute(query, arguments)
 
-        processes = []
-        counter = 0
+        queue_references = multiprocessing.JoinableQueue()
+        results = multiprocessing.Queue()
+
         row = cursor.fetchone()
         while row:
             sha = row[0]
@@ -112,56 +100,39 @@ class GitUpdate():
                 if reference_name == ref_name:
                     self.existing_refs.append(ref_name)
 
-                    p = Popen(['python', 'git2db_reference.py', str(repo_id), reference_name, self.db_name, self.git_repo_path,
-                               str(self.before_date), str(self.import_last_commit), str(import_type), str(counter), sha])
+                    git_ref_extractor = Git2DbReference(self.db_name, repo_id, self.git_repo_path,
+                                                        self.before_date, import_type, reference[0], sha,
+                                                        self.config, self.log_path)
 
-                    processes.append(p)
-
-                    while len(processes) == git2db_main.PROCESSES:
-                        for p in processes:
-                            p.poll()
-                            if p.returncode is not None:
-                                processes.remove(p)
-
+                    queue_references.put(git_ref_extractor)
                     break
 
-            counter += 1
-
-        while processes:
-            for p in processes:
-                p.poll()
-                if p.returncode is not None:
-                    processes.remove(p)
-
         cursor.close()
-        return
+
+        # Start consumers
+        consumer.start_consumers(self.num_processes, queue_references, results)
+
+        # Wait for all of the tasks to finish
+        queue_references.join()
 
     def add_new_references(self, repo_id, import_type):
-        processes = []
-        counter = 0
+        queue_references = multiprocessing.JoinableQueue()
+        results = multiprocessing.Queue()
+
+        # Start consumers
+        consumer.start_consumers(self.num_processes, queue_references, results)
 
         for reference in self.querier.get_references():
             reference_name = reference[0]
             if reference_name not in self.existing_refs and reference_name != "origin/HEAD":
-                p = Popen(['python', 'git2db_reference.py', str(repo_id), reference_name, self.db_name, self.git_repo_path,
-                           str(self.before_date), str(self.import_last_commit), str(import_type), str(counter), ""])
-                processes.append(p)
+                git_ref_extractor = Git2DbReference(self.db_name, repo_id, self.git_repo_path,
+                                                    self.before_date, import_type, reference[0], "",
+                                                    self.config, self.log_path)
 
-                while len(processes) == git2db_main.PROCESSES:
-                    for p in processes:
-                        p.poll()
-                        if p.returncode is not None:
-                            processes.remove(p)
+                queue_references.put(git_ref_extractor)
 
-            counter += 1
-
-        while processes:
-            for p in processes:
-                p.poll()
-                if p.returncode:
-                    processes.remove(p)
-
-        return
+        # Wait for all of the tasks to finish
+        queue_references.join()
 
     def delete_commit(self, commit_id, repo_id):
         cursor = self.cnx.cursor()
@@ -244,10 +215,9 @@ class GitUpdate():
             self.delete_last_commit_info(repo_id)
 
         self.update_existing_references(repo_id, import_type)
-
-        if IMPORT_NEW_REFERENCES:
+        self.cnx.close()
+        if self.import_new_references:
             self.add_new_references(repo_id, import_type)
-        return
 
     def line_detail_table_is_empty(self, repo_id):
         cursor = self.cnx.cursor()
@@ -291,28 +261,15 @@ class GitUpdate():
         import_type += self.line_detail_table_is_empty(repo_id) + self.file_modification_patch_is_empty(repo_id)
         return import_type
 
-    def set_database(self):
-        cursor = self.cnx.cursor()
-        use_database = "USE " + self.db_name
-        cursor.execute(use_database)
-        cursor.close()
-
     def update(self):
-        start_time = datetime.now()
-        repo_id = self.select_repo_id(self.repo_name)
+        try:
+            start_time = datetime.now()
+            repo_id = self.select_repo_id(self.repo_name)
 
-        self.update_repo(repo_id, self.get_import_type(repo_id))
-        end_time = datetime.now()
-        self.cnx.close()
-        minutes_and_seconds = divmod((end_time-start_time).total_seconds(), 60)
-        self.logger.info("UpdateDb: process finished after " + str(minutes_and_seconds[0])
-                     + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
-        return
-
-
-def main():
-    a = GitUpdate(config_db.DB_NAME, config_db.REPO_NAME, config_db.GIT_REPO_PATH, BEFORE_DATE, IMPORT_LAST_COMMIT)
-    a.update()
-
-if __name__ == "__main__":
-    main()
+            self.update_repo(repo_id, self.get_import_type(repo_id))
+            end_time = datetime.now()
+            minutes_and_seconds = divmod((end_time-start_time).total_seconds(), 60)
+            self.logger.info("Git2Db update finished after " + str(minutes_and_seconds[0])
+                         + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
+        except:
+            self.logger.error("Git2Db update failed", exc_info=True)

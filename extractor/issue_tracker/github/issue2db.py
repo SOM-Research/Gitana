@@ -3,7 +3,7 @@
 __author__ = '...'
 
 import sys
-sys.path.insert(0, "..//..")
+sys.path.insert(0, "..//..//..")
 
 # This script should contain the code to import GitHub issues data in the Gitana database.
 # An UML representation of the database is available in the root folder of the repository.

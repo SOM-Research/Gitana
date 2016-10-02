@@ -1,10 +1,6 @@
 __author__ = 'valerio cosentino'
 
-import sys
-sys.path.insert(0, "..")
-
 import networkx as nx
-from extractor.init_db import config_db
 import mysql.connector
 from mysql.connector import errorcode
 import logging
@@ -12,6 +8,10 @@ import logging.handlers
 import glob
 import os
 from datetime import datetime
+import sys
+sys.path.insert(0, "..")
+
+from extractor.db import config_db
 
 LOG_FOLDER = "logs"
 GRAPH_TYPE = "undirected"

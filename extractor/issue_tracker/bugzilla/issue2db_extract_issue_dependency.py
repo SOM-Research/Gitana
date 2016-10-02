@@ -2,52 +2,48 @@
 # -*- coding: utf-8 -*-
 __author__ = 'valerio cosentino'
 
-import sys
-sys.path.insert(0, "..//..")
-
 import mysql.connector
 from mysql.connector import errorcode
 from datetime import datetime
-from querier_bugzilla import BugzillaQuerier
-from extractor.init_db import config_db
-import getopt
-import os
-
 import logging
 import logging.handlers
+import sys
+sys.path.insert(0, "..//..//..")
 
-LOG_FOLDER = "logs"
+from querier_bugzilla import BugzillaQuerier
 
 
-class IssueDependency2Db():
+class IssueDependency2Db(object):
 
-    def __init__(self, type, url, product, db_name, repo_id, issue_tracker_id, from_issue_id, to_issue_id):
-        self.create_log_folder(LOG_FOLDER)
-        LOG_FILENAME = LOG_FOLDER + "/issue_dependency2db"
-        self.logger = logging.getLogger(LOG_FILENAME)
-        fileHandler = logging.FileHandler(LOG_FILENAME + "-" + db_name + "-" + str(from_issue_id) + "-" + str(to_issue_id) + ".log", mode='w')
-        formatter = logging.Formatter("%(asctime)s:%(levelname)s:%(message)s", "%Y-%m-%d %H:%M:%S")
-
-        fileHandler.setFormatter(formatter)
-        self.logger.setLevel(logging.INFO)
-        self.logger.addHandler(fileHandler)
-        self.type = type
+    def __init__(self, db_name,
+                 repo_id, issue_tracker_id, url, product, interval,
+                 config, log_path):
+        self.log_path = log_path
         self.url = url
         self.product = product
         self.db_name = db_name
         self.repo_id = repo_id
         self.issue_tracker_id = issue_tracker_id
-        self.from_issue_id = from_issue_id
-        self.to_issue_id = to_issue_id
+        self.interval = interval
+        config.update({'database': db_name})
+        self.config = config
 
-        self.querier = BugzillaQuerier(self.url, self.product, self.logger)
+    def __call__(self):
+        LOG_FILENAME = self.log_path + "-issue2db-dependency"
+        self.logger = logging.getLogger(LOG_FILENAME)
+        fileHandler = logging.FileHandler(LOG_FILENAME + "-" + self.db_name + "-" + str(self.interval[0]) + "-" + str(self.interval[-1]) + ".log", mode='w')
+        formatter = logging.Formatter("%(asctime)s:%(levelname)s:%(message)s", "%Y-%m-%d %H:%M:%S")
 
-        self.cnx = mysql.connector.connect(**config_db.CONFIG)
-        self.set_database()
+        fileHandler.setFormatter(formatter)
+        self.logger.setLevel(logging.INFO)
+        self.logger.addHandler(fileHandler)
 
-    def create_log_folder(self, name):
-        if not os.path.exists(name):
-            os.makedirs(name)
+        try:
+            self.querier = BugzillaQuerier(self.url, self.product, self.logger)
+            self.cnx = mysql.connector.connect(**self.config)
+            self.extract()
+        except Exception, e:
+            self.logger.error("Issue2Db failed", exc_info=True)
 
     def insert_issue_dependency(self, issue_source_id, issue_target_id, type):
         cursor = self.cnx.cursor()
@@ -103,7 +99,6 @@ class IssueDependency2Db():
 
         return found
 
-
     def extract_issue_dependency(self, issue_id, obj, type):
         if isinstance(obj, list):
             for issue in obj:
@@ -125,7 +120,7 @@ class IssueDependency2Db():
         query = "SELECT i.id FROM issue i " \
                 "JOIN issue_tracker it ON i.issue_tracker_id = it.id " \
                 "WHERE i.id >= %s AND i.id <= %s AND issue_tracker_id = %s AND repo_id = %s"
-        arguments = [self.from_issue_id, self.to_issue_id, self.issue_tracker_id, self.repo_id]
+        arguments = [self.interval[0], self.interval[-1], self.issue_tracker_id, self.repo_id]
         cursor.execute(query, arguments)
 
         row = cursor.fetchone()
@@ -149,45 +144,22 @@ class IssueDependency2Db():
                     if issue.dupe_of:
                         self.extract_issue_dependency(issue_id, issue.dupe_of, "duplicated")
 
-            except:
-                self.logger.error("IssueDependency2Db: Something went wrong with the following issue id: " + str(issue_id) + " - tracker id " + str(self.issue_tracker_id))
+            except Exception, e:
+                self.logger.error("something went wrong with the following issue id: " + str(issue_id) + " - tracker id " + str(self.issue_tracker_id), exc_info=True)
 
             row = cursor.fetchone()
 
         cursor.close()
 
-    def set_database(self):
-        cursor = self.cnx.cursor()
-        use_database = "USE " + self.db_name
-        cursor.execute(use_database)
-        cursor.close()
-
     def extract(self):
-        start_time = datetime.now()
-        self.set_dependencies()
-        end_time = datetime.now()
-        self.cnx.close()
+        try:
+            start_time = datetime.now()
+            self.set_dependencies()
+            end_time = datetime.now()
+            self.cnx.close()
 
-        minutes_and_seconds = divmod((end_time-start_time).total_seconds(), 60)
-        self.logger.info("IssueDependency2Db: process finished after " + str(minutes_and_seconds[0])
-                       + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
-        return
-
-
-def main(argv):
-    opts, args = getopt.getopt(argv, "rr", ["rr="])
-
-    type = str(args[0])
-    url = str(args[1])
-    product = str(args[2])
-    db_name = str(args[3])
-    repo_id = int(args[4])
-    issue_tracker_id = int(args[5])
-    from_issue_id = int(args[6])
-    to_issue_id = int(args[7])
-
-    extractor = IssueDependency2Db(type, url, product, db_name, repo_id, issue_tracker_id, from_issue_id, to_issue_id)
-    extractor.extract()
-
-if __name__ == "__main__":
-    main(sys.argv[1:])
+            minutes_and_seconds = divmod((end_time-start_time).total_seconds(), 60)
+            self.logger.info("process finished after " + str(minutes_and_seconds[0])
+                           + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
+        except Exception, e:
+            self.logger.error("Issue2Db failed", exc_info=True)

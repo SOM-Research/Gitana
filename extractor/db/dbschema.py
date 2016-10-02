@@ -5,132 +5,80 @@ __author__ = 'valerio cosentino'
 import sys
 sys.path.insert(0, "..//..")
 
-import mysql.connector
-from mysql.connector import errorcode
-from datetime import datetime
-import config_db
-import logging
-import logging.handlers
-import glob
-import os
 
-LOG_FOLDER = "logs"
+class DbSchema():
 
+    def __init__(self, cnx, logger):
+        self.logger = logger
+        self.cnx = cnx
 
-class InitDbSchema():
+    def init_database(self, db_name):
+        try:
+            self.create_database(db_name)
+            self.set_database(db_name)
+            self.set_settings()
+            self.init_shared_tables()
+            self.init_git_tables()
+            self.init_issue_tracker_tables()
+            self.init_forum_tables()
+            self.init_instant_messaging_tables()
+            self.init_functions()
+            self.init_stored_procedures()
+            self.logger.info("Database " + db_name + " created")
+        except Exception:
+            self.logger.error("Dbschema failed", exc_info=True)
 
-    def __init__(self, db_name):
-        self.db_name = config_db.DB_NAME
-        self.create_log_folder(LOG_FOLDER)
-        LOG_FILENAME = LOG_FOLDER + "/init_db_schema"
-        self.delete_previous_logs(LOG_FOLDER)
-        self.logger = logging.getLogger(LOG_FILENAME)
-        fileHandler = logging.FileHandler(LOG_FILENAME + "-" + db_name + ".log", mode='w')
-        formatter = logging.Formatter("%(asctime)s:%(levelname)s:%(message)s", "%Y-%m-%d %H:%M:%S")
-
-        fileHandler.setFormatter(formatter)
-        self.logger.setLevel(logging.INFO)
-        self.logger.addHandler(fileHandler)
-
-        self.cnx = mysql.connector.connect(**config_db.CONFIG)
-
-    def create_log_folder(self, name):
-        if not os.path.exists(name):
-            os.makedirs(name)
-
-    def delete_previous_logs(self, path):
-        files = glob.glob(path + "/*")
-        for f in files:
-            try:
-                os.remove(f)
-            except:
-                continue
-
-    def init_database(self):
-        self.create_database()
-        self.set_database()
-        self.set_settings()
-        self.init_shared_tables()
-        self.init_git_tables()
-        self.init_issue_tracker_tables()
-        self.init_forum_tables()
-        self.init_instant_messaging_tables()
-        self.init_functions()
-        self.init_stored_procedures()
-
-    # def reset_git_tables(self):
-    #     self.set_database()
-    #     self.set_settings()
-    #     cursor = self.cnx.cursor()
-    #
-    #     delete_table_repositories = "DROP TABLE IF EXISTS repository;"
-    #     delete_table_references = "DROP TABLE IF EXISTS reference;"
-    #     delete_table_users = "DROP TABLE IF EXISTS user;"
-    #     delete_table_commits = "DROP TABLE IF EXISTS commit;"
-    #     delete_table_commit_parent = "DROP TABLE IF EXISTS commit_parent;"
-    #     delete_table_commits2reference = "DROP TABLE IF EXISTS commit_in_reference;"
-    #     delete_table_files = "DROP TABLE IF EXISTS file;"
-    #     delete_table_file_renamed = "DROP TABLE IF EXISTS file_renamed;"
-    #     delete_table_file_modifications = "DROP TABLE IF EXISTS file_modification;"
-    #     delete_table_line_detail = "DROP TABLE IF EXISTS line_detail;"
-    #
-    #     cursor.execute(delete_table_repositories)
-    #     cursor.execute(delete_table_references)
-    #     cursor.execute(delete_table_users)
-    #     cursor.execute(delete_table_commits)
-    #     cursor.execute(delete_table_commit_parent)
-    #     cursor.execute(delete_table_commits2reference)
-    #     cursor.execute(delete_table_files)
-    #     cursor.execute(delete_table_file_renamed)
-    #     cursor.execute(delete_table_file_modifications)
-    #     cursor.execute(delete_table_line_detail)
-    #     cursor.close()
-    #
-    #     self.init_git_tables()
-    #
-    #     return
-    #
-    # def reset_issue_tracker_tables(self):
-    #     self.set_database()
-    #     self.set_settings()
-    #     cursor = self.cnx.cursor()
-    #
-    #     delete_table_issue_tracker = "DROP TABLE IF EXISTS issue_tracker;"
-    #     delete_table_issue = "DROP TABLE IF EXISTS issue;"
-    #     delete_table_issue_assignee = "DROP TABLE IF EXISTS issue_assignee;"
-    #     delete_table_issue_subscriber = "DROP TABLE IF EXISTS issue_subscriber;"
-    #     delete_table_issue_event = "DROP TABLE IF EXISTS issue_event;"
-    #     delete_table_issue_event_type = "DROP TABLE IF EXISTS issue_event_type;"
-    #     delete_table_issue_labelled = "DROP TABLE IF EXISTS issue_labelled;"
-    #     delete_table_issue_label = "DROP TABLE IF EXISTS label;"
-    #     delete_table_issue_comment = "DROP TABLE IF EXISTS message;"
-    #     delete_table_issue_comment_attachment = "DROP TABLE IF EXISTS attachment;"
-    #     delete_issue_commit_dependency = "DROP TABLE IF EXISTS issue_commit_dependency;"
-    #     delete_table_issue_dependency = "DROP TABLE IF EXISTS issue_dependency;"
-    #
-    #     cursor.execute(delete_table_issue_tracker)
-    #     cursor.execute(delete_table_issue)
-    #     cursor.execute(delete_table_issue_assignee)
-    #     cursor.execute(delete_table_issue_subscriber)
-    #     cursor.execute(delete_table_issue_event)
-    #     cursor.execute(delete_table_issue_event_type)
-    #     cursor.execute(delete_table_issue_labelled)
-    #     cursor.execute(delete_table_issue_label)
-    #     cursor.execute(delete_table_issue_comment)
-    #     cursor.execute(delete_table_issue_comment_attachment)
-    #     cursor.execute(delete_issue_commit_dependency)
-    #     cursor.execute(delete_table_issue_dependency)
-    #     cursor.close()
-    #
-    #     self.init_issue_tracker_tables()
-    #
-    #     return
-
-    def set_database(self):
+    def create_project(self, db_name, project_name):
+        self.set_database(db_name)
         cursor = self.cnx.cursor()
-        use_database = "USE " + self.db_name
-        cursor.execute(use_database)
+        query = "INSERT IGNORE INTO project " \
+                "VALUES (%s, %s)"
+        arguments = [None, project_name]
+        cursor.execute(query, arguments)
+        self.cnx.commit()
+
         cursor.close()
+
+    def get_project_id(self, project_name, db_name):
+        found = None
+        self.set_database(db_name)
+        cursor = self.cnx.cursor()
+        query = "SELECT id FROM project WHERE name = %s"
+        arguments = [project_name]
+        cursor.execute(query, arguments)
+
+        row = cursor.fetchone()
+        cursor.close()
+
+        if row:
+            found = row[0]
+
+        return found
+
+    def list_projects(self, db_name):
+        project_names = []
+        self.set_database(db_name)
+        cursor = self.cnx.cursor()
+        query = "SELECT name FROM project"
+        cursor.execute(query)
+
+        row = cursor.fetchone()
+
+        while row:
+            project_names.append(row[0])
+            row = cursor.fetchone()
+
+        cursor.close()
+        return project_names
+
+    def set_database(self, db_name):
+        try:
+            cursor = self.cnx.cursor()
+            use_database = "USE " + db_name
+            cursor.execute(use_database)
+            cursor.close()
+        except Exception:
+            self.logger.error("Dbschema failed", exc_info=True)
 
     def set_settings(self):
         cursor = self.cnx.cursor()
@@ -140,13 +88,13 @@ class InitDbSchema():
         cursor.execute("set global character_set_server = utf8")
         cursor.close()
 
-    def create_database(self):
+    def create_database(self, db_name):
         cursor = self.cnx.cursor()
 
-        drop_database_if_exists = "DROP DATABASE IF EXISTS " + self.db_name
+        drop_database_if_exists = "DROP DATABASE IF EXISTS " + db_name
         cursor.execute(drop_database_if_exists)
 
-        create_database = "CREATE DATABASE " + self.db_name
+        create_database = "CREATE DATABASE " + db_name
         cursor.execute(create_database)
 
         cursor.close()
@@ -769,23 +717,3 @@ class InitDbSchema():
         cursor.execute(create_table_channel)
         cursor.close()
         return
-
-    def execute(self):
-
-        start_time = datetime.now()
-        self.init_database()
-        self.cnx.close()
-        end_time = datetime.now()
-
-        minutes_and_seconds = divmod((end_time-start_time).total_seconds(), 60)
-        self.logger.info("InitDbSchema: process finished after " + str(minutes_and_seconds[0])
-                         + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
-        return
-
-
-def main():
-    a = InitDbSchema(config_db.DB_NAME)
-    a.execute()
-
-if __name__ == "__main__":
-    main()

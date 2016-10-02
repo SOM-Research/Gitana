@@ -2,84 +2,69 @@
 # -*- coding: utf-8 -*-
 __author__ = 'valerio cosentino'
 
-import sys
-sys.path.insert(0, "..//..")
-
 import mysql.connector
 from mysql.connector import errorcode
 from datetime import datetime
-from querier_bugzilla import BugzillaQuerier
-from extractor.init_db import config_db
 import re
 from email.utils import parseaddr
 import getopt
 import os
-
+import sys
 import logging
 import logging.handlers
+sys.path.insert(0, "..//..//..")
 
-LOG_FOLDER = "logs"
+from querier_bugzilla import BugzillaQuerier
 
-class Issue2Db():
 
-    def __init__(self, type, url, product, db_name, repo_id, issue_tracker_id, from_issue_id, to_issue_id):
-        self.create_log_folder(LOG_FOLDER)
-        LOG_FILENAME = LOG_FOLDER + "/issue2db"
-        self.logger = logging.getLogger(LOG_FILENAME)
-        fileHandler = logging.FileHandler(LOG_FILENAME + "-" + db_name + "-" + str(from_issue_id) + "-" + str(to_issue_id) + ".log", mode='w')
-        formatter = logging.Formatter("%(asctime)s:%(levelname)s:%(message)s", "%Y-%m-%d %H:%M:%S")
+class Issue2Db(object):
 
-        fileHandler.setFormatter(formatter)
-        self.logger.setLevel(logging.INFO)
-        self.logger.addHandler(fileHandler)
-        self.type = type
+    def __init__(self, db_name,
+                 repo_id, issue_tracker_id, url, product, interval,
+                 config, log_path):
+        self.log_path = log_path
         self.url = url
         self.product = product
         self.db_name = db_name
         self.repo_id = repo_id
         self.issue_tracker_id = issue_tracker_id
-        self.from_issue_id = from_issue_id
-        self.to_issue_id = to_issue_id
+        self.interval = interval
+        config.update({'database': db_name})
+        self.config = config
 
-        self.querier = BugzillaQuerier(self.url, self.product, self.logger)
+    def __call__(self):
+        LOG_FILENAME = self.log_path + "-issue2db"
+        self.logger = logging.getLogger(LOG_FILENAME)
+        fileHandler = logging.FileHandler(LOG_FILENAME + "-" + self.db_name + "-" + str(self.interval[0]) + "-" + str(self.interval[-1]) + ".log", mode='w')
+        formatter = logging.Formatter("%(asctime)s:%(levelname)s:%(message)s", "%Y-%m-%d %H:%M:%S")
 
-        self.cnx = mysql.connector.connect(**config_db.CONFIG)
-        self.set_database()
+        fileHandler.setFormatter(formatter)
+        self.logger.setLevel(logging.INFO)
+        self.logger.addHandler(fileHandler)
 
-    def create_log_folder(self, name):
-        if not os.path.exists(name):
-            os.makedirs(name)
-
-    def restart_connection(self):
-        self.cnx = mysql.connector.connect(**config_db.CONFIG)
-
-    def check_connection_alive(self):
         try:
-            cursor = self.cnx.cursor()
-            cursor.execute("SELECT VERSION()")
-            results = cursor.fetchone()
-            ver = results[0]
-            if not ver:
-                self.restart_connection()
-        except:
-            return self.restart_connection()
+            self.querier = BugzillaQuerier(self.url, self.product, self.logger)
+            self.cnx = mysql.connector.connect(**self.config)
+            self.extract()
+        except Exception, e:
+            self.logger.error("Issue2Db failed", exc_info=True)
 
     def insert_user(self, user_name, user_email, issue_id):
         try:
             cursor = self.cnx.cursor()
             query = "INSERT IGNORE INTO user " \
                     "VALUES (%s, %s, %s)"
-            arguments = [None, user_name, user_email]
+            arguments = [None, user_name.lower(), user_email.lower()]
             cursor.execute(query, arguments)
             self.cnx.commit()
             cursor.close()
-        except:
-            self.logger.warning("Issue2Db: user insertion (" + user_email + ") caused an error for issue id: " + str(issue_id) + " - tracker id " + str(self.issue_tracker_id))
+        except Exception, e:
+            self.logger.warning("user (" + user_email.lower() + ") not inserted for issue id: " + str(issue_id) + " - tracker id " + str(self.issue_tracker_id))
 
     def select_user_id(self, user_email):
         cursor = self.cnx.cursor()
         query = "SELECT id FROM user WHERE email = %s"
-        arguments = [user_email]
+        arguments = [user_email.lower()]
         cursor.execute(query, arguments)
         row = cursor.fetchone()
         cursor.close()
@@ -118,11 +103,11 @@ class Issue2Db():
         cursor.execute(query, arguments)
 
         row = cursor.fetchone()
+        cursor.close()
 
         if row:
             found = row[0]
 
-        cursor.close()
         return found
 
     def find_reference_id(self, version, issue_id):
@@ -145,8 +130,8 @@ class Issue2Db():
                     found = row[0]
 
             cursor.close()
-        except:
-            self.logger.warning("Issue2Db: error on version (" + version + ") for issue id: " + str(issue_id) + " - tracker id " + str(self.issue_tracker_id))
+        except Exception, e:
+            self.logger.warning("version (" + version + ") not inserted for issue id: " + str(issue_id) + " - tracker id " + str(self.issue_tracker_id), exc_info=True)
 
         return found
 
@@ -275,7 +260,7 @@ class Issue2Db():
     def get_user_id(self, user_email, issue_id):
         user_id = self.select_user_id(user_email)
         if not user_id:
-            user_name = self.querier.get_user(user_email).real_name
+            user_name = self.querier.get_user_name(user_email)
             self.insert_user(user_name, user_email, issue_id)
             user_id = self.select_user_id(user_email)
 
@@ -317,43 +302,42 @@ class Issue2Db():
             self.insert_issue_event(issue_id, event_type_id, action_content, creator_id, created_at, target_user_id)
 
     def extract_history(self, issue_id, history):
-        for b in history.get('bugs'):
-            if b.get('id') == issue_id:
-                event_history = b.get('history')
-                for event in event_history:
-                    try:
-                        created_at = self.get_timestamp(event.get('when'))
-                        creator_id = self.get_user_id(event.get('who'), issue_id)
+        history = history.get('bugs')[0].get('history')
 
-                        for change in event.get('changes'):
-                            removed = change.get('removed')
-                            field_name = change.get('field_name').lower()
-                            added = change.get('added')
+        for event in history:
+            try:
+                created_at = self.get_timestamp(event.get('when'))
+                creator_id = self.get_user_id(event.get('who'), issue_id)
 
-                            if removed != '':
-                                action = "removed"
-                                self.extract_issue_event(action, removed, creator_id, created_at, issue_id, field_name)
+                for change in event.get('changes'):
+                    removed = change.get('removed')
+                    field_name = change.get('field_name').lower()
+                    added = change.get('added')
 
-                            if added != '':
-                                action = "added"
-                                self.extract_issue_event(action, added, creator_id, created_at, issue_id, field_name)
-                    except:
-                        self.logger.warning("Issue2Db: event at (" + str(created_at) + ") not extracted for issue id: " + str(issue_id) + " - tracker id " + str(self.issue_tracker_id))
+                    if removed != '':
+                        action = "removed"
+                        self.extract_issue_event(action, removed, creator_id, created_at, issue_id, field_name)
+
+                    if added != '':
+                        action = "added"
+                        self.extract_issue_event(action, added, creator_id, created_at, issue_id, field_name)
+            except Exception, e:
+                self.logger.warning("event at (" + str(created_at) + ") not extracted for issue id: " + str(issue_id) + " - tracker id " + str(self.issue_tracker_id), exc_info=True)
 
     def extract_subscribers(self, issue_id, subscribers):
         for subscriber in subscribers:
             try:
                 subscriber_id = self.get_user_id(subscriber, issue_id)
                 self.insert_subscriber(issue_id, subscriber_id)
-            except:
-                self.logger.warning("Issue2Db: insert subscriber (" + subscriber + ") caused an error on issue id: " + str(issue_id) + " - tracker id " + str(self.issue_tracker_id))
+            except Exception, e:
+                self.logger.warning("subscriber (" + subscriber + ") not inserted for issue id: " + str(issue_id) + " - tracker id " + str(self.issue_tracker_id), exc_info=True)
 
     def extract_assignee(self, issue_id, assignee):
         try:
             assignee_id = self.get_user_id(assignee, issue_id)
             self.insert_assignee(issue_id, assignee_id)
-        except:
-            self.logger.warning("Issue2Db: insert assignee (" + assignee + ") caused an error on issue id: " + str(issue_id) + " - tracker id " + str(self.issue_tracker_id))
+        except Exception, e:
+            self.logger.warning("assignee (" + assignee + ") not inserted for issue id: " + str(issue_id) + " - tracker id " + str(self.issue_tracker_id), exc_info=True)
 
     def extract_comments(self, issue_id, comments):
         for comment in comments:
@@ -369,8 +353,8 @@ class Issue2Db():
                 if attachment_id:
                     issue_comment_id = self.select_issue_comment_id(own_id, issue_id, created_at)
                     self.extract_attachment(issue_comment_id, attachment_id)
-            except:
-                self.logger.warning("Issue2Db: comment(" + str(position) + ") not extracted for issue id: " + str(issue_id) + " - tracker id " + str(self.issue_tracker_id))
+            except Exception, e:
+                self.logger.warning("comment(" + str(position) + ") not extracted for issue id: " + str(issue_id) + " - tracker id " + str(self.issue_tracker_id), exc_info=True)
                 continue
 
     def extract_labels(self, issue_id, labels):
@@ -380,23 +364,8 @@ class Issue2Db():
                 self.insert_label(digested_label.strip())
                 label_id = self.select_label_id(digested_label)
                 self.assign_label_to_issue(issue_id, label_id)
-            except:
-                self.logger.warning("Issue2Db: label (" + label + ") not extracted for issue id: " + str(issue_id) + " - tracker id " + str(self.issue_tracker_id))
-
-    def get_last_issue_id(self, issue_tracker_id):
-        cursor = self.cnx.cursor()
-        query = "SELECT MAX(i.id) " \
-                "FROM issue i JOIN issue_tracker it ON i.issue_tracker_id = it.id " \
-                "WHERE issue_tracker_id = %s AND repo_id = %s"
-        arguments = [issue_tracker_id, self.repo_id]
-        cursor.execute(query, arguments)
-        row = cursor.fetchone()
-        found = None
-        if row:
-            found = row[0]
-        cursor.close()
-
-        return found
+            except Exception, e:
+                self.logger.warning("label (" + label + ") not extracted for issue id: " + str(issue_id) + " - tracker id " + str(self.issue_tracker_id), exc_info=True)
 
     def select_commit(self, sha, repo_id):
         found = None
@@ -497,23 +466,23 @@ class Issue2Db():
             #tags and keywords are mapped as labels
             try:
                 self.extract_labels(issue_id, issue.gettags())
-            except:
-                self.logger.error("Issue2Db: BugzillaError when extracting tags for issue id: " + str(issue_id) + " - tracker id " + str(self.issue_tracker_id))
+            except Exception, e:
+                self.logger.error("BugzillaError when extracting tags for issue id: " + str(issue_id) + " - tracker id " + str(self.issue_tracker_id), exc_info=True)
 
             try:
                 self.extract_labels(issue_id, issue.keywords)
-            except:
-                self.logger.error("Issue2Db: BugzillaError when extracting keywords for issue id: " + str(issue_id) + " - tracker id " + str(self.issue_tracker_id))
+            except Exception, e:
+                self.logger.error("BugzillaError when extracting keywords for issue id: " + str(issue_id) + " - tracker id " + str(self.issue_tracker_id), exc_info=True)
 
             try:
                 self.extract_comments(issue_id, issue.getcomments())
-            except:
-                self.logger.error("Issue2Db: BugzillaError when extracting comments for issue id: " + str(issue_id) + " - tracker id " + str(self.issue_tracker_id))
+            except Exception, e:
+                self.logger.error("BugzillaError when extracting comments for issue id: " + str(issue_id) + " - tracker id " + str(self.issue_tracker_id), exc_info=True)
 
             try:
                 self.extract_history(issue_id, issue.get_history())
-            except:
-                self.logger.error("Issue2Db: BugzillaError when extracting history for issue id: " + str(issue_id) + " - tracker id " + str(self.issue_tracker_id))
+            except Exception, e:
+                self.logger.error("BugzillaError when extracting history for issue id: " + str(issue_id) + " - tracker id " + str(self.issue_tracker_id), exc_info=True)
 
             if issue.cc:
                 self.extract_subscribers(issue_id, issue.cc)
@@ -525,12 +494,12 @@ class Issue2Db():
                 self.extract_issue_commit_dependency(issue_id, [issue.see_also])
 
     def get_issues(self):
-        for issue_id in self.querier.get_issue_ids(self.from_issue_id, self.to_issue_id):
+        for issue_id in self.interval:
             try:
                 self.get_issue_info(issue_id)
-            except:
-                self.logger.error("Issue2Db: something went wrong for issue id: " + str(issue_id) + " - tracker id " + str(self.issue_tracker_id))
-        return
+            except Exception, e:
+                self.logger.error("something went wrong for issue id: " + str(issue_id) + " - tracker id " + str(self.issue_tracker_id), exc_info=True)
+        self.cnx.close()
 
     def set_database(self):
         cursor = self.cnx.cursor()
@@ -539,31 +508,13 @@ class Issue2Db():
         cursor.close()
 
     def extract(self):
-        start_time = datetime.now()
-        self.get_issues()
-        end_time = datetime.now()
-        self.cnx.close()
+        try:
+            start_time = datetime.now()
+            self.get_issues()
+            end_time = datetime.now()
 
-        minutes_and_seconds = divmod((end_time-start_time).total_seconds(), 60)
-        self.logger.info("Issue2Db: process finished after " + str(minutes_and_seconds[0])
-                       + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
-        return
-
-
-def main(argv):
-    opts, args = getopt.getopt(argv, "rr", ["rr="])
-
-    type = str(args[0])
-    url = str(args[1])
-    product = str(args[2])
-    db_name = str(args[3])
-    repo_id = int(args[4])
-    issue_tracker_id = int(args[5])
-    from_issue_id = int(args[6])
-    to_issue_id = int(args[7])
-
-    extractor = Issue2Db(type, url, product, db_name, repo_id, issue_tracker_id, from_issue_id, to_issue_id)
-    extractor.extract()
-
-if __name__ == "__main__":
-    main(sys.argv[1:])
+            minutes_and_seconds = divmod((end_time-start_time).total_seconds(), 60)
+            self.logger.info("process finished after " + str(minutes_and_seconds[0])
+                           + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
+        except Exception, e:
+            self.logger.error("Issue2Db failed", exc_info=True)

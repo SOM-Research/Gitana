@@ -2,21 +2,17 @@
 # -*- coding: utf-8 -*-
 __author__ = 'valerio cosentino'
 
-import sys
-sys.path.insert(0, "..//..")
-
 import mysql.connector
 from mysql.connector import errorcode
 import re
 from datetime import datetime
-from querier_git import GitQuerier
-from extractor.init_db import config_db
-import getopt
 import logging
 import logging.handlers
-import os
+import sys
+sys.path.insert(0, "..//..")
 
-LOG_FOLDER = "logs"
+from querier_git import GitQuerier
+
 #do not import patches
 LIGHT_IMPORT_TYPE = 1
 #import patches but not at line level
@@ -25,38 +21,46 @@ MEDIUM_IMPORT_TYPE = 2
 FULL_IMPORT_TYPE = 3
 
 
-class Git2DbReference():
+class Git2DbReference(object):
 
-    def __init__(self, repo_id, db_name, git_repo_path, before_date, import_last_commit, import_type, ref_name, counter, from_sha):
-        self.create_log_folder(LOG_FOLDER)
-        LOG_FILENAME = LOG_FOLDER + "/git2db_ref"
+    def __init__(self, db_name,
+                 repo_id, git_repo_path, before_date, import_type, ref_name, from_sha,
+                 config, log_path):
+        self.log_path = log_path
+        self.git_repo_path = git_repo_path
+        self.repo_id = repo_id
+        self.db_name = db_name
+        self.ref_name = ref_name
+        self.before_date = before_date
+        self.import_type = import_type
+        self.from_sha = from_sha
+        config.update({'database': db_name})
+        self.config = config
+
+    def __call__(self):
+        LOG_FILENAME = self.log_path + "-git2db"
         self.logger = logging.getLogger(LOG_FILENAME)
-        fileHandler = logging.FileHandler(LOG_FILENAME + "-" + db_name + "-" + str(counter) + ".log", mode='w')
+        fileHandler = logging.FileHandler(LOG_FILENAME + "-" + self.db_name + "-" + self.make_it_printable(self.ref_name) + ".log", mode='w')
         formatter = logging.Formatter("%(asctime)s:%(levelname)s:%(message)s", "%Y-%m-%d %H:%M:%S")
 
         fileHandler.setFormatter(formatter)
         self.logger.setLevel(logging.INFO)
         self.logger.addHandler(fileHandler)
 
-        self.git_repo_path = git_repo_path
-        self.repo_id = repo_id
-        self.db_name = db_name
-        self.ref_name = ref_name
-        self.before_date = before_date
-        self.import_last_commit = import_last_commit
-        self.import_type = import_type
-        self.querier = GitQuerier(self.git_repo_path, self.logger)
-        self.from_sha = from_sha
+        try:
+            self.querier = GitQuerier(self.git_repo_path, self.logger)
+            self.cnx = mysql.connector.connect(**self.config)
+            self.extract()
+        except Exception, e:
+            self.logger.error("Git2Db failed", exc_info=True)
 
-        self.cnx = mysql.connector.connect(**config_db.CONFIG)
-        self.set_database()
-
-    def create_log_folder(self, name):
-        if not os.path.exists(name):
-            os.makedirs(name)
+    def make_it_printable(self, str):
+        u = str.decode('utf-8', 'ignore').lower()
+        return re.sub(r'(\W|\s)+', '-', u)
 
     def restart_connection(self):
-        self.cnx = mysql.connector.connect(**config_db.CONFIG)
+        self.logger.info("restarting connection...")
+        self.cnx = mysql.connector.connect(**self.config)
 
     def check_connection_alive(self):
         try:
@@ -67,7 +71,7 @@ class Git2DbReference():
             if not ver:
                 self.restart_connection()
         except:
-            return self.restart_connection()
+            self.restart_connection()
 
     def insert_reference(self, repo_id, ref_name, ref_type):
         cursor = self.cnx.cursor()
@@ -77,7 +81,6 @@ class Git2DbReference():
         cursor.execute(query, arguments)
         self.cnx.commit()
         cursor.close()
-        return
 
     def select_reference_name(self, repo_id, ref_id):
         cursor = self.cnx.cursor()
@@ -106,7 +109,7 @@ class Git2DbReference():
 
         query = "INSERT IGNORE INTO user " \
                 "VALUES (%s, %s, %s)"
-        arguments = [None, name, email]
+        arguments = [None, name.lower(), email.lower()]
         cursor.execute(query, arguments)
         self.cnx.commit()
         cursor.close()
@@ -116,7 +119,7 @@ class Git2DbReference():
         query = "SELECT id " \
                 "FROM user " \
                 "WHERE email = %s"
-        arguments = [email]
+        arguments = [email.lower()]
         cursor.execute(query, arguments)
 
         row = cursor.fetchone()
@@ -144,7 +147,6 @@ class Git2DbReference():
         cursor.execute(query, arguments)
         self.cnx.commit()
         cursor.close()
-        return
 
     def insert_commit_parents(self, parents, commit_id, sha, repo_id):
         cursor = self.cnx.cursor()
@@ -153,7 +155,7 @@ class Git2DbReference():
                 parent_id = self.select_commit(parent.hexsha, repo_id)
             except:
                 parent_id = None
-                self.logger.warning("Git2Db: parent commit id not found! SHA parent " + str(parent.hexsha))
+                self.logger.warning("parent commit id not found! SHA parent " + str(parent.hexsha))
 
             query = "INSERT IGNORE INTO commit_parent " \
                     "VALUES (%s, %s, %s, %s, %s)"
@@ -167,7 +169,6 @@ class Git2DbReference():
             self.cnx.commit()
 
         cursor.close()
-        return
 
     def insert_commit_in_reference(self, repo_id, commit_id, ref_id):
         cursor = self.cnx.cursor()
@@ -177,7 +178,6 @@ class Git2DbReference():
         cursor.execute(query, arguments)
         self.cnx.commit()
         cursor.close()
-        return
 
     def select_commit(self, sha, repo_id):
         found = None
@@ -217,7 +217,6 @@ class Git2DbReference():
         cursor.execute(query, arguments)
         self.cnx.commit()
         cursor.close()
-        return
 
     def insert_file_renamed(self, repo_id, current_file_id, previous_file_id):
         cursor = self.cnx.cursor()
@@ -228,7 +227,6 @@ class Git2DbReference():
         cursor.execute(query, arguments)
         self.cnx.commit()
         cursor.close()
-        return
 
     def insert_file_modification(self, commit_id, file_id, status, additions, deletions, changes, patch_content):
         cursor = self.cnx.cursor()
@@ -265,7 +263,6 @@ class Git2DbReference():
         cursor.execute(query, arguments)
         self.cnx.commit()
         cursor.close()
-        return
 
     def get_ext(self, str):
         file_name = str.split('/')[-1]
@@ -306,7 +303,6 @@ class Git2DbReference():
 
     def analyse_reference(self, ref_name, ref_type, repo_id):
         self.insert_reference(repo_id, ref_name, ref_type)
-        return
 
     def get_diffs_from_commit(self, commit, files_in_commit):
         if self.import_type > LIGHT_IMPORT_TYPE:
@@ -391,7 +387,7 @@ class Git2DbReference():
                                 previous_file_id = self.select_file_id(repo_id, file_previous)
 
                             if current_file_id == previous_file_id:
-                                self.logger.warning("Git2Db: previous file id is equal to current file id (" + str(current_file_id) + ") " + str(sha))
+                                self.logger.warning("previous file id is equal to current file id (" + str(current_file_id) + ") " + str(sha))
                             else:
                                 self.insert_file_renamed(repo_id, current_file_id, previous_file_id)
                             self.insert_file_modification(commit_id, current_file_id, "renamed", 0, 0, 0, None)
@@ -429,9 +425,9 @@ class Git2DbReference():
                                     for line_detail in line_details:
                                         self.insert_line_details(file_modification_id, line_detail)
                             except:
-                                self.logger.warning("Git2Db: GitPython null file path " + str(sha))
-            except AttributeError as e:
-                self.logger.error("Git2Db: GitPython just failed on commit " + str(sha) + ". Details: " + str(e))
+                                self.logger.warning("GitPython null file path " + str(sha))
+            except Exception, e:
+                self.logger.error("Git2Db failed on commit " + str(sha), exc_info=True)
 
         else:
             #insert parents of the commit
@@ -443,9 +439,8 @@ class Git2DbReference():
         ref_id = self.select_reference_id(repo_id, ref)
 
         for c in commits:
-            self.logger.info("Git2Db: analysing reference: " + ref + " -- commit " + str(commits.index(c)+1) + "/" + str(len(commits)))
+            #self.logger.info("analysing commit " + str(commits.index(c)+1) + "/" + str(len(commits)))
             self.analyse_commit(c, ref_id, repo_id)
-        return
 
     def fix_commit_parent_table(self, repo_id):
         cursor = self.cnx.cursor()
@@ -466,41 +461,16 @@ class Git2DbReference():
             self.cnx.commit()
             row = cursor.fetchone()
         cursor.close()
-        return
-
-    def set_database(self):
-        cursor = self.cnx.cursor()
-        use_database = "USE " + self.db_name
-        cursor.execute(use_database)
-        cursor.close()
 
     def extract(self):
-        start_time = datetime.now()
-        self.get_info_contribution_in_reference(self.ref_name, self.repo_id, self.from_sha)
-        self.querier.add_no_treated_extensions_to_log()
-        end_time = datetime.now()
-        self.cnx.close()
+        try:
+            start_time = datetime.now()
+            self.get_info_contribution_in_reference(self.ref_name, self.repo_id, self.from_sha)
+            end_time = datetime.now()
+            self.cnx.close()
 
-        minutes_and_seconds = divmod((end_time-start_time).total_seconds(), 60)
-        self.logger.info("Git2Db: process finished after " + str(minutes_and_seconds[0])
-                     + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
-
-
-def main(argv):
-    opts, args = getopt.getopt(argv, "rr", ["rr="])
-
-    repo_id = int(args[0])
-    reference_name = args[1]
-    db_name = args[2]
-    git_repo_path = args[3]
-    before_date = args[4]
-    import_last_commit = args[5]
-    import_type = int(args[6])
-    counter = int(args[7])
-    from_sha = args[8]
-
-    extractor = Git2DbReference(repo_id, db_name, git_repo_path, before_date, import_last_commit, import_type, reference_name, counter, from_sha)
-    extractor.extract()
-
-if __name__ == "__main__":
-    main(sys.argv[1:])
+            minutes_and_seconds = divmod((end_time-start_time).total_seconds(), 60)
+            self.logger.info("process finished after " + str(minutes_and_seconds[0])
+                         + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
+        except Exception, e:
+            self.logger.error("Git2Db failed", exc_info=True)
