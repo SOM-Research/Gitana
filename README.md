@@ -23,7 +23,7 @@ After installing MySQL Server and Python 2.7.6, follow the instructions below to
    pip install -r requirements.txt
    ```
 
-### How to use Gitana
+### How to use Gitana (version 1.0)
 
 Set the following parameters in the extractor/init_db/config_db.py:
 
