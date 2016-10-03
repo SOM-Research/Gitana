@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 __author__ = 'valerio cosentino'
 
 import mysql.connector
@@ -13,21 +15,8 @@ from extractor.cvs.git.git2db_update import Git2DbUpdate
 from extractor.issue_tracker.bugzilla.issue2db_extract_main import Issue2DbMain
 from extractor.issue_tracker.bugzilla.issue2db_update import Issue2DbUpdate
 
-CONFIG = {
-            'user': 'root',
-            'password': 'root',
-            'host': 'localhost',
-            'port': '3306',
-            'raise_on_warnings': False,
-            'buffered': True
-        }
-
 LOG_FOLDER_PATH = "logs"
 LOG_NAME = "gitana.log"
-
-#REFERENCES = ["0.7.0", "0.7.1", "0.7.2", "0.7.3", "0.7.4", "0.8.0", "0.9.0",
-#              "0.10.0", "1.0.0", "1.0.1", "1.1.2", "1.1.3", "1.1.4", "2.0.0",
-#              "0.10.1_RC4", "0.10.2_RC5", "0.8.1_RC4", "0.8.2_RC4", "0.9.1_RC4", "0.9.2_RC3", "1.0.2_RC4", "1.1.0_RC4", "1.2.0M5"]
 
 
 class Gitana():
@@ -65,10 +54,12 @@ class Gitana():
                 continue
 
     def init_db(self, db_name):
+        self.logger.info("initializing db")
         db = DbSchema(self.cnx, self.logger)
         db.init_database(db_name)
 
     def create_project(self, db_name, project_name):
+        self.logger.info("creating project")
         db = DbSchema(self.cnx, self.logger)
         db.create_project(db_name, project_name)
 
@@ -79,24 +70,28 @@ class Gitana():
             print p
 
     def import_git_data(self, db_name, project_name, repo_name, git_repo_path, before_date, import_type, references, processes):
+        self.logger.info("importing git data")
         git2db = Git2DbMain(db_name, project_name,
                                    repo_name, git_repo_path, before_date, import_type, references, processes,
                                    self.config, self.logger)
         git2db.extract()
 
     def update_git_data(self, db_name, project_name, repo_name, git_repo_path, before_date, recover_import, import_new_references, processes):
+        self.logger.info("updating git data")
         git2db = Git2DbUpdate(db_name, project_name,
                               repo_name, git_repo_path, before_date, recover_import, import_new_references, processes,
                               self.config, self.logger)
         git2db.update()
 
     def import_bugzilla_tracker_data(self, db_name, project_name, repo_name, url, product, before_date, recover_import, processes):
+        self.logger.info("importing bugzilla data")
         issue2db = Issue2DbMain(db_name, project_name,
                                 repo_name, "bugzilla", url, product, before_date, recover_import, processes,
                                 self.config, self.logger)
         issue2db.extract()
 
     def update_bugzilla_tracker_data(self, db_name, project_name, repo_name, url, product, processes):
+        self.logger.info("updating bugzilla data")
         issue2db = Issue2DbUpdate(db_name, project_name,
                                   repo_name, url, product, processes,
                                   self.config, self.logger)
@@ -109,19 +104,3 @@ class Gitana():
     def import_eclipse_forum_data(self, project_name, eclipse_forum_url, before_date, recover_import):
         #TODO
         print "here"
-
-
-def main():
-    g = Gitana(CONFIG, None)
-    g.delete_previous_logs()
-    g.init_db("test_test")
-    g.create_project("test_test", "test_project")
-
-    g.import_git_data("test_test", "test_project", "test_repo", "C:\\Users\\atlanmod\\Desktop\\org.eclipse.papyrus", "2008-10-07", 1, ["origin/master"], 20)
-    g.update_git_data("test_test", "test_project", "test_repo", "C:\\Users\\atlanmod\\Desktop\\org.eclipse.papyrus", "2008-12-10", False, True, 20)
-
-    g.import_bugzilla_tracker_data("test_test", "test_project", "test_repo", "https://bugs.eclipse.org/bugs/xmlrpc.cgi", "papyrus", "2008-10-07", False, 1)
-    g.update_bugzilla_tracker_data("test_test", "test_project", "test_repo", "https://bugs.eclipse.org/bugs/xmlrpc.cgi", "papyrus", 20)
-
-if __name__ == "__main__":
-    main()

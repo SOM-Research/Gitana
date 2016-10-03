@@ -24,7 +24,7 @@ class DbSchema():
             self.init_instant_messaging_tables()
             self.init_functions()
             self.init_stored_procedures()
-            self.logger.info("Database " + db_name + " created")
+            self.logger.info("database " + db_name + " created")
         except Exception:
             self.logger.error("Dbschema failed", exc_info=True)
 

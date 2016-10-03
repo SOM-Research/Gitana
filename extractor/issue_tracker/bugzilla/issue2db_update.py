@@ -83,13 +83,16 @@ class Issue2DbUpdate():
         queue_intervals = multiprocessing.JoinableQueue()
         results = multiprocessing.Queue()
 
+        # Start consumers
+        consumer.start_consumers(self.num_processes, queue_intervals, results)
+
         for interval in intervals:
             issue_extractor = Issue2Db(self.db_name, repo_id, issue_tracker_id, self.url, self.product, interval,
                                        self.config, self.log_path)
             queue_intervals.put(issue_extractor)
 
-        # Start consumers
-        consumer.start_consumers(self.num_processes, queue_intervals, results)
+        # Add end-of-queue markers
+        consumer.add_poison_pills(self.num_processes, queue_intervals)
 
         # Wait for all of the tasks to finish
         queue_intervals.join()
@@ -98,13 +101,16 @@ class Issue2DbUpdate():
         queue_intervals = multiprocessing.JoinableQueue()
         results = multiprocessing.Queue()
 
+        # Start consumers
+        consumer.start_consumers(self.num_processes, queue_intervals, results)
+
         for interval in intervals:
             issue_dependency_extractor = IssueDependency2Db(self.db_name, repo_id, issue_tracker_id, self.url, self.product, interval,
                                                  self.config, self.log_path)
             queue_intervals.put(issue_dependency_extractor)
 
-        # Start consumers
-        consumer.start_consumers(self.num_processes, queue_intervals, results)
+        # Add end-of-queue markers
+        consumer.add_poison_pills(self.num_processes, queue_intervals)
 
         # Wait for all of the tasks to finish
         queue_intervals.join()

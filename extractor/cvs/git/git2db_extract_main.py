@@ -7,6 +7,7 @@ from mysql.connector import errorcode
 from datetime import datetime
 import multiprocessing
 import sys
+import time
 sys.path.insert(0, "..//..//..")
 
 from querier_git import GitQuerier
@@ -83,6 +84,9 @@ class Git2DbMain():
         queue_references = multiprocessing.JoinableQueue()
         results = multiprocessing.Queue()
 
+        # Start consumers
+        consumer.start_consumers(self.num_processes, queue_references, results)
+
         for reference in self.querier.get_references():
             if self.references:
                 if reference[0] in self.references:
@@ -98,8 +102,8 @@ class Git2DbMain():
 
                 queue_references.put(git_ref_extractor)
 
-        # Start consumers
-        consumer.start_consumers(self.num_processes, queue_references, results)
+        # Add end-of-queue markers
+        consumer.add_poison_pills(self.num_processes, queue_references)
 
         # Wait for all of the tasks to finish
         queue_references.join()

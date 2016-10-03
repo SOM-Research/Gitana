@@ -4,7 +4,6 @@ import sys
 sys.path.insert(0, "..//..")
 
 import multiprocessing
-import time
 
 
 def start_consumers(processes, task_queue, result_queue):
@@ -12,6 +11,11 @@ def start_consumers(processes, task_queue, result_queue):
     consumers = [Consumer(task_queue, result_queue) for i in xrange(num_consumers)]
     for w in consumers:
         w.start()
+
+
+def add_poison_pills(processes, task_queue):
+    for i in xrange(processes):
+        task_queue.put(None)
 
 
 class Consumer(multiprocessing.Process):
@@ -22,8 +26,13 @@ class Consumer(multiprocessing.Process):
         self.result_queue = result_queue
 
     def run(self):
-        while not self.task_queue.empty():
+        while True:
             next_task = self.task_queue.get()
+
+            if next_task is None:
+                self.task_queue.task_done()
+                break
+
             answer = next_task()
             self.task_queue.task_done()
             #self.result_queue.put(answer)

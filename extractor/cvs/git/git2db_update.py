@@ -3,8 +3,6 @@
 __author__ = 'valerio cosentino'
 
 from datetime import datetime
-import logging
-import logging.handlers
 import multiprocessing
 import mysql.connector
 from mysql.connector import errorcode
@@ -87,6 +85,9 @@ class Git2DbUpdate():
         queue_references = multiprocessing.JoinableQueue()
         results = multiprocessing.Queue()
 
+        # Start consumers
+        consumer.start_consumers(self.num_processes, queue_references, results)
+
         row = cursor.fetchone()
         while row:
             sha = row[0]
@@ -109,8 +110,8 @@ class Git2DbUpdate():
 
         cursor.close()
 
-        # Start consumers
-        consumer.start_consumers(self.num_processes, queue_references, results)
+        # Add end-of-queue markers
+        consumer.add_poison_pills(self.num_processes, queue_references)
 
         # Wait for all of the tasks to finish
         queue_references.join()
@@ -130,6 +131,9 @@ class Git2DbUpdate():
                                                     self.config, self.log_path)
 
                 queue_references.put(git_ref_extractor)
+
+        # Add end-of-queue markers
+        consumer.add_poison_pills(self.num_processes, queue_references)
 
         # Wait for all of the tasks to finish
         queue_references.join()
