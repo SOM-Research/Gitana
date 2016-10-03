@@ -13,6 +13,7 @@ from extractor.cvs.git.git2db_extract_main import Git2DbMain
 from extractor.cvs.git.git2db_update import Git2DbUpdate
 from extractor.issue_tracker.bugzilla.issue2db_extract_main import Issue2DbMain
 from extractor.issue_tracker.bugzilla.issue2db_update import Issue2DbUpdate
+from extractor.forum.eclipse.forum2db_extract_main import Forum2DbMain
 
 LOG_FOLDER_PATH = "logs"
 LOG_NAME = "gitana"
@@ -100,6 +101,9 @@ class Gitana():
         #TODO
         print "here"
 
-    def import_eclipse_forum_data(self, project_name, eclipse_forum_url, before_date, recover_import):
-        #TODO
-        print "here"
+    def import_eclipse_forum_data(self, db_name, project_name, eclipse_forum_url, before_date, recover_import, processes):
+        self.logger.info("importing eclipse forum data")
+        forum2db = Forum2DbMain(db_name, project_name,
+                                "eclipse_forum", eclipse_forum_url, before_date, recover_import, processes,
+                                self.config, self.logger)
+        forum2db.extract()

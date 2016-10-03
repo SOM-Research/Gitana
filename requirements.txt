@@ -3,3 +3,4 @@ mysql-connector
 gitpython
 python-bugzilla
 pygithub
+selenium
