@@ -22,7 +22,7 @@ class Issue2DbUpdate():
                  config, logger):
 
         self.logger = logger
-        self.log_path = self.logger.name.rsplit('.', 1)[0]
+        self.log_path = self.logger.name.rsplit('.', 1)[0] + "-" + project_name
         self.url = url
         self.product = product
         self.project_name = project_name

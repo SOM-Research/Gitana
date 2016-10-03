@@ -24,7 +24,7 @@ class Git2DbUpdate():
                  repo_name, git_repo_path, before_date, import_last_commit, import_new_references,
                  num_processes, config, logger):
         self.logger = logger
-        self.log_path = self.logger.name.rsplit('.', 1)[0]
+        self.log_path = self.logger.name.rsplit('.', 1)[0] + "-" + project_name
         self.git_repo_path = git_repo_path
         self.project_name = project_name
         self.db_name = db_name

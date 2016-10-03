@@ -9,25 +9,20 @@ import multiprocessing
 import sys
 sys.path.insert(0, "..//..//..")
 
-from issue2db_extract_issue import Issue2Db
-from issue2db_extract_issue_dependency import IssueDependency2Db
-from querier_bugzilla import BugzillaQuerier
 from extractor.util import consumer
 
 
-class Issue2DbMain():
+class Forum2DbMain():
 
     def __init__(self, db_name, project_name,
-                 repo_name, type, url, product, before_date, recover_import, num_processes,
+                 type, url, before_date, recover_import, num_processes,
                  config, logger):
         self.logger = logger
-        self.log_path = self.logger.name.rsplit('.', 1)[0] + "-" + project_name
+        self.log_path = self.logger.name.rsplit('.', 1)[0]
         self.type = type
         self.url = url
-        self.product = product
         self.project_name = project_name
         self.db_name = db_name
-        self.repo_name = repo_name
         self.before_date = before_date
         self.recover_import = recover_import
         self.num_processes = num_processes
@@ -36,7 +31,7 @@ class Issue2DbMain():
         self.config = config
 
         try:
-            self.querier = BugzillaQuerier(self.url, self.product, self.logger)
+            self.querier = EclipseForumQuerier(self.url, self.logger)
             self.cnx = mysql.connector.connect(**self.config)
         except:
             self.logger.error("Issue2Db extract failed", exc_info=True)

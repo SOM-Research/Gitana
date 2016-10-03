@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 __author__ = 'valerio cosentino'
 
 import mysql.connector
@@ -8,6 +6,7 @@ import os
 import logging
 import logging.handlers
 import glob
+import uuid
 
 from extractor.db.dbschema import DbSchema
 from extractor.cvs.git.git2db_extract_main import Git2DbMain
@@ -16,7 +15,7 @@ from extractor.issue_tracker.bugzilla.issue2db_extract_main import Issue2DbMain
 from extractor.issue_tracker.bugzilla.issue2db_update import Issue2DbUpdate
 
 LOG_FOLDER_PATH = "logs"
-LOG_NAME = "gitana.log"
+LOG_NAME = "gitana"
 
 
 class Gitana():
@@ -32,7 +31,7 @@ class Gitana():
             self.create_log_folder(LOG_FOLDER_PATH)
             self.log_folder_path = LOG_FOLDER_PATH
 
-        self.log_path = self.log_folder_path + "/" + LOG_NAME
+        self.log_path = self.log_folder_path + "/" + LOG_NAME + "-" + str(uuid.uuid4())[:5] + ".log"
         self.logger = logging.getLogger(self.log_path)
         fileHandler = logging.FileHandler(self.log_path, mode='w')
         formatter = logging.Formatter("%(asctime)s:%(levelname)s:%(message)s", "%Y-%m-%d %H:%M:%S")

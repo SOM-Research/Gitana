@@ -22,13 +22,16 @@ def main():
     g = Gitana(CONFIG, None)
     g.delete_previous_logs()
     g.init_db("test_test")
-    g.create_project("test_test", "test_project")
 
-    g.import_git_data("test_test", "test_project", "test_repo", "C:\\Users\\atlanmod\\Desktop\\org.eclipse.papyrus", "2009-02-07", 1, ["0.7.0"], 10)
-    g.update_git_data("test_test", "test_project", "test_repo", "C:\\Users\\atlanmod\\Desktop\\org.eclipse.papyrus", "2009-03-07", False, False, 20)
+    g.create_project("test_test", "test_project1")
+    g.import_git_data("test_test", "test_project1", "test_repo1", "C:\\Users\\atlanmod\\Desktop\\metaScience", "2015-02-07", 1, None, 10)
 
-    g.import_bugzilla_tracker_data("test_test", "test_project", "test_repo", "https://bugs.eclipse.org/bugs/xmlrpc.cgi", "papyrus", "2008-10-07", False, 20)
-    g.update_bugzilla_tracker_data("test_test", "test_project", "test_repo", "https://bugs.eclipse.org/bugs/xmlrpc.cgi", "papyrus", 20)
+    g.create_project("test_test", "test_project2")
+    g.import_git_data("test_test", "test_project2", "test_repo2", "C:\\Users\\atlanmod\\Desktop\\metaScience", "2015-02-07", 1, None, 10)
+    #g.update_git_data("test_test", "test_project2", "test_repo2", "C:\\Users\\atlanmod\\Desktop\\metaScience", "2015-03-07", False, False, 20)
+
+    #g.import_bugzilla_tracker_data("test_test", "test_project2", "test_repo2", "https://bugs.eclipse.org/bugs/xmlrpc.cgi", "papyrus", "2008-10-07", False, 20)
+    #g.update_bugzilla_tracker_data("test_test", "test_project2", "test_repo2", "https://bugs.eclipse.org/bugs/xmlrpc.cgi", "papyrus", 20)
 
 if __name__ == "__main__":
     main()

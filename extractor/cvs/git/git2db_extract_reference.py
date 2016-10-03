@@ -40,7 +40,7 @@ class Git2DbReference(object):
     def __call__(self):
         LOG_FILENAME = self.log_path + "-git2db"
         self.logger = logging.getLogger(LOG_FILENAME)
-        fileHandler = logging.FileHandler(LOG_FILENAME + "-" + self.db_name + "-" + self.make_it_printable(self.ref_name) + ".log", mode='w')
+        fileHandler = logging.FileHandler(LOG_FILENAME + "-" + self.make_it_printable(self.ref_name) + ".log", mode='w')
         formatter = logging.Formatter("%(asctime)s:%(levelname)s:%(message)s", "%Y-%m-%d %H:%M:%S")
 
         fileHandler.setFormatter(formatter)

@@ -494,7 +494,7 @@ class DbSchema():
                               "committed_date timestamp DEFAULT '0000-00-00 00:00:00', " \
                               "size int(20), " \
                               "INDEX sha (sha), " \
-                              "CONSTRAINT s UNIQUE (sha) " \
+                              "CONSTRAINT s UNIQUE (sha, repo_id) " \
                               ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 
         create_table_commit_parent = "CREATE TABLE commit_parent(" \

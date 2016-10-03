@@ -31,7 +31,7 @@ class IssueDependency2Db(object):
     def __call__(self):
         LOG_FILENAME = self.log_path + "-issue2db-dependency"
         self.logger = logging.getLogger(LOG_FILENAME)
-        fileHandler = logging.FileHandler(LOG_FILENAME + "-" + self.db_name + "-" + str(self.interval[0]) + "-" + str(self.interval[-1]) + ".log", mode='w')
+        fileHandler = logging.FileHandler(LOG_FILENAME + "-" + str(self.interval[0]) + "-" + str(self.interval[-1]) + ".log", mode='w')
         formatter = logging.Formatter("%(asctime)s:%(levelname)s:%(message)s", "%Y-%m-%d %H:%M:%S")
 
         fileHandler.setFormatter(formatter)
