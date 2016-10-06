@@ -12,8 +12,8 @@ class BugzillaQuerier():
         self.bzapi = bugzilla.Bugzilla(url=url)
         self.product = product
 
-    def get_timestamp(self, creation_time):
-        return datetime.strptime(creation_time, "%Y-%m-%d")
+    def get_timestamp(self, creation_time, format):
+        return datetime.strptime(creation_time, format)
 
     def get_issue_ids(self, from_issue_id, to_issue_id, before_date):
         query = self.bzapi.build_query(product=self.product, include_fields=["id", "creation_time"])
@@ -24,7 +24,7 @@ class BugzillaQuerier():
             result = [r for r in result if r.id >= from_issue_id and r.id <= to_issue_id]
 
         if before_date:
-            result = [r for r in result if r.creation_time <= self.get_timestamp(before_date)]
+            result = [r for r in result if r.creation_time <= self.get_timestamp(before_date, "%Y-%m-%d")]
 
         return [r.id for r in result]
 

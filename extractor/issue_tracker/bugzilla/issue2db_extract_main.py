@@ -107,6 +107,7 @@ class Issue2DbMain():
         return '-'.join([str(e) for e in elements])
 
     def get_intervals(self, elements):
+        elements.sort()
         chunk_size = len(elements)/self.num_processes
 
         if chunk_size == 0:

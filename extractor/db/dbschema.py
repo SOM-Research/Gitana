@@ -676,7 +676,7 @@ class DbSchema():
                              ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 
         create_table_topic = "CREATE TABLE topic ( " \
-                             "id int(20) PRIMARY KEY, " \
+                             "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
                              "own_id int(20), " \
                              "forum_id int(20), " \
                              "name varchar(256), " \
@@ -704,7 +704,7 @@ class DbSchema():
                                          ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 
         create_table_channel = "CREATE TABLE channel ( " \
-                               "id int(20) PRIMARY KEY, " \
+                               "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
                                "own_id int(20), " \
                                "instant_messaging_id int(20), " \
                                "name varchar(256), " \

@@ -66,6 +66,7 @@ class Issue2DbUpdate():
         return found
 
     def get_intervals(self, elements):
+        elements.sort()
         chunk_size = len(elements)/self.num_processes
 
         if chunk_size == 0:

@@ -21,9 +21,9 @@ CONFIG = {
 def main():
     g = Gitana(CONFIG, None)
     g.delete_previous_logs()
-    g.init_db("test_test")
+    #g.init_db("test_test")
 
-    g.create_project("test_test", "test_project1")
+    #g.create_project("test_test", "test_project1")
     #g.import_git_data("test_test", "test_project1", "test_repo1", "C:\\Users\\atlanmod\\Desktop\\metaScience", "2015-02-07", 1, None, 10)
 
     #g.create_project("test_test", "test_project2")
@@ -33,7 +33,8 @@ def main():
     #g.import_bugzilla_tracker_data("test_test", "test_project2", "test_repo2", "https://bugs.eclipse.org/bugs/xmlrpc.cgi", "papyrus", "2008-10-07", False, 20)
     #g.update_bugzilla_tracker_data("test_test", "test_project2", "test_repo2", "https://bugs.eclipse.org/bugs/xmlrpc.cgi", "papyrus", 20)
 
-    g.import_eclipse_forum_data("test_test", "test_project1", "https://www.eclipse.org/forums/index.php/f/121/", "", False, 1)
+    #g.import_eclipse_forum_data("test_test", "test_project1", "https://www.eclipse.org/forums/index.php/f/121/", "", False, 1)
+    g.update_eclipse_forum_data("test_test", "test_project", None, False, 1)
 
 if __name__ == "__main__":
     main()
