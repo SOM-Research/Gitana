@@ -442,7 +442,7 @@ class DbSchema():
                                                                "(NULL, 'file_upload');"
 
         create_table_attachment = "CREATE TABLE attachment ( " \
-                                  "id int(20) PRIMARY KEY, " \
+                                  "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
                                   "own_id int(20), " \
                                   "message_id int(20), " \
                                   "name varchar(256), " \

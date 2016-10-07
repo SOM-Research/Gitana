@@ -12,6 +12,7 @@ import sys
 sys.path.insert(0, "..//..")
 
 from querier_git import GitQuerier
+from extractor.util.db_util import DbUtil
 
 #do not import patches
 LIGHT_IMPORT_TYPE = 1
@@ -34,6 +35,9 @@ class Git2DbReference(object):
         self.before_date = before_date
         self.import_type = import_type
         self.from_sha = from_sha
+
+        self.db_util = DbUtil()
+
         config.update({'database': db_name})
         self.config = config
 
@@ -58,10 +62,6 @@ class Git2DbReference(object):
         u = str.decode('utf-8', 'ignore').lower()
         return re.sub(r'(\W|\s)+', '-', u)
 
-    def restart_connection(self):
-        self.logger.info("restarting connection...")
-        self.cnx = mysql.connector.connect(**self.config)
-
     def check_connection_alive(self):
         try:
             cursor = self.cnx.cursor()
@@ -69,9 +69,9 @@ class Git2DbReference(object):
             results = cursor.fetchone()
             ver = results[0]
             if not ver:
-                self.restart_connection()
+                self.cnx = self.db_util.restart_connection(self.config, self.logger)
         except:
-            self.restart_connection()
+            self.cnx = self.db_util.restart_connection(self.config, self.logger)
 
     def insert_reference(self, repo_id, ref_name, ref_type):
         cursor = self.cnx.cursor()
@@ -104,38 +104,11 @@ class Git2DbReference(object):
         cursor.close()
         return id
 
-    def insert_user(self, name, email):
-        cursor = self.cnx.cursor()
-
-        query = "INSERT IGNORE INTO user " \
-                "VALUES (%s, %s, %s)"
-        arguments = [None, name.lower(), email.lower()]
-        cursor.execute(query, arguments)
-        self.cnx.commit()
-        cursor.close()
-
-    def select_user_id(self, email):
-        cursor = self.cnx.cursor()
-        query = "SELECT id " \
-                "FROM user " \
-                "WHERE email = %s"
-        arguments = [email.lower()]
-        cursor.execute(query, arguments)
-
-        row = cursor.fetchone()
-        cursor.close()
-
-        id = None
-        if row:
-            id = row[0]
-
-        return id
-
     def get_user_id(self, user_name, user_email):
-        user_id = self.select_user_id(user_email)
+        user_id = self.db_util.select_user_id_by_email(self.cnx, user_email, self.logger)
         if not user_id:
-            self.insert_user(user_name, user_email)
-            user_id = self.select_user_id(user_email)
+            self.db_util.insert_user(self.cnx, user_name, user_email, self.logger)
+            user_id = self.db_util.select_user_id_by_email(self.cnx, user_email, self.logger)
 
         return user_id
 
@@ -297,8 +270,7 @@ class Git2DbReference(object):
 
                     self.analyse_reference(reference_name, ref_type, repo_id)
                     self.analyse_commits(commits, reference_name, repo_id)
-                #fix parent table for missing parents
-                self.fix_commit_parent_table(repo_id)
+
                 break
 
     def analyse_reference(self, ref_name, ref_type, repo_id):
@@ -441,26 +413,6 @@ class Git2DbReference(object):
         for c in commits:
             #self.logger.info("analysing commit " + str(commits.index(c)+1) + "/" + str(len(commits)))
             self.analyse_commit(c, ref_id, repo_id)
-
-    def fix_commit_parent_table(self, repo_id):
-        cursor = self.cnx.cursor()
-        query_select = "SELECT parent_sha " \
-                       "FROM commit_parent " \
-                       "WHERE parent_id IS NULL AND repo_id = %s"
-        arguments = [repo_id]
-        cursor.execute(query_select, arguments)
-        row = cursor.fetchone()
-        while row:
-            parent_sha = row[0]
-            parent_id = self.select_commit(parent_sha, repo_id)
-            query_update = "UPDATE commit_parent " \
-                           "SET parent_id = %s " \
-                           "WHERE parent_id IS NULL AND parent_sha = %s AND repo_id = %s "
-            arguments = [parent_id, parent_sha, repo_id]
-            cursor.execute(query_update, arguments)
-            self.cnx.commit()
-            row = cursor.fetchone()
-        cursor.close()
 
     def extract(self):
         try:

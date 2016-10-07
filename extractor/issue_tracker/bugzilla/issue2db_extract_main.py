@@ -12,10 +12,13 @@ sys.path.insert(0, "..//..//..")
 from issue2db_extract_issue import Issue2Db
 from issue2db_extract_issue_dependency import IssueDependency2Db
 from querier_bugzilla import BugzillaQuerier
-from extractor.util import consumer
+from extractor.util import multiprocessing_util
+from extractor.util.db_util import DbUtil
 
 
 class Issue2DbMain():
+
+    NUM_PROCESSES = 10
 
     def __init__(self, db_name, project_name,
                  repo_name, type, url, product, before_date, recover_import, num_processes,
@@ -30,7 +33,13 @@ class Issue2DbMain():
         self.repo_name = repo_name
         self.before_date = before_date
         self.recover_import = recover_import
-        self.num_processes = num_processes
+
+        if num_processes:
+            self.num_processes = num_processes
+        else:
+            self.num_processes = Issue2DbMain.NUM_PROCESSES
+
+        self.db_util = DbUtil()
 
         config.update({'database': db_name})
         self.config = config
@@ -40,24 +49,6 @@ class Issue2DbMain():
             self.cnx = mysql.connector.connect(**self.config)
         except:
             self.logger.error("Issue2Db extract failed", exc_info=True)
-
-    def select_repo(self):
-        found = None
-        cursor = self.cnx.cursor()
-        query = "SELECT r.id " \
-                "FROM repository r JOIN project p ON r.project_id = p.id " \
-                "WHERE r.name = %s AND p.name = %s"
-        arguments = [self.repo_name, self.project_name]
-        cursor.execute(query, arguments)
-        row = cursor.fetchone()
-        cursor.close()
-
-        if row:
-            found = row[0]
-        else:
-            self.logger.error("the repository " + self.repo_name + " does not exist")
-
-        return found
 
     def insert_issue_tracker(self, repo_id):
         cursor = self.cnx.cursor()
@@ -106,21 +97,6 @@ class Issue2DbMain():
     def pass_list_as_argument(self, elements):
         return '-'.join([str(e) for e in elements])
 
-    def get_intervals(self, elements):
-        elements.sort()
-        chunk_size = len(elements)/self.num_processes
-
-        if chunk_size == 0:
-            chunks = [elements]
-        else:
-            chunks = [elements[i:i + chunk_size] for i in range(0, len(elements), chunk_size)]
-
-        intervals = []
-        for chunk in chunks:
-            intervals.append(chunk)
-
-        return intervals
-
     def insert_issue_data(self, repo_id, issue_tracker_id):
         if self.recover_import:
             imported = self.get_already_imported_issue_ids(issue_tracker_id, repo_id)
@@ -129,13 +105,13 @@ class Issue2DbMain():
         else:
             issues = self.querier.get_issue_ids(None, None, self.before_date)
 
-        intervals = [i for i in self.get_intervals(issues) if len(i) > 0]
+        intervals = [i for i in multiprocessing_util.get_tasks_intervals(issues, self.num_processes) if len(i) > 0]
 
         queue_intervals = multiprocessing.JoinableQueue()
         results = multiprocessing.Queue()
 
         # Start consumers
-        consumer.start_consumers(self.num_processes, queue_intervals, results)
+        multiprocessing_util.start_consumers(self.num_processes, queue_intervals, results)
 
         for interval in intervals:
             issue_extractor = Issue2Db(self.db_name, repo_id, issue_tracker_id, self.url, self.product, interval,
@@ -143,20 +119,20 @@ class Issue2DbMain():
             queue_intervals.put(issue_extractor)
 
         # Add end-of-queue markers
-        consumer.add_poison_pills(self.num_processes, queue_intervals)
+        multiprocessing_util.add_poison_pills(self.num_processes, queue_intervals)
 
         # Wait for all of the tasks to finish
         queue_intervals.join()
 
     def insert_issue_dependencies(self, repo_id, issue_tracker_id):
         issues = self.get_already_imported_issue_ids(issue_tracker_id, repo_id)
-        intervals = [i for i in self.get_intervals(issues) if len(i) > 0]
+        intervals = [i for i in multiprocessing_util.get_tasks_intervals(issues, self.num_processes) if len(i) > 0]
 
         queue_intervals = multiprocessing.JoinableQueue()
         results = multiprocessing.Queue()
 
         # Start consumers
-        consumer.start_consumers(self.num_processes, queue_intervals, results)
+        multiprocessing_util.start_consumers(self.num_processes, queue_intervals, results)
 
         for interval in intervals:
             issue_dependency_extractor = IssueDependency2Db(self.db_name, repo_id, issue_tracker_id, self.url, self.product, interval,
@@ -164,13 +140,14 @@ class Issue2DbMain():
             queue_intervals.put(issue_dependency_extractor)
 
         # Add end-of-queue markers
-        consumer.add_poison_pills(self.num_processes, queue_intervals)
+        multiprocessing_util.add_poison_pills(self.num_processes, queue_intervals)
 
         # Wait for all of the tasks to finish
         queue_intervals.join()
 
     def split_issue_extraction(self):
-        repo_id = self.select_repo()
+        project_id = self.db_util.select_project_id(self.cnx, self.project_name, self.logger)
+        repo_id = self.db_util.select_repo_id(self.cnx, project_id, self.repo_name, self.logger)
         issue_tracker_id = self.insert_issue_tracker(repo_id)
         self.insert_issue_data(repo_id, issue_tracker_id)
 

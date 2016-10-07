@@ -4,6 +4,7 @@ __author__ = 'valerio cosentino'
 
 import bugzilla
 from datetime import datetime
+from extractor.util.date_util import DateUtil
 
 class BugzillaQuerier():
 
@@ -12,10 +13,10 @@ class BugzillaQuerier():
         self.bzapi = bugzilla.Bugzilla(url=url)
         self.product = product
 
-    def get_timestamp(self, creation_time, format):
-        return datetime.strptime(creation_time, format)
+        self.date_util = DateUtil()
 
     def get_issue_ids(self, from_issue_id, to_issue_id, before_date):
+        #TODO - include_fields seems not to work properly, http://bugzilla.readthedocs.io/en/latest/api/core/v1/bug.html
         query = self.bzapi.build_query(product=self.product, include_fields=["id", "creation_time"])
         result = self.bzapi.query(query)
         if from_issue_id and not to_issue_id:
@@ -24,7 +25,7 @@ class BugzillaQuerier():
             result = [r for r in result if r.id >= from_issue_id and r.id <= to_issue_id]
 
         if before_date:
-            result = [r for r in result if r.creation_time <= self.get_timestamp(before_date, "%Y-%m-%d")]
+            result = [r for r in result if r.creation_time <= self.date_util.get_timestamp(before_date, "%Y-%m-%d")]
 
         return [r.id for r in result]
 

@@ -2,9 +2,15 @@
 # -*- coding: utf-8 -*-
 __author__ = 'valerio cosentino'
 
-from datetime import datetime
-from selenium import webdriver
 import time
+import os
+import sys
+
+sys.path.insert(0, "..//..//..")
+
+from selenium import webdriver
+import extractor.util as util
+WEB_DRIVER_PATH = os.path.dirname(util.__file__) + "\selenium_driver\phantomjs.exe"
 
 
 class EclipseForumQuerier():
@@ -15,21 +21,20 @@ class EclipseForumQuerier():
         self.driver = None
 
     def start_browser(self):
-        self.driver = webdriver.Chrome(executable_path='C:/chromedriver_win32/chromedriver.exe')
-        self.driver.maximize_window()
+        if not self.driver:
+
+            self.driver = webdriver.PhantomJS(executable_path=WEB_DRIVER_PATH)
+            self.driver.maximize_window()
         self.driver.get(self.url)
 
     def close_browser(self):
-        self.driver.close()
+        self.driver.quit()
 
     def set_logger(self, logger):
         self.logger = logger
 
     def set_url(self, url):
         self.url = url
-
-    def get_timestamp(self, creation_time, format):
-        return datetime.strptime(creation_time, format)
 
     def get_topic_own_id(self, topic_element):
         found = None
@@ -63,9 +68,29 @@ class EclipseForumQuerier():
 
         return found
 
+    def get_last_changed_at(self, topic_element):
+        try:
+            found = self.get_created_at(topic_element.find_elements_by_tag_name("td")[-1])
+        except:
+            found = None
+
+        return found
+
+    def get_topic_created_at(self, topic_element):
+        try:
+            found = topic_element.find_elements_by_tag_name("td")[2].find_element_by_class_name("DateText").text
+        except:
+            found = None
+
+        return found
+
     def get_created_at(self, message_element):
-        datetime = message_element.find_element_by_class_name("DateText").text
-        return self.get_timestamp(datetime, "%a, %d %B %Y %H:%M")
+        try:
+            found = message_element.find_element_by_class_name("DateText").text
+        except:
+            found = None
+
+        return found
 
     def get_topic_url(self, topic_element):
         return topic_element.find_element_by_class_name("big").get_attribute("href")
@@ -85,10 +110,20 @@ class EclipseForumQuerier():
         return found
 
     def get_message_body(self, message):
-        return message.find_element_by_class_name("MsgR3").text
+        try:
+            found = message.find_element_by_class_name("MsgR3").find_element_by_class_name("MsgBodyText").text
+        except:
+            found = None
+
+        return found
 
     def get_message_author_name(self, message):
-        return message.find_element_by_class_name("MsgR2").find_element_by_class_name("msgud").find_elements_by_tag_name("a")[0].text
+        try:
+            found = message.find_element_by_class_name("MsgR2").find_element_by_class_name("msgud").find_elements_by_tag_name("a")[0].text
+        except:
+            found = None
+
+        return found
 
     def message_has_attachments(self, message):
         try:
@@ -99,21 +134,47 @@ class EclipseForumQuerier():
         return found
 
     def message_get_attachments(self, message):
-        return message.find_element_by_class_name("AttachmentsList").find_elements_by_tag_name("li")
+        try:
+            found = message.find_element_by_class_name("AttachmentsList").find_elements_by_tag_name("li")
+        except:
+            found = None
+
+        return found
 
     def get_attachment_url(self, attachment):
-        return attachment.find_elements_by_tag_name("a")[0].get_attribute("href")
+        try:
+            found = attachment.find_elements_by_tag_name("a")[0].get_attribute("href")
+        except:
+            found = None
+
+        return found
 
     def get_attachment_own_id(self, attachment):
         url = self.get_attachment_url(attachment)
         return url.split('&id=')[-1].strip('&').strip('')
 
     def get_attachment_name(self, attachment):
-        return attachment.find_elements_by_tag_name("a")[1].text
+        try:
+            found = attachment.find_elements_by_tag_name("a")[1].text
+        except:
+            found = None
+
+        return found
 
     def get_attachment_size(self, attachment):
         text = attachment.find_element_by_class_name("SmallText").text
-        size = float(text.lower().split(',')[0].split(' ')[-1].strip('kb').strip('')) * 1000
+        quantity = text.lower().split(',')[0].split(' ')[-1].lower()
+        size = 0
+        if 'kb' in quantity:
+            size = float(quantity.strip('kb').strip('')) * 1000
+        elif 'mb' in quantity:
+            size = float(quantity.strip('mb').strip('')) * 1000000
+        elif 'gb' in quantity:
+            size = float(quantity.strip('gb').strip('')) * 1000000000
+        elif 'tb' in quantity:
+            size = float(quantity.strip('tb').strip('')) * 1000000000000
+        else:
+            self.logger.error("impossible to extract attachment size from " + quantity)
 
         return size
 

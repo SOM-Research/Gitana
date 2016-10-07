@@ -21,20 +21,16 @@ CONFIG = {
 def main():
     g = Gitana(CONFIG, None)
     g.delete_previous_logs()
-    #g.init_db("test_test")
+    #g.init_db("papyrus_db")
 
-    #g.create_project("test_test", "test_project1")
-    #g.import_git_data("test_test", "test_project1", "test_repo1", "C:\\Users\\atlanmod\\Desktop\\metaScience", "2015-02-07", 1, None, 10)
+    #g.create_project("papyrus_db", "papyrus")
+    #g.import_git_data("papyrus_db", "papyrus", "papyrus_repo", "C:\\Users\\atlanmod\\Desktop\\org.eclipse.papyrus", None, 1, None, 20)
 
-    #g.create_project("test_test", "test_project2")
-    #g.import_git_data("test_test", "test_project2", "test_repo2", "C:\\Users\\atlanmod\\Desktop\\metaScience", "2015-02-07", 1, None, 10)
-    #g.update_git_data("test_test", "test_project2", "test_repo2", "C:\\Users\\atlanmod\\Desktop\\metaScience", "2015-03-07", False, False, 20)
+    #g.import_bugzilla_tracker_data("papyrus_db", "papyrus", "papyrus_repo", "https://bugs.eclipse.org/bugs/xmlrpc.cgi", "papyrus", None, False, 20)
+    #g.update_bugzilla_tracker_data("test_test", "test_project1", "test_repo1", "https://bugs.eclipse.org/bugs/xmlrpc.cgi", "papyrus", 20)
 
-    #g.import_bugzilla_tracker_data("test_test", "test_project2", "test_repo2", "https://bugs.eclipse.org/bugs/xmlrpc.cgi", "papyrus", "2008-10-07", False, 20)
-    #g.update_bugzilla_tracker_data("test_test", "test_project2", "test_repo2", "https://bugs.eclipse.org/bugs/xmlrpc.cgi", "papyrus", 20)
-
-    #g.import_eclipse_forum_data("test_test", "test_project1", "https://www.eclipse.org/forums/index.php/f/121/", "", False, 1)
-    g.update_eclipse_forum_data("test_test", "test_project", None, False, 1)
+    g.import_eclipse_forum_data("papyrus_db", "papyrus", "https://www.eclipse.org/forums/index.php/f/121/", None, False, 4)
+    #g.update_eclipse_forum_data("test_test", "test_project1", "https://www.eclipse.org/forums/index.php/f/121/", 1)
 
 if __name__ == "__main__":
     main()

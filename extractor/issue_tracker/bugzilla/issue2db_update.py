@@ -12,10 +12,13 @@ sys.path.insert(0, "..//..//..")
 
 from issue2db_extract_issue import Issue2Db
 from issue2db_extract_issue_dependency import IssueDependency2Db
-from extractor.util import consumer
+from extractor.util import multiprocessing_util
+from extractor.util.db_util import DbUtil
 
 
 class Issue2DbUpdate():
+
+    NUM_PROCESSES = 10
 
     def __init__(self, db_name, project_name,
                  repo_name, url, product, num_processes,
@@ -28,7 +31,13 @@ class Issue2DbUpdate():
         self.project_name = project_name
         self.db_name = db_name
         self.repo_name = repo_name
-        self.num_processes = num_processes
+
+        if num_processes:
+            self.num_processes = num_processes
+        else:
+            self.num_processes = Issue2DbUpdate.NUM_PROCESSES
+
+        self.db_util = DbUtil()
 
         config.update({'database': db_name})
         self.config = config
@@ -37,17 +46,6 @@ class Issue2DbUpdate():
             self.cnx = mysql.connector.connect(**self.config)
         except:
             self.logger.error("Issue2Db update failed", exc_info=True)
-
-    def select_repo(self):
-        cursor = self.cnx.cursor()
-        query = "SELECT id " \
-                "FROM repository " \
-                "WHERE name = %s"
-        arguments = [self.repo_name]
-        cursor.execute(query, arguments)
-        id = cursor.fetchone()[0]
-        cursor.close()
-        return id
 
     def select_issue_tracker(self, repo_id, url):
         found = None
@@ -65,27 +63,12 @@ class Issue2DbUpdate():
 
         return found
 
-    def get_intervals(self, elements):
-        elements.sort()
-        chunk_size = len(elements)/self.num_processes
-
-        if chunk_size == 0:
-            chunks = [elements]
-        else:
-            chunks = [elements[i:i + chunk_size] for i in range(0, len(elements), chunk_size)]
-
-        intervals = []
-        for chunk in chunks:
-            intervals.append(chunk)
-
-        return intervals
-
     def update_issue_content(self, repo_id, issue_tracker_id, intervals):
         queue_intervals = multiprocessing.JoinableQueue()
         results = multiprocessing.Queue()
 
         # Start consumers
-        consumer.start_consumers(self.num_processes, queue_intervals, results)
+        multiprocessing_util.start_consumers(self.num_processes, queue_intervals, results)
 
         for interval in intervals:
             issue_extractor = Issue2Db(self.db_name, repo_id, issue_tracker_id, self.url, self.product, interval,
@@ -93,7 +76,7 @@ class Issue2DbUpdate():
             queue_intervals.put(issue_extractor)
 
         # Add end-of-queue markers
-        consumer.add_poison_pills(self.num_processes, queue_intervals)
+        multiprocessing_util.add_poison_pills(self.num_processes, queue_intervals)
 
         # Wait for all of the tasks to finish
         queue_intervals.join()
@@ -103,7 +86,7 @@ class Issue2DbUpdate():
         results = multiprocessing.Queue()
 
         # Start consumers
-        consumer.start_consumers(self.num_processes, queue_intervals, results)
+        multiprocessing_util.start_consumers(self.num_processes, queue_intervals, results)
 
         for interval in intervals:
             issue_dependency_extractor = IssueDependency2Db(self.db_name, repo_id, issue_tracker_id, self.url, self.product, interval,
@@ -111,13 +94,14 @@ class Issue2DbUpdate():
             queue_intervals.put(issue_dependency_extractor)
 
         # Add end-of-queue markers
-        consumer.add_poison_pills(self.num_processes, queue_intervals)
+        multiprocessing_util.add_poison_pills(self.num_processes, queue_intervals)
 
         # Wait for all of the tasks to finish
         queue_intervals.join()
 
     def update_issues(self):
-        repo_id = self.select_repo()
+        project_id = self.db_util.select_project_id(self.cnx, self.project_name, self.logger)
+        repo_id = self.db_util.select_repo_id(self.cnx, project_id, self.repo_name, self.logger)
         issue_tracker_id = self.select_issue_tracker(repo_id, self.url)
 
         cursor = self.cnx.cursor()
@@ -137,7 +121,7 @@ class Issue2DbUpdate():
         cursor.close()
 
         if issues:
-            intervals = [i for i in self.get_intervals(issues) if len(i) > 0]
+            intervals = [i for i in multiprocessing_util.get_tasks_intervals(issues, self.num_processes) if len(i) > 0]
 
             self.update_issue_content(repo_id, issue_tracker_id, intervals)
             self.update_issue_dependency(repo_id, issue_tracker_id, intervals)

@@ -6,6 +6,7 @@ from git import *
 import re
 from datetime import datetime
 import string
+from extractor.util.date_util import DateUtil
 
 
 class GitQuerier():
@@ -17,6 +18,7 @@ class GitQuerier():
         self.logger = logger
         self.repo = Repo(git_repo_path, odbt=GitCmdObjectDB)
         self.gitt = self.repo.git
+        self.date_util = DateUtil()
 
     def get_diffs_manually(self, parent, commit, retrieve_patch):
         diffs = []
@@ -222,24 +224,28 @@ class GitQuerier():
 
     def get_commit_property(self, commit, prop):
         found = None
-        if prop == "message":
-            found = commit.message
-        elif prop == "author.name":
-            found = commit.author.name
-        elif prop == "author.email":
-            found = commit.author.email
-        elif prop == "committer.name":
-            found = commit.committer.name
-        elif prop == "committer.email":
-            found = commit.committer.email
-        elif prop == "size":
-            found = commit.size
-        elif prop == "hexsha":
-            found = commit.hexsha
-        elif prop == "authored_date":
-            found = commit.authored_date
-        elif prop == "committed_date":
-            found = commit.committed_date
+        try:
+            if prop == "message":
+                found = commit.message
+            elif prop == "author.name":
+                found = commit.author.name
+            elif prop == "author.email":
+                found = commit.author.email
+            elif prop == "committer.name":
+                found = commit.committer.name
+            elif prop == "committer.email":
+                found = commit.committer.email
+            elif prop == "size":
+                found = commit.size
+            elif prop == "hexsha":
+                found = commit.hexsha
+            elif prop == "authored_date":
+                found = commit.authored_date
+            elif prop == "committed_date":
+                found = commit.committed_date
+        except:
+            found = None
+            self.logger.error("something went wrong when trying to retrieve the attribute " + prop + " from the commit " + str(commit.hexsha))
 
         return found
 
@@ -268,7 +274,7 @@ class GitQuerier():
         return commits
 
     def get_commits_before_date(self, commits, date):
-        before_date_object = datetime.strptime(date, "%Y-%m-%d")
+        before_date_object = self.date_util.get_timestamp(date, "%Y-%m-%d")
 
         selected_commits = []
         for commit in commits:

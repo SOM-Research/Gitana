@@ -5,14 +5,16 @@ __author__ = 'valerio cosentino'
 import mysql.connector
 from mysql.connector import errorcode
 from datetime import datetime
-import re
-from email.utils import parseaddr
+import time
 import sys
 import logging
 import logging.handlers
 sys.path.insert(0, "..//..//..")
 
 from querier_eclipse_forum import EclipseForumQuerier
+from extractor.util.db_util import DbUtil
+from extractor.util.date_util import DateUtil
+
 
 class Topic2Db(object):
 
@@ -26,6 +28,9 @@ class Topic2Db(object):
         self.forum_id = forum_id
         config.update({'database': db_name})
         self.config = config
+
+        self.db_util = DbUtil()
+        self.date_util = DateUtil()
 
     def __call__(self):
         LOG_FILENAME = self.log_path + "-topic2db"
@@ -44,60 +49,20 @@ class Topic2Db(object):
         except Exception, e:
             self.logger.error("Topic2Db failed", exc_info=True)
 
-    def select_user_id(self, user_name):
-        cursor = self.cnx.cursor()
-        query = "SELECT id FROM user WHERE name = %s"
-        arguments = [user_name]
-        cursor.execute(query, arguments)
-        row = cursor.fetchone()
-        cursor.close()
-
-        found = None
-        if row:
-            found = row[0]
-
-        return found
-
-    def insert_user(self, user_name, user_email, topic_id):
-        try:
-            cursor = self.cnx.cursor()
-            query = "INSERT IGNORE INTO user " \
-                    "VALUES (%s, %s, %s)"
-            arguments = [None, user_name, user_email]
-            cursor.execute(query, arguments)
-            self.cnx.commit()
-            cursor.close()
-        except Exception, e:
-            self.logger.warning("user (" + user_name + ") not inserted for topic id: " + str(topic_id), exc_info=True)
-
     def get_user_id(self, user_name, topic_id):
-        user_id = self.select_user_id(user_name)
+        user_id = self.db_util.select_user_id_by_name(self.cnx, user_name, self.logger)
         if not user_id:
-            self.insert_user(user_name, None, topic_id)
-            user_id = self.select_user_id(user_name)
+            self.db_util.insert_user(self.cnx, user_name, None, self.logger)
+            user_id = self.db_util.select_user_id_by_name(self.cnx, user_name, self.logger)
 
         return user_id
-
-    def get_message_type(self, name):
-        cursor = self.cnx.cursor()
-        query = "SELECT id FROM message_type WHERE name = %s"
-        arguments = [name]
-        cursor.execute(query, arguments)
-        row = cursor.fetchone()
-        cursor.close()
-
-        found = None
-        if row:
-            found = row[0]
-
-        return found
 
     def insert_message(self, own_id, pos, topic_id, body, user_id, created_at):
         try:
             cursor = self.cnx.cursor()
             query = "INSERT IGNORE INTO message " \
                     "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-            arguments = [None, own_id, pos, self.get_message_type("reply"), None, topic_id, None, body, None, user_id, created_at]
+            arguments = [None, own_id, pos, self.db_util.get_message_type_id(self.cnx, "reply"), 0, topic_id, 0, body, None, user_id, created_at]
             cursor.execute(query, arguments)
             self.cnx.commit()
 
@@ -105,6 +70,7 @@ class Topic2Db(object):
             arguments = [own_id, topic_id]
             cursor.execute(query, arguments)
 
+            found = None
             row = cursor.fetchone()
             cursor.close()
             if row:
@@ -129,14 +95,14 @@ class Topic2Db(object):
             url = self.querier.get_attachment_url(a)
             own_id = self.querier.get_attachment_own_id(a)
             name = self.querier.get_attachment_name(a)
-            extension = name.split('.')[-1].strip('')
+            extension = name.split('.')[-1].strip('').lower()
             size = self.querier.get_attachment_size(a)
 
             self.insert_message_attachment(url, own_id, name, extension, size, message_id)
 
     def get_message_info(self, topic_id, message, pos):
         own_id = self.querier.get_message_own_id(message)
-        created_at = self.querier.get_created_at(message)
+        created_at = self.date_util.get_timestamp(self.querier.get_created_at(message), "%a, %d %B %Y %H:%M")
         body = self.querier.get_message_body(message)
         author_name = self.querier.get_message_author_name(message)
 
@@ -148,24 +114,16 @@ class Topic2Db(object):
         if pos == 1:
             self.update_topic_created_at(topic_id, created_at)
 
-    def update_topic_last_changed_at(self, topic_id, message):
-        created_at = self.querier.get_created_at(message)
-        cursor = self.cnx.cursor()
-        query = "UPDATE topic SET created_at = %s WHERE topic_id = %s AND forum_id = %s"
-        arguments = [created_at, topic_id, self.forum_id]
-        cursor.execute(query, arguments)
-        self.cnx.commit()
-        cursor.close()
-
     def update_topic_created_at(self, topic_id, created_at):
         cursor = self.cnx.cursor()
-        query = "UPDATE topic SET created_at = %s WHERE topic_id = %s AND forum_id = %s"
+        query = "UPDATE topic SET created_at = %s WHERE id = %s AND forum_id = %s"
         arguments = [created_at, topic_id, self.forum_id]
         cursor.execute(query, arguments)
         self.cnx.commit()
         cursor.close()
 
     def get_topic_own_id(self, forum_id, topic_id):
+        found = None
         cursor = self.cnx.cursor()
         query = "SELECT own_id FROM topic WHERE forum_id = %s AND id = %s"
         arguments = [forum_id, topic_id]
@@ -185,8 +143,12 @@ class Topic2Db(object):
             for topic_id in self.interval:
                 topic_own_id = self.get_topic_own_id(self.forum_id, topic_id)
 
-                self.querier.set_url(Topic2Db.TOPIC_URL + str(topic_own_id))
+                self.querier.set_url(Topic2Db.TOPIC_URL + str(topic_own_id) + "/")
                 self.querier.start_browser()
+                time.sleep(3)
+
+                if 'index.php/e/' in self.querier.url:
+                    self.logger.warning("No URL exists for the topic id " + str(topic_id) + " - " + str(self.forum_id))
 
                 next_page = True
                 pos = 1
@@ -200,8 +162,7 @@ class Topic2Db(object):
 
                     next_page = self.querier.go_next_page()
 
-                self.update_topic_last_changed(messages_on_page[-1])
-
+            self.querier.close_browser()
             end_time = datetime.now()
 
             minutes_and_seconds = divmod((end_time-start_time).total_seconds(), 60)

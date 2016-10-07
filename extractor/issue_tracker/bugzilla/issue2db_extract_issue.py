@@ -13,6 +13,8 @@ import logging.handlers
 sys.path.insert(0, "..//..//..")
 
 from querier_bugzilla import BugzillaQuerier
+from extractor.util.db_util import DbUtil
+from extractor.util.date_util import DateUtil
 
 
 class Issue2Db(object):
@@ -30,6 +32,9 @@ class Issue2Db(object):
         config.update({'database': db_name})
         self.config = config
 
+        self.db_util = DbUtil()
+        self.date_util = DateUtil()
+
     def __call__(self):
         LOG_FILENAME = self.log_path + "-issue2db"
         self.logger = logging.getLogger(LOG_FILENAME)
@@ -46,32 +51,6 @@ class Issue2Db(object):
             self.extract()
         except Exception, e:
             self.logger.error("Issue2Db failed", exc_info=True)
-
-    def insert_user(self, user_name, user_email, issue_id):
-        try:
-            cursor = self.cnx.cursor()
-            query = "INSERT IGNORE INTO user " \
-                    "VALUES (%s, %s, %s)"
-            arguments = [None, user_name.lower(), user_email.lower()]
-            cursor.execute(query, arguments)
-            self.cnx.commit()
-            cursor.close()
-        except Exception, e:
-            self.logger.warning("user (" + user_email.lower() + ") not inserted for issue id: " + str(issue_id) + " - tracker id " + str(self.issue_tracker_id), exc_info=True)
-
-    def select_user_id(self, user_email):
-        cursor = self.cnx.cursor()
-        query = "SELECT id FROM user WHERE email = %s"
-        arguments = [user_email.lower()]
-        cursor.execute(query, arguments)
-        row = cursor.fetchone()
-        cursor.close()
-
-        found = None
-        if row:
-            found = row[0]
-
-        return found
 
     def update_issue(self, issue_id, issue_tracker_id, summary, component, version, hardware, priority, severity, reference_id, last_change_at):
         cursor = self.cnx.cursor()
@@ -133,11 +112,6 @@ class Issue2Db(object):
 
         return found
 
-    def get_timestamp(self, creation_time):
-        dt_str = str(creation_time)
-        dt_obj = datetime.strptime(dt_str, '%Y%m%dT%H:%M:%S')
-        return dt_obj
-
     def insert_label(self, name):
         cursor = self.cnx.cursor()
         query = "INSERT IGNORE INTO label " \
@@ -169,26 +143,12 @@ class Issue2Db(object):
         self.cnx.commit()
         cursor.close()
 
-    def get_message_type_id(self, name):
-        found = None
-        cursor = self.cnx.cursor()
-        query = "SELECT id FROM message_type WHERE name = %s"
-        arguments = [name]
-        cursor.execute(query, arguments)
-        row = cursor.fetchone()
-        cursor.close()
-
-        if row:
-            found = row[0]
-
-        return found
-
     def insert_issue_comment(self, own_id, position, issue_id, body, author_id, created_at):
         cursor = self.cnx.cursor()
         query = "INSERT IGNORE INTO message " \
                 "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-        arguments = [None, own_id, position, self.get_message_type_id("comment"),
-                     issue_id, None, None, body, None, author_id, created_at]
+        arguments = [None, own_id, position, self.db_util.get_message_type_id(self.cnx, "comment"),
+                     issue_id, 0, 0, body, None, author_id, created_at]
         cursor.execute(query, arguments)
         self.cnx.commit()
         cursor.close()
@@ -255,12 +215,12 @@ class Issue2Db(object):
         self.cnx.commit()
         cursor.close()
 
-    def get_user_id(self, user_email, issue_id):
-        user_id = self.select_user_id(user_email)
+    def get_user_id(self, user_email):
+        user_id = self.db_util.select_user_id_by_email(self.cnx, user_email, self.logger)
         if not user_id:
             user_name = self.querier.get_user_name(user_email)
-            self.insert_user(user_name, user_email, issue_id)
-            user_id = self.select_user_id(user_email)
+            self.db_util.insert_user(self.cnx, user_name, user_email, self.logger)
+            user_id = self.db_util.select_user_id_by_email(self.cnx, user_email, self.logger)
 
         return user_id
 
@@ -290,12 +250,12 @@ class Issue2Db(object):
             for content in contents:
                 content = content.strip()
                 if self.is_email(content):
-                    target_user_id = self.get_user_id(content, issue_id)
+                    target_user_id = self.get_user_id(content)
 
                 self.insert_issue_event(issue_id, event_type_id, content, creator_id, created_at, target_user_id)
         else:
             if self.is_email(action_content):
-                target_user_id = self.get_user_id(action_content, issue_id)
+                target_user_id = self.get_user_id(action_content)
 
             self.insert_issue_event(issue_id, event_type_id, action_content, creator_id, created_at, target_user_id)
 
@@ -304,8 +264,8 @@ class Issue2Db(object):
 
         for event in history:
             try:
-                created_at = self.get_timestamp(event.get('when'))
-                creator_id = self.get_user_id(event.get('who'), issue_id)
+                created_at = self.date_util.get_timestamp(event.get('when'), '%Y%m%dT%H:%M:%S')
+                creator_id = self.get_user_id(event.get('who'))
 
                 for change in event.get('changes'):
                     removed = change.get('removed')
@@ -325,14 +285,14 @@ class Issue2Db(object):
     def extract_subscribers(self, issue_id, subscribers):
         for subscriber in subscribers:
             try:
-                subscriber_id = self.get_user_id(subscriber, issue_id)
+                subscriber_id = self.get_user_id(subscriber)
                 self.insert_subscriber(issue_id, subscriber_id)
             except Exception, e:
                 self.logger.warning("subscriber (" + subscriber + ") not inserted for issue id: " + str(issue_id) + " - tracker id " + str(self.issue_tracker_id), exc_info=True)
 
     def extract_assignee(self, issue_id, assignee):
         try:
-            assignee_id = self.get_user_id(assignee, issue_id)
+            assignee_id = self.get_user_id(assignee)
             self.insert_assignee(issue_id, assignee_id)
         except Exception, e:
             self.logger.warning("assignee (" + assignee + ") not inserted for issue id: " + str(issue_id) + " - tracker id " + str(self.issue_tracker_id), exc_info=True)
@@ -343,8 +303,8 @@ class Issue2Db(object):
                 own_id = comment.get('id')
                 body = comment.get('text')
                 position = comment.get('count')
-                author_id = self.get_user_id(comment.get('author'), issue_id)
-                created_at = self.get_timestamp(comment.get('creation_time'))
+                author_id = self.get_user_id(comment.get('author'))
+                created_at = self.date_util.get_timestamp(comment.get('creation_time'), '%Y%m%dT%H:%M:%S')
                 self.insert_issue_comment(own_id, position, issue_id, body, author_id, created_at)
 
                 attachment_id = comment.get('attachment_id')
@@ -443,12 +403,12 @@ class Issue2Db(object):
         hardware = issue.op_sys
         priority = issue.priority
         severity = issue.severity
-        created_at = self.get_timestamp(issue.creation_time)
-        last_change_at = self.get_timestamp(issue.last_change_time)
+        created_at = self.date_util.get_timestamp(issue.creation_time, '%Y%m%dT%H:%M:%S')
+        last_change_at = self.date_util.get_timestamp(issue.last_change_time, '%Y%m%dT%H:%M:%S')
 
         reference_id = self.find_reference_id(issue.version, issue_own_id)
 
-        user_id = self.get_user_id(issue.creator, issue_own_id)
+        user_id = self.get_user_id(issue.creator)
 
         stored_issue_last_change = self.select_last_change_issue(issue_own_id)
         if stored_issue_last_change:

@@ -11,14 +11,13 @@ sys.path.insert(0, "..//..//..")
 
 from querier_git import GitQuerier
 from extractor.cvs.git.git2db_extract_reference import Git2DbReference
-from extractor.util import consumer
-
-BEFORE_DATE = ""
-IMPORT_LAST_COMMIT = False
-IMPORT_NEW_REFERENCES = True
+from extractor.util import multiprocessing_util
+from extractor.util.db_util import DbUtil
 
 
 class Git2DbUpdate():
+
+    NUM_PROCESSES = 10
 
     def __init__(self, db_name, project_name,
                  repo_name, git_repo_path, before_date, import_last_commit, import_new_references,
@@ -34,7 +33,12 @@ class Git2DbUpdate():
         self.import_new_references = import_new_references
         self.existing_refs = []
 
-        self.num_processes = num_processes
+        self.db_util = DbUtil()
+
+        if num_processes:
+            self.num_processes = num_processes
+        else:
+            self.num_processes = Git2DbUpdate.NUM_PROCESSES
 
         config.update({'database': db_name})
         self.config = config
@@ -47,20 +51,6 @@ class Git2DbUpdate():
 
     def array2string(self, array):
         return ','.join(str(x) for x in array)
-
-    def select_repo_id(self, repo_name):
-        cursor = self.cnx.cursor()
-        query = "SELECT id FROM repository WHERE name = %s"
-        arguments = [repo_name]
-        cursor.execute(query, arguments)
-
-        row = cursor.fetchone()
-        cursor.close()
-        repo_id = 0
-        if row:
-            repo_id = row[0]
-
-        return repo_id
 
     def select_reference_name(self, repo_id, ref_id):
         cursor = self.cnx.cursor()
@@ -86,7 +76,7 @@ class Git2DbUpdate():
         results = multiprocessing.Queue()
 
         # Start consumers
-        consumer.start_consumers(self.num_processes, queue_references, results)
+        multiprocessing_util.start_consumers(self.num_processes, queue_references, results)
 
         row = cursor.fetchone()
         while row:
@@ -111,7 +101,7 @@ class Git2DbUpdate():
         cursor.close()
 
         # Add end-of-queue markers
-        consumer.add_poison_pills(self.num_processes, queue_references)
+        multiprocessing_util.add_poison_pills(self.num_processes, queue_references)
 
         # Wait for all of the tasks to finish
         queue_references.join()
@@ -121,7 +111,7 @@ class Git2DbUpdate():
         results = multiprocessing.Queue()
 
         # Start consumers
-        consumer.start_consumers(self.num_processes, queue_references, results)
+        multiprocessing_util.start_consumers(self.num_processes, queue_references, results)
 
         for reference in self.querier.get_references():
             reference_name = reference[0]
@@ -133,7 +123,7 @@ class Git2DbUpdate():
                 queue_references.put(git_ref_extractor)
 
         # Add end-of-queue markers
-        consumer.add_poison_pills(self.num_processes, queue_references)
+        multiprocessing_util.add_poison_pills(self.num_processes, queue_references)
 
         # Wait for all of the tasks to finish
         queue_references.join()
@@ -265,12 +255,34 @@ class Git2DbUpdate():
         import_type += self.line_detail_table_is_empty(repo_id) + self.file_modification_patch_is_empty(repo_id)
         return import_type
 
+    def fix_commit_parent_table(self, repo_id):
+        cursor = self.cnx.cursor()
+        query_select = "SELECT parent_sha " \
+                       "FROM commit_parent " \
+                       "WHERE parent_id IS NULL AND repo_id = %s"
+        arguments = [repo_id]
+        cursor.execute(query_select, arguments)
+        row = cursor.fetchone()
+        while row:
+            parent_sha = row[0]
+            parent_id = self.select_commit(parent_sha, repo_id)
+            query_update = "UPDATE commit_parent " \
+                           "SET parent_id = %s " \
+                           "WHERE parent_id IS NULL AND parent_sha = %s AND repo_id = %s "
+            arguments = [parent_id, parent_sha, repo_id]
+            cursor.execute(query_update, arguments)
+            self.cnx.commit()
+            row = cursor.fetchone()
+        cursor.close()
+
     def update(self):
         try:
             start_time = datetime.now()
-            repo_id = self.select_repo_id(self.repo_name)
-
+            project_id = self.db_util.select_project_id(self.cnx, self.project_name, self.logger)
+            repo_id = self.db_util.select_repo_id(self.cnx, project_id, self.repo_name, self.logger)
             self.update_repo(repo_id, self.get_import_type(repo_id))
+            self.cnx = self.db_util.restart_connection(self.config, self.logger)
+            self.fix_commit_parent_table(repo_id)
             end_time = datetime.now()
             minutes_and_seconds = divmod((end_time-start_time).total_seconds(), 60)
             self.logger.info("Git2Db update finished after " + str(minutes_and_seconds[0])

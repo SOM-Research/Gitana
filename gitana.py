@@ -105,9 +105,9 @@ class Gitana():
                                 self.config, self.logger)
         forum2db.extract()
 
-    def update_eclipse_forum_data(self, db_name, project_name, before_date, recover_import, processes):
+    def update_eclipse_forum_data(self, db_name, project_name, url, processes):
         self.logger.info("importing eclipse forum data")
-        forum2db = Forum2DbUpdate(db_name, project_name, before_date, recover_import, processes,
+        forum2db = Forum2DbUpdate(db_name, project_name, url, processes,
                                   self.config, self.logger)
         forum2db.update()
 
