@@ -6,13 +6,13 @@ in order to ease browsing and querying activities with standard SQL syntax and t
 To ensure efficiency, an incremental propagation mechanism refreshes the
 database content with the latest project activities.
 
-### Technical details
+## Technical details
 
 Gitana is developed on Windows 7 and it relies on:
 - Python 2.7.6
 - MySQL Server 5.6 (http://dev.mysql.com/downloads/installer/) 
 
-### Installation
+## Installation
 
 After installing MySQL Server and Python 2.7.6, follow the instructions below to download the packages used by Gitana:
 - set pip to be used from the command prompt (CMD)
@@ -23,14 +23,14 @@ After installing MySQL Server and Python 2.7.6, follow the instructions below to
    pip install -r requirements.txt
    ```
 
-### How to use Gitana (master version)
+## How to use Gitana (master version)
 
-- import Gitana
+### import Gitana
 ```python
 from gitana import Gitana
 ```
 
-- instantiate Gitana
+### instantiate Gitana
 ```python
 CONFIG = {
             'user': 'root',
@@ -45,7 +45,7 @@ g = Gitana(CONFIG, "LOGS-PATH")
 #if LOGS-PATH is None, a log folder will be created in the same directory where Gitana is executed
 ```
 
-- initialize Gitana DB
+### initialize Gitana DB
 ```python
 g.init_db("NAME-OF-YOUR-DB")
 
@@ -53,7 +53,7 @@ g.init_db("NAME-OF-YOUR-DB")
 # if a DB with the input name already exists in Gitana, the existing DB will be dropped and a new one will be created
 ```
 
-- create a project in Gitana
+### create a project in Gitana
 ```python
 g.create_project("NAME-OF-YOUR-DB", "NAME-OF-THE-PROJECT")
 
@@ -61,7 +61,7 @@ g.create_project("NAME-OF-YOUR-DB", "NAME-OF-THE-PROJECT")
 # NAME-OF-THE-PROJECT should not be null
 ```
 
-- import git data
+### import git data
 ```python
 g.import_git_data("NAME-OF-YOUR-DB", "NAME-OF-THE-PROJECT", "NAME-OF-THE-GIT-REPO", "GIT-REPO-PATH", 
                   "BEFORE-DATE", "RECOVERY-PROCESS", "LIST-OF-REFERENCES", "NUM-OF-PROCESSES")
@@ -74,7 +74,7 @@ g.import_git_data("NAME-OF-YOUR-DB", "NAME-OF-THE-PROJECT", "NAME-OF-THE-GIT-REP
 # NUM-OF-PROCESSES can be None or a int number. It is the number of parallel processes used to analyse the Git repo. if None, the number of processes is 10
 ```
 
-- update git data (it updates the references already stored in Gitana, and optionally import new references)
+### update git data (it updates the references already stored in Gitana, and optionally import new references)
 ```python
 g.update_git_data("NAME-OF-YOUR-DB", "NAME-OF-THE-PROJECT", "NAME-OF-THE-GIT-REPO", "GIT-REPO-PATH", 
                   "BEFORE-DATE", "RECOVERY-PROCESS", "IMPORT-NEW-REFERENCES", "NUM-OF-PROCESSES")
@@ -87,7 +87,7 @@ g.update_git_data("NAME-OF-YOUR-DB", "NAME-OF-THE-PROJECT", "NAME-OF-THE-GIT-REP
 # NUM-OF-PROCESSES can be None or a int number. It is the number of parallel processes used to analyse the Git repo. if None, the number of processes is 10
 ```
 
-- import bugzilla data
+### import bugzilla data
 ```python
 g.import_bugzilla_tracker_data("NAME-OF-YOUR-DB", "NAME-OF-THE-PROJECT", "NAME-OF-THE-GIT-REPO", 
                                "BUGZILLA-URL", "PRODUCT-NAME-IN-BUGZILLA", 
@@ -101,7 +101,8 @@ g.import_bugzilla_tracker_data("NAME-OF-YOUR-DB", "NAME-OF-THE-PROJECT", "NAME-O
 # NUM-OF-PROCESSES can be None or a int number. It is the number of parallel processes used to collect issue tracker information. if None, the number of processes is 10
 ```
     
-- update bugzilla data (it updates only the issues already stored in Gitana. It does not import new ones)
+### update bugzilla data 
+- it updates only the issues already stored in Gitana. It does not import new ones
 ```python 
 g.update_bugzilla_tracker_data("NAME-OF-YOUR-DB", "NAME-OF-THE-PROJECT", "NAME-OF-THE-GIT-REPO",
                                "BUGZILLA-URL", "PRODUCT-NAME-IN-BUGZILLA", "NUM-OF-PROCESSES")
@@ -112,7 +113,7 @@ g.update_bugzilla_tracker_data("NAME-OF-YOUR-DB", "NAME-OF-THE-PROJECT", "NAME-O
 # NUM-OF-PROCESSES can be None or a int number. It is the number of parallel processes used to collect issue tracker information. if None, the number of processes is 10
 ```
 
-- import Eclipse forum data
+### import Eclipse forum data
 ```python 
 g.import_eclipse_forum_data("NAME-OF-YOUR-DB", "NAME-OF-THE-PROJECT", "ECLIPSE-FORUM-URL",
                                "BEFORE-DATE", "RECOVER-IMPORT", "NUM-OF-PROCESSES")
@@ -124,7 +125,8 @@ g.import_eclipse_forum_data("NAME-OF-YOUR-DB", "NAME-OF-THE-PROJECT", "ECLIPSE-F
 # NUM-OF-PROCESSES can be None or a int number. It is the number of parallel browsers used to collect forum information. if None, the number of processes is 2
 ```
 
-- update Eclipse forum data (it updates only the topics already stored in Gitana. It does not import new ones)
+### update Eclipse forum data 
+- it updates only the topics already stored in Gitana. It does not import new ones
 ```python 
 g.update_eclipse_forum_data("NAME-OF-YOUR-DB", "NAME-OF-THE-PROJECT", "ECLIPSE-FORUM-URL", "NUM-OF-PROCESSES")
 
@@ -133,6 +135,33 @@ g.update_eclipse_forum_data("NAME-OF-YOUR-DB", "NAME-OF-THE-PROJECT", "ECLIPSE-F
 # NUM-OF-PROCESSES can be None or a int number. It is the number of parallel browsers used to collect forum information. if None, the number of processes is 2
 ```
 
-### Gitana extensions
+## Example(s)
+
+```python 
+from gitana import Gitana
+
+CONFIG = {
+            'user': 'root',
+            'password': 'root',
+            'host': 'localhost',
+            'port': '3306',
+            'raise_on_warnings': False,
+            'buffered': True
+        }
+
+def main():
+    g = Gitana(CONFIG, None)
+    g.init_db("papyrus_db")
+
+    g.create_project("papyrus_db", "papyrus")
+    g.import_git_data("papyrus_db", "papyrus", "papyrus_repo", "...\\Desktop\\org.eclipse.papyrus", None, 1, None, 20)
+    g.import_bugzilla_tracker_data("papyrus_db", "papyrus", "papyrus_repo", "https://bugs.eclipse.org/bugs/xmlrpc.cgi", "papyrus", None, False, 20)
+    g.import_eclipse_forum_data("papyrus_db", "papyrus", "https://www.eclipse.org/forums/index.php/f/121/", None, False, 5)
+    
+if __name__ == "__main__":
+    main()
+```
+
+## Gitana extension(s)
 
 - Gitana can be used also to calculate the bus factor (https://github.com/SOM-Research/busfactor). However, at the moment, this can be done only using Gitana 0.2 (https://github.com/SOM-Research/Gitana/tree/0.2)
