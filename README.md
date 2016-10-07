@@ -74,7 +74,8 @@ g.import_git_data("NAME-OF-YOUR-DB", "NAME-OF-THE-PROJECT", "NAME-OF-THE-GIT-REP
 # NUM-OF-PROCESSES can be None or a int number. It is the number of parallel processes used to analyse the Git repo. if None, the number of processes is 10
 ```
 
-### update git data (it updates the references already stored in Gitana, and optionally import new references)
+### update git data 
+- it updates the references already stored in Gitana, and optionally import new references)
 ```python
 g.update_git_data("NAME-OF-YOUR-DB", "NAME-OF-THE-PROJECT", "NAME-OF-THE-GIT-REPO", "GIT-REPO-PATH", 
                   "BEFORE-DATE", "RECOVERY-PROCESS", "IMPORT-NEW-REFERENCES", "NUM-OF-PROCESSES")
