@@ -42,7 +42,7 @@ CONFIG = {
         }
 
 g = Gitana(CONFIG, "LOGS-PATH")
-#if LOGS-PATH is None, a log folder will be created in the same directory where Gitana is executed
+# if LOGS-PATH is None, a log folder will be created in the same directory where Gitana is executed
 ```
 
 ### initialize Gitana DB
@@ -136,7 +136,7 @@ g.update_eclipse_forum_data("NAME-OF-YOUR-DB", "NAME-OF-THE-PROJECT", "ECLIPSE-F
 # NUM-OF-PROCESSES can be None or a int number. It is the number of parallel browsers used to collect forum information. if None, the number of processes is 2
 ```
 
-## Example(s)
+### Example(s)
 
 ```python 
 from gitana import Gitana
@@ -163,6 +163,90 @@ if __name__ == "__main__":
     main()
 ```
 
+## How to use the Gitana Exporter (master version)
+
+Gitana provides also a gexf exporter with predefined metrics to analyse data using graph analysis tools (e.g., Gephi). The metrics are stored in a JSON file (exporter/resources/queries.json) and must be parameterized by the users. Currently, the metrics available are:
+
+- **users-on-issues**. It generates a graph where each node is a user and its size is proportional to the number of issues the user commented. There exists an edge between two users if they have commented on the same issue (thickness proportional to the number of issues both have contributed to).
+
+- **users-on-files**. It generates a graph where each node is a user and its size is proportional to the number of files the user contributed to. There exists an edge between two users if they have worked on the same file (thickness proportional to the number of files both have contributed to).
+
+- **users-on-files-for-references**. This metric is similar to the previous one, but can defined for a sub-set of references (branches or tags)
+
+### JSON structure
+
+Each metric in the JSON file contains a fixed part (lowercase attributes) and a variable part (uppercase attributes), that must be tuned by the user. For instance, in the example below, the user should modify the values of the attributes PROJECTID, REPOID, NODECOLOR, EDGECOLOR. Such values will be then used to build the SQL queries to retrieve nodes and edges from the Gitana DB.
+
+```json
+{"name": "users-on-files",
+ "PROJECTID": "1",
+ "REPOID": "1",
+ "NODECOLOR": "blue",
+ "EDGECOLOR": "gray",
+ "nodes": "SQL-QUERY-FOR-NODES",
+ "edges": "SQL-QUERY-FOR-EDGES"
+ }
+ ```
+Currently the available colors are the following: 
+ ```
+ "white", "gray", "black", "blue", "cyan", "green", "yellow", "red", "brown", "orange", "pink", "purple", "violet" 
+ ```
+
+### import Gitana Exporter
+```python 
+from exporter.gexf_exporter import GexfExporter
+```
+
+### instantiate Gitana Exporter
+```python
+CONFIG = {
+            'user': 'root',
+            'password': 'root',
+            'host': 'localhost',
+            'port': '3306',
+            'raise_on_warnings': False,
+            'buffered': True
+        }
+
+gexf = GexfExporter(CONFIG, "NAME-OF-YOUR-DB", "LOGS-PATH")
+# NAME-OF-YOUR-DB should point to a DB already existing in Gitana 
+# if LOGS-PATH is None, a log folder will be created in the same directory where Gitana Exporter is executed
+```
+
+### export Gitana data
+```python
+gexf.export("OUTPUT-FILE-PATH", "GRAPH-TYPE", "GRAPH-MODE", "METRIC-NAME")
+                  
+# OUTPUT-FILE-PATH point to a location where to store the gexf output file
+# GRAPH-TYPE can be "undirected" or "directed". If None, the default type is "undirected"
+# GRAPH-MODE can be "static" or "dynamic". If None, the default mode is "dynamic"
+# METRIC-NAME is the name of the metric to execute. It can be: "users-on-issues", "users-on-files", "users-on-files-for-references"
+```
+
+### Example(s)
+
+```python 
+from exporter.gexf_exporter import GexfExporter
+
+CONFIG = {
+            'user': 'root',
+            'password': 'root',
+            'host': 'localhost',
+            'port': '3306',
+            'raise_on_warnings': False,
+            'buffered': True
+        }
+
+
+def main():
+    gexf = GexfExporter(CONFIG, "papyrus_db", None)
+    gexf.export("./export.gexf", "undirected", "dynamic", "users-on-issues")
+
+
+if __name__ == "__main__":
+    main()
+```
+
 ## Gitana extension(s)
 
-- Gitana can be used also to calculate the bus factor (https://github.com/SOM-Research/busfactor). However, at the moment, this can be done only using Gitana 0.2 (https://github.com/SOM-Research/Gitana/tree/0.2)
+Gitana can be used also to calculate the bus factor (https://github.com/SOM-Research/busfactor). However, at the moment, this can be done only using Gitana 0.2 (https://github.com/SOM-Research/Gitana/tree/0.2)
