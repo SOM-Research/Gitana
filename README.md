@@ -165,7 +165,7 @@ if __name__ == "__main__":
 
 ## How to use the Gitana Exporter (master version)
 
-Gitana provides also a gexf exporter with predefined metrics to analyse data using graph analysis tools (e.g., Gephi). The metrics are stored in a JSON file (exporter/resources/queries.json) and must be parameterized by the users. Currently, the metrics available are:
+Gitana provides also a gexf exporter with predefined metrics to analyse data using graph analysis tools (e.g., Gephi). The metrics are stored in a JSON file (https://github.com/SOM-Research/Gitana/blob/master/exporter/resources/queries.json) and must be parameterized by the users. Currently, the metrics available are:
 
 - **users-on-issues**. It generates a graph where each node is a user and its size is proportional to the number of issues the user commented. There exists an edge between two users if they have commented on the same issue (thickness proportional to the number of issues both have contributed to).
 
@@ -183,8 +183,8 @@ Each metric in the JSON file contains a fixed part (lowercase attributes) and a 
  "REPOID": "1",
  "NODECOLOR": "blue",
  "EDGECOLOR": "gray",
- "nodes": "SQL-QUERY-FOR-NODES",
- "edges": "SQL-QUERY-FOR-EDGES"
+ "nodes": "sql-query-for-nodes",
+ "edges": "sql-query-for-edges"
  }
  ```
 Currently the available colors are the following: 
