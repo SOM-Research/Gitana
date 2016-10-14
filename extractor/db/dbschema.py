@@ -494,6 +494,8 @@ class DbSchema():
                               "committed_date timestamp DEFAULT '0000-00-00 00:00:00', " \
                               "size int(20), " \
                               "INDEX sha (sha), " \
+                              "INDEX auth (author_id), " \
+                              "INDEX comm (committer_id), " \
                               "CONSTRAINT s UNIQUE (sha, repo_id) " \
                               ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 

@@ -1,0 +1,29 @@
+{"metrics":
+[
+ {"name": "users-on-issues",
+ "PROJECTID": "1",
+ "REPOID": "1",
+ "ISSUETRACKERID": "1",
+ "NODECOLOR": "blue",
+ "EDGECOLOR": "gray",
+ "nodes": "SELECT author_id as id, u.email as label, COUNT(DISTINCT issue_id) AS size, 'NODECOLOR' AS color FROM message m JOIN user u on m.author_id = u.id JOIN issue i ON i.id = m.issue_id JOIN issue_tracker it ON it.id = i.issue_tracker_id JOIN repository r ON r.id = it.repo_id WHERE it.repo_id = REPOID AND i.issue_tracker_id = ISSUETRACKERID AND r.project_id = PROJECTID GROUP BY author_id;",
+ "edges": "SELECT source, target, COUNT(*) AS weight, 'EDGECOLOR' AS color FROM ( SELECT m1.issue_id, m1.author_id AS source, m2.author_id AS target, CONCAT(m1.author_id, '-', m2.author_id) AS pair from message m1 JOIN message m2 ON m1.id <> m2.id AND m1.issue_id = m2.issue_id AND m1.author_id <> m2.author_id AND m1.author_id > m2.author_id JOIN issue i ON m1.issue_id = i.id JOIN issue_tracker it ON it.id = i.issue_tracker_id JOIN repository r ON r.id = it.repo_id WHERE it.repo_id = REPOID AND i.issue_tracker_id = ISSUETRACKERID AND r.project_id = PROJECTID) AS issue_interaction GROUP BY pair;"
+ },
+ {"name": "users-on-files",
+ "PROJECTID": "1",
+ "REPOID": "1",
+ "NODECOLOR": "blue",
+ "EDGECOLOR": "gray",
+ "nodes": "SELECT author_id AS id, u.email AS label, COUNT(DISTINCT file_id) AS size, 'NODECOLOR' AS color FROM commit c JOIN file_modification fm ON c.id = fm.commit_id JOIN user u ON u.id = c.author_id JOIN repository r ON r.id = c.repo_id WHERE r.id = REPOID AND r.project_id = PROJECTID GROUP BY author_id;",
+ "edges": "SELECT source, target, count(*) as weight, 'EDGECOLOR' AS color FROM ( SELECT c1.file_id, c1.author_id AS source, c2.author_id AS target, CONCAT(c1.author_id, '-', c2.author_id) AS pair FROM (SELECT author_id, file_id FROM commit c JOIN file_modification fm ON c.id = fm.commit_id JOIN repository r ON r.id = c.repo_id WHERE r.id = REPOID AND r.project_id = PROJECTID) AS c1 JOIN (SELECT author_id, file_id FROM commit c JOIN file_modification fm ON c.id = fm.commit_id JOIN repository r ON r.id = c.repo_id WHERE r.id = REPOID AND r.project_id = PROJECTID) AS c2 ON c1.file_id = c2.file_id AND c1.author_id > c2.author_id) AS file_interaction GROUP BY pair;"
+ },
+ {"name": "users-on-files-for-references",
+ "PROJECTID": "1",
+ "REPOID": "1",
+ "REFERENCES": "1,2,3,4,5",
+ "NODECOLOR": "blue",
+ "EDGECOLOR": "gray",
+ "nodes": "SELECT author_id AS id, u.email AS label, COUNT(DISTINCT file_id) AS size, 'NODECOLOR' AS color FROM commit c JOIN file_modification fm ON c.id = fm.commit_id JOIN user u ON u.id = c.author_id JOIN repository r ON r.id = c.repo_id JOIN commit_in_reference cir ON cir.commit_id = c.id WHERE cir.ref_id in (REFERENCES) AND r.id = REPOID AND r.project_id = PROJECTID GROUP BY author_id;",
+ "edges": "SELECT source, target, count(*) as weight, 'EDGECOLOR' AS color FROM ( SELECT c1.file_id, c1.author_id AS source, c2.author_id AS target, CONCAT(c1.author_id, '-', c2.author_id) AS pair FROM (SELECT author_id, file_id FROM commit c JOIN file_modification fm ON c.id = fm.commit_id JOIN repository r ON r.id = c.repo_id JOIN commit_in_reference cir ON cir.commit_id = c.id WHERE cir.ref_id in (REFERENCES) AND r.id = REPOID AND r.project_id = PROJECTID) AS c1 JOIN (SELECT author_id, file_id FROM commit c JOIN file_modification fm ON c.id = fm.commit_id JOIN repository r ON r.id = c.repo_id JOIN commit_in_reference cir ON cir.commit_id = c.id WHERE cir.ref_id in (REFERENCES) AND r.id = REPOID AND r.project_id = PROJECTID) AS c2 ON c1.file_id = c2.file_id AND c1.author_id > c2.author_id) AS file_interaction GROUP BY pair;"
+ }
+ ]}
