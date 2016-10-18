@@ -17,6 +17,7 @@ from extractor.issue_tracker.bugzilla.issue2db_extract_main import Issue2DbMain
 from extractor.issue_tracker.bugzilla.issue2db_update import Issue2DbUpdate
 from extractor.forum.eclipse.forum2db_extract_main import Forum2DbMain
 from extractor.forum.eclipse.forum2db_update import Forum2DbUpdate
+from extractor.forum.stackoverflow.stackoverflow2db_extract_main import StackOverflow2DbMain
 
 LOG_FOLDER_PATH = "logs"
 LOG_NAME = "gitana"
@@ -112,6 +113,13 @@ class Gitana():
         forum2db = Forum2DbUpdate(db_name, project_name, url, processes,
                                   self.config, self.logger)
         forum2db.update()
+
+    def import_stackoverflow_data(self, db_name, project_name, search_query, before_date, recover_import, tokens):
+        self.logger.info("importing stackoverflow data")
+        stackoverflow2db = StackOverflow2DbMain(db_name, project_name,
+                                                "stackoverflow", search_query, before_date, recover_import, tokens,
+                                                self.config, self.logger)
+        stackoverflow2db.extract()
 
     def import_github_tracker_data(self, db_name, project_name, repo_name, github_repo_full_name, before_date, recover_import, tokens):
         #TODO

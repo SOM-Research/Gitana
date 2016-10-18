@@ -72,39 +72,42 @@ class DbUtil():
 
     def select_user_id_by_email(self, cnx, email, logger):
         found = None
-        cursor = cnx.cursor()
-        query = "SELECT id " \
-                "FROM user " \
-                "WHERE email = %s"
-        arguments = [email]
-        cursor.execute(query, arguments)
+        if email:
+            cursor = cnx.cursor()
+            query = "SELECT id " \
+                    "FROM user " \
+                    "WHERE email = %s"
+            arguments = [email]
+            cursor.execute(query, arguments)
 
-        row = cursor.fetchone()
-        cursor.close()
+            row = cursor.fetchone()
+            cursor.close()
 
-        if row:
-            found = row[0]
-        else:
-            logger.warning("there is not user with this email " + str(email))
+            if row:
+                found = row[0]
+            else:
+                logger.warning("there is not user with this email " + email)
 
         return found
 
     def select_user_id_by_name(self, cnx, name, logger):
         found = None
-        cursor = cnx.cursor()
-        query = "SELECT id " \
-                "FROM user " \
-                "WHERE name = %s"
-        arguments = [name]
-        cursor.execute(query, arguments)
+        if name:
+            found = None
+            cursor = cnx.cursor()
+            query = "SELECT id " \
+                    "FROM user " \
+                    "WHERE name = %s"
+            arguments = [name]
+            cursor.execute(query, arguments)
 
-        row = cursor.fetchone()
-        cursor.close()
+            row = cursor.fetchone()
+            cursor.close()
 
-        if row:
-            found = row[0]
-        else:
-            logger.warning("there is not user with this name " + str(name) )
+            if row:
+                found = row[0]
+            else:
+                logger.warning("there is not user with this name " + name)
 
         return found
 

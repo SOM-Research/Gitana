@@ -49,7 +49,7 @@ class Topic2Db(object):
         except Exception, e:
             self.logger.error("Topic2Db failed", exc_info=True)
 
-    def get_user_id(self, user_name, topic_id):
+    def get_user_id(self, user_name):
         user_id = self.db_util.select_user_id_by_name(self.cnx, user_name, self.logger)
         if not user_id:
             self.db_util.insert_user(self.cnx, user_name, None, self.logger)
@@ -106,7 +106,7 @@ class Topic2Db(object):
         body = self.querier.get_message_body(message)
         author_name = self.querier.get_message_author_name(message)
 
-        message_id = self.insert_message(own_id, pos, topic_id, body, self.get_user_id(author_name, topic_id), created_at)
+        message_id = self.insert_message(own_id, pos, topic_id, body, self.get_user_id(author_name), created_at)
 
         if self.querier.message_has_attachments(message):
             self.get_message_attachments_info(message_id, message)
