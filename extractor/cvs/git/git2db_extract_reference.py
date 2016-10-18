@@ -292,8 +292,8 @@ class Git2DbReference(object):
         committer_email = self.querier.get_commit_property(commit, "committer.email")
         size = self.querier.get_commit_property(commit, "size")
         sha = self.querier.get_commit_property(commit, "hexsha")
-        authored_date = datetime.fromtimestamp(self.querier.get_commit_property(commit, "authored_date")).strftime("%Y-%m-%d %H:%M:%S")
-        committed_date = datetime.fromtimestamp(self.querier.get_commit_property(commit, "committed_date")).strftime("%Y-%m-%d %H:%M:%S")
+        authored_date = self.querier.get_commit_time(self.querier.get_commit_property(commit, "authored_date"))
+        committed_date = self.querier.get_commit_time(self.querier.get_commit_property(commit, "committed_date"))
         #insert author
         author_id = self.get_user_id(author_name, author_email)
         committer_id = self.get_user_id(committer_name, committer_email)

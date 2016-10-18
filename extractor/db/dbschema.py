@@ -661,10 +661,10 @@ class DbSchema():
                                        "INDEX n (name) " \
                                        ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 
-        insert_issue_dependency_type = "INSERT INTO message_type VALUES (NULL, 'block'), " \
-                                                                       "(NULL, 'depends'), " \
-                                                                       "(NULL, 'related'), " \
-                                                                       "(NULL, 'duplicated');"
+        insert_issue_dependency_type = "INSERT INTO issue_dependency_type VALUES (NULL, 'block'), " \
+                                                                                "(NULL, 'depends'), " \
+                                                                                "(NULL, 'related'), " \
+                                                                                "(NULL, 'duplicated');"
 
         cursor.execute(create_table_issue_tracker)
         cursor.execute(create_table_issue)

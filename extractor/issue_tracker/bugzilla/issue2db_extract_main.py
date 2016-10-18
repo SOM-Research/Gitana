@@ -149,10 +149,10 @@ class Issue2DbMain():
         project_id = self.db_util.select_project_id(self.cnx, self.project_name, self.logger)
         repo_id = self.db_util.select_repo_id(self.cnx, project_id, self.repo_name, self.logger)
         issue_tracker_id = self.insert_issue_tracker(repo_id)
-        self.insert_issue_data(repo_id, issue_tracker_id)
+        #self.insert_issue_data(repo_id, issue_tracker_id)
 
         #TO-CHECK if cnx is not reinitialized, the issues stored in the db are not retrieved
-        self.cnx = mysql.connector.connect(**self.config)
+        #self.cnx = mysql.connector.connect(**self.config)
 
         self.insert_issue_dependencies(repo_id, issue_tracker_id)
 

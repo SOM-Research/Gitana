@@ -28,7 +28,7 @@ class DbUtil():
         if row:
             found = row[0]
         else:
-            logger.error("the project " + project_name + " does not exist")
+            logger.error("the project " + str(project_name) + " does not exist")
 
         return found
 
@@ -85,7 +85,7 @@ class DbUtil():
         if row:
             found = row[0]
         else:
-            logger.warning("there is not user with this email " + email )
+            logger.warning("there is not user with this email " + str(email))
 
         return found
 
@@ -104,7 +104,7 @@ class DbUtil():
         if row:
             found = row[0]
         else:
-            logger.warning("there is not user with this name " + name )
+            logger.warning("there is not user with this name " + str(name) )
 
         return found
 

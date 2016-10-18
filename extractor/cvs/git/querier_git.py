@@ -74,6 +74,9 @@ class GitQuerier():
 
         return flag
 
+    def get_commit_time(self, string_time):
+        return self.date_util.get_time_fromtimestamp(string_time, "%Y-%m-%d %H:%M:%S")
+
     #not used, retrieve all the files currently present in a given branch
     def get_files_in_ref(self, ref):
         files = []
