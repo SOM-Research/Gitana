@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 __author__ = 'valerio cosentino'
 
-#deprecated. Please use issue2db_main
+
 import mysql.connector
 from mysql.connector import errorcode
 from datetime import datetime

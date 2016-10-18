@@ -39,9 +39,47 @@ class BugzillaQuerier():
 
         return name
 
+    def get_issue_history(self, issue):
+        return issue.get_history().get('bugs')[0].get('history')
+
+    def get_comment_property(self, comment, property):
+        return comment.get(property)
+
+    def get_event_property(self, event, property):
+        return event.get(property)
+
+    def get_change_property(self, change, property):
+        return change.get(property)
+
+    def get_issue_tags(self, issue):
+        return issue.gettags()
+
+    def get_issue_keywords(self, issue):
+        return issue.keywords
+
+    def get_issue_comments(self, issue):
+        return issue.getcomments()
+
+    def get_issue_cc(self, issue):
+        return issue.cc
+
+    def get_issue_assignee(self, issue):
+        return issue.assigned_to
+
+    def get_issue_see_also(self, issue):
+        return issue.see_also
+
+    def get_issue_blocks(self, issue):
+        return issue.blocks
+
+    def get_issue_dupe_of(self, issue):
+        return issue.dupe_of
+
+    def get_issue_depends_on(self, issue):
+        return issue.depends_on
+
     def get_issue(self, bug_id):
         return self.bzapi.getbug(bug_id)
 
     def get_attachment(self, attachment_id):
         return self.bzapi.openattachment(attachment_id)
-

@@ -260,17 +260,15 @@ class Issue2Db(object):
             self.insert_issue_event(issue_id, event_type_id, action_content, creator_id, created_at, target_user_id)
 
     def extract_history(self, issue_id, history):
-        history = history.get('bugs')[0].get('history')
-
         for event in history:
             try:
-                created_at = self.date_util.get_timestamp(event.get('when'), '%Y%m%dT%H:%M:%S')
-                creator_id = self.get_user_id(event.get('who'))
+                created_at = self.date_util.get_timestamp(self.querier.get_event_property(event, 'when'), '%Y%m%dT%H:%M:%S')
+                creator_id = self.get_user_id(self.querier.get_event_property(event, 'who'))
 
-                for change in event.get('changes'):
-                    removed = change.get('removed')
-                    field_name = change.get('field_name').lower()
-                    added = change.get('added')
+                for change in self.querier.get_event_property(event, 'changes'):
+                    removed = self.querier.get_change_property(change, 'removed')
+                    field_name = self.querier.get_change_property(change, 'field_name').lower()
+                    added = self.querier.get_change_property(change, 'added')
 
                     if removed != '':
                         action = "removed"
@@ -300,14 +298,14 @@ class Issue2Db(object):
     def extract_comments(self, issue_id, comments):
         for comment in comments:
             try:
-                own_id = comment.get('id')
-                body = comment.get('text')
-                position = comment.get('count')
-                author_id = self.get_user_id(comment.get('author'))
-                created_at = self.date_util.get_timestamp(comment.get('creation_time'), '%Y%m%dT%H:%M:%S')
+                own_id = self.querier.get_comment_property(comment, 'id')
+                body = self.querier.get_comment_property(comment, 'text')
+                position = self.querier.get_comment_property(comment, 'count')
+                author_id = self.get_user_id(self.querier.get_comment_property(comment, 'author'))
+                created_at = self.date_util.get_timestamp(self.querier.get_comment_property(comment, 'creation_time'), '%Y%m%dT%H:%M:%S')
                 self.insert_issue_comment(own_id, position, issue_id, body, author_id, created_at)
 
-                attachment_id = comment.get('attachment_id')
+                attachment_id = self.querier.get_comment_property(comment, 'attachment_id')
                 if attachment_id:
                     issue_comment_id = self.select_issue_comment_id(own_id, issue_id, created_at)
                     self.extract_attachment(issue_comment_id, attachment_id)
@@ -423,33 +421,33 @@ class Issue2Db(object):
             issue_id = self.select_issue_id(issue_own_id)
             #tags and keywords are mapped as labels
             try:
-                self.extract_labels(issue_id, issue.gettags())
+                self.extract_labels(issue_id, self.querier.get_issue_tags(issue))
             except Exception, e:
                 self.logger.error("BugzillaError when extracting tags for issue id: " + str(issue_id) + " - tracker id " + str(self.issue_tracker_id), exc_info=True)
 
             try:
-                self.extract_labels(issue_id, issue.keywords)
+                self.extract_labels(issue_id, self.querier.get_issue_keywords(issue))
             except Exception, e:
                 self.logger.error("BugzillaError when extracting keywords for issue id: " + str(issue_id) + " - tracker id " + str(self.issue_tracker_id), exc_info=True)
 
             try:
-                self.extract_comments(issue_id, issue.getcomments())
+                self.extract_comments(issue_id, self.querier.get_issue_comments(issue))
             except Exception, e:
                 self.logger.error("BugzillaError when extracting comments for issue id: " + str(issue_id) + " - tracker id " + str(self.issue_tracker_id), exc_info=True)
 
             try:
-                self.extract_history(issue_id, issue.get_history())
+                self.extract_history(issue_id, self.querier.get_issue_history(issue))
             except Exception, e:
                 self.logger.error("BugzillaError when extracting history for issue id: " + str(issue_id) + " - tracker id " + str(self.issue_tracker_id), exc_info=True)
 
             if issue.cc:
-                self.extract_subscribers(issue_id, issue.cc)
+                self.extract_subscribers(issue_id, self.querier.get_issue_cc(issue))
 
             if issue.assigned_to:
-                self.extract_assignee(issue_id, issue.assigned_to)
+                self.extract_assignee(issue_id, self.querier.get_issue_assignee(issue))
 
             if issue.see_also:
-                self.extract_issue_commit_dependency(issue_id, [issue.see_also])
+                self.extract_issue_commit_dependency(issue_id, [self.querier.get_issue_see_also(issue)])
 
     def get_issues(self):
         for issue_id in self.interval:

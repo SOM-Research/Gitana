@@ -5,6 +5,7 @@ __author__ = 'valerio cosentino'
 import mysql.connector
 from mysql.connector import errorcode
 
+
 class DbUtil():
 
     def lowercase(self, str):
@@ -41,6 +42,7 @@ class DbUtil():
         cursor.close()
 
     def select_repo_id(self, cnx, project_id, repo_name, logger):
+        found = None
         cursor = cnx.cursor()
         query = "SELECT id " \
                 "FROM repository " \
@@ -50,6 +52,7 @@ class DbUtil():
 
         row = cursor.fetchone()
         cursor.close()
+
         if row:
             found = row[0]
         else:
@@ -68,6 +71,7 @@ class DbUtil():
         cursor.close()
 
     def select_user_id_by_email(self, cnx, email, logger):
+        found = None
         cursor = cnx.cursor()
         query = "SELECT id " \
                 "FROM user " \
@@ -78,7 +82,6 @@ class DbUtil():
         row = cursor.fetchone()
         cursor.close()
 
-        found = None
         if row:
             found = row[0]
         else:
@@ -87,6 +90,7 @@ class DbUtil():
         return found
 
     def select_user_id_by_name(self, cnx, name, logger):
+        found = None
         cursor = cnx.cursor()
         query = "SELECT id " \
                 "FROM user " \
@@ -97,11 +101,25 @@ class DbUtil():
         row = cursor.fetchone()
         cursor.close()
 
-        found = None
         if row:
             found = row[0]
         else:
             logger.warning("there is not user with this name " + name )
+
+        return found
+
+    def get_issue_dependency_type_id(self, name):
+        found = None
+        cursor = self.cnx.cursor()
+        query = "SELECT id FROM issue_dependency_type WHERE name = %s"
+        arguments = [name]
+        cursor.execute(query, arguments)
+
+        row = cursor.fetchone()
+        cursor.close()
+
+        if row:
+            found = row[0]
 
         return found
 

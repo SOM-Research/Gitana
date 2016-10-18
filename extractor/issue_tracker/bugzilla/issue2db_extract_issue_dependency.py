@@ -11,6 +11,7 @@ import sys
 sys.path.insert(0, "..//..//..")
 
 from querier_bugzilla import BugzillaQuerier
+from extractor.util.db_util import DbUtil
 
 
 class IssueDependency2Db(object):
@@ -42,6 +43,7 @@ class IssueDependency2Db(object):
             self.querier = BugzillaQuerier(self.url, self.product, self.logger)
             self.cnx = mysql.connector.connect(**self.config)
             self.extract()
+            self.db_util = DbUtil()
         except Exception, e:
             self.logger.error("Issue2Db failed", exc_info=True)
 
@@ -132,17 +134,17 @@ class IssueDependency2Db(object):
                 issue = self.querier.get_issue(issue_own_id)
 
                 if issue.blocks:
-                    self.extract_issue_dependency(issue_id, issue.blocks, "block")
+                    self.extract_issue_dependency(issue_id, self.querier.get_issue_blocks(issue), self.db_util.get_issue_dependency_type_id("block"))
 
                 if issue.depends_on:
-                    self.extract_issue_dependency(issue_id, issue.depends_on, "depends")
+                    self.extract_issue_dependency(issue_id, self.querier.get_issue_depends_on(issue), self.db_util.get_issue_dependency_type_id("depends"))
 
                 if issue.see_also:
-                    self.extract_issue_dependency(issue_id, issue.see_also, "related")
+                    self.extract_issue_dependency(issue_id, self.querier.get_issue_see_also(issue), self.db_util.get_issue_dependency_type_id("related"))
 
                 if self.is_duplicated(issue):
                     if issue.dupe_of:
-                        self.extract_issue_dependency(issue_id, issue.dupe_of, "duplicated")
+                        self.extract_issue_dependency(issue_id, self.querier.get_issue_dupe_of(issue), self.db_util.get_issue_dependency_type_id("duplicated"))
 
             except Exception, e:
                 self.logger.error("something went wrong with the following issue id: " + str(issue_id) + " - tracker id " + str(self.issue_tracker_id), exc_info=True)

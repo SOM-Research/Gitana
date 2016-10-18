@@ -650,9 +650,21 @@ class DbSchema():
         create_table_issue_dependency = "CREATE TABLE issue_dependency ( " \
                                         "issue_source_id int(20), " \
                                         "issue_target_id int(20), " \
-                                        "type varchar(256), " \
-                                        "PRIMARY KEY st (issue_source_id, issue_target_id) " \
+                                        "type_id int(20), " \
+                                        "PRIMARY KEY st (issue_source_id, issue_target_id, type_id) " \
                                         ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
+
+        create_issue_dependency_type = "CREATE TABLE issue_dependency_type (" \
+                                       "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
+                                       "name varchar(256), " \
+                                       "CONSTRAINT name UNIQUE (name), " \
+                                       "INDEX n (name) " \
+                                       ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
+
+        insert_issue_dependency_type = "INSERT INTO message_type VALUES (NULL, 'block'), " \
+                                                                       "(NULL, 'depends'), " \
+                                                                       "(NULL, 'related'), " \
+                                                                       "(NULL, 'duplicated');"
 
         cursor.execute(create_table_issue_tracker)
         cursor.execute(create_table_issue)
@@ -663,6 +675,8 @@ class DbSchema():
         cursor.execute(create_table_issue_labelled)
         cursor.execute(create_issue_commit_dependency)
         cursor.execute(create_table_issue_dependency)
+        cursor.execute(create_issue_dependency_type)
+        cursor.execute(insert_issue_dependency_type)
         cursor.close()
         return
 
