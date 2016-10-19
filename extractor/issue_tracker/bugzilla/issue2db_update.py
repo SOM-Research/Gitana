@@ -10,13 +10,13 @@ import multiprocessing
 import sys
 sys.path.insert(0, "..//..//..")
 
-from issue2db_extract_issue import Issue2Db
-from issue2db_extract_issue_dependency import IssueDependency2Db
+from issue2db_extract_issue import BugzillaIssue2Db
+from issue2db_extract_issue_dependency import BugzillaIssueDependency2Db
 from extractor.util import multiprocessing_util
 from extractor.util.db_util import DbUtil
 
 
-class Issue2DbUpdate():
+class BugzillaIssue2DbUpdate():
 
     NUM_PROCESSES = 10
 
@@ -35,7 +35,7 @@ class Issue2DbUpdate():
         if num_processes:
             self.num_processes = num_processes
         else:
-            self.num_processes = Issue2DbUpdate.NUM_PROCESSES
+            self.num_processes = BugzillaIssue2DbUpdate.NUM_PROCESSES
 
         self.db_util = DbUtil()
 
@@ -71,7 +71,7 @@ class Issue2DbUpdate():
         multiprocessing_util.start_consumers(self.num_processes, queue_intervals, results)
 
         for interval in intervals:
-            issue_extractor = Issue2Db(self.db_name, repo_id, issue_tracker_id, self.url, self.product, interval,
+            issue_extractor = BugzillaIssue2Db(self.db_name, repo_id, issue_tracker_id, self.url, self.product, interval,
                                        self.config, self.log_path)
             queue_intervals.put(issue_extractor)
 
@@ -89,7 +89,7 @@ class Issue2DbUpdate():
         multiprocessing_util.start_consumers(self.num_processes, queue_intervals, results)
 
         for interval in intervals:
-            issue_dependency_extractor = IssueDependency2Db(self.db_name, repo_id, issue_tracker_id, self.url, self.product, interval,
+            issue_dependency_extractor = BugzillaIssueDependency2Db(self.db_name, repo_id, issue_tracker_id, self.url, self.product, interval,
                                                  self.config, self.log_path)
             queue_intervals.put(issue_dependency_extractor)
 

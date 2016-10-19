@@ -2,21 +2,19 @@
 # -*- coding: utf-8 -*-
 __author__ = 'valerio cosentino'
 
-import mysql.connector
-from mysql.connector import errorcode
 from datetime import datetime
 import multiprocessing
 import sys
 sys.path.insert(0, "..//..//..")
 
 from querier_eclipse_forum import EclipseForumQuerier
-from forum2db_extract_topic import Topic2Db
+from forum2db_extract_topic import EclipseTopic2Db
 from extractor.util import multiprocessing_util
-from extractor.util.db_util import DbUtil
 from extractor.util.date_util import DateUtil
+from eclipse_forum_dao import EclipseForumDao
 
 
-class Forum2DbMain():
+class EclipseForum2DbMain():
 
     NUM_PROCESSES = 2
 
@@ -35,9 +33,8 @@ class Forum2DbMain():
         if num_processes:
             self.num_processes = num_processes
         else:
-            self.num_processes = Forum2DbMain.NUM_PROCESSES
+            self.num_processes = EclipseForum2DbMain.NUM_PROCESSES
 
-        self.db_util = DbUtil()
         self.date_util = DateUtil()
 
         config.update({'database': db_name})
@@ -45,70 +42,9 @@ class Forum2DbMain():
 
         try:
             self.querier = EclipseForumQuerier(self.url, self.logger)
-            self.cnx = mysql.connector.connect(**self.config)
+            self.dao = EclipseForumDao(self.config, self.logger)
         except:
-            self.logger.error("Forum2Db extract failed", exc_info=True)
-
-    def insert_forum(self, project_id):
-        cursor = self.cnx.cursor()
-        query = "INSERT IGNORE INTO forum " \
-                "VALUES (%s, %s, %s, %s)"
-        arguments = [None, project_id, self.url, self.type]
-        cursor.execute(query, arguments)
-        self.cnx.commit()
-
-        query = "SELECT id " \
-                "FROM forum " \
-                "WHERE url = %s"
-        arguments = [self.url]
-        cursor.execute(query, arguments)
-
-        row = cursor.fetchone()
-        cursor.close()
-
-        if row:
-            found = row[0]
-        else:
-            self.logger("no forum linked to " + str(self.url))
-
-        return found
-
-    def select_topic_id(self, forum_id, own_id):
-        try:
-            found = None
-            cursor = self.cnx.cursor()
-            query = "SELECT id FROM topic WHERE forum_id = %s AND own_id = %s"
-            arguments = [forum_id, own_id]
-            cursor.execute(query, arguments)
-
-            row = cursor.fetchone()
-            cursor.close()
-            if row:
-                found = row[0]
-
-            return found
-        except Exception, e:
-            self.logger.warning("topic id " + str(own_id) + " not found for forum id: " + str(forum_id), exc_info=True)
-
-    def insert_topic(self, own_id, forum_id, title, views, last_changed_at):
-        try:
-            cursor = self.cnx.cursor()
-            query = "INSERT IGNORE INTO topic " \
-                    "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
-            arguments = [None, own_id, forum_id, title.lower(), None, views, None, last_changed_at]
-            cursor.execute(query, arguments)
-            self.cnx.commit()
-            cursor.close()
-        except Exception, e:
-            self.logger.warning("topic with title " + title.lower() + " not inserted for forum id: " + str(forum_id), exc_info=True)
-
-    def update_topic_info(self, topic_id, forum_id, views, last_changed_at):
-        cursor = self.cnx.cursor()
-        query = "UPDATE topic SET views = %s, last_changed_at = %s WHERE id = %s AND forum_id = %s"
-        arguments = [views, last_changed_at, topic_id, forum_id]
-        cursor.execute(query, arguments)
-        self.cnx.commit()
-        cursor.close()
+            self.logger.error("EclipseForum2DbMain extract failed", exc_info=True)
 
     def get_topic_info(self, forum_id, topic):
         own_id = self.querier.get_topic_own_id(topic)
@@ -116,16 +52,16 @@ class Forum2DbMain():
         views = self.querier.get_topic_views(topic)
         last_changed_at = self.date_util.get_timestamp(self.querier.get_last_changed_at(topic), "%a, %d %B %Y %H:%M")
 
-        topic_id = self.select_topic_id(forum_id, own_id)
+        topic_id = self.dao.select_topic_id(forum_id, own_id)
         if topic_id:
-            self.update_topic_info(topic_id, forum_id, views, last_changed_at)
+            self.dao.update_topic_info(topic_id, forum_id, views, last_changed_at)
         else:
             if self.before_date:
                 if self.date_util.get_timestamp(self.querier.get_topic_created_at(topic), "%a, %d %B %Y") <= self.date_util.get_timestamp(self.before_date, "%Y-%m-%d"):
-                    self.insert_topic(own_id, forum_id, title, views, last_changed_at)
+                    self.dao.insert_topic(own_id, forum_id, title, views, last_changed_at)
             else:
-                self.insert_topic(own_id, forum_id, title, views, last_changed_at)
-            topic_id = self.select_topic_id(forum_id, own_id)
+                self.dao.insert_topic(own_id, forum_id, title, views, last_changed_at)
+            topic_id = self.dao.select_topic_id(forum_id, own_id)
 
         return topic_id
 
@@ -159,7 +95,7 @@ class Forum2DbMain():
         multiprocessing_util.start_consumers(self.num_processes, queue_extractors, results)
 
         for interval in intervals:
-            topic_extractor = Topic2Db(self.db_name, forum_id, interval, self.config, self.log_path)
+            topic_extractor = EclipseTopic2Db(self.db_name, forum_id, interval, self.config, self.log_path)
             queue_extractors.put(topic_extractor)
 
         # Add end-of-queue markers
@@ -171,15 +107,15 @@ class Forum2DbMain():
     def extract(self):
         try:
             start_time = datetime.now()
-            project_id = self.db_util.select_project_id(self.cnx, self.project_name, self.logger)
-            forum_id = self.insert_forum(project_id)
+            project_id = self.dao.select_project_id(self.project_name)
+            forum_id = self.dao.insert_forum(project_id, self.url, self.type)
             self.get_topics(forum_id)
-            self.cnx.close()
+            self.dao.close_connection()
 
             end_time = datetime.now()
 
             minutes_and_seconds = divmod((end_time-start_time).total_seconds(), 60)
-            self.logger.info("Forum2Db extract finished after " + str(minutes_and_seconds[0])
+            self.logger.info("EclipseForum2DbMain extract finished after " + str(minutes_and_seconds[0])
                          + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
         except:
-            self.logger.error("Forum2Db extract failed", exc_info=True)
+            self.logger.error("EclipseForum2DbMain extract failed", exc_info=True)

@@ -3,8 +3,8 @@
 __author__ = 'valerio cosentino'
 
 import bugzilla
-from datetime import datetime
 from extractor.util.date_util import DateUtil
+
 
 class BugzillaQuerier():
 
@@ -38,6 +38,33 @@ class BugzillaQuerier():
             name = user_email.split('@')[0]
 
         return name
+
+    def get_issue_creator(self, issue):
+        return issue.creator
+
+    def get_issue_version(self, issue):
+        return issue.version
+
+    def issue_last_change_time(self, issue):
+        return issue.last_change_time
+
+    def get_issue_creation_time(self, issue):
+        return issue.creation_time
+
+    def get_issue_priority(self, issue):
+        return issue.priority
+
+    def get_issue_severity(self, issue):
+        return issue.severity
+
+    def get_issue_operating_system(self, issue):
+        return issue.op_sys
+
+    def get_issue_summary(self, issue):
+        return issue.summary
+
+    def get_issue_component(self, issue):
+        return issue.component
 
     def get_issue_history(self, issue):
         return issue.get_history().get('bugs')[0].get('history')

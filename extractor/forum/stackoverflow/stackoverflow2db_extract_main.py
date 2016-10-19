@@ -2,23 +2,18 @@
 # -*- coding: utf-8 -*-
 __author__ = 'valerio cosentino'
 
-import mysql.connector
-from mysql.connector import errorcode
 from datetime import datetime
 import multiprocessing
 import sys
 sys.path.insert(0, "..//..//..")
 
 from extractor.util import multiprocessing_util
-from extractor.util.db_util import DbUtil
-from extractor.util.date_util import DateUtil
 from querier_stackoverflow import StackOverflowQuerier
-from stackoverflow2db_extract_topic import Topic2Db
+from stackoverflow2db_extract_topic import StackOverflowTopic2Db
+from stackoverflow_dao import StackOverflowDao
 
 
 class StackOverflow2DbMain():
-
-    URL = 'http://stackoverflow.com/search?q='
 
     def __init__(self, db_name, project_name,
                  type, search_query, before_date, recover_import, tokens,
@@ -32,46 +27,16 @@ class StackOverflow2DbMain():
         self.before_date = before_date
         self.recover_import = recover_import
         self.tokens = tokens
-        self.url = StackOverflow2DbMain.URL + self.search_query.replace(' ', '+')
-
-        self.db_util = DbUtil()
-        self.date_util = DateUtil()
 
         config.update({'database': db_name})
         self.config = config
 
-        try:
-            self.querier = StackOverflowQuerier(self.tokens[0], self.logger)
-            self.cnx = mysql.connector.connect(**self.config)
-        except:
-            self.logger.error("StackOverflow2Db extract failed", exc_info=True)
-
-    def insert_forum(self, project_id):
-        cursor = self.cnx.cursor()
-        query = "INSERT IGNORE INTO forum " \
-                "VALUES (%s, %s, %s, %s)"
-        arguments = [None, project_id, self.url, self.type]
-        cursor.execute(query, arguments)
-        self.cnx.commit()
-
-        query = "SELECT id " \
-                "FROM forum " \
-                "WHERE url = %s"
-        arguments = [self.url]
-        cursor.execute(query, arguments)
-
-        row = cursor.fetchone()
-        cursor.close()
-
-        if row:
-            found = row[0]
-        else:
-            self.logger("no forum linked to " + str(self.url))
-
-        return found
+        self.querier = StackOverflowQuerier(self.tokens[0], self.logger)
+        self.dao = StackOverflowDao(self.config, self.logger)
+        self.url = self.querier.URL + self.search_query.replace(' ', '+')
 
     def get_topics(self, forum_id):
-        topic_ids = self.querier.get_topic_ids(self.search_query)
+        topic_ids = self.querier.get_topic_ids(self.search_query, self.before_date)
 
         intervals = [i for i in multiprocessing_util.get_tasks_intervals(topic_ids, len(self.tokens)) if len(i) > 0]
 
@@ -83,7 +48,7 @@ class StackOverflow2DbMain():
 
         pos = 0
         for interval in intervals:
-            topic_extractor = Topic2Db(self.db_name, forum_id, interval, self.tokens[pos], self.config, self.log_path)
+            topic_extractor = StackOverflowTopic2Db(self.db_name, forum_id, interval, self.tokens[pos], self.config, self.log_path)
             queue_extractors.put(topic_extractor)
             pos += 1
 
@@ -96,10 +61,10 @@ class StackOverflow2DbMain():
     def extract(self):
         try:
             start_time = datetime.now()
-            project_id = self.db_util.select_project_id(self.cnx, self.project_name, self.logger)
-            forum_id = self.insert_forum(project_id)
+            project_id = self.dao.select_project_id(self.project_name)
+            forum_id = self.dao.insert_forum(project_id, self.url, self.type)
             self.get_topics(forum_id)
-            self.cnx.close()
+            self.dao.close_connection()
 
             end_time = datetime.now()
 

@@ -4,15 +4,13 @@ __author__ = 'valerio cosentino'
 
 from datetime import datetime
 import multiprocessing
-import mysql.connector
-from mysql.connector import errorcode
 import sys
 sys.path.insert(0, "..//..//..")
 
 from querier_git import GitQuerier
 from extractor.cvs.git.git2db_extract_reference import Git2DbReference
 from extractor.util import multiprocessing_util
-from extractor.util.db_util import DbUtil
+from git_dao import GitDao
 
 
 class Git2DbUpdate():
@@ -33,8 +31,6 @@ class Git2DbUpdate():
         self.import_new_references = import_new_references
         self.existing_refs = []
 
-        self.db_util = DbUtil()
-
         if num_processes:
             self.num_processes = num_processes
         else:
@@ -45,26 +41,15 @@ class Git2DbUpdate():
 
         try:
             self.querier = GitQuerier(git_repo_path, self.logger)
-            self.cnx = mysql.connector.connect(**self.config)
+            self.dao = GitDao(self.config, self.logger)
         except:
             self.logger.error("Git2Db update failed", exc_info=True)
 
     def array2string(self, array):
         return ','.join(str(x) for x in array)
 
-    def select_reference_name(self, repo_id, ref_id):
-        cursor = self.cnx.cursor()
-        query = "SELECT name " \
-                "FROM reference " \
-                "WHERE id = %s and repo_id = %s"
-        arguments = [ref_id, repo_id]
-        cursor.execute(query, arguments)
-        name = cursor.fetchone()[0]
-        cursor.close()
-        return name
-
     def update_existing_references(self, repo_id, import_type):
-        cursor = self.cnx.cursor()
+        cursor = self.dao.get_connection().cursor()
         query = "SELECT c.sha, lc.ref_id " \
                 "FROM commit c " \
                 "JOIN (SELECT ref_id, max(commit_id) as last_commit_id_in_ref FROM commit_in_reference WHERE repo_id = %s GROUP BY ref_id) as lc " \
@@ -84,7 +69,7 @@ class Git2DbUpdate():
             ref_id = row[1]
             row = cursor.fetchone()
 
-            ref_name = self.select_reference_name(repo_id, ref_id)
+            ref_name = self.dao.select_reference_name(repo_id, ref_id)
 
             for reference in self.querier.get_references():
                 reference_name = reference[0]
@@ -128,161 +113,37 @@ class Git2DbUpdate():
         # Wait for all of the tasks to finish
         queue_references.join()
 
-    def delete_commit(self, commit_id, repo_id):
-        cursor = self.cnx.cursor()
-        query = "DELETE FROM commit WHERE id = %s AND repo_id = %s"
-        arguments = [commit_id, repo_id]
-        cursor.execute(query, arguments)
-        self.cnx.commit()
-        cursor.close()
-
-    def delete_commit_parent(self, commit_id, repo_id):
-        cursor = self.cnx.cursor()
-        query = "DELETE FROM commit_parent WHERE commit_id = %s AND repo_id = %s"
-        arguments = [commit_id, repo_id]
-        cursor.execute(query, arguments)
-        self.cnx.commit()
-        cursor.close()
-
-    def delete_commit_in_reference(self, commit_id, repo_id):
-        cursor = self.cnx.cursor()
-        query = "DELETE FROM commit_in_reference WHERE commit_id = %s AND repo_id = %s"
-        arguments = [commit_id, repo_id]
-        cursor.execute(query, arguments)
-        self.cnx.commit()
-        cursor.close()
-
-    def delete_file_modification(self, commit_id):
-        cursor = self.cnx.cursor()
-        query = "DELETE FROM file_modification WHERE commit_id = %s"
-        arguments = [commit_id]
-        cursor.execute(query, arguments)
-        self.cnx.commit()
-        cursor.close()
-
-    def delete_line_details(self, file_modification_ids):
-        cursor = self.cnx.cursor()
-        query = "DELETE FROM line_detail WHERE file_modification_id IN (" + self.array2string(file_modification_ids) + ")"
-        cursor.execute(query)
-        self.cnx.commit()
-        cursor.close()
-
-    def delete_file_related_info(self, commit_id):
-        cursor = self.cnx.cursor()
-        query = "SELECT id, file_id " \
-                "FROM file_modification f " \
-                "WHERE commit_id = %s"
-        arguments = [commit_id]
-        cursor.execute(query, arguments)
-
-        row = cursor.fetchone()
-
-        file_modification_ids = []
-        while row:
-            file_modification_ids.append(row[0])
-            row = cursor.fetchone()
-        cursor.close()
-
-        if file_modification_ids:
-            self.delete_line_details(file_modification_ids)
-        self.delete_file_modification(commit_id)
-
     def delete_last_commit_info(self, repo_id):
-        cursor = self.cnx.cursor()
-        query = "SELECT MAX(id) as last_commit_id " \
-                "FROM commit c " \
-                "WHERE repo_id = %s"
-        arguments = [repo_id]
-        cursor.execute(query, arguments)
-
-        row = cursor.fetchone()
-        cursor.close()
-        if row:
-            last_commit_id = row[0]
-            self.delete_commit(last_commit_id, repo_id)
-            self.delete_commit_in_reference(last_commit_id, repo_id)
-            self.delete_commit_parent(last_commit_id, repo_id)
-            self.delete_file_related_info(last_commit_id)
+        found = self.dao.get_last_commit_id(repo_id)
+        if found:
+            last_commit_id = found
+            self.dao.delete_commit(last_commit_id, repo_id)
+            self.dao.delete_commit_in_reference(last_commit_id, repo_id)
+            self.dao.delete_commit_parent(last_commit_id, repo_id)
+            self.dao.delete_file_related_info(last_commit_id)
 
     def update_repo(self, repo_id, import_type):
         if self.import_last_commit:
             self.delete_last_commit_info(repo_id)
 
         self.update_existing_references(repo_id, import_type)
-        self.cnx.close()
+        self.dao.close_connection()
         if self.import_new_references:
             self.add_new_references(repo_id, import_type)
 
-    def line_detail_table_is_empty(self, repo_id):
-        cursor = self.cnx.cursor()
-        query = "SELECT COUNT(*) " \
-                "FROM commit c " \
-                "JOIN file_modification fm ON c.id = fm.commit_id " \
-                "JOIN line_detail l ON fm.id = l.file_modification_id " \
-                "WHERE l.content IS NOT NULL AND repo_id = %s"
-        arguments = [repo_id]
-        cursor.execute(query, arguments)
-
-        row = cursor.fetchone()
-        count = 0
-        if row:
-            count = int(row[0])
-
-        cursor.close()
-
-        return int(count > 0)
-
-    def file_modification_patch_is_empty(self, repo_id):
-        cursor = self.cnx.cursor()
-        query = "SELECT COUNT(*) " \
-                "FROM commit c " \
-                "JOIN file_modification fm ON c.id = fm.commit_id " \
-                "WHERE patch IS NOT NULL and repo_id = %s"
-        arguments = [repo_id]
-        cursor.execute(query, arguments)
-
-        row = cursor.fetchone()
-        count = 0
-        if row:
-            count = int(row[0])
-
-        cursor.close()
-
-        return int(count > 0)
-
     def get_import_type(self, repo_id):
         import_type = 1
-        import_type += self.line_detail_table_is_empty(repo_id) + self.file_modification_patch_is_empty(repo_id)
+        import_type += self.dao.line_detail_table_is_empty(repo_id) + self.dao.file_modification_patch_is_empty(repo_id)
         return import_type
-
-    def fix_commit_parent_table(self, repo_id):
-        cursor = self.cnx.cursor()
-        query_select = "SELECT parent_sha " \
-                       "FROM commit_parent " \
-                       "WHERE parent_id IS NULL AND repo_id = %s"
-        arguments = [repo_id]
-        cursor.execute(query_select, arguments)
-        row = cursor.fetchone()
-        while row:
-            parent_sha = row[0]
-            parent_id = self.select_commit(parent_sha, repo_id)
-            query_update = "UPDATE commit_parent " \
-                           "SET parent_id = %s " \
-                           "WHERE parent_id IS NULL AND parent_sha = %s AND repo_id = %s "
-            arguments = [parent_id, parent_sha, repo_id]
-            cursor.execute(query_update, arguments)
-            self.cnx.commit()
-            row = cursor.fetchone()
-        cursor.close()
 
     def update(self):
         try:
             start_time = datetime.now()
-            project_id = self.db_util.select_project_id(self.cnx, self.project_name, self.logger)
-            repo_id = self.db_util.select_repo_id(self.cnx, project_id, self.repo_name, self.logger)
+            project_id = self.dao.select_project_id(self.project_name)
+            repo_id = self.dao.select_repo_id(project_id, self.repo_name)
             self.update_repo(repo_id, self.get_import_type(repo_id))
-            self.cnx = self.db_util.restart_connection(self.config, self.logger)
-            self.fix_commit_parent_table(repo_id)
+            self.dao.restart_connection()
+            self.dao.fix_commit_parent_table(repo_id)
             end_time = datetime.now()
             minutes_and_seconds = divmod((end_time-start_time).total_seconds(), 60)
             self.logger.info("Git2Db update finished after " + str(minutes_and_seconds[0])

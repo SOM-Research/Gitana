@@ -5,25 +5,37 @@ __author__ = 'valerio cosentino'
 import stackexchange
 import sys
 import re
+from BeautifulSoup import BeautifulSoup
 sys.path.insert(0, "..//..//..")
+
+from extractor.util.token_util import TokenUtil
+from extractor.util.date_util import DateUtil
 
 
 class StackOverflowQuerier():
 
+    URL = 'http://stackoverflow.com/search?q='
+
     def __init__(self, token, logger):
         self.token = token
         self.logger = logger
+        self.token_util = TokenUtil()
+        self.date_util = DateUtil()
         self.so = stackexchange.Site(stackexchange.StackOverflow, app_key = self.token)
-        print "here"
 
-    def get_topic_ids(self, search_query):
-        question_ids = []
+    def get_topic_ids(self, search_query, before_date):
+        questions = []
         for question in self.so.questions(tagged=[search_query], pagesize=10).fetch():
-            question_ids.append(question.id)
+            self.token_util.wait_is_usable(self.so)
+            questions.append(question)
 
-        return question_ids
+        if before_date:
+            questions = [q for q in questions if q.creation_date <= self.date_util.get_timestamp(before_date, "%Y-%m-%d")]
+
+        return [question.id for question in questions]
 
     def get_topic(self, question_id):
+        self.token_util.wait_is_usable(self.so)
         return self.so.question(question_id, body="True")
 
     def get_topic_name(self, question):
@@ -48,15 +60,18 @@ class StackOverflowQuerier():
         return question.last_activity_date
 
     def get_container_body(self, container):
-        return container.body.replace('<p>', '').replace('</p>', '')
+        x = BeautifulSoup(container.body).text
+        return x
 
     def get_container_author(self, container):
+        self.token_util.wait_is_usable(self.so)
         return self.so.user(container.owner_id).display_name
 
     def get_comments(self, container):
         comments = []
         try:
             for comment in container.comments.fetch():
+                self.token_util.wait_is_usable(self.so)
                 comments.append(comment)
         except:
             self.logger.error("Stackexchange error when retrieving comments")
@@ -66,11 +81,13 @@ class StackOverflowQuerier():
     def get_answers(self, question):
         answers = []
         for answer in question.answers:
+            self.token_util.wait_is_usable(self.so)
             answers.append(answer)
 
         return answers
 
     def get_answer(self, answer_id):
+        self.token_util.wait_is_usable(self.so)
         return self.so.answer(answer_id, body=True)
 
     def get_attachments(self, body):

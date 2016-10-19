@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 __author__ = 'valerio cosentino'
 
-import mysql.connector
-from mysql.connector import errorcode
 import re
 from datetime import datetime
 import logging
@@ -12,7 +10,7 @@ import sys
 sys.path.insert(0, "..//..")
 
 from querier_git import GitQuerier
-from extractor.util.db_util import DbUtil
+from git_dao import GitDao
 
 #do not import patches
 LIGHT_IMPORT_TYPE = 1
@@ -36,8 +34,6 @@ class Git2DbReference(object):
         self.import_type = import_type
         self.from_sha = from_sha
 
-        self.db_util = DbUtil()
-
         config.update({'database': db_name})
         self.config = config
 
@@ -53,7 +49,7 @@ class Git2DbReference(object):
 
         try:
             self.querier = GitQuerier(self.git_repo_path, self.logger)
-            self.cnx = mysql.connector.connect(**self.config)
+            self.dao = GitDao(self.config, self.logger)
             self.extract()
         except Exception, e:
             self.logger.error("Git2Db failed", exc_info=True)
@@ -61,181 +57,6 @@ class Git2DbReference(object):
     def make_it_printable(self, str):
         u = str.decode('utf-8', 'ignore').lower()
         return re.sub(r'(\W|\s)+', '-', u)
-
-    def check_connection_alive(self):
-        try:
-            cursor = self.cnx.cursor()
-            cursor.execute("SELECT VERSION()")
-            results = cursor.fetchone()
-            ver = results[0]
-            if not ver:
-                self.cnx = self.db_util.restart_connection(self.config, self.logger)
-        except:
-            self.cnx = self.db_util.restart_connection(self.config, self.logger)
-
-    def insert_reference(self, repo_id, ref_name, ref_type):
-        cursor = self.cnx.cursor()
-        query = "INSERT IGNORE INTO reference " \
-                "VALUES (%s, %s, %s, %s)"
-        arguments = [None, repo_id, ref_name, ref_type]
-        cursor.execute(query, arguments)
-        self.cnx.commit()
-        cursor.close()
-
-    def select_reference_name(self, repo_id, ref_id):
-        cursor = self.cnx.cursor()
-        query = "SELECT name " \
-                "FROM reference " \
-                "WHERE id = %s and repo_id = %s"
-        arguments = [ref_id, repo_id]
-        cursor.execute(query, arguments)
-        name = cursor.fetchone()[0]
-        cursor.close()
-        return name
-
-    def select_reference_id(self, repo_id, ref_name):
-        cursor = self.cnx.cursor()
-        query = "SELECT id " \
-                "FROM reference " \
-                "WHERE name = %s and repo_id = %s"
-        arguments = [ref_name, repo_id]
-        cursor.execute(query, arguments)
-        id = cursor.fetchone()[0]
-        cursor.close()
-        return id
-
-    def get_user_id(self, user_name, user_email):
-        user_id = self.db_util.select_user_id_by_email(self.cnx, user_email, self.logger)
-        if not user_id:
-            self.db_util.insert_user(self.cnx, user_name, user_email, self.logger)
-            user_id = self.db_util.select_user_id_by_email(self.cnx, user_email, self.logger)
-
-        return user_id
-
-    def insert_commit(self, repo_id, sha, message, author_id, committer_id, authored_date, committed_date, size):
-        cursor = self.cnx.cursor()
-        query = "INSERT IGNORE INTO commit " \
-                "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
-        arguments = [None, repo_id, sha, message.strip(), author_id, committer_id, authored_date, committed_date, size]
-        cursor.execute(query, arguments)
-        self.cnx.commit()
-        cursor.close()
-
-    def insert_commit_parents(self, parents, commit_id, sha, repo_id):
-        cursor = self.cnx.cursor()
-        for parent in parents:
-            try:
-                parent_id = self.select_commit(parent.hexsha, repo_id)
-            except:
-                parent_id = None
-                self.logger.warning("parent commit id not found! SHA parent " + str(parent.hexsha))
-
-            query = "INSERT IGNORE INTO commit_parent " \
-                    "VALUES (%s, %s, %s, %s, %s)"
-
-            if parent_id:
-                arguments = [repo_id, commit_id, sha, parent_id, parent.hexsha]
-            else:
-                arguments = [repo_id, commit_id, sha, None, parent.hexsha]
-
-            cursor.execute(query, arguments)
-            self.cnx.commit()
-
-        cursor.close()
-
-    def insert_commit_in_reference(self, repo_id, commit_id, ref_id):
-        cursor = self.cnx.cursor()
-        query = "INSERT IGNORE INTO commit_in_reference " \
-                "VALUES (%s, %s, %s)"
-        arguments = [repo_id, commit_id, ref_id]
-        cursor.execute(query, arguments)
-        self.cnx.commit()
-        cursor.close()
-
-    def select_commit(self, sha, repo_id):
-        found = None
-        cursor = self.cnx.cursor()
-        query = "SELECT id " \
-                "FROM " + self.db_name + ".commit " \
-                "WHERE sha = %s AND repo_id = %s"
-        arguments = [sha, repo_id]
-        cursor.execute(query, arguments)
-        row = cursor.fetchone()
-        cursor.close()
-
-        if row:
-            found = row[0]
-
-        return found
-
-    def select_file_id(self, repo_id, name):
-        cursor = self.cnx.cursor()
-        query = "SELECT id " \
-                "FROM file " \
-                "WHERE name = %s AND repo_id = %s"
-        arguments = [name, repo_id]
-        cursor.execute(query, arguments)
-        try:
-            id = cursor.fetchone()[0]
-        except:
-            id = None
-        cursor.close()
-        return id
-
-    def insert_file(self, repo_id, name, ext):
-        cursor = self.cnx.cursor()
-        query = "INSERT IGNORE INTO file " \
-                "VALUES (%s, %s, %s, %s)"
-        arguments = [None, repo_id, name, ext]
-        cursor.execute(query, arguments)
-        self.cnx.commit()
-        cursor.close()
-
-    def insert_file_renamed(self, repo_id, current_file_id, previous_file_id):
-        cursor = self.cnx.cursor()
-
-        query = "INSERT IGNORE INTO file_renamed " \
-                "VALUES (%s, %s, %s)"
-        arguments = [repo_id, current_file_id, previous_file_id]
-        cursor.execute(query, arguments)
-        self.cnx.commit()
-        cursor.close()
-
-    def insert_file_modification(self, commit_id, file_id, status, additions, deletions, changes, patch_content):
-        cursor = self.cnx.cursor()
-        query = "INSERT IGNORE INTO file_modification " \
-                "VALUES (NULL, %s, %s, %s, %s, %s, %s, %s)"
-        arguments = [commit_id, file_id, status, additions, deletions, changes, patch_content]
-        cursor.execute(query, arguments)
-        self.cnx.commit()
-        cursor.close()
-
-    def select_file_modification_id(self, commit_id, file_id):
-        cursor = self.cnx.cursor()
-        query = "SELECT id " \
-                "FROM file_modification " \
-                "WHERE commit_id = %s AND file_id = %s"
-        arguments = [commit_id, file_id]
-        cursor.execute(query, arguments)
-
-        row = cursor.fetchone()
-        found = None
-        if row:
-            found = row[0]
-
-        cursor.close()
-        return found
-
-    def insert_line_details(self, file_modification_id, detail):
-        cursor = self.cnx.cursor()
-        query = "INSERT INTO line_detail " \
-                "VALUES (%s, %s, %s, %s, %s, %s, %s)"
-
-        arguments = [file_modification_id, detail[0], detail[1], detail[2], detail[3], detail[4], detail[5]]
-
-        cursor.execute(query, arguments)
-        self.cnx.commit()
-        cursor.close()
 
     def get_ext(self, str):
         file_name = str.split('/')[-1]
@@ -274,7 +95,7 @@ class Git2DbReference(object):
                 break
 
     def analyse_reference(self, ref_name, ref_type, repo_id):
-        self.insert_reference(repo_id, ref_name, ref_type)
+        self.dao.insert_reference(repo_id, ref_name, ref_type)
 
     def get_diffs_from_commit(self, commit, files_in_commit):
         if self.import_type > LIGHT_IMPORT_TYPE:
@@ -295,20 +116,20 @@ class Git2DbReference(object):
         authored_date = self.querier.get_commit_time(self.querier.get_commit_property(commit, "authored_date"))
         committed_date = self.querier.get_commit_time(self.querier.get_commit_property(commit, "committed_date"))
         #insert author
-        author_id = self.get_user_id(author_name, author_email)
-        committer_id = self.get_user_id(committer_name, committer_email)
+        author_id = self.dao.get_user_id(author_name, author_email)
+        committer_id = self.dao.get_user_id(committer_name, committer_email)
 
-        commit_found = self.select_commit(sha, repo_id)
+        commit_found = self.dao.select_commit_id(sha, repo_id)
 
         if not commit_found:
             #insert commit
-            self.insert_commit(repo_id, sha, message, author_id, committer_id, authored_date, committed_date, size)
+            self.dao.insert_commit(repo_id, sha, message, author_id, committer_id, authored_date, committed_date, size)
             #insert parents of the commit
-            self.insert_commit_parents(commit.parents, commit_found, sha, repo_id)
+            self.dao.insert_commit_parents(commit.parents, commit_found, sha, repo_id)
             #insert commits in reference
-            self.insert_commit_in_reference(repo_id, commit_found, ref_id)
+            self.dao.insert_commit_in_reference(repo_id, commit_found, ref_id)
 
-            commit_id = self.select_commit(sha, repo_id)
+            commit_id = self.dao.select_commit_id(sha, repo_id)
             commit_stats_files = commit.stats.files
             try:
                 if self.querier.commit_has_no_parents(commit):
@@ -316,8 +137,8 @@ class Git2DbReference(object):
                         file_path = diff[0]
                         ext = self.get_ext(file_path)
 
-                        self.insert_file(repo_id, file_path, ext)
-                        file_id = self.select_file_id(repo_id, file_path)
+                        self.dao.insert_file(repo_id, file_path, ext)
+                        file_id = self.dao.select_file_id(repo_id, file_path)
 
                         if self.import_type > LIGHT_IMPORT_TYPE:
                             patch_content = re.sub(r'^(\w|\W)*\n@@', '@@', diff[1])
@@ -328,16 +149,16 @@ class Git2DbReference(object):
                         status = self.querier.get_status_with_diff(stats, diff)
 
                         #insert file modification
-                        self.insert_file_modification(commit_id, file_id, status, stats[0], stats[1], stats[2], patch_content)
+                        self.dao.insert_file_modification(commit_id, file_id, status, stats[0], stats[1], stats[2], patch_content)
 
                         if self.import_type == FULL_IMPORT_TYPE:
-                            file_modification_id = self.select_file_modification_id(commit_id, file_id)
+                            file_modification_id = self.dao.select_file_modification_id(commit_id, file_id)
                             line_details = self.querier.get_line_details(patch_content, ext)
                             for line_detail in line_details:
-                                self.insert_line_details(file_modification_id, line_detail)
+                                self.dao.insert_line_details(file_modification_id, line_detail)
                 else:
                     for diff in self.get_diffs_from_commit(commit, commit_stats_files.keys()):
-                        self.check_connection_alive()
+                        self.dao.check_connection_alive()
                         if self.querier.is_renamed(diff):
                             file_previous = self.querier.get_rename_from(diff)
                             ext_previous = self.get_ext(file_previous)
@@ -346,23 +167,23 @@ class Git2DbReference(object):
                             ext_current = self.get_ext(file_current)
 
                             #insert new file
-                            self.insert_file(repo_id, file_current, ext_current)
+                            self.dao.insert_file(repo_id, file_current, ext_current)
 
                             #get id new file
-                            current_file_id = self.select_file_id(repo_id, file_current)
+                            current_file_id = self.dao.select_file_id(repo_id, file_current)
 
                             #retrieve the id of the previous file
-                            previous_file_id = self.select_file_id(repo_id, file_previous)
+                            previous_file_id = self.dao.select_file_id(repo_id, file_previous)
 
                             if not previous_file_id:
-                                self.insert_file(repo_id, file_previous, ext_previous)
-                                previous_file_id = self.select_file_id(repo_id, file_previous)
+                                self.dao.insert_file(repo_id, file_previous, ext_previous)
+                                previous_file_id = self.dao.select_file_id(repo_id, file_previous)
 
                             if current_file_id == previous_file_id:
                                 self.logger.warning("previous file id is equal to current file id (" + str(current_file_id) + ") " + str(sha))
                             else:
-                                self.insert_file_renamed(repo_id, current_file_id, previous_file_id)
-                            self.insert_file_modification(commit_id, current_file_id, "renamed", 0, 0, 0, None)
+                                self.dao.insert_file_renamed(repo_id, current_file_id, previous_file_id)
+                            self.dao.insert_file_modification(commit_id, current_file_id, "renamed", 0, 0, 0, None)
                         else:
                             #insert file
                             #if the file does not have a path, it won't be inserted
@@ -376,12 +197,12 @@ class Git2DbReference(object):
 
                                 #if the file is new, add it
                                 if self.querier.is_new_file(diff):
-                                    self.insert_file(repo_id, file_path, ext)
-                                file_id = self.select_file_id(repo_id, file_path)
+                                    self.dao.insert_file(repo_id, file_path, ext)
+                                file_id = self.dao.select_file_id(repo_id, file_path)
 
                                 if not file_id:
-                                    self.insert_file(repo_id, file_path, ext)
-                                    file_id = self.select_file_id(repo_id, file_path)
+                                    self.dao.insert_file(repo_id, file_path, ext)
+                                    file_id = self.dao.select_file_id(repo_id, file_path)
 
                                 if self.import_type > LIGHT_IMPORT_TYPE:
                                     #insert file modification (additions, deletions)
@@ -389,26 +210,26 @@ class Git2DbReference(object):
                                 else:
                                     patch_content = None
 
-                                self.insert_file_modification(commit_id, file_id, status, stats[0], stats[1], stats[2], patch_content)
+                                self.dao.insert_file_modification(commit_id, file_id, status, stats[0], stats[1], stats[2], patch_content)
 
                                 if self.import_type == FULL_IMPORT_TYPE:
-                                    file_modification_id = self.select_file_modification_id(commit_id, file_id)
+                                    file_modification_id = self.dao.select_file_modification_id(commit_id, file_id)
                                     line_details = self.querier.get_line_details(patch_content, ext)
                                     for line_detail in line_details:
-                                        self.insert_line_details(file_modification_id, line_detail)
-                            except:
-                                self.logger.warning("GitPython null file path " + str(sha))
+                                        self.dao.insert_line_details(file_modification_id, line_detail)
+                            except Exception, e:
+                                self.logger.error("Something went wrong with commit " + str(sha), exc_info=True)
             except Exception, e:
                 self.logger.error("Git2Db failed on commit " + str(sha), exc_info=True)
 
         else:
             #insert parents of the commit
-            self.insert_commit_parents(commit.parents, commit_found, sha, repo_id)
+            self.dao.insert_commit_parents(commit.parents, commit_found, sha, repo_id)
             #insert commits in reference
-            self.insert_commit_in_reference(repo_id, commit_found, ref_id)
+            self.dao.insert_commit_in_reference(repo_id, commit_found, ref_id)
 
     def analyse_commits(self, commits, ref, repo_id):
-        ref_id = self.select_reference_id(repo_id, ref)
+        ref_id = self.dao.select_reference_id(repo_id, ref)
 
         for c in commits:
             #self.logger.info("analysing commit " + str(commits.index(c)+1) + "/" + str(len(commits)))
@@ -419,7 +240,7 @@ class Git2DbReference(object):
             start_time = datetime.now()
             self.get_info_contribution_in_reference(self.ref_name, self.repo_id, self.from_sha)
             end_time = datetime.now()
-            self.cnx.close()
+            self.dao.close_connection()
 
             minutes_and_seconds = divmod((end_time-start_time).total_seconds(), 60)
             self.logger.info("process finished after " + str(minutes_and_seconds[0])

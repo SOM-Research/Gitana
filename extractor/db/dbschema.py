@@ -410,7 +410,7 @@ class DbSchema():
                                "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
                                "own_id int(20), " \
                                "pos int(10), " \
-                               "type int(20), " \
+                               "type_id int(20), " \
                                "issue_id int(20), " \
                                "topic_id int(20), " \
                                "channel_id int(20), " \

@@ -8,6 +8,12 @@ from mysql.connector import errorcode
 
 class DbUtil():
 
+    def get_connection(self, config):
+        return mysql.connector.connect(**config)
+
+    def close_connection(self, cnx):
+        cnx.close()
+
     def lowercase(self, str):
         if str:
             str = str.lower()
@@ -65,7 +71,7 @@ class DbUtil():
 
         query = "INSERT IGNORE INTO user " \
                 "VALUES (%s, %s, %s)"
-        arguments = [None, self.lowercase(name), self.lowercase(email)]
+        arguments = [None, name, email]
         cursor.execute(query, arguments)
         cnx.commit()
         cursor.close()
@@ -111,9 +117,9 @@ class DbUtil():
 
         return found
 
-    def get_issue_dependency_type_id(self, name):
+    def get_issue_dependency_type_id(self, cnx, name):
         found = None
-        cursor = self.cnx.cursor()
+        cursor = cnx.cursor()
         query = "SELECT id FROM issue_dependency_type WHERE name = %s"
         arguments = [name]
         cursor.execute(query, arguments)
