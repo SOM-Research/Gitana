@@ -49,13 +49,13 @@ class Git2DbUpdate():
         return ','.join(str(x) for x in array)
 
     def update_existing_references(self, repo_id, import_type):
-        cursor = self.dao.get_connection().cursor()
+        cursor = self.dao.get_cursor()
         query = "SELECT c.sha, lc.ref_id " \
                 "FROM commit c " \
                 "JOIN (SELECT ref_id, max(commit_id) as last_commit_id_in_ref FROM commit_in_reference WHERE repo_id = %s GROUP BY ref_id) as lc " \
                 "ON c.id = lc.last_commit_id_in_ref"
         arguments = [repo_id]
-        cursor.execute(query, arguments)
+        self.dao.execute(cursor, query, arguments)
 
         queue_references = multiprocessing.JoinableQueue()
         results = multiprocessing.Queue()
@@ -63,11 +63,11 @@ class Git2DbUpdate():
         # Start consumers
         multiprocessing_util.start_consumers(self.num_processes, queue_references, results)
 
-        row = cursor.fetchone()
+        row = self.dao.fetchone(cursor)
         while row:
             sha = row[0]
             ref_id = row[1]
-            row = cursor.fetchone()
+            row = self.dao.fetchone(cursor)
 
             ref_name = self.dao.select_reference_name(repo_id, ref_id)
 
@@ -83,7 +83,7 @@ class Git2DbUpdate():
                     queue_references.put(git_ref_extractor)
                     break
 
-        cursor.close()
+        self.dao.close_cursor(cursor)
 
         # Add end-of-queue markers
         multiprocessing_util.add_poison_pills(self.num_processes, queue_references)
@@ -146,7 +146,7 @@ class Git2DbUpdate():
             self.dao.fix_commit_parent_table(repo_id)
             end_time = datetime.now()
             minutes_and_seconds = divmod((end_time-start_time).total_seconds(), 60)
-            self.logger.info("Git2Db update finished after " + str(minutes_and_seconds[0])
+            self.logger.info("Git2DbUpdate finished after " + str(minutes_and_seconds[0])
                          + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
         except:
-            self.logger.error("Git2Db update failed", exc_info=True)
+            self.logger.error("Git2DbUpdate failed", exc_info=True)

@@ -17,13 +17,13 @@ class EclipseForum2DbUpdate():
 
     NUM_PROCESSES = 2
 
-    def __init__(self, db_name, project_name, url, num_processes,
+    def __init__(self, db_name, project_name, forum_name, num_processes,
                  config, logger):
         self.logger = logger
         self.log_path = self.logger.name.rsplit('.', 1)[0] + "-" + project_name
         self.project_name = project_name
         self.db_name = db_name
-        self.url = url
+        self.forum_name = forum_name
 
         if num_processes:
             self.num_processes = num_processes
@@ -34,7 +34,6 @@ class EclipseForum2DbUpdate():
         self.config = config
 
         try:
-            self.querier = EclipseForumQuerier(self.url, self.logger)
             self.dao = EclipseForumDao(self.config, self.logger)
         except:
             self.logger.error("EclipseForum2DbUpdate extract failed", exc_info=True)
@@ -84,13 +83,15 @@ class EclipseForum2DbUpdate():
         try:
             start_time = datetime.now()
             project_id = self.dao.select_project_id(self.project_name)
-            forum_id = self.dao.select_forum_id(project_id)
+            forum_id = self.dao.select_forum_id(self.forum_name, project_id)
+            url = self.dao.select_forum_url(self.forum_name, project_id)
+            self.querier = EclipseForumQuerier(url, self.logger)
             self.get_topics(forum_id)
             self.cnx.close()
             end_time = datetime.now()
 
             minutes_and_seconds = divmod((end_time-start_time).total_seconds(), 60)
-            self.logger.info("EclipseForum2DbUpdate extract finished after " + str(minutes_and_seconds[0])
+            self.logger.info("EclipseForum2DbUpdate finished after " + str(minutes_and_seconds[0])
                          + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
         except:
-            self.logger.error("EclipseForum2DbUpdate extract failed", exc_info=True)
+            self.logger.error("EclipseForum2DbUpdate failed", exc_info=True)

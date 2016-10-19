@@ -88,10 +88,10 @@ def test_5():
 
 
 def main():
-    # print "starting 1.."
-    # test_1()
-    # print "starting 2.."
-    # test_2()
+    print "starting 1.."
+    test_1()
+    print "starting 2.."
+    test_2()
     print "starting 3.."
     test_3()
     print "starting 4.."

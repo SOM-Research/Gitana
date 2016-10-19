@@ -39,22 +39,6 @@ class DbSchema():
 
         cursor.close()
 
-    def get_project_id(self, project_name, db_name):
-        found = None
-        self.set_database(db_name)
-        cursor = self.cnx.cursor()
-        query = "SELECT id FROM project WHERE name = %s"
-        arguments = [project_name]
-        cursor.execute(query, arguments)
-
-        row = cursor.fetchone()
-        cursor.close()
-
-        if row:
-            found = row[0]
-
-        return found
-
     def list_projects(self, db_name):
         project_names = []
         self.set_database(db_name)
@@ -581,9 +565,10 @@ class DbSchema():
         create_table_issue_tracker = "CREATE TABLE issue_tracker ( " \
                                      "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
                                      "repo_id int(20), " \
+                                     "name varchar(512), " \
                                      "url varchar(512), " \
                                      "type varchar(512), " \
-                                     "CONSTRAINT name UNIQUE (repo_id, url)" \
+                                     "CONSTRAINT name UNIQUE (repo_id, name)" \
                                      ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 
         create_table_issue = "CREATE TABLE issue ( " \
@@ -686,9 +671,10 @@ class DbSchema():
         create_table_forum = "CREATE TABLE forum ( " \
                              "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
                              "project_id int(20), " \
+                             "name varchar(512), " \
                              "url varchar(512), " \
                              "type varchar(512), " \
-                             "CONSTRAINT name UNIQUE (project_id, url)" \
+                             "CONSTRAINT name UNIQUE (project_id, name)" \
                              ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 
         create_table_topic = "CREATE TABLE topic ( " \
@@ -714,9 +700,10 @@ class DbSchema():
         create_table_instant_messaging = "CREATE TABLE instant_messaging ( " \
                                          "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
                                          "project_id int(20), " \
+                                         "name varchar(512), " \
                                          "url varchar(512), " \
                                          "type varchar(512), " \
-                                         "CONSTRAINT name UNIQUE (project_id, url)" \
+                                         "CONSTRAINT name UNIQUE (project_id, name)" \
                                          ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 
         create_table_channel = "CREATE TABLE channel ( " \

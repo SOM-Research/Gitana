@@ -25,7 +25,7 @@ def main():
 
     g.import_eclipse_forum_data("papyrus_db_test", "papyrus", "https://www.eclipse.org/forums/index.php/f/121/", None, False, 4)
 
-    g.import_stackoverflow_data("papyrus_db_test", "papyrus", "papyrus", None, False, ['IFco1Gh5EJ*U)ZY5)16ZKQ(('])
+    g.import_stackoverflow_data("papyrus_db_test", "papyrus", "papyrus", None, False, ['IFco1Gh5EJ*U)ZY9)16ZKQ(('])
 
 if __name__ == "__main__":
     main()

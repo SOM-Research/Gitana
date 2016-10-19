@@ -19,12 +19,13 @@ class EclipseForum2DbMain():
     NUM_PROCESSES = 2
 
     def __init__(self, db_name, project_name,
-                 type, url, before_date, recover_import, num_processes,
+                 type, forum_name, url, before_date, recover_import, num_processes,
                  config, logger):
         self.logger = logger
         self.log_path = self.logger.name.rsplit('.', 1)[0] + "-" + project_name
         self.type = type
         self.url = url
+        self.forum_name = forum_name
         self.project_name = project_name
         self.db_name = db_name
         self.before_date = before_date
@@ -57,7 +58,8 @@ class EclipseForum2DbMain():
             self.dao.update_topic_info(topic_id, forum_id, views, last_changed_at)
         else:
             if self.before_date:
-                if self.date_util.get_timestamp(self.querier.get_topic_created_at(topic), "%a, %d %B %Y") <= self.date_util.get_timestamp(self.before_date, "%Y-%m-%d"):
+                topic_created_at = self.querier.get_topic_created_at(topic)
+                if self.date_util.get_timestamp(topic_created_at, "%a, %d %B %Y") <= self.date_util.get_timestamp(self.before_date, "%Y-%m-%d"):
                     self.dao.insert_topic(own_id, forum_id, title, views, last_changed_at)
             else:
                 self.dao.insert_topic(own_id, forum_id, title, views, last_changed_at)
@@ -79,7 +81,7 @@ class EclipseForum2DbMain():
 
             next_page = self.querier.go_next_page()
 
-        return topic_ids
+        return [ti for ti in topic_ids if ti is not None]
 
     def get_topics(self, forum_id):
         self.querier.start_browser()
@@ -108,14 +110,14 @@ class EclipseForum2DbMain():
         try:
             start_time = datetime.now()
             project_id = self.dao.select_project_id(self.project_name)
-            forum_id = self.dao.insert_forum(project_id, self.url, self.type)
+            forum_id = self.dao.insert_forum(project_id, self.forum_name, self.url, self.type)
             self.get_topics(forum_id)
             self.dao.close_connection()
 
             end_time = datetime.now()
 
             minutes_and_seconds = divmod((end_time-start_time).total_seconds(), 60)
-            self.logger.info("EclipseForum2DbMain extract finished after " + str(minutes_and_seconds[0])
+            self.logger.info("EclipseForum2DbMain finished after " + str(minutes_and_seconds[0])
                          + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
         except:
-            self.logger.error("EclipseForum2DbMain extract failed", exc_info=True)
+            self.logger.error("EclipseForum2DbMain failed", exc_info=True)

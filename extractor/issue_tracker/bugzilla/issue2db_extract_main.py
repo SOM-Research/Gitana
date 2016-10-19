@@ -18,10 +18,10 @@ from bugzilla_dao import BugzillaDao
 
 class BugzillaIssue2DbMain():
 
-    NUM_PROCESSES = 10
+    NUM_PROCESSES = 5
 
     def __init__(self, db_name, project_name,
-                 repo_name, type, url, product, before_date, recover_import, num_processes,
+                 repo_name, type, issue_tracker_name, url, product, before_date, recover_import, num_processes,
                  config, logger):
         self.logger = logger
         self.log_path = self.logger.name.rsplit('.', 1)[0] + "-" + project_name
@@ -30,6 +30,7 @@ class BugzillaIssue2DbMain():
         self.product = product
         self.project_name = project_name
         self.db_name = db_name
+        self.issue_tracker_name = issue_tracker_name
         self.repo_name = repo_name
         self.before_date = before_date
         self.recover_import = recover_import
@@ -102,7 +103,7 @@ class BugzillaIssue2DbMain():
     def split_issue_extraction(self):
         project_id = self.dao.select_project_id(self.project_name)
         repo_id = self.dao.select_repo_id(project_id, self.repo_name)
-        issue_tracker_id = self.dao.insert_issue_tracker(repo_id, self.url, self.type)
+        issue_tracker_id = self.dao.insert_issue_tracker(repo_id, self.issue_tracker_name, self.url, self.type)
         self.insert_issue_data(repo_id, issue_tracker_id)
 
         self.dao.restart_connection()
@@ -116,7 +117,7 @@ class BugzillaIssue2DbMain():
             end_time = datetime.now()
 
             minutes_and_seconds = divmod((end_time-start_time).total_seconds(), 60)
-            self.logger.info("Issue2Db extract finished after " + str(minutes_and_seconds[0])
+            self.logger.info("BugzillaIssue2DbMain finished after " + str(minutes_and_seconds[0])
                          + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
         except:
-            self.logger.error("Issue2Db extract failed", exc_info=True)
+            self.logger.error("BugzillaIssue2DbMain failed", exc_info=True)

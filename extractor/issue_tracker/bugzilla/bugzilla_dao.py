@@ -16,6 +16,38 @@ class BugzillaDao():
         except:
             self.logger.error("BugzillaDao failed", exc_info=True)
 
+    def select_issue_tracker_id(self, repo_id, issue_tracker_name):
+        found = None
+        cursor = self.cnx.cursor()
+        query = "SELECT id " \
+                "FROM issue_tracker " \
+                "WHERE repo_id = %s AND name = %s"
+        arguments = [repo_id, issue_tracker_name]
+        cursor.execute(query, arguments)
+        row = cursor.fetchone()
+        cursor.close()
+
+        if row:
+            found = row[0]
+
+        return found
+
+    def select_issue_tracker_url(self, repo_id, issue_tracker_name):
+        found = None
+        cursor = self.cnx.cursor()
+        query = "SELECT url " \
+                "FROM issue_tracker " \
+                "WHERE repo_id = %s AND name = %s"
+        arguments = [repo_id, issue_tracker_name]
+        cursor.execute(query, arguments)
+        row = cursor.fetchone()
+        cursor.close()
+
+        if row:
+            found = row[0]
+
+        return found
+
     def insert_issue_comment(self, own_id, position, type, issue_id, body, votes, author_id, created_at):
         cursor = self.cnx.cursor()
         query = "INSERT IGNORE INTO message " \
@@ -65,18 +97,18 @@ class BugzillaDao():
         self.cnx.commit()
         cursor.close()
 
-    def insert_issue_tracker(self, repo_id, url, type):
+    def insert_issue_tracker(self, repo_id, issue_tracker_name, url, type):
         cursor = self.cnx.cursor()
         query = "INSERT IGNORE INTO issue_tracker " \
-                "VALUES (%s, %s, %s, %s)"
-        arguments = [None, repo_id, url, type]
+                "VALUES (%s, %s, %s, %s, %s)"
+        arguments = [None, repo_id, issue_tracker_name, url, type]
         cursor.execute(query, arguments)
         self.cnx.commit()
 
         query = "SELECT id " \
                 "FROM issue_tracker " \
-                "WHERE url = %s"
-        arguments = [url]
+                "WHERE name = %s"
+        arguments = [issue_tracker_name]
         cursor.execute(query, arguments)
 
         row = cursor.fetchone()
@@ -85,7 +117,7 @@ class BugzillaDao():
         if row:
             found = row[0]
         else:
-            self.logger("no issue tracker linked to " + str(url))
+            self.logger.warning("no issue tracker linked to " + str(url))
 
         return found
 
@@ -319,8 +351,17 @@ class BugzillaDao():
     def select_repo_id(self, project_id, repo_name):
         return self.db_util.select_repo_id(self.cnx, project_id, repo_name, self.logger)
 
-    def get_connection(self):
-        return self.cnx
+    def get_cursor(self):
+        return self.cnx.cursor()
+
+    def close_cursor(self, cursor):
+        return cursor.close()
+
+    def fetchone(self, cursor):
+        return cursor.fetchone()
+
+    def execute(self, cursor, query, arguments):
+        cursor.execute(query, arguments)
 
     def close_connection(self):
         self.db_util.close_connection(self.cnx)

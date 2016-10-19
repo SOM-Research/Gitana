@@ -33,12 +33,13 @@ class StackOverflowDao():
     def select_project_id(self, project_name):
         return self.db_util.select_project_id(self.cnx, project_name, self.logger)
 
-    def select_forum_id(self, url, project_id):
+    def select_forum_id(self, forum_name, project_id):
+        found = None
         cursor = self.cnx.cursor()
         query = "SELECT id " \
                 "FROM forum " \
-                "WHERE url = %s AND project_id = %s"
-        arguments = [url, project_id]
+                "WHERE name = %s AND project_id = %s"
+        arguments = [forum_name, project_id]
         cursor.execute(query, arguments)
 
         row = cursor.fetchone()
@@ -47,31 +48,32 @@ class StackOverflowDao():
         if row:
             found = row[0]
         else:
-            self.logger("no forum linked to " + str(self.url))
+            self.logger.warning("no forum with this name " + str(forum_name))
 
         return found
 
-    def insert_forum(self, project_id, url, type):
+    def insert_forum(self, project_id, forum_name, url, type):
         cursor = self.cnx.cursor()
         query = "INSERT IGNORE INTO forum " \
-                "VALUES (%s, %s, %s, %s)"
-        arguments = [None, project_id, url, type]
+                "VALUES (%s, %s, %s, %s, %s)"
+        arguments = [None, project_id, forum_name, url, type]
         cursor.execute(query, arguments)
         self.cnx.commit()
 
         query = "SELECT id " \
                 "FROM forum " \
-                "WHERE url = %s"
-        arguments = [url]
+                "WHERE name = %s"
+        arguments = [forum_name]
         cursor.execute(query, arguments)
 
         row = cursor.fetchone()
         cursor.close()
 
+        found = None
         if row:
             found = row[0]
         else:
-            self.logger("no forum linked to " + str(url))
+            self.logger.warning("no forum linked to " + str(forum_name))
 
         return found
 
@@ -117,6 +119,38 @@ class StackOverflowDao():
         cursor.execute(query, arguments)
         self.cnx.commit()
         cursor.close()
+
+    def get_topic_own_id(self, forum_id, topic_id):
+        found = None
+        cursor = self.cnx.cursor()
+        query = "SELECT own_id FROM topic WHERE forum_id = %s AND id = %s"
+        arguments = [forum_id, topic_id]
+        cursor.execute(query, arguments)
+
+        row = cursor.fetchone()
+        cursor.close()
+        if row:
+            found = row[0]
+
+        return found
+
+    def get_topic_ids(self, forum_id):
+        topic_ids = []
+
+        cursor = self.cnx.cursor()
+        query = "SELECT id FROM topic WHERE forum_id = %s"
+        arguments = [forum_id]
+        cursor.execute(query, arguments)
+
+        row = cursor.fetchone()
+
+        while row:
+            topic_id = row[0]
+            topic_ids.append(topic_id)
+            row = cursor.fetchone()
+
+        cursor.close()
+        return topic_ids
 
     def get_topic_last_changed_at(self, own_id, forum_id):
         cursor = self.cnx.cursor()

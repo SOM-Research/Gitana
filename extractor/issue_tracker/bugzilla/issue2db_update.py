@@ -3,8 +3,6 @@
 __author__ = 'valerio cosentino'
 
 
-import mysql.connector
-from mysql.connector import errorcode
 from datetime import datetime
 import multiprocessing
 import sys
@@ -13,20 +11,20 @@ sys.path.insert(0, "..//..//..")
 from issue2db_extract_issue import BugzillaIssue2Db
 from issue2db_extract_issue_dependency import BugzillaIssueDependency2Db
 from extractor.util import multiprocessing_util
-from extractor.util.db_util import DbUtil
+from bugzilla_dao import BugzillaDao
 
 
 class BugzillaIssue2DbUpdate():
 
-    NUM_PROCESSES = 10
+    NUM_PROCESSES = 5
 
     def __init__(self, db_name, project_name,
-                 repo_name, url, product, num_processes,
+                 repo_name, issue_tracker_name, product, num_processes,
                  config, logger):
 
         self.logger = logger
         self.log_path = self.logger.name.rsplit('.', 1)[0] + "-" + project_name
-        self.url = url
+        self.issue_tracker_name = issue_tracker_name
         self.product = product
         self.project_name = project_name
         self.db_name = db_name
@@ -37,33 +35,17 @@ class BugzillaIssue2DbUpdate():
         else:
             self.num_processes = BugzillaIssue2DbUpdate.NUM_PROCESSES
 
-        self.db_util = DbUtil()
+
 
         config.update({'database': db_name})
         self.config = config
 
         try:
-            self.cnx = mysql.connector.connect(**self.config)
+            self.dao = BugzillaDao(self.config, self.logger)
         except:
             self.logger.error("Issue2Db update failed", exc_info=True)
 
-    def select_issue_tracker(self, repo_id, url):
-        found = None
-        cursor = self.cnx.cursor()
-        query = "SELECT id " \
-                "FROM issue_tracker " \
-                "WHERE repo_id = %s AND url = %s"
-        arguments = [repo_id, url]
-        cursor.execute(query, arguments)
-        row = cursor.fetchone()
-        cursor.close()
-
-        if row:
-            found = row[0]
-
-        return found
-
-    def update_issue_content(self, repo_id, issue_tracker_id, intervals):
+    def update_issue_content(self, repo_id, issue_tracker_id, intervals, url):
         queue_intervals = multiprocessing.JoinableQueue()
         results = multiprocessing.Queue()
 
@@ -71,7 +53,7 @@ class BugzillaIssue2DbUpdate():
         multiprocessing_util.start_consumers(self.num_processes, queue_intervals, results)
 
         for interval in intervals:
-            issue_extractor = BugzillaIssue2Db(self.db_name, repo_id, issue_tracker_id, self.url, self.product, interval,
+            issue_extractor = BugzillaIssue2Db(self.db_name, repo_id, issue_tracker_id, url, self.product, interval,
                                        self.config, self.log_path)
             queue_intervals.put(issue_extractor)
 
@@ -81,7 +63,7 @@ class BugzillaIssue2DbUpdate():
         # Wait for all of the tasks to finish
         queue_intervals.join()
 
-    def update_issue_dependency(self, repo_id, issue_tracker_id, intervals):
+    def update_issue_dependency(self, repo_id, issue_tracker_id, intervals, url):
         queue_intervals = multiprocessing.JoinableQueue()
         results = multiprocessing.Queue()
 
@@ -89,7 +71,7 @@ class BugzillaIssue2DbUpdate():
         multiprocessing_util.start_consumers(self.num_processes, queue_intervals, results)
 
         for interval in intervals:
-            issue_dependency_extractor = BugzillaIssueDependency2Db(self.db_name, repo_id, issue_tracker_id, self.url, self.product, interval,
+            issue_dependency_extractor = BugzillaIssueDependency2Db(self.db_name, repo_id, issue_tracker_id, url, self.product, interval,
                                                  self.config, self.log_path)
             queue_intervals.put(issue_dependency_extractor)
 
@@ -100,41 +82,42 @@ class BugzillaIssue2DbUpdate():
         queue_intervals.join()
 
     def update_issues(self):
-        project_id = self.db_util.select_project_id(self.cnx, self.project_name, self.logger)
-        repo_id = self.db_util.select_repo_id(self.cnx, project_id, self.repo_name, self.logger)
-        issue_tracker_id = self.select_issue_tracker(repo_id, self.url)
+        project_id = self.dao.select_project_id(self.project_name)
+        repo_id = self.dao.select_repo_id(project_id, self.repo_name)
+        issue_tracker_id = self.dao.select_issue_tracker_id(repo_id, self.issue_tracker_name)
+        issue_tracker_url = self.dao.select_issue_tracker_url(repo_id, self.issue_tracker_name)
 
-        cursor = self.cnx.cursor()
+        cursor = self.dao.get_cursor()
         query = "SELECT i.own_id FROM issue i " \
                 "JOIN issue_tracker it ON i.issue_tracker_id = it.id " \
                 "WHERE issue_tracker_id = %s AND repo_id = %s " \
                 "ORDER BY i.own_id ASC;"
         arguments = [issue_tracker_id, repo_id]
-        cursor.execute(query, arguments)
+        self.dao.execute(cursor, query, arguments)
 
         issues = []
-        row = cursor.fetchone()
+        row = self.dao.fetchone(cursor)
 
         while row:
             issues.append(row[0])
-            row = cursor.fetchone()
-        cursor.close()
+            row = self.dao.fetchone(cursor)
+        self.dao.close_cursor(cursor)
 
         if issues:
             intervals = [i for i in multiprocessing_util.get_tasks_intervals(issues, self.num_processes) if len(i) > 0]
 
-            self.update_issue_content(repo_id, issue_tracker_id, intervals)
-            self.update_issue_dependency(repo_id, issue_tracker_id, intervals)
+            self.update_issue_content(repo_id, issue_tracker_id, intervals, issue_tracker_url)
+            self.update_issue_dependency(repo_id, issue_tracker_id, intervals, issue_tracker_url)
 
     def update(self):
         try:
             start_time = datetime.now()
             self.update_issues()
             end_time = datetime.now()
-            self.cnx.close()
+            self.dao.close_connection()
 
             minutes_and_seconds = divmod((end_time-start_time).total_seconds(), 60)
-            self.logger.info("Issue2Db update finished after " + str(minutes_and_seconds[0])
+            self.logger.info("BugzillaIssue2DbUpdate finished after " + str(minutes_and_seconds[0])
                          + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
         except:
-            self.logger.error("Issue2Db update failed", exc_info=True)
+            self.logger.error("BugzillaIssue2DbUpdate failed", exc_info=True)

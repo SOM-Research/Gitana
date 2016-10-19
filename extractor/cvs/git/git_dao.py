@@ -36,6 +36,18 @@ class GitDao():
     def get_connection(self):
         return self.cnx
 
+    def get_cursor(self):
+        return self.cnx.cursor()
+
+    def close_cursor(self, cursor):
+        return cursor.close()
+
+    def fetchone(self, cursor):
+        return cursor.fetchone()
+
+    def execute(self, cursor, query, arguments):
+        cursor.execute(query, arguments)
+
     def line_detail_table_is_empty(self, repo_id):
         cursor = self.cnx.cursor()
         query = "SELECT COUNT(*) " \

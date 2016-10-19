@@ -74,14 +74,14 @@ class BugzillaIssueDependency2Db(object):
         return flag
 
     def set_dependencies(self):
-        cursor = self.dao.get_connection()
+        cursor = self.dao.get_cursor()
         query = "SELECT i.id FROM issue i " \
                 "JOIN issue_tracker it ON i.issue_tracker_id = it.id " \
                 "WHERE i.id >= %s AND i.id <= %s AND issue_tracker_id = %s AND repo_id = %s"
         arguments = [self.interval[0], self.interval[-1], self.issue_tracker_id, self.repo_id]
-        cursor.execute(query, arguments)
+        self.dao.execute(cursor, query, arguments)
 
-        row = cursor.fetchone()
+        row = self.dao.fetchone(cursor)
 
         while row:
             try:
@@ -105,9 +105,9 @@ class BugzillaIssueDependency2Db(object):
             except Exception, e:
                 self.logger.error("something went wrong with the following issue id: " + str(issue_id) + " - tracker id " + str(self.issue_tracker_id), exc_info=True)
 
-            row = cursor.fetchone()
+            row = self.dao.fetchone(cursor)
 
-        cursor.close()
+        self.dao.close_cursor(cursor)
 
     def extract(self):
         try:
@@ -117,7 +117,7 @@ class BugzillaIssueDependency2Db(object):
             self.dao.close_connection()
 
             minutes_and_seconds = divmod((end_time-start_time).total_seconds(), 60)
-            self.logger.info("process finished after " + str(minutes_and_seconds[0])
+            self.logger.info("BugzillaIssueDependency2Db finished after " + str(minutes_and_seconds[0])
                            + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
         except Exception, e:
-            self.logger.error("Issue2Db failed", exc_info=True)
+            self.logger.error("BugzillaIssueDependency2Db failed", exc_info=True)

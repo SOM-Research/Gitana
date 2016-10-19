@@ -234,7 +234,7 @@ class BugzillaIssue2Db(object):
                 self.get_issue_info(issue_id)
             except Exception, e:
                 self.logger.error("something went wrong for issue id: " + str(issue_id) + " - tracker id " + str(self.issue_tracker_id), exc_info=True)
-        self.cnx.close()
+        self.dao.close_connection()
 
     def extract(self):
         try:
@@ -243,7 +243,7 @@ class BugzillaIssue2Db(object):
             end_time = datetime.now()
 
             minutes_and_seconds = divmod((end_time-start_time).total_seconds(), 60)
-            self.logger.info("process finished after " + str(minutes_and_seconds[0])
+            self.logger.info("BugzillaIssue2Db finished after " + str(minutes_and_seconds[0])
                            + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
         except Exception, e:
-            self.logger.error("Issue2Db failed", exc_info=True)
+            self.logger.error("BugzillaIssue2Db failed", exc_info=True)

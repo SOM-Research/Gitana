@@ -6,3 +6,4 @@ pygithub
 selenium
 py-stackexchange
 beautifulsoup4
+slacker

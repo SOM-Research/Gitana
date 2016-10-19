@@ -14,13 +14,31 @@ CONFIG = {
         }
 
 
-def main():
+def test_1():
+    #test simple
     g = Gitana(CONFIG, None)
     g.delete_previous_logs()
     g.init_db("papyrus_db_test")
 
     g.create_project("papyrus_db_test", "papyrus")
-    g.import_stackoverflow_data("papyrus_db_test", "papyrus", "papyrus", None, False, ['IFco1Gh5EJ*U)ZY5)16ZKQ(('])
+
+    g.import_stackoverflow_data("papyrus_db_test", "papyrus", "papyrus-so", "papyrus", None, False, ['IFco1Gh5EJ*U)ZY9)16ZKQ(('])
+
+
+def test_2():
+    #test update
+    g = Gitana(CONFIG, None)
+    g.delete_previous_logs()
+
+    g.update_stackoverflow_data("papyrus_db_test", "papyrus", "papyrus-forum", ['IFco1Gh5EJ*U)ZY9)16ZKQ(('])
+
+
+def main():
+    #print "starting 1.."
+    #test_1()
+    print "starting 2.."
+    test_2()
+
 
 if __name__ == "__main__":
     main()

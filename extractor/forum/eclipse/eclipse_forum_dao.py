@@ -117,12 +117,12 @@ class EclipseForumDao():
         except:
             self.logger.warning("message " + str(own_id) + ") for topic id: " + str(topic_id) + " not inserted", exc_info=True)
 
-    def select_forum_id(self, url, project_id):
+    def select_forum_id(self, forum_name, project_id):
         cursor = self.cnx.cursor()
         query = "SELECT id " \
                 "FROM forum " \
-                "WHERE url = %s AND project_id = %s"
-        arguments = [url, project_id]
+                "WHERE name = %s AND project_id = %s"
+        arguments = [forum_name, project_id]
         cursor.execute(query, arguments)
 
         row = cursor.fetchone()
@@ -131,25 +131,43 @@ class EclipseForumDao():
         if row:
             found = row[0]
         else:
-            self.logger("no forum linked to " + str(self.url))
+            self.logger.warning("no forum with this name " + str(forum_name))
+
+        return found
+
+    def select_forum_url(self, forum_name, project_id):
+        cursor = self.cnx.cursor()
+        query = "SELECT url " \
+                "FROM forum " \
+                "WHERE name = %s AND project_id = %s"
+        arguments = [forum_name, project_id]
+        cursor.execute(query, arguments)
+
+        row = cursor.fetchone()
+        cursor.close()
+
+        if row:
+            found = row[0]
+        else:
+            self.logger.warning("no forum with this name " + str(forum_name))
 
         return found
 
     def select_project_id(self, project_name):
         return self.db_util.select_project_id(self.cnx, project_name, self.logger)
 
-    def insert_forum(self, project_id, url, type):
+    def insert_forum(self, project_id, forum_name, url, type):
         cursor = self.cnx.cursor()
         query = "INSERT IGNORE INTO forum " \
-                "VALUES (%s, %s, %s, %s)"
-        arguments = [None, project_id, url, type]
+                "VALUES (%s, %s, %s, %s, %s)"
+        arguments = [None, project_id, forum_name, url, type]
         cursor.execute(query, arguments)
         self.cnx.commit()
 
         query = "SELECT id " \
                 "FROM forum " \
-                "WHERE url = %s"
-        arguments = [url]
+                "WHERE name = %s"
+        arguments = [forum_name]
         cursor.execute(query, arguments)
 
         row = cursor.fetchone()
@@ -158,7 +176,7 @@ class EclipseForumDao():
         if row:
             found = row[0]
         else:
-            self.logger("no forum linked to " + str(url))
+            self.logger.warning("no forum with this name " + str(forum_name))
 
         return found
 

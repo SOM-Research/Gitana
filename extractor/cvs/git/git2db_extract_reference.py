@@ -243,7 +243,7 @@ class Git2DbReference(object):
             self.dao.close_connection()
 
             minutes_and_seconds = divmod((end_time-start_time).total_seconds(), 60)
-            self.logger.info("process finished after " + str(minutes_and_seconds[0])
+            self.logger.info("Git2DbReference finished after " + str(minutes_and_seconds[0])
                          + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
         except Exception, e:
-            self.logger.error("Git2Db failed", exc_info=True)
+            self.logger.error("Git2DbReference failed", exc_info=True)

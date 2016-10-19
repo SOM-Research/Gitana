@@ -61,7 +61,7 @@ g.create_project("NAME-OF-YOUR-DB", "NAME-OF-THE-PROJECT")
 # NAME-OF-THE-PROJECT should not be null
 ```
 
-### import git data
+### import Git data
 ```python
 g.import_git_data("NAME-OF-YOUR-DB", "NAME-OF-THE-PROJECT", "NAME-OF-THE-GIT-REPO", "GIT-REPO-PATH", 
                   "BEFORE-DATE", "RECOVERY-PROCESS", "LIST-OF-REFERENCES", "NUM-OF-PROCESSES")
@@ -74,7 +74,7 @@ g.import_git_data("NAME-OF-YOUR-DB", "NAME-OF-THE-PROJECT", "NAME-OF-THE-GIT-REP
 # NUM-OF-PROCESSES can be None or a int number. It is the number of parallel processes used to analyse the Git repo. if None, the number of processes is 10
 ```
 
-### update git data 
+### update Git data
 - it updates the references already stored in Gitana, and optionally import new references)
 ```python
 g.update_git_data("NAME-OF-YOUR-DB", "NAME-OF-THE-PROJECT", "NAME-OF-THE-GIT-REPO", "GIT-REPO-PATH", 
@@ -88,38 +88,40 @@ g.update_git_data("NAME-OF-YOUR-DB", "NAME-OF-THE-PROJECT", "NAME-OF-THE-GIT-REP
 # NUM-OF-PROCESSES can be None or a int number. It is the number of parallel processes used to analyse the Git repo. if None, the number of processes is 10
 ```
 
-### import bugzilla data
+### import Bugzilla data
 ```python
 g.import_bugzilla_tracker_data("NAME-OF-YOUR-DB", "NAME-OF-THE-PROJECT", "NAME-OF-THE-GIT-REPO", 
-                               "BUGZILLA-URL", "PRODUCT-NAME-IN-BUGZILLA", 
+                               "ISSUE-TRACKER-NAME", "BUGZILLA-URL", "PRODUCT-NAME-IN-BUGZILLA",
                                "BEFORE-DATE", "RECOVER-IMPORT", "NUM-OF-PROCESSES")
   
-# NAME-OF-YOUR-DB, NAME-OF-THE-PROJECT, NAME-OF-THE-GIT-REPO should point to a DB, project and repo already existing in Gitana 
+# NAME-OF-YOUR-DB, NAME-OF-THE-PROJECT, NAME-OF-THE-GIT-REPO should point to a DB, project and repo already existing in Gitana
+# ISSUE-TRACKER-NAME cannot be null. It is the name used to identify the issue tracker in the DB
 # BUGZILLA-URL cannot be null. It points to the URL REST API (e.g., "https://bugs.eclipse.org/bugs/xmlrpc.cgi")
 # PRODUCT-NAME cannot be null. It will collect the issues for the input product (e.g., "MDT.MoDisco")
 # BEFORE-DATE can be None or "%Y-%m-%d". It allows to import issues created before a given date
 # RECOVER-IMPORT can be True or False. It allows to restart the import from the last issue inserted
-# NUM-OF-PROCESSES can be None or a int number. It is the number of parallel processes used to collect issue tracker information. if None, the number of processes is 10
+# NUM-OF-PROCESSES can be None or a int number. It is the number of parallel processes used to collect issue tracker information. if None, the number of processes is 5
 ```
     
-### update bugzilla data 
+### update Bugzilla data
 - it updates only the issues already stored in Gitana. It does not import new ones
 ```python 
 g.update_bugzilla_tracker_data("NAME-OF-YOUR-DB", "NAME-OF-THE-PROJECT", "NAME-OF-THE-GIT-REPO",
-                               "BUGZILLA-URL", "PRODUCT-NAME-IN-BUGZILLA", "NUM-OF-PROCESSES")
+                               "ISSUE-TRACKER-NAME", "PRODUCT-NAME-IN-BUGZILLA", "NUM-OF-PROCESSES")
 
 # NAME-OF-YOUR-DB, NAME-OF-THE-PROJECT, NAME-OF-THE-GIT-REPO should point to a DB, project and repo already existing in Gitana 
-# BUGZILLA-URL cannot be null. It points to the URL REST API (e.g., "https://bugs.eclipse.org/bugs/xmlrpc.cgi")
+# ISSUE-TRACKER-NAME cannot be null. It points to the issue tracker stored in the DB
 # PRODUCT-NAME cannot be null. It will update the issues already in Gitana for the input product (e.g., "MDT.MoDisco")
-# NUM-OF-PROCESSES can be None or a int number. It is the number of parallel processes used to collect issue tracker information. if None, the number of processes is 10
+# NUM-OF-PROCESSES can be None or a int number. It is the number of parallel processes used to collect issue tracker information. if None, the number of processes is 5
 ```
 
 ### import Eclipse forum data
 ```python 
-g.import_eclipse_forum_data("NAME-OF-YOUR-DB", "NAME-OF-THE-PROJECT", "ECLIPSE-FORUM-URL",
+g.import_eclipse_forum_data("NAME-OF-YOUR-DB", "NAME-OF-THE-PROJECT", "FORUM-NAME", "ECLIPSE-FORUM-URL",
                                "BEFORE-DATE", "RECOVER-IMPORT", "NUM-OF-PROCESSES")
 
-# NAME-OF-YOUR-DB, NAME-OF-THE-PROJECT should point to a DB and project already existing in Gitana 
+# NAME-OF-YOUR-DB, NAME-OF-THE-PROJECT should point to a DB and project already existing in Gitana
+# FORUM-NAME cannot be null. It is the name used to identify the forum in the DB
 # ECLIPSE-FORUM-URL cannot be null. It points to the URL of the Eclipse forum (e.g., "https://www.eclipse.org/forums/index.php/f/241/")
 # BEFORE-DATE can be None or "%Y-%m-%d". It allows to import topics created before a given date
 # RECOVER-IMPORT can be True or False. It allows to restart the import from the last topic inserted
@@ -129,11 +131,53 @@ g.import_eclipse_forum_data("NAME-OF-YOUR-DB", "NAME-OF-THE-PROJECT", "ECLIPSE-F
 ### update Eclipse forum data 
 - it updates only the topics already stored in Gitana. It does not import new ones
 ```python 
-g.update_eclipse_forum_data("NAME-OF-YOUR-DB", "NAME-OF-THE-PROJECT", "ECLIPSE-FORUM-URL", "NUM-OF-PROCESSES")
+g.update_eclipse_forum_data("NAME-OF-YOUR-DB", "NAME-OF-THE-PROJECT", "FORUM-NAME", "NUM-OF-PROCESSES")
 
 # NAME-OF-YOUR-DB, NAME-OF-THE-PROJECT should point to a DB and project already existing in Gitana 
-# ECLIPSE-FORUM-URL cannot be null. It points to the URL of the Eclipse forum (e.g., "https://www.eclipse.org/forums/index.php/f/241/")
+# FORUM-NAME cannot be null. It points to the forum stored in the DB
 # NUM-OF-PROCESSES can be None or a int number. It is the number of parallel browsers used to collect forum information. if None, the number of processes is 2
+```
+
+### import Stackoverflow data
+```python
+g.import_stackoverflow_data("NAME-OF-YOUR-DB", "NAME-OF-THE-PROJECT", "FORUM-NAME", "QUERY-STRING", "BEFORE-DATE", "RECOVER-IMPORT", "TOKENS")
+
+# NAME-OF-YOUR-DB, NAME-OF-THE-PROJECT should point to a DB and project already existing in Gitana
+# FORUM-NAME cannot be null. It is the name used to identify the forum in the DB
+# QUERY-STRING cannot be null. It is used to retrieved the Questions in Stackoverflow labelled with "QUERY-STRING"
+# BEFORE-DATE can be None or "%Y-%m-%d". It allows to import topics created before a given date
+# RECOVER-IMPORT can be True or False. It allows to restart the import from the last topic inserted
+# TOKENS cannot be null. Each token is passed to a process to speed up the collection of StackOverflow information.
+```
+
+### update Stackoverflow data
+```python
+g.update_stackoverflow_data("NAME-OF-YOUR-DB", "NAME-OF-THE-PROJECT", "FORUM-NAME", "TOKENS")
+
+# NAME-OF-YOUR-DB, NAME-OF-THE-PROJECT should point to a DB and project already existing in Gitana
+# FORUM-NAME cannot be null. It is the name used to identify the forum in the DB
+# QUERY-STRING cannot be null. It is used to retrieved the Questions in Stackoverflow labelled with "QUERY-STRING"
+# TOKENS cannot be null. Each token is passed to a process to speed up the collection of StackOverflow information.
+```
+
+### import GitHub-Issue-Tracker data
+```python
+...coming soon
+```
+
+### update GitHub-Issue-Tracker data
+```python
+...coming soon
+```
+
+### import Slack data
+```python
+...coming soon
+```
+
+### update Slack data
+```python
+...coming soon
 ```
 
 ### Example(s)
@@ -156,9 +200,10 @@ def main():
 
     g.create_project("papyrus_db", "papyrus")
     g.import_git_data("papyrus_db", "papyrus", "papyrus_repo", "...\\Desktop\\org.eclipse.papyrus", None, 1, None, 20)
-    g.import_bugzilla_tracker_data("papyrus_db", "papyrus", "papyrus_repo", "https://bugs.eclipse.org/bugs/xmlrpc.cgi", "papyrus", None, False, 20)
-    g.import_eclipse_forum_data("papyrus_db", "papyrus", "https://www.eclipse.org/forums/index.php/f/121/", None, False, 5)
-    
+    g.import_bugzilla_tracker_data("papyrus_db", "papyrus", "papyrus_repo", "papyrus-bugzilla", "https://bugs.eclipse.org/bugs/xmlrpc.cgi", "papyrus", None, False, 20)
+    g.import_eclipse_forum_data("papyrus_db", "papyrus", "papyrus-forum", "https://www.eclipse.org/forums/index.php/f/121/", None, False, 5)
+    g.import_stackoverflow_data("papyrus_db", "papyrus", "papyrus-so", None, False, ['YOUR-TOKEN-1', 'YOUR-TOKEN-2', ...])
+
 if __name__ == "__main__":
     main()
 ```

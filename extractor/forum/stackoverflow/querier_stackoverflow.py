@@ -14,8 +14,6 @@ from extractor.util.date_util import DateUtil
 
 class StackOverflowQuerier():
 
-    URL = 'http://stackoverflow.com/search?q='
-
     def __init__(self, token, logger):
         self.token = token
         self.logger = logger
@@ -60,8 +58,10 @@ class StackOverflowQuerier():
         return question.last_activity_date
 
     def get_container_body(self, container):
-        x = BeautifulSoup(container.body).text
-        return x
+        return container.body
+
+    def remove_html_tags(self, html_text):
+        return BeautifulSoup(html_text).text
 
     def get_container_author(self, container):
         self.token_util.wait_is_usable(self.so)
