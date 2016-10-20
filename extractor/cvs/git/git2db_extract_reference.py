@@ -232,8 +232,9 @@ class Git2DbReference(object):
         ref_id = self.dao.select_reference_id(repo_id, ref)
 
         for c in commits:
-            #self.logger.info("analysing commit " + str(commits.index(c)+1) + "/" + str(len(commits)))
-            self.analyse_commit(c, ref_id, repo_id)
+            if c.hexsha == "105bb2698b54a838165947199f1c8be5c2e7d9bb":
+                #self.logger.info("analysing commit " + str(commits.index(c)+1) + "/" + str(len(commits)))
+                self.analyse_commit(c, ref_id, repo_id)
 
     def extract(self):
         try:

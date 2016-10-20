@@ -198,10 +198,13 @@ class GitQuerier():
                 flag = False
 
             if not flag:
-                #sometimes the library does not set the renamed value to True even if the file is actually renamed
-                if (not diff.a_blob) and (not diff.b_blob):
-                    if re.match(r"^(.*)\nrename from(.*)\nrename to(.*)$", diff.diff, re.M):
-                       flag = True
+                try:
+                    #sometimes the library does not set the renamed value to True even if the file is actually renamed
+                    if (not diff.a_blob) and (not diff.b_blob):
+                        if re.match(r"^(.*)\nrename from(.*)\nrename to(.*)$", diff.diff, re.M):
+                           flag = True
+                except:
+                    flag = False
         return flag
 
     def get_stats_for_file(self, commit_stats_files, file_name):

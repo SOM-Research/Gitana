@@ -48,6 +48,9 @@ class GitDao():
     def execute(self, cursor, query, arguments):
         cursor.execute(query, arguments)
 
+    def array2string(self, array):
+        return ','.join(str(x) for x in array)
+
     def line_detail_table_is_empty(self, repo_id):
         cursor = self.cnx.cursor()
         query = "SELECT COUNT(*) " \
@@ -86,6 +89,7 @@ class GitDao():
         return int(count > 0)
 
     def get_last_commit_id(self, repo_id):
+        found = None
         cursor = self.cnx.cursor()
         query = "SELECT MAX(id) as last_commit_id " \
                 "FROM commit c " \
@@ -96,7 +100,10 @@ class GitDao():
         row = cursor.fetchone()
         cursor.close()
 
-        return row
+        if row:
+            found = row[0]
+
+        return found
 
     def select_repo_id(self, project_id, repo_name):
         return self.db_util.select_repo_id(self.cnx, project_id, repo_name, self.logger)

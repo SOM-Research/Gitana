@@ -45,9 +45,6 @@ class Git2DbUpdate():
         except:
             self.logger.error("Git2Db update failed", exc_info=True)
 
-    def array2string(self, array):
-        return ','.join(str(x) for x in array)
-
     def update_existing_references(self, repo_id, import_type):
         cursor = self.dao.get_cursor()
         query = "SELECT c.sha, lc.ref_id " \
