@@ -114,8 +114,8 @@ class StackOverflowDao():
     def insert_message_dependency(self, source_message_id, target_message_id):
         cursor = self.cnx.cursor()
         query = "INSERT IGNORE INTO message_dependency " \
-                "VALUES (%s, %s, %s)"
-        arguments = [None, source_message_id, target_message_id]
+                "VALUES (%s, %s)"
+        arguments = [source_message_id, target_message_id]
         cursor.execute(query, arguments)
         self.cnx.commit()
         cursor.close()

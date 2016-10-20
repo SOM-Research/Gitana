@@ -5,5 +5,5 @@ python-bugzilla
 pygithub
 selenium
 py-stackexchange
-beautifulsoup4
+beautifulsoup
 slacker

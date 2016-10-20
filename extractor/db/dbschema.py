@@ -406,10 +406,9 @@ class DbSchema():
                                ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 
         create_table_message_dependency = "CREATE TABLE message_dependency ( " \
-                                          "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
                                           "source_message_id int(20), " \
                                           "target_message_id int(20), " \
-                                          "CONSTRAINT ip UNIQUE (source_message_id, target_message_id) " \
+                                          "PRIMARY KEY st (source_message_id, target_message_id) " \
                                           ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 
         create_table_message_type = "CREATE TABLE message_type ( " \
