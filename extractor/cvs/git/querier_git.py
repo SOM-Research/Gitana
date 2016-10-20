@@ -7,6 +7,7 @@ import re
 from datetime import datetime
 import string
 from extractor.util.date_util import DateUtil
+import time
 
 
 class GitQuerier():
@@ -252,8 +253,13 @@ class GitQuerier():
             elif prop == "committed_date":
                 found = commit.committed_date
         except:
-            found = None
-            self.logger.error("something went wrong when trying to retrieve the attribute " + prop + " from the commit " + str(commit.hexsha))
+            #ugly but effective. GitPython may fail in retrieving properties with large content. Waiting some seconds seems to fix the problem
+            try:
+                time.sleep(5)
+                found = self.get_commit_property(commit, prop)
+            except:
+                found = None
+                self.logger.error("something went wrong when trying to retrieve the attribute " + prop + " from the commit " + str(commit.hexsha))
 
         return found
 
