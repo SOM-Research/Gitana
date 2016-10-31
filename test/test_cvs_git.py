@@ -96,12 +96,12 @@ def main():
     # test_2()
     # print "starting 3.."
     # test_3()
-    print "starting 4.."
-    test_4()
+    # print "starting 4.."
+    # test_4()
     # print "starting 4a.."
     # test_4a()
-    # print "starting 5.."
-    # test_5()
+    print "starting 5.."
+    test_5()
 
 if __name__ == "__main__":
     main()

@@ -392,7 +392,7 @@ class DbSchema():
 
         create_table_message = "CREATE TABLE message ( " \
                                "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
-                               "own_id int(20), " \
+                               "own_id varchar(20), " \
                                "pos int(10), " \
                                "type_id int(20), " \
                                "issue_id int(20), " \
@@ -422,11 +422,12 @@ class DbSchema():
                                                                "(NULL, 'comment'), " \
                                                                "(NULL, 'accepted_answer'), " \
                                                                "(NULL, 'reply'), " \
-                                                               "(NULL, 'file_upload');"
+                                                               "(NULL, 'file_upload'), " \
+                                                               "(NULL, 'info');"
 
         create_table_attachment = "CREATE TABLE attachment ( " \
                                   "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
-                                  "own_id int(20), " \
+                                  "own_id varchar(20), " \
                                   "message_id int(20), " \
                                   "name varchar(256), " \
                                   "extension varchar(10), " \
@@ -572,7 +573,7 @@ class DbSchema():
 
         create_table_issue = "CREATE TABLE issue ( " \
                              "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
-                             "own_id int(20), " \
+                             "own_id varchar(20), " \
                              "issue_tracker_id int(20), " \
                              "summary varchar(512), " \
                              "component varchar(256), " \
@@ -678,7 +679,7 @@ class DbSchema():
 
         create_table_topic = "CREATE TABLE topic ( " \
                              "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
-                             "own_id int(20), " \
+                             "own_id varchar(20), " \
                              "forum_id int(20), " \
                              "name varchar(256), " \
                              "votes int(10), " \
@@ -707,11 +708,12 @@ class DbSchema():
 
         create_table_channel = "CREATE TABLE channel ( " \
                                "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
-                               "own_id int(20), " \
+                               "own_id varchar(20), " \
                                "instant_messaging_id int(20), " \
                                "name varchar(256), " \
                                "description varchar(512), " \
                                "created_at timestamp DEFAULT '0000-00-00 00:00:00', " \
+                               "last_change_at timestamp DEFAULT '0000-00-00 00:00:00', " \
                                "CONSTRAINT name UNIQUE (instant_messaging_id, own_id)" \
                                ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 

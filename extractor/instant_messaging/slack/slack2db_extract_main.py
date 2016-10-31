@@ -35,10 +35,27 @@ class Slack2DbMain():
         self.dao = SlackDao(self.config, self.logger)
 
     def get_channels(self, instant_messaging_id):
-        channels = self.querier.get_channels()
-        for c in channels:
-            #TODO
-            print self.querier.get_channel_name(c)
+        channel_ids = self.querier.get_channel_ids()
+
+        intervals = [i for i in multiprocessing_util.get_tasks_intervals(channel_ids, len(self.tokens)) if len(i) > 0]
+
+        queue_extractors = multiprocessing.JoinableQueue()
+        results = multiprocessing.Queue()
+
+        # Start consumers
+        multiprocessing_util.start_consumers(len(self.tokens), queue_extractors, results)
+
+        pos = 0
+        for interval in intervals:
+            topic_extractor = SlackChannel2Db(self.db_name, instant_messaging_id, interval, self.tokens[pos], self.config, self.log_path)
+            queue_extractors.put(topic_extractor)
+            pos += 1
+
+        # Add end-of-queue markers
+        multiprocessing_util.add_poison_pills(len(self.tokens), queue_extractors)
+
+        # Wait for all of the tasks to finish
+        queue_extractors.join()
 
     def extract(self):
         try:
