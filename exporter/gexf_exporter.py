@@ -16,6 +16,7 @@ import errno
 sys.path.insert(0, "..")
 
 from exporter import resources
+from random import randint
 
 LOG_FOLDER_PATH = "logs"
 LOG_NAME = "gitana-exporter"
@@ -112,7 +113,8 @@ class GexfExporter():
                 graph.add_node(node_id)
                 graph.node[node_id]['label'] = node_label
                 graph.node[node_id]['viz'] = {'color': {'r': r, 'g': g, 'b': b, 'a': 0},
-                                              'size': node_size}
+                                              'size': node_size,
+                                              'position': {'x': randint(0, 255), 'y': randint(0, 255), 'z': randint(0, 255)}}
             except:
                 self.logger.warning(
                     "GexfExporter: problem when inserting node(id, label, size): (" + str(node_id) + "," + str(node_label) + ")")
