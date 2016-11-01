@@ -157,13 +157,16 @@ class SlackChannel2Db(object):
 
     def extract_channel(self, channel):
         own_id = self.querier.get_channel_id(channel)
-        name = self.querier.get_channel_name(channel)
-        description = self.querier.get_channel_description(channel)
-        created_at = self.querier.get_channel_created_at(channel)
+        last_changed_at = self.querier.get_channel_last_changed_at(channel)
 
-        channel_id = self.dao.insert_channel(own_id, self.instant_messaging_id, name, description, created_at, None)
+        if self.dao.get_channel_last_changed_at(own_id, self.instant_messaging_id) != last_changed_at:
+            name = self.querier.get_channel_name(channel)
+            description = self.querier.get_channel_description(channel)
+            created_at = self.querier.get_channel_created_at(channel)
 
-        self.extract_messages(channel_id, own_id)
+            channel_id = self.dao.insert_channel(own_id, self.instant_messaging_id, name, description, created_at, last_changed_at)
+
+            self.extract_messages(channel_id, own_id)
 
     def extract(self):
         try:

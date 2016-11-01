@@ -179,3 +179,36 @@ class SlackDao():
             self.logger.warning("no instant messaging linked to " + str(url))
 
         return found
+
+    def get_channel_last_changed_at(self, own_id, instant_messaging_id):
+        cursor = self.cnx.cursor()
+
+        query = "SELECT last_changed_at FROM channel WHERE own_id = %s AND instant_messaging_id = %s"
+        arguments = [own_id, instant_messaging_id]
+        cursor.execute(query, arguments)
+
+        found = None
+        row = cursor.fetchone()
+        cursor.close()
+        if row:
+            found = row[0]
+
+        return found
+
+    def get_channel_ids(self, instant_messaging_id):
+        channel_ids = []
+
+        cursor = self.cnx.cursor()
+        query = "SELECT id FROM channel WHERE instant_messaging_id = %s"
+        arguments = [instant_messaging_id]
+        cursor.execute(query, arguments)
+
+        row = cursor.fetchone()
+
+        while row:
+            channel_id = row[0]
+            channel_ids.append(channel_id)
+            row = cursor.fetchone()
+
+        cursor.close()
+        return channel_ids

@@ -32,17 +32,35 @@ class Slack2DbUpdate():
         except:
             self.logger.error("Slack2DbUpdate extract failed", exc_info=True)
 
-    def get_channels(self, instant_messaging_id):
-        print "here"
-        #TODO
+    def update_channels(self, instant_messaging_id):
+        channel_ids = self.dao.get_channel_ids(instant_messaging_id)
+
+        if channel_ids:
+            intervals = [i for i in multiprocessing_util.get_tasks_intervals(channel_ids, len(self.tokens)) if len(i) > 0]
+
+            queue_extractors = multiprocessing.JoinableQueue()
+            results = multiprocessing.Queue()
+
+            # Start consumers
+            multiprocessing_util.start_consumers(len(self.tokens), queue_extractors, results)
+
+            for i in range(len(intervals)):
+                channel_extractor = SlackChannel2Db(self.db_name, instant_messaging_id, intervals[i], self.tokens[i], self.config, self.log_path)
+                queue_extractors.put(channel_extractor)
+
+            # Add end-of-queue markers
+            multiprocessing_util.add_poison_pills(len(self.tokens), queue_extractors)
+
+            # Wait for all of the tasks to finish
+            queue_extractors.join()
 
     def update(self):
         try:
             start_time = datetime.now()
             project_id = self.dao.select_project_id(self.project_name)
             instant_messaging_id = self.dao.select_instant_messaging_id(self.instant_messaging_name, project_id)
-            self.get_channels(instant_messaging_id)
-            self.cnx.close()
+            self.update_channels(instant_messaging_id)
+            self.dao.close_connection()
             end_time = datetime.now()
 
             minutes_and_seconds = divmod((end_time-start_time).total_seconds(), 60)

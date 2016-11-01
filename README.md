@@ -64,12 +64,12 @@ g.create_project("NAME-OF-YOUR-DB", "NAME-OF-THE-PROJECT")
 ### import Git data
 ```python
 g.import_git_data("NAME-OF-YOUR-DB", "NAME-OF-THE-PROJECT", "NAME-OF-THE-GIT-REPO", "GIT-REPO-PATH", 
-                  "BEFORE-DATE", "RECOVERY-PROCESS", "LIST-OF-REFERENCES", "NUM-OF-PROCESSES")
+                  "BEFORE-DATE", "IMPORT-TYPE", "LIST-OF-REFERENCES", "NUM-OF-PROCESSES")
                   
 # NAME-OF-YOUR-DB and NAME-OF-THE-PROJECT should point to a DB and project already existing in Gitana 
 # NAME-OF-THE-GIT-REPO, GIT-REPO-PATH cannot be null
 # BEFORE-DATE can be None or "%Y-%m-%d". It allows to import references and commits created before a given date
-# RECOVER-IMPORT can be True or False. It allows to restart the import from the last commit inserted
+# IMPORT-TYPE can be 1, 2 or 3. It allows to define the granularity of the import process. 1 does not import patches, 2 imports patches but not at line level, 3 imports patches with line detail
 # LIST-OF-REFERENCES can be None or ["x1", .., "xn"]. It allows to import the data of a set of repo references (tag or branches)
 # NUM-OF-PROCESSES can be None or a int number. It is the number of parallel processes used to analyse the Git repo. if None, the number of processes is 10
 ```
