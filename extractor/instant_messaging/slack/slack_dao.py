@@ -43,16 +43,16 @@ class SlackDao():
     def get_message_type_id(self, message_type):
         return self.db_util.get_message_type_id(self.cnx, message_type)
 
-    def insert_url_attachment(self, own_id, message_id, name, url):
+    def insert_url_attachment(self, own_id, message_id, name, extension, url):
         cursor = self.cnx.cursor()
         query = "INSERT IGNORE INTO attachment " \
                 "VALUES (%s, %s, %s, %s, %s, %s, %s)"
-        arguments = [None, own_id, message_id, name, None, None, url]
+        arguments = [None, own_id, message_id, name, extension, None, url]
         cursor.execute(query, arguments)
         self.cnx.commit()
         cursor.close()
 
-    def insert_file_attachment(self, own_id, message_id, name, extension, bytes, url):
+    def insert_attachment(self, own_id, message_id, name, extension, bytes, url):
         cursor = self.cnx.cursor()
         query = "INSERT IGNORE INTO attachment " \
                 "VALUES (%s, %s, %s, %s, %s, %s, %s)"
@@ -80,8 +80,8 @@ class SlackDao():
         cursor = self.cnx.cursor()
         query = "SELECT COUNT(*) as count " \
                 "FROM message_dependency " \
-                "WHERE target_message_id = %s"
-        arguments = [message_id]
+                "WHERE target_message_id = %s OR source_message_id = %s"
+        arguments = [message_id, message_id]
         cursor.execute(query, arguments)
 
         row = cursor.fetchone()
@@ -90,7 +90,7 @@ class SlackDao():
         if row:
             found = row[0]
         else:
-            self.logger.warning("no channel found for instant messaging " + str(instant_messaging_id))
+            self.logger.warning("no message dependency found for message id " + str(message_id))
 
         return found
 

@@ -47,7 +47,8 @@ class SlackChannel2Db(object):
         for url in urls:
             attachment_own_id = self.querier.generate_url_attachment_id(message_id, pos)
             attachment_name = self.querier.get_url_attachment_name(url)
-            self.dao.insert_url_attachment(attachment_own_id, message_id, attachment_name, url)
+            attachment_extension = self.querier.get_url_attachment_extension(url)
+            self.dao.insert_url_attachment(attachment_own_id, message_id, attachment_name, attachment_extension, url)
 
         pos += 1
 
@@ -59,17 +60,19 @@ class SlackChannel2Db(object):
         url = self.querier.get_file_attachment_property(file, "permalink")
         bytes = self.querier.get_file_attachment_property(file, "size")
 
-        self.dao.insert_file_attachment(own_id, message_id, name, extension, bytes, url)
+        self.dao.insert_attachment(own_id, message_id, name, extension, bytes, url)
 
     def extract_url_attachments(self, message, message_id):
         urls = self.querier.get_url_attachments(self.querier.get_message_body(message))
         attachments = self.querier.get_message_attachments(message)
 
         for a in attachments:
-            url = a.get('from_url')
-            name = a.get('title')
-            own_id = a.get('id')
-            self.dao.insert_url_attachment(own_id, message_id, name, url)
+            url = self.querier.get_attachment_url(a)
+            name = self.querier.get_attachament_name(a)
+            own_id = self.querier.get_attachment_id(a)
+            extension = self.querier.get_attachment_extension(a)
+            bytes = self.querier.get_attachment_size(a)
+            self.dao.insert_attachment(own_id, message_id, name, extension, bytes, url)
 
             if url in urls:
                 urls.remove(a.get('from_url'))
@@ -89,13 +92,20 @@ class SlackChannel2Db(object):
         return comment_id
 
     def extract_comment(self, message, channel_id):
-        own_id = self.querier.get_message_own_id(message)
-        message_id = self.dao.select_message_id(own_id, channel_id)
-        pos = self.dao.get_comments(message_id)
+        pos = 0
+        message_id = None
 
-        comment = message.get('comment')
+        initial_comment = self.querier.file_attachment_get_comment(message)
+        if initial_comment:
+            own_id = self.querier.get_comment_id(initial_comment)
+            message_id = self.dao.select_message_id(own_id, channel_id)
+            pos = self.dao.get_comments(message_id)
+
+        comment = self.querier.get_comment_message(message)
         comment_id = self.extract_file_comment(channel_id, comment, pos)
-        self.dao.insert_message_dependency(comment_id, message_id)
+
+        if message_id:
+            self.dao.insert_message_dependency(comment_id, message_id)
 
     def extract_message(self, message, channel_id, type, pos):
         own_id = self.querier.get_message_own_id(message)

@@ -95,6 +95,17 @@ class SlackQuerier():
             link = link.rstrip('/')
         return link.split('/')[-1]
 
+    def get_url_attachment_extension(self, link):
+        candidate = link.split('.')[-1]
+
+        found = 'html'
+
+        if not candidate:
+            if re.match('^\w+$', candidate):
+                found = candidate
+
+        return found
+
     def get_message_attachments(self, message):
         attachments = []
         if message.get('attachments'):
@@ -126,8 +137,35 @@ class SlackQuerier():
 
         return text
 
+    def get_comment_message(self, message):
+        return message.get('comment')
+
     def get_comment_id(self, comment):
         return comment.get('id')
+
+    def get_attachment_url(self, attachment):
+        return attachment.get('from_url')
+
+    def get_attachament_name(self, attachment):
+        found = attachment.get('text')
+
+        if not found:
+            found = attachment.get('title')
+
+        if not found:
+            found = attachment.get('fallback')
+
+        return found
+
+    def get_attachment_extension(self, attachment):
+        url = self.get_attachment_url(attachment)
+        return self.get_url_attachment_extension(url)
+
+    def get_attachment_id(self, attachment):
+        return attachment.get('id')
+
+    def get_attachment_size(self, attachment):
+        return attachment.get('image_bytes')
 
     def get_comment_body(self, comment):
         return comment.get('comment')
@@ -139,7 +177,7 @@ class SlackQuerier():
         return comment.get('user')
 
     def get_message_own_id(self, message):
-        return int(message.get('ts').split(".")[0])
+        return message.get('ts')
 
     def get_file_attachment(self, message):
         return message.get('file')
