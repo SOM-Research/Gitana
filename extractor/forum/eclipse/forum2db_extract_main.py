@@ -19,7 +19,7 @@ class EclipseForum2DbMain():
     NUM_PROCESSES = 2
 
     def __init__(self, db_name, project_name,
-                 type, forum_name, url, before_date, recover_import, num_processes,
+                 type, forum_name, url, before_date, num_processes,
                  config, logger):
         self.logger = logger
         self.log_path = self.logger.name.rsplit('.', 1)[0] + "-" + project_name
@@ -29,7 +29,6 @@ class EclipseForum2DbMain():
         self.project_name = project_name
         self.db_name = db_name
         self.before_date = before_date
-        self.recover_import = recover_import
 
         if num_processes:
             self.num_processes = num_processes
@@ -51,18 +50,18 @@ class EclipseForum2DbMain():
         own_id = self.querier.get_topic_own_id(topic)
         title = self.querier.get_topic_title(topic)
         views = self.querier.get_topic_views(topic)
-        last_changed_at = self.date_util.get_timestamp(self.querier.get_last_changed_at(topic), "%a, %d %B %Y %H:%M")
+        last_change_at = self.date_util.get_timestamp(self.querier.get_last_change_at(topic), "%a, %d %B %Y %H:%M")
 
         topic_id = self.dao.select_topic_id(forum_id, own_id)
         if topic_id:
-            self.dao.update_topic_info(topic_id, forum_id, views, last_changed_at)
+            self.dao.update_topic_info(topic_id, forum_id, views, last_change_at)
         else:
             if self.before_date:
                 topic_created_at = self.querier.get_topic_created_at(topic)
                 if self.date_util.get_timestamp(topic_created_at, "%a, %d %B %Y") <= self.date_util.get_timestamp(self.before_date, "%Y-%m-%d"):
-                    self.dao.insert_topic(own_id, forum_id, title, views, last_changed_at)
+                    self.dao.insert_topic(own_id, forum_id, title, views, last_change_at)
             else:
-                self.dao.insert_topic(own_id, forum_id, title, views, last_changed_at)
+                self.dao.insert_topic(own_id, forum_id, title, views, last_change_at)
             topic_id = self.dao.select_topic_id(forum_id, own_id)
 
         return topic_id

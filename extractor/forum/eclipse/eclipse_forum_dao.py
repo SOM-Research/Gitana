@@ -200,22 +200,22 @@ class EclipseForumDao():
         except Exception, e:
             self.logger.warning("topic id " + str(own_id) + " not found for forum id: " + str(forum_id), exc_info=True)
 
-    def insert_topic(self, own_id, forum_id, title, views, last_changed_at):
+    def insert_topic(self, own_id, forum_id, title, views, last_change_at):
         try:
             cursor = self.cnx.cursor()
             query = "INSERT IGNORE INTO topic " \
                     "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
-            arguments = [None, own_id, forum_id, title.lower(), None, views, None, last_changed_at]
+            arguments = [None, own_id, forum_id, title.lower(), None, views, None, last_change_at]
             cursor.execute(query, arguments)
             self.cnx.commit()
             cursor.close()
         except Exception, e:
             self.logger.warning("topic with title " + title.lower() + " not inserted for forum id: " + str(forum_id), exc_info=True)
 
-    def update_topic_info(self, topic_id, forum_id, views, last_changed_at):
+    def update_topic_info(self, topic_id, forum_id, views, last_change_at):
         cursor = self.cnx.cursor()
-        query = "UPDATE topic SET views = %s, last_changed_at = %s WHERE id = %s AND forum_id = %s"
-        arguments = [views, last_changed_at, topic_id, forum_id]
+        query = "UPDATE topic SET views = %s, last_change_at = %s WHERE id = %s AND forum_id = %s"
+        arguments = [views, last_change_at, topic_id, forum_id]
         cursor.execute(query, arguments)
         self.cnx.commit()
         cursor.close()

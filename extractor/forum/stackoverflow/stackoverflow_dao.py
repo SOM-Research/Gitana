@@ -88,12 +88,12 @@ class StackOverflowDao():
         except:
             self.logger.warning("message " + str(own_id) + ") for topic id: " + str(topic_id) + " not inserted", exc_info=True)
 
-    def insert_topic(self, own_id, forum_id, name, votes, views, created_at, last_changed_at):
+    def insert_topic(self, own_id, forum_id, name, votes, views, created_at, last_change_at):
         try:
             cursor = self.cnx.cursor()
             query = "INSERT IGNORE INTO topic " \
                     "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
-            arguments = [None, own_id, forum_id, name, votes, views, created_at, last_changed_at]
+            arguments = [None, own_id, forum_id, name, votes, views, created_at, last_change_at]
             cursor.execute(query, arguments)
             self.cnx.commit()
 
@@ -152,10 +152,10 @@ class StackOverflowDao():
         cursor.close()
         return topic_ids
 
-    def get_topic_last_changed_at(self, own_id, forum_id):
+    def get_topic_last_change_at(self, own_id, forum_id):
         cursor = self.cnx.cursor()
 
-        query = "SELECT last_changed_at FROM topic WHERE own_id = %s AND forum_id = %s"
+        query = "SELECT last_change_at FROM topic WHERE own_id = %s AND forum_id = %s"
         arguments = [own_id, forum_id]
         cursor.execute(query, arguments)
 

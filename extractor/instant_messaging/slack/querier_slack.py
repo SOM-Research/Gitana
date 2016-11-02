@@ -20,13 +20,19 @@ class SlackQuerier():
         self.date_util = DateUtil()
         self.slack = Slacker(self.token)
 
-    def get_channel_ids(self):
-        channel_ids = []
+    def get_channel_ids(self, before_date, channels):
+        selected = []
         for channel in self.slack.channels.list().body['channels']:
-            if self.get_channel_name(channel) == "ericssonmodelingdays":
-                channel_ids.append(self.get_channel_id(channel))
+            if channels:
+                if self.get_channel_name(channel) in channels:
+                    selected.append(channel)
+            else:
+                selected.append(channel)
 
-        return channel_ids
+        if before_date:
+            selected = [c for c in selected if self.date_util.get_timestamp(self.get_channel_created_at(c), "%Y-%m-%d %H:%M:%S") <= self.date_util.get_timestamp(before_date, "%Y-%m-%d")]
+
+        return [self.get_channel_id(c) for c in selected]
 
     def get_channel(self, channel_id):
         found = None
@@ -51,18 +57,19 @@ class SlackQuerier():
         if channel.get('purpose'):
             purpose = channel.get('purpose').get('value').lower()
 
-        if topic:
+        if topic and purpose:
+            description = topic + " - " + purpose
+        elif topic and not purpose:
             description = topic
-
-        if purpose:
-            description = description + " - " + purpose
+        elif not topic and purpose:
+            description = purpose
 
         return description
 
     def get_channel_created_at(self, channel):
         return self.date_util.get_time_fromtimestamp(channel.get('created'), "%Y-%m-%d %H:%M:%S")
 
-    def get_channel_last_changed_at(self, channel):
+    def get_channel_last_change_at(self, channel):
         last_message = self.get_channel_messages(self.get_channel_id(channel))[-1]
         return self.get_message_created_at(last_message)
 
@@ -137,6 +144,10 @@ class SlackQuerier():
 
         return text
 
+    def is_bot_message(self, message):
+        bot_id = message.get('bot_id')
+        return bot_id is not None
+
     def get_comment_message(self, message):
         return message.get('comment')
 
@@ -147,13 +158,13 @@ class SlackQuerier():
         return attachment.get('from_url')
 
     def get_attachament_name(self, attachment):
-        found = attachment.get('text')
-
-        if not found:
-            found = attachment.get('title')
+        found = attachment.get('title')
 
         if not found:
             found = attachment.get('fallback')
+
+        if not found:
+            found = attachment.get('text')
 
         return found
 
@@ -193,8 +204,8 @@ class SlackQuerier():
         return self.date_util.get_time_fromtimestamp(int(message.get('ts').split(".")[0]), "%Y-%m-%d %H:%M:%S")
 
     def get_message_author_name(self, message):
-        info = self.slack.users.info(message.get('user'))
         try:
+            info = self.slack.users.info(message.get('user'))
             found = info.body.get('user').get('name')
         except:
             found = None
@@ -202,8 +213,8 @@ class SlackQuerier():
         return found
 
     def get_message_author_email(self, message):
-        info = self.slack.users.info(message.get('user'))
         try:
+            info = self.slack.users.info(message.get('user'))
             user = info.body.get('user')
             if user.get('profile'):
                 found = user.get('profile').get('email')

@@ -54,7 +54,7 @@ class StackOverflowQuerier():
     def get_container_created_at(self, container):
         return container.creation_date
 
-    def get_topic_last_changed_at(self, question):
+    def get_topic_last_change_at(self, question):
         return question.last_activity_date
 
     def get_container_body(self, container):

@@ -132,11 +132,29 @@ class SlackDao():
 
         return user_id
 
-    def insert_channel(self, own_id, instant_messaging_id, name, description, created_at, last_changed_at):
+    def select_channel_own_id(self, channel_id, instant_messaging_id):
+        cursor = self.cnx.cursor()
+        query = "SELECT own_id " \
+                "FROM channel " \
+                "WHERE id = %s AND instant_messaging_id = %s"
+        arguments = [channel_id, instant_messaging_id]
+        cursor.execute(query, arguments)
+
+        row = cursor.fetchone()
+        cursor.close()
+
+        if row:
+            found = row[0]
+        else:
+            self.logger.warning("no channel found for instant messaging " + str(instant_messaging_id))
+
+        return found
+
+    def insert_channel(self, own_id, instant_messaging_id, name, description, created_at, last_change_at):
         cursor = self.cnx.cursor()
         query = "INSERT IGNORE INTO channel " \
                 "VALUES (%s, %s, %s, %s, %s, %s, %s)"
-        arguments = [None, own_id, instant_messaging_id, name, description, created_at, last_changed_at]
+        arguments = [None, own_id, instant_messaging_id, name, description, created_at, last_change_at]
         cursor.execute(query, arguments)
         self.cnx.commit()
 
@@ -180,10 +198,10 @@ class SlackDao():
 
         return found
 
-    def get_channel_last_changed_at(self, own_id, instant_messaging_id):
+    def get_channel_last_change_at(self, own_id, instant_messaging_id):
         cursor = self.cnx.cursor()
 
-        query = "SELECT last_changed_at FROM channel WHERE own_id = %s AND instant_messaging_id = %s"
+        query = "SELECT last_change_at FROM channel WHERE own_id = %s AND instant_messaging_id = %s"
         arguments = [own_id, instant_messaging_id]
         cursor.execute(query, arguments)
 

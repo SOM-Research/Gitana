@@ -83,17 +83,17 @@ class Gitana():
                                    self.config, self.logger)
         git2db.extract()
 
-    def update_git_data(self, db_name, project_name, repo_name, git_repo_path, before_date, recover_import, import_new_references, processes):
+    def update_git_data(self, db_name, project_name, repo_name, git_repo_path, before_date, processes):
         self.logger.info("updating git data")
         git2db = Git2DbUpdate(db_name, project_name,
-                              repo_name, git_repo_path, before_date, recover_import, import_new_references, processes,
+                              repo_name, git_repo_path, before_date, processes,
                               self.config, self.logger)
         git2db.update()
 
-    def import_bugzilla_tracker_data(self, db_name, project_name, repo_name, issue_tracker_name, url, product, before_date, recover_import, processes):
+    def import_bugzilla_tracker_data(self, db_name, project_name, repo_name, issue_tracker_name, url, product, before_date, processes):
         self.logger.info("importing bugzilla data")
         issue2db = BugzillaIssue2DbMain(db_name, project_name,
-                                repo_name, "bugzilla", issue_tracker_name, url, product, before_date, recover_import, processes,
+                                repo_name, "bugzilla", issue_tracker_name, url, product, before_date, processes,
                                 self.config, self.logger)
         issue2db.extract()
 
@@ -104,10 +104,10 @@ class Gitana():
                                   self.config, self.logger)
         issue2db.update()
 
-    def import_eclipse_forum_data(self, db_name, project_name, forum_name, eclipse_forum_url, before_date, recover_import, processes):
+    def import_eclipse_forum_data(self, db_name, project_name, forum_name, eclipse_forum_url, before_date, processes):
         self.logger.info("importing eclipse forum data")
         forum2db = EclipseForum2DbMain(db_name, project_name,
-                                "eclipse_forum", forum_name, eclipse_forum_url, before_date, recover_import, processes,
+                                "eclipse_forum", forum_name, eclipse_forum_url, before_date, processes,
                                 self.config, self.logger)
         forum2db.extract()
 
@@ -117,10 +117,10 @@ class Gitana():
                                   self.config, self.logger)
         forum2db.update()
 
-    def import_stackoverflow_data(self, db_name, project_name, forum_name, search_query, before_date, recover_import, tokens):
+    def import_stackoverflow_data(self, db_name, project_name, forum_name, search_query, before_date, tokens):
         self.logger.info("importing stackoverflow data")
         stackoverflow2db = StackOverflow2DbMain(db_name, project_name,
-                                                "stackoverflow", forum_name, search_query, before_date, recover_import, tokens,
+                                                "stackoverflow", forum_name, search_query, before_date, tokens,
                                                 self.config, self.logger)
         stackoverflow2db.extract()
 
@@ -130,16 +130,18 @@ class Gitana():
                                                   self.config, self.logger)
         stackoverflow2db.update()
 
-    def import_slack_data(self, db_name, project_name, instant_messaging_name, before_date, recover_import, tokens):
+    def import_slack_data(self, db_name, project_name, instant_messaging_name, before_date, channels, tokens):
         self.logger.info("importing slack data")
         slack2db = Slack2DbMain(db_name, project_name,
-                                "slack", instant_messaging_name, before_date, recover_import, tokens,
+                                "slack", instant_messaging_name, before_date, channels, tokens,
                                 self.config, self.logger)
         slack2db.extract()
 
     def update_slack_data(self, db_name, project_name, instant_messaging_name, tokens):
         self.logger.info("updating slack data")
-        #TODO
+        slack2db = Slack2DbUpdate(db_name, project_name, instant_messaging_name, tokens,
+                                  self.config, self.logger)
+        slack2db.update()
 
     def import_github_tracker_data(self, db_name, project_name, repo_name, github_repo_full_name, before_date, recover_import, tokens):
         #TODO

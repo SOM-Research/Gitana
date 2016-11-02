@@ -50,8 +50,8 @@ class EclipseForum2DbUpdate():
 
                 if topic_in_db:
                     views = self.querier.get_topic_views(topic)
-                    last_changed_at = self.date_util.get_timestamp(self.querier.get_last_changed_at(topic), "%a, %d %B %Y %H:%M")
-                    self.dao.update_topic_info(topic_in_db, forum_id, views, last_changed_at)
+                    last_change_at = self.date_util.get_timestamp(self.querier.get_last_change_at(topic), "%a, %d %B %Y %H:%M")
+                    self.dao.update_topic_info(topic_in_db, forum_id, views, last_change_at)
 
             next_page = self.querier.go_next_page()
 

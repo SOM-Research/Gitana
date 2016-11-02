@@ -16,7 +16,7 @@ from slack_dao import SlackDao
 class Slack2DbMain():
 
     def __init__(self, db_name, project_name,
-                 type, instant_messaging_name, before_date, recover_import, tokens,
+                 type, instant_messaging_name, before_date, channels, tokens,
                  config, logger):
         self.logger = logger
         self.log_path = self.logger.name.rsplit('.', 1)[0] + "-" + project_name
@@ -24,8 +24,8 @@ class Slack2DbMain():
         self.instant_messaging_name = instant_messaging_name
         self.project_name = project_name
         self.db_name = db_name
+        self.channels = channels
         self.before_date = before_date
-        self.recover_import = recover_import
         self.tokens = tokens
 
         config.update({'database': db_name})
@@ -34,8 +34,25 @@ class Slack2DbMain():
         self.querier = SlackQuerier(self.tokens[0], self.logger)
         self.dao = SlackDao(self.config, self.logger)
 
+    def get_channel_ids(self, instant_messaging_id):
+        channel_ids = []
+        channel_own_ids = self.querier.get_channel_ids(self.before_date, self.channels)
+        for own_id in channel_own_ids:
+            channel = self.querier.get_channel(own_id)
+            last_change_at = self.querier.get_channel_last_change_at(channel)
+
+            if self.dao.get_channel_last_change_at(own_id, instant_messaging_id) != last_change_at:
+                name = self.querier.get_channel_name(channel)
+                description = self.querier.get_channel_description(channel)
+                created_at = self.querier.get_channel_created_at(channel)
+
+                channel_id = self.dao.insert_channel(own_id, instant_messaging_id, name, description, created_at, last_change_at)
+                channel_ids.append(channel_id)
+
+        return channel_ids
+
     def get_channels(self, instant_messaging_id):
-        channel_ids = self.querier.get_channel_ids()
+        channel_ids = self.get_channel_ids(instant_messaging_id)
 
         intervals = [i for i in multiprocessing_util.get_tasks_intervals(channel_ids, len(self.tokens)) if len(i) > 0]
 
@@ -68,7 +85,7 @@ class Slack2DbMain():
             end_time = datetime.now()
 
             minutes_and_seconds = divmod((end_time-start_time).total_seconds(), 60)
-            self.logger.info("StackOverflow2Db extract finished after " + str(minutes_and_seconds[0])
+            self.logger.info("Slack2DbMain extract finished after " + str(minutes_and_seconds[0])
                          + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
         except:
             self.logger.error("Slack2Db extract failed", exc_info=True)

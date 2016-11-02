@@ -685,7 +685,7 @@ class DbSchema():
                              "votes int(10), " \
                              "views int(10), " \
                              "created_at timestamp DEFAULT '0000-00-00 00:00:00', " \
-                             "last_changed_at timestamp DEFAULT '0000-00-00 00:00:00', " \
+                             "last_change_at timestamp DEFAULT '0000-00-00 00:00:00', " \
                              "CONSTRAINT name UNIQUE (forum_id, own_id)" \
                              ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 

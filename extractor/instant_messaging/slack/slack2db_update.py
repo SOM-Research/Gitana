@@ -12,6 +12,7 @@ from querier_slack import SlackQuerier
 from slack2db_extract_channel import SlackChannel2Db
 from slack_dao import SlackDao
 
+
 class Slack2DbUpdate():
 
     def __init__(self, db_name, project_name, instant_messaging_name, tokens,
@@ -27,7 +28,7 @@ class Slack2DbUpdate():
         self.config = config
 
         try:
-            self.querier = SlackQuerier(self.url, self.logger)
+            self.querier = SlackQuerier(self.tokens[0], self.logger)
             self.dao = SlackDao(self.config, self.logger)
         except:
             self.logger.error("Slack2DbUpdate extract failed", exc_info=True)

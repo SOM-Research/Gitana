@@ -18,7 +18,7 @@ class Git2DbUpdate():
     NUM_PROCESSES = 10
 
     def __init__(self, db_name, project_name,
-                 repo_name, git_repo_path, before_date, import_last_commit, import_new_references,
+                 repo_name, git_repo_path, before_date,
                  num_processes, config, logger):
         self.logger = logger
         self.log_path = self.logger.name.rsplit('.', 1)[0] + "-" + project_name
@@ -27,8 +27,6 @@ class Git2DbUpdate():
         self.db_name = db_name
         self.repo_name = repo_name
         self.before_date = before_date
-        self.import_last_commit = import_last_commit
-        self.import_new_references = import_new_references
         self.existing_refs = []
 
         if num_processes:
@@ -88,45 +86,9 @@ class Git2DbUpdate():
         # Wait for all of the tasks to finish
         queue_references.join()
 
-    def add_new_references(self, repo_id, import_type):
-        queue_references = multiprocessing.JoinableQueue()
-        results = multiprocessing.Queue()
-
-        # Start consumers
-        multiprocessing_util.start_consumers(self.num_processes, queue_references, results)
-
-        for reference in self.querier.get_references():
-            reference_name = reference[0]
-            if reference_name not in self.existing_refs and reference_name != "origin/HEAD":
-                git_ref_extractor = Git2DbReference(self.db_name, repo_id, self.git_repo_path,
-                                                    self.before_date, import_type, reference[0], "",
-                                                    self.config, self.log_path)
-
-                queue_references.put(git_ref_extractor)
-
-        # Add end-of-queue markers
-        multiprocessing_util.add_poison_pills(self.num_processes, queue_references)
-
-        # Wait for all of the tasks to finish
-        queue_references.join()
-
-    def delete_last_commit_info(self, repo_id):
-        found = self.dao.get_last_commit_id(repo_id)
-        if found:
-            last_commit_id = found
-            self.dao.delete_commit(last_commit_id, repo_id)
-            self.dao.delete_commit_in_reference(last_commit_id, repo_id)
-            self.dao.delete_commit_parent(last_commit_id, repo_id)
-            self.dao.delete_file_related_info(last_commit_id)
-
     def update_repo(self, repo_id, import_type):
-        if self.import_last_commit:
-            self.delete_last_commit_info(repo_id)
-
         self.update_existing_references(repo_id, import_type)
         self.dao.close_connection()
-        if self.import_new_references:
-            self.add_new_references(repo_id, import_type)
 
     def get_import_type(self, repo_id):
         import_type = 1

@@ -92,16 +92,16 @@ class StackOverflowTopic2Db(object):
             pos += 1
 
     def extract_topic(self, topic):
-        last_changed_at = self.querier.get_topic_last_changed_at(topic)
+        last_change_at = self.querier.get_topic_last_change_at(topic)
         own_id = self.querier.get_container_own_id(topic)
 
-        if self.dao.get_topic_last_changed_at(own_id, self.forum_id) != last_changed_at:
+        if self.dao.get_topic_last_change_at(own_id, self.forum_id) != last_change_at:
             name = self.querier.get_topic_name(topic)
             votes = self.querier.get_container_votes(topic)
             views = self.querier.get_topic_views(topic)
             created_at = self.querier.get_container_created_at(topic)
 
-            topic_id = self.dao.insert_topic(own_id, self.forum_id, name, votes, views, created_at, last_changed_at)
+            topic_id = self.dao.insert_topic(own_id, self.forum_id, name, votes, views, created_at, last_change_at)
             author_id = self.dao.get_user_id(self.querier.get_container_author(topic))
 
             self.pos = 0
