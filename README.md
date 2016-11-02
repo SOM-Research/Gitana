@@ -6,6 +6,14 @@ in order to ease browsing and querying activities with standard SQL syntax and t
 To ensure efficiency, an incremental propagation mechanism refreshes the
 database content with the latest project activities.
 
+## Who is behind this project?
+
+* [Valerio Cosentino](http://github.com/valeriocos/ "Valerio Cosentino")
+* [Javier Canovas](http://github.com/jlcanovas/ "Javier Canovas")
+* [Jordi Cabot](http://github.com/jcabot/ "Jordi Cabot")
+
+Valerio, Javier and Jordi are currently members of [SOM](http://som-research.uoc.edu), a research team of IN3-UOC.
+
 ## Technical details
 
 Gitana is developed on Windows 7 and it relies on:
