@@ -9,7 +9,7 @@ sys.path.insert(0, "..//..//..")
 
 from querier_eclipse_forum import EclipseForumQuerier
 from forum2db_extract_topic import EclipseTopic2Db
-from extractor.util import multiprocessing_util
+from util import multiprocessing_util
 from eclipse_forum_dao import EclipseForumDao
 
 

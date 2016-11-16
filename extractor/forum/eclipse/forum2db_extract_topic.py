@@ -10,7 +10,7 @@ import logging.handlers
 sys.path.insert(0, "..//..//..")
 
 from querier_eclipse_forum import EclipseForumQuerier
-from extractor.util.date_util import DateUtil
+from util.date_util import DateUtil
 from eclipse_forum_dao import EclipseForumDao
 
 

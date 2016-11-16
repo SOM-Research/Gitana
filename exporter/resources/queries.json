@@ -1,4 +1,4 @@
-{"metrics":
+{"queries":
 [
  {"name": "users-on-issues",
  "PROJECTID": "1",
@@ -25,5 +25,19 @@
  "EDGECOLOR": "gray",
  "nodes": "SELECT author_id AS id, u.email AS label, COUNT(DISTINCT file_id) AS size, 'NODECOLOR' AS color FROM commit c JOIN file_modification fm ON c.id = fm.commit_id JOIN user u ON u.id = c.author_id JOIN repository r ON r.id = c.repo_id JOIN commit_in_reference cir ON cir.commit_id = c.id WHERE cir.ref_id in (REFERENCES) AND r.id = REPOID AND r.project_id = PROJECTID GROUP BY author_id;",
  "edges": "SELECT source, target, count(*) as weight, 'EDGECOLOR' AS color FROM ( SELECT c1.file_id, c1.author_id AS source, c2.author_id AS target, CONCAT(c1.author_id, '-', c2.author_id) AS pair FROM (SELECT author_id, file_id FROM commit c JOIN file_modification fm ON c.id = fm.commit_id JOIN repository r ON r.id = c.repo_id JOIN commit_in_reference cir ON cir.commit_id = c.id WHERE cir.ref_id in (REFERENCES) AND r.id = REPOID AND r.project_id = PROJECTID) AS c1 JOIN (SELECT author_id, file_id FROM commit c JOIN file_modification fm ON c.id = fm.commit_id JOIN repository r ON r.id = c.repo_id JOIN commit_in_reference cir ON cir.commit_id = c.id WHERE cir.ref_id in (REFERENCES) AND r.id = REPOID AND r.project_id = PROJECTID) AS c2 ON c1.file_id = c2.file_id AND c1.author_id > c2.author_id) AS file_interaction GROUP BY pair;"
+ },
+ {"name": "#commits",
+ "PROJECTID": "1",
+ "REPOID": "1",
+ "AFTERDATE": "2016-09-25",
+ "INTERVAL": "DAY",
+ "query": "SELECT count(*) AS counter, INTERVAL(committed_date) AS span FROM project p JOIN repository r ON p.id = r.project_id JOIN commit c ON c.repo_id = r.id WHERE p.id = PROJECTID AND r.id = REPOID AND c.committed_date > 'AFTERDATE' GROUP BY INTERVAL(committed_date) ORDER BY span;"
+ },
+ {"name": "#repo_users",
+  "PROJECTID": "1",
+  "REPOID": "1",
+  "AFTERDATE": "2016-09-25",
+  "INTERVAL": "DAY",
+  "query": "SELECT count(*) AS counter, INTERVAL(committed_date) AS span FROM ( SELECT u1.id, c.committed_date FROM project p JOIN repository r ON p.id = r.project_id JOIN commit c ON c.repo_id = r.id JOIN user u1 ON u1.id = c.committer_id WHERE p.id = PROJECTID AND r.id = REPOID AND c.committed_date > 'AFTERDATE' UNION SELECT u1.id, c.committed_date FROM project p JOIN repository r ON p.id = r.project_id JOIN commit c ON c.repo_id = r.id JOIN user u1 ON u1.id = c.author_id WHERE p.id = PROJECTID AND r.id = REPOID AND c.committed_date > 'AFTERDATE') AS active_users GROUP BY INTERVAL(committed_date) ORDER BY span;"
  }
  ]}

@@ -6,7 +6,7 @@ from git import *
 import re
 from datetime import datetime
 import string
-from extractor.util.date_util import DateUtil
+from util.date_util import DateUtil
 import time
 
 

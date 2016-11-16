@@ -13,19 +13,20 @@ CONFIG = {
             'buffered': True
         }
 
+
 def main():
     g = Gitana(CONFIG, None)
     g.delete_previous_logs()
-    g.init_db("papyrus_db_test")
-    g.create_project("papyrus_db_test", "papyrus")
+    #g.init_db("papyrus_db_test")
+    #g.create_project("papyrus_db_test", "papyrus")
 
-    g.import_git_data("papyrus_db_test", "papyrus", "papyrus_repo", "C:\\Users\\atlanmod\\Desktop\\org.eclipse.papyrus", None, 1, None, 20)
+    #g.import_git_data("papyrus_db_test", "papyrus", "papyrus_repo", "C:\\Users\\atlanmod\\Desktop\\org.eclipse.papyrus", None, 1, None, 20)
 
-    g.import_bugzilla_tracker_data("papyrus_db_test", "papyrus", "papyrus_xxx", "https://bugs.eclipse.org/bugs/xmlrpc.cgi", "papyrus", None, False, 10)
+    g.import_bugzilla_tracker_data("papyrus_db_test", "papyrus", "papyrus_repo", "bugzilla-papyrus", "https://bugs.eclipse.org/bugs/xmlrpc.cgi", "papyrus", None, 10)
 
-    g.import_eclipse_forum_data("papyrus_db_test", "papyrus", "https://www.eclipse.org/forums/index.php/f/121/", None, False, 4)
+    g.import_eclipse_forum_data("papyrus_db_test", "papyrus", "papyrus-eclipse", "https://www.eclipse.org/forums/index.php/f/121/", None, 4)
 
-    g.import_stackoverflow_data("papyrus_db_test", "papyrus", "papyrus", None, False, ['IFco1Gh5EJ*U)ZY9)16ZKQ(('])
+    g.import_stackoverflow_data("papyrus_db_test", "papyrus", "papyrus-stackoverflow", "papyrus", None, ['IFco1Gh5EJ*U)ZY9)16ZKQ(('])
 
 if __name__ == "__main__":
     main()

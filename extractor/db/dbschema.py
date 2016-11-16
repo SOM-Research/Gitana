@@ -455,7 +455,7 @@ class DbSchema():
                                   "project_id int(20), " \
                                   "name varchar(255), " \
                                   "INDEX n (name), " \
-                                  "CONSTRAINT name UNIQUE (project_id, name)" \
+                                  "CONSTRAINT name UNIQUE (name)" \
                                   ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 
         create_table_reference = "CREATE TABLE reference( " \
@@ -568,7 +568,7 @@ class DbSchema():
                                      "name varchar(512), " \
                                      "url varchar(512), " \
                                      "type varchar(512), " \
-                                     "CONSTRAINT name UNIQUE (repo_id, name)" \
+                                     "CONSTRAINT name UNIQUE (name)" \
                                      ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 
         create_table_issue = "CREATE TABLE issue ( " \
@@ -674,7 +674,7 @@ class DbSchema():
                              "name varchar(512), " \
                              "url varchar(512), " \
                              "type varchar(512), " \
-                             "CONSTRAINT name UNIQUE (project_id, name)" \
+                             "CONSTRAINT name UNIQUE (name)" \
                              ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 
         create_table_topic = "CREATE TABLE topic ( " \
@@ -703,7 +703,7 @@ class DbSchema():
                                          "name varchar(512), " \
                                          "url varchar(512), " \
                                          "type varchar(512), " \
-                                         "CONSTRAINT name UNIQUE (project_id, name)" \
+                                         "CONSTRAINT name UNIQUE (name)" \
                                          ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 
         create_table_channel = "CREATE TABLE channel ( " \

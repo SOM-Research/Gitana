@@ -7,7 +7,7 @@ import multiprocessing
 import sys
 sys.path.insert(0, "..//..//..")
 
-from extractor.util import multiprocessing_util
+from util import multiprocessing_util
 from querier_stackoverflow import StackOverflowQuerier
 from stackoverflow2db_extract_topic import StackOverflowTopic2Db
 from stackoverflow_dao import StackOverflowDao

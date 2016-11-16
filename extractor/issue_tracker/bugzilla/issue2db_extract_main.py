@@ -10,7 +10,7 @@ sys.path.insert(0, "..//..//..")
 from issue2db_extract_issue import BugzillaIssue2Db
 from issue2db_extract_issue_dependency import BugzillaIssueDependency2Db
 from querier_bugzilla import BugzillaQuerier
-from extractor.util import multiprocessing_util
+from util import multiprocessing_util
 from bugzilla_dao import BugzillaDao
 
 

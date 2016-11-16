@@ -8,6 +8,7 @@ sys.path.insert(0, "..//..")
 import multiprocessing
 import os
 
+
 def start_consumers(processes, task_queue, result_queue):
     num_consumers = processes
     consumers = [Consumer(task_queue, result_queue) for i in xrange(num_consumers)]

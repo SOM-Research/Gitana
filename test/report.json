@@ -1,0 +1,7 @@
+{"report":
+    {"project": "papyrus",
+     "time_span": "this_year",
+     "repo_activity": {"names": ["papyrus_repo"],
+                       "measures": ["#commits", "#repo_users"]}
+     }
+}

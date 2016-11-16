@@ -7,7 +7,7 @@ import multiprocessing
 import sys
 sys.path.insert(0, "..//..//..")
 
-from extractor.util import multiprocessing_util
+from util import multiprocessing_util
 from querier_slack import SlackQuerier
 from slack2db_extract_channel import SlackChannel2Db
 from slack_dao import SlackDao

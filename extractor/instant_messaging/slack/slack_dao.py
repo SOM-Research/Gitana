@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 __author__ = 'valerio cosentino'
 
-from extractor.util.db_util import DbUtil
+from util.db_util import DbUtil
 
 
 class SlackDao():

@@ -13,7 +13,7 @@ import logging.handlers
 sys.path.insert(0, "..//..//..")
 
 from querier_bugzilla import BugzillaQuerier
-from extractor.util.date_util import DateUtil
+from util.date_util import DateUtil
 from bugzilla_dao import BugzillaDao
 
 

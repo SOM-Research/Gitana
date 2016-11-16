@@ -3,7 +3,7 @@
 __author__ = 'valerio cosentino'
 
 import bugzilla
-from extractor.util.date_util import DateUtil
+from util.date_util import DateUtil
 
 
 class BugzillaQuerier():

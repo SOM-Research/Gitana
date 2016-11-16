@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 __author__ = 'valerio cosentino'
 
-from extractor.util.db_util import DbUtil
+from util.db_util import DbUtil
 
 
 class GitDao():
@@ -105,8 +105,8 @@ class GitDao():
 
         return found
 
-    def select_repo_id(self, project_id, repo_name):
-        return self.db_util.select_repo_id(self.cnx, project_id, repo_name, self.logger)
+    def select_repo_id(self, repo_name):
+        return self.db_util.select_repo_id(self.cnx, repo_name, self.logger)
 
     def insert_repo(self, project_id, repo_name):
         return self.db_util.insert_repo(self.cnx, project_id, repo_name, self.logger)
