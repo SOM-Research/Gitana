@@ -39,7 +39,7 @@ class BugzillaIssueDependency2Db(object):
 
         try:
             self.querier = BugzillaQuerier(self.url, self.product, self.logger)
-            self.dao = BugzillaDao(self.config, self.url)
+            self.dao = BugzillaDao(self.config, self.logger)
             self.extract()
         except Exception, e:
             self.logger.error("Issue2Db failed", exc_info=True)

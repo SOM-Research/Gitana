@@ -97,7 +97,7 @@ class BugzillaIssue2DbMain():
     def split_issue_extraction(self):
         project_id = self.dao.select_project_id(self.project_name)
         repo_id = self.dao.select_repo_id(project_id, self.repo_name)
-        issue_tracker_id = self.dao.insert_issue_tracker(repo_id, self.issue_tracker_name, self.url, self.type)
+        issue_tracker_id = self.dao.insert_issue_tracker(repo_id, self.issue_tracker_name, self.type)
         self.insert_issue_data(repo_id, issue_tracker_id)
 
         self.dao.restart_connection()

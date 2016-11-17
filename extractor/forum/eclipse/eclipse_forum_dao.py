@@ -135,32 +135,14 @@ class EclipseForumDao():
 
         return found
 
-    def select_forum_url(self, forum_name, project_id):
-        cursor = self.cnx.cursor()
-        query = "SELECT url " \
-                "FROM forum " \
-                "WHERE name = %s AND project_id = %s"
-        arguments = [forum_name, project_id]
-        cursor.execute(query, arguments)
-
-        row = cursor.fetchone()
-        cursor.close()
-
-        if row:
-            found = row[0]
-        else:
-            self.logger.warning("no forum with this name " + str(forum_name))
-
-        return found
-
     def select_project_id(self, project_name):
         return self.db_util.select_project_id(self.cnx, project_name, self.logger)
 
-    def insert_forum(self, project_id, forum_name, url, type):
+    def insert_forum(self, project_id, forum_name, type):
         cursor = self.cnx.cursor()
         query = "INSERT IGNORE INTO forum " \
-                "VALUES (%s, %s, %s, %s, %s)"
-        arguments = [None, project_id, forum_name, url, type]
+                "VALUES (%s, %s, %s, %s)"
+        arguments = [None, project_id, forum_name, type]
         cursor.execute(query, arguments)
         self.cnx.commit()
 

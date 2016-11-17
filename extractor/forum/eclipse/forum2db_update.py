@@ -17,11 +17,12 @@ class EclipseForum2DbUpdate():
 
     NUM_PROCESSES = 2
 
-    def __init__(self, db_name, project_name, forum_name, num_processes,
+    def __init__(self, db_name, project_name, forum_name, eclipse_forum_url, num_processes,
                  config, logger):
         self.logger = logger
         self.log_path = self.logger.name.rsplit('.', 1)[0] + "-" + project_name
         self.project_name = project_name
+        self.url = eclipse_forum_url
         self.db_name = db_name
         self.forum_name = forum_name
 
@@ -84,8 +85,7 @@ class EclipseForum2DbUpdate():
             start_time = datetime.now()
             project_id = self.dao.select_project_id(self.project_name)
             forum_id = self.dao.select_forum_id(self.forum_name, project_id)
-            url = self.dao.select_forum_url(self.forum_name, project_id)
-            self.querier = EclipseForumQuerier(url, self.logger)
+            self.querier = EclipseForumQuerier(self.url, self.logger)
             self.get_topics(forum_id)
             self.cnx.close()
             end_time = datetime.now()

@@ -78,7 +78,7 @@ class Slack2DbMain():
         try:
             start_time = datetime.now()
             project_id = self.dao.select_project_id(self.project_name)
-            instant_messaging_id = self.dao.insert_instant_messaging(project_id, self.instant_messaging_name, None, self.type)
+            instant_messaging_id = self.dao.insert_instant_messaging(project_id, self.instant_messaging_name, self.type)
             self.get_channels(instant_messaging_id)
             self.dao.close_connection()
 

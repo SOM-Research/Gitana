@@ -97,10 +97,10 @@ class Gitana():
                                 self.config, self.logger)
         issue2db.extract()
 
-    def update_bugzilla_tracker_data(self, db_name, project_name, repo_name, issue_tracker_name, product, processes):
+    def update_bugzilla_tracker_data(self, db_name, project_name, repo_name, issue_tracker_name, url, product, processes):
         self.logger.info("updating bugzilla data")
         issue2db = BugzillaIssue2DbUpdate(db_name, project_name,
-                                  repo_name, issue_tracker_name, product, processes,
+                                  repo_name, issue_tracker_name, url, product, processes,
                                   self.config, self.logger)
         issue2db.update()
 
@@ -111,9 +111,9 @@ class Gitana():
                                 self.config, self.logger)
         forum2db.extract()
 
-    def update_eclipse_forum_data(self, db_name, project_name, forum_name, processes):
+    def update_eclipse_forum_data(self, db_name, project_name, forum_name, eclipse_forum_url, processes):
         self.logger.info("importing eclipse forum data")
-        forum2db = EclipseForum2DbUpdate(db_name, project_name, forum_name, processes,
+        forum2db = EclipseForum2DbUpdate(db_name, project_name, forum_name, eclipse_forum_url, processes,
                                   self.config, self.logger)
         forum2db.update()
 
@@ -124,9 +124,9 @@ class Gitana():
                                                 self.config, self.logger)
         stackoverflow2db.extract()
 
-    def update_stackoverflow_data(self, db_name, project_name, forum_name, tokens):
+    def update_stackoverflow_data(self, db_name, project_name, forum_name, search_query, tokens):
         self.logger.info("updating stackoverflow data")
-        stackoverflow2db = StackOverflow2DbUpdate(db_name, project_name, forum_name, tokens,
+        stackoverflow2db = StackOverflow2DbUpdate(db_name, project_name, forum_name, search_query, tokens,
                                                   self.config, self.logger)
         stackoverflow2db.update()
 

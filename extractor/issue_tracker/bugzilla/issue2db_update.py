@@ -19,12 +19,13 @@ class BugzillaIssue2DbUpdate():
     NUM_PROCESSES = 5
 
     def __init__(self, db_name, project_name,
-                 repo_name, issue_tracker_name, product, num_processes,
+                 repo_name, issue_tracker_name, url, product, num_processes,
                  config, logger):
 
         self.logger = logger
         self.log_path = self.logger.name.rsplit('.', 1)[0] + "-" + project_name
         self.issue_tracker_name = issue_tracker_name
+        self.url = url
         self.product = product
         self.project_name = project_name
         self.db_name = db_name
@@ -85,7 +86,7 @@ class BugzillaIssue2DbUpdate():
         project_id = self.dao.select_project_id(self.project_name)
         repo_id = self.dao.select_repo_id(project_id, self.repo_name)
         issue_tracker_id = self.dao.select_issue_tracker_id(repo_id, self.issue_tracker_name)
-        issue_tracker_url = self.dao.select_issue_tracker_url(repo_id, self.issue_tracker_name)
+        issue_tracker_url = self.url
 
         cursor = self.dao.get_cursor()
         query = "SELECT i.own_id FROM issue i " \

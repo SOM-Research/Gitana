@@ -566,7 +566,6 @@ class DbSchema():
                                      "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
                                      "repo_id int(20), " \
                                      "name varchar(512), " \
-                                     "url varchar(512), " \
                                      "type varchar(512), " \
                                      "CONSTRAINT name UNIQUE (name)" \
                                      ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
@@ -672,7 +671,6 @@ class DbSchema():
                              "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
                              "project_id int(20), " \
                              "name varchar(512), " \
-                             "url varchar(512), " \
                              "type varchar(512), " \
                              "CONSTRAINT name UNIQUE (name)" \
                              ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
@@ -701,7 +699,6 @@ class DbSchema():
                                          "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
                                          "project_id int(20), " \
                                          "name varchar(512), " \
-                                         "url varchar(512), " \
                                          "type varchar(512), " \
                                          "CONSTRAINT name UNIQUE (name)" \
                                          ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
