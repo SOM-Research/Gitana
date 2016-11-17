@@ -2,6 +2,10 @@
     {"project": "papyrus",
      "time_span": "this_year",
      "repo_activity": {"names": ["papyrus_repo"],
-                       "measures": ["#commits", "#repo_users"]}
+                       "measures": ["#commits", "#repo_users"]},
+     "issue_tracker_activity": {"names": ["bugzilla-papyrus"],
+                                "measures": ["#issues_open", "#issues_closed", "#issue_tracker_users"]},
+     "forum_activity": {"names": ["papyrus-eclipse", "papyrus-stackoverflow"],
+                        "measures": ["#new_topics", "#active_topics", "#messages", "#forum_users"]}
      }
 }

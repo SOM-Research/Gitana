@@ -2,9 +2,7 @@
 # -*- coding: utf-8 -*-
 __author__ = 'valerio cosentino'
 
-import networkx as nx
-import mysql.connector
-from mysql.connector import errorcode
+import codecs
 import logging
 import logging.handlers
 import os
@@ -151,24 +149,28 @@ class ReportExporter():
     def get_activity_type(self, activity):
         return activity.replace("_activity", "").replace("_", "")
 
-    def generate_charts(self, activity, activity_data, project_id, after_date, interval):
-        charts = []
+    def generate_charts(self, activity, activity_data, project_id, time_span):
+        entity2charts = {}
+        after_date, interval = self.calculate_time_information(time_span)
         activity_type = self.get_activity_type(activity)
         names = activity_data.get('names')
         measures = activity_data.get('measures')
 
         for entity_name in names:
             entity_id = self.dsl_util.find_entity_id(self.cnx, activity_type, entity_name, self.logger)
+            charts = []
             for measure in measures:
                 query = self.load_query_json(measure, {activity_type: entity_id, 'project': project_id, 'afterdate': after_date, 'interval': interval})
-                charts.append(self.chart_generator.create(query, interval, measure))
+                charts.append(self.chart_generator.create(query, interval.lower(), measure, time_span))
 
-        return charts
+            entity2charts.update({entity_name: charts})
+
+        return entity2charts
 
     def calculate_time_information(self, time_span):
         start = None
         interval = None
-        current_time = datetime.now()
+        current_time = datetime.now() #test datetime.strptime("2015-10-10", "%Y-%m-%d")
         if time_span == "this_week":
             start = self.date_util.get_start_time_span(current_time, "week", "%Y-%m-%d")
             interval = "DAY"
@@ -192,19 +194,17 @@ class ReportExporter():
         project_id = self.dsl_util.find_entity_id(self.cnx, "project", project_name, self.logger)
 
         time_span = exporter_data.get('time_span')
-        after_date, interval = self.calculate_time_information(time_span)
 
         activity2charts = {}
         for activity in [attr for attr in exporter_data.keys() if attr.endswith('activity')]:
             activity_name = self.get_activity_name(activity)
-            charts = self.generate_charts(activity, exporter_data.get(activity), project_id, after_date, interval)
+            charts = self.generate_charts(activity, exporter_data.get(activity), project_id, time_span)
             activity2charts.update({activity_name: charts})
 
         html_page = self.html_generator.create(project_name, activity2charts)
 
-        f = open(file_path,'w')
-        f.write(html_page)
-        f.close()
+        with codecs.open(file_path,'w',encoding='utf8') as f:
+            f.write(html_page)
 
         self.db_util.close_connection(self.cnx)
         end_time = datetime.now()

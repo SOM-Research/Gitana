@@ -18,11 +18,11 @@ def test_1():
     #test simple
     g = Gitana(CONFIG, None)
     g.delete_previous_logs()
-    g.init_db("papyrus_db_test")
+    #g.init_db("papyrus_db_test")
 
-    g.create_project("papyrus_db_test", "papyrus")
+    #g.create_project("papyrus_db_test", "papyrus")
 
-    g.import_stackoverflow_data("papyrus_db_test", "papyrus", "papyrus-so", "papyrus", None, False, ['IFco1Gh5EJ*U)ZY9)16ZKQ(('])
+    g.import_stackoverflow_data("papyrus_db_test", "papyrus", "papyrus-stackoverflow", "papyrus", None, ['IFco1Gh5EJ*U)ZY9)16ZKQ(('])
 
 
 def test_2():
@@ -36,8 +36,8 @@ def test_2():
 def main():
     print "starting 1.."
     test_1()
-    print "starting 2.."
-    test_2()
+    #print "starting 2.."
+    #test_2()
 
 
 if __name__ == "__main__":

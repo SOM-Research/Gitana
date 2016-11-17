@@ -7,8 +7,8 @@ import re
 from slacker import Slacker
 sys.path.insert(0, "..//..//..")
 
-from extractor.util.token_util import TokenUtil
-from extractor.util.date_util import DateUtil
+from util.token_util import TokenUtil
+from util.date_util import DateUtil
 
 
 class SlackQuerier():

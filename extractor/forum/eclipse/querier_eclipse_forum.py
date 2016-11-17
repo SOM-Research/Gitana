@@ -9,7 +9,7 @@ import sys
 sys.path.insert(0, "..//..//..")
 
 from selenium import webdriver
-import extractor.util as util
+import util
 WEB_DRIVER_PATH = os.path.dirname(util.__file__) + "\selenium_driver\phantomjs.exe"
 
 

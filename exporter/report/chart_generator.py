@@ -1,6 +1,9 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 __author__ = 'valerio cosentino'
 
 import pygal
+from pygal.style import LightColorizedStyle
 from util.date_util import DateUtil
 
 
@@ -29,14 +32,22 @@ class ChartGenerator():
 
         return results_x, results_y
 
-    def create(self, query, x_label, y_label):
+    def create(self, query, x_label, y_label, time_dimension):
         intervals, counters = self.get_db_data(query)
 
-        months = [self.date_util.get_month_from_int(i) for i in intervals]
+        if "year" in time_dimension:
+            span = [self.date_util.get_month_from_int(i) for i in intervals]
+        elif "month" in time_dimension:
+            span = intervals
+        elif "week" in time_dimension:
+            span = [self.date_util.get_weekday_from_int(i-1) for i in intervals if i <= 7]
 
-        line_chart = pygal.Bar()
+        if '_' in y_label:
+            y_label = y_label.replace('_', ' ')
+
+        line_chart = pygal.Bar(style=LightColorizedStyle)
         line_chart.title = y_label + " * " + x_label
-        line_chart.x_labels = months
+        line_chart.x_labels = span
         line_chart.add(y_label, counters)
         chart = line_chart.render()
 

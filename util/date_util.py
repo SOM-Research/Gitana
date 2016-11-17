@@ -11,6 +11,9 @@ class DateUtil():
     def get_month_from_int(self, month_int):
         return calendar.month_name[month_int]
 
+    def get_weekday_from_int(self, day_int):
+        return calendar.day_name[day_int]
+
     def get_start_time_span(self, reference_time, time_unit, format):
         start_time = None
         if time_unit == "week":
