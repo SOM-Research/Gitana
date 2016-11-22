@@ -15,6 +15,8 @@ from extractor.cvs.git.git2db_extract_main import Git2DbMain
 from extractor.cvs.git.git2db_update import Git2DbUpdate
 from extractor.issue_tracker.bugzilla.issue2db_extract_main import BugzillaIssue2DbMain
 from extractor.issue_tracker.bugzilla.issue2db_update import BugzillaIssue2DbUpdate
+from extractor.issue_tracker.github.issue2db_extract_main import GitHubIssue2DbMain
+from extractor.issue_tracker.github.issue2db_update import GitHubIssue2DbUpdate
 from extractor.forum.eclipse.forum2db_extract_main import EclipseForum2DbMain
 from extractor.forum.eclipse.forum2db_update import EclipseForum2DbUpdate
 from extractor.forum.stackoverflow.stackoverflow2db_extract_main import StackOverflow2DbMain
@@ -143,10 +145,14 @@ class Gitana():
                                   self.config, self.logger)
         slack2db.update()
 
-    def import_github_tracker_data(self, db_name, project_name, repo_name, github_repo_full_name, before_date, recover_import, tokens):
-        #TODO
-        print "here"
+    def import_github_tracker_data(self, db_name, project_name, repo_name, issue_tracker_name, github_repo_full_name, before_date, tokens):
+        self.logger.info("importing github issue tracker data")
+        github2db = GitHubIssue2DbMain(db_name, project_name, repo_name, "github", issue_tracker_name, github_repo_full_name, before_date, tokens,
+                                       self.config, self.logger)
+        github2db.extract()
 
-    def update_github_tracker_data(self, db_name, project_name, repo_name, github_repo_full_name, tokens):
-        #TODO
-        print "here"
+    def update_github_tracker_data(self, db_name, project_name, repo_name, issue_tracker_name, github_repo_full_name, tokens):
+        self.logger.info("updating github issue tracker data")
+        github2db = Git2DbUpdate(db_name, project_name, repo_name, issue_tracker_name, github_repo_full_name, tokens,
+                                self.config, self.logger)
+        github2db.update()
