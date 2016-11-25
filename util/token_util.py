@@ -7,9 +7,28 @@ import time
 
 class TokenUtil():
 
+    def get_requests_left(self, token):
+        try:
+            left = token.requests_left
+        except:
+            left = None
+
+        if not left:
+            try:
+                left = token.rate_limiting[0]
+            except:
+                left = None
+
+        if left:
+            check = left > 0
+        else:
+            check = False
+
+        return check
+
     def is_usuable(self, token):
         try:
-            check = token.requests_left > 0
+            check = self.get_requests_left(token)
         except:
             check = True
 

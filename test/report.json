@@ -6,6 +6,6 @@
      "issue_tracker_activity": {"names": ["bugzilla-papyrus"],
                                 "measures": ["#issues-open", "#issues-closed", "#issue-tracker-users"]},
      "forum_activity": {"names": ["papyrus-eclipse", "papyrus-stackoverflow"],
-                        "measures": ["#new-topics", "#active-topics", "#messages", "#forum-users"]}
+                        "measures": ["#messages", "#forum-users", "#new-topics", "#active-topics"]}
      }
 }

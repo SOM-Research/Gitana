@@ -25,6 +25,9 @@ def get_tasks_intervals(elements, num_processes):
     elements.sort()
     chunk_size = len(elements)/num_processes
 
+    if len(elements) % num_processes != 0:
+        chunk_size += 1
+
     if chunk_size == 0:
         chunks = [elements]
     else:

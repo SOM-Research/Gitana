@@ -47,6 +47,30 @@ class DbUtil():
         cnx.commit()
         cursor.close()
 
+    def insert_issue_tracker(self, cnx, repo_id, issue_tracker_name, type, logger):
+        cursor = cnx.cursor()
+        query = "INSERT IGNORE INTO issue_tracker " \
+                "VALUES (%s, %s, %s, %s)"
+        arguments = [None, repo_id, issue_tracker_name, type]
+        cursor.execute(query, arguments)
+        cnx.commit()
+
+        query = "SELECT id " \
+                "FROM issue_tracker " \
+                "WHERE name = %s"
+        arguments = [issue_tracker_name]
+        cursor.execute(query, arguments)
+
+        row = cursor.fetchone()
+        cursor.close()
+
+        if row:
+            found = row[0]
+        else:
+            logger.warning("no issue with name " + str(issue_tracker_name))
+
+        return found
+
     def select_repo_id(self, cnx, repo_name, logger):
         found = None
         cursor = cnx.cursor()

@@ -51,7 +51,7 @@ class BugzillaIssue2DbMain():
 
     def insert_issue_data(self, repo_id, issue_tracker_id):
         imported = self.dao.get_already_imported_issue_ids(issue_tracker_id, repo_id)
-        issues = list(set(self.querier.get_issue_ids(None, None, self.before_date)) - set(imported))
+        issues = list(set(self.querier.get_issue_ids(self.before_date)) - set(imported))
         issues.sort()
 
         intervals = [i for i in multiprocessing_util.get_tasks_intervals(issues, self.num_processes) if len(i) > 0]

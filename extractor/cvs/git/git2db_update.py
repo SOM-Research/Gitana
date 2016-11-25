@@ -18,11 +18,12 @@ class Git2DbUpdate():
     NUM_PROCESSES = 10
 
     def __init__(self, db_name, project_name,
-                 repo_name, git_repo_path, before_date,
+                 repo_name, issue_tracker_name, git_repo_path, before_date,
                  num_processes, config, logger):
         self.logger = logger
         self.log_path = self.logger.name.rsplit('.', 1)[0] + "-" + project_name
         self.git_repo_path = git_repo_path
+        self.issue_tracker_name = issue_tracker_name
         self.project_name = project_name
         self.db_name = db_name
         self.repo_name = repo_name

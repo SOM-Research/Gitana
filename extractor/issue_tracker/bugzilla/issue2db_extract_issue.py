@@ -179,10 +179,10 @@ class BugzillaIssue2Db(object):
         hardware = self.querier.get_issue_operating_system(issue)
         priority = self.querier.get_issue_priority(issue)
         severity = self.querier.get_issue_severity(issue)
-        created_at = self.date_util.get_timestamp(self.querier.get_issue_creation_time(issue), '%Y%m%dT%H:%M:%S')
-        last_change_at = self.date_util.get_timestamp(self.querier.issue_last_change_time(issue), '%Y%m%dT%H:%M:%S')
+        created_at = self.querier.get_issue_creation_time(issue)
+        last_change_at = self.querier.get_issue_last_change_time(issue)
 
-        reference_id = self.dao.find_reference_id(self.querier.get_issue_version(issue), issue_own_id, self.repo_id)
+        reference_id = self.dao.find_reference_id(version, issue_own_id, self.repo_id)
 
         issue_creator_email = self.querier.get_issue_creator(issue)
         user_id = self.dao.get_user_id(self.querier.get_user_name(issue_creator_email), issue_creator_email)

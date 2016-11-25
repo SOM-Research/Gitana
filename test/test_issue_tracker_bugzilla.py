@@ -34,14 +34,14 @@ def test_3(g):
 def main():
     g = Gitana(CONFIG, None)
     g.delete_previous_logs()
-    #g.init_db("papyrus_db_test")
-    #g.create_project("papyrus_db_test", "papyrus")
+    g.init_db("papyrus_db_test")
+    g.create_project("papyrus_db_test", "papyrus")
     #g.import_git_data("papyrus_db_test", "papyrus", "papyrus_repo", "C:\\Users\\atlanmod\\Desktop\\org.eclipse.papyrus", None, 1, REFERENCES, 20)
 
     #print "starting 1.."
     #test_1(g)
-    print "starting 2.."
-    test_2(g)
+    #print "starting 2.."
+    #test_2(g)
     print "starting 3.."
     test_3(g)
 
