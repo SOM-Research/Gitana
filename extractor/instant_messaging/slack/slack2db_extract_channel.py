@@ -23,6 +23,7 @@ class SlackChannel2Db(object):
         self.db_name = db_name
         self.instant_messaging_id = instant_messaging_id
         self.token = token
+        self.fileHandler = None
         config.update({'database': db_name})
         self.config = config
         self.logging_util = LoggingUtil()

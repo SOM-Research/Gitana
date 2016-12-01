@@ -25,6 +25,7 @@ class EclipseTopic2Db(object):
         self.interval = interval
         self.db_name = db_name
         self.forum_id = forum_id
+        self.fileHandler = None
         config.update({'database': db_name})
         self.config = config
         self.logging_util = LoggingUtil()

@@ -61,7 +61,7 @@ class StackOverflow2DbMain():
         try:
             start_time = datetime.now()
             project_id = self.dao.select_project_id(self.project_name)
-            forum_id = self.dao.insert_forum(project_id, self.forum_name, None, self.type)
+            forum_id = self.dao.insert_forum(project_id, self.forum_name, self.type)
             self.get_topics(forum_id)
             self.dao.close_connection()
 

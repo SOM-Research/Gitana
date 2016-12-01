@@ -30,6 +30,7 @@ class BugzillaIssue2Db(object):
         self.repo_id = repo_id
         self.issue_tracker_id = issue_tracker_id
         self.interval = interval
+        self.fileHandler = None
         config.update({'database': db_name})
         self.config = config
         self.logging_util = LoggingUtil()

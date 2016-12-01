@@ -23,6 +23,7 @@ class StackOverflowTopic2Db(object):
         self.db_name = db_name
         self.forum_id = forum_id
         self.token = token
+        self.fileHandler = None
         config.update({'database': db_name})
         self.config = config
         self.logging_util = LoggingUtil()

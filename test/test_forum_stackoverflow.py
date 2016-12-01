@@ -18,11 +18,9 @@ def test_1():
     #test simple
     g = Gitana(CONFIG, None)
     g.delete_previous_logs()
-    #g.init_db("papyrus_db_test")
-
-    #g.create_project("papyrus_db_test", "papyrus")
-
-    g.import_stackoverflow_data("papyrus_db_test", "papyrus", "papyrus-stackoverflow", "papyrus", None, ['IFco1Gh5EJ*U)ZY9)16ZKQ(('])
+    g.init_db("papyrus_db_test")
+    g.create_project("papyrus_db_test", "papyrus")
+    g.import_stackoverflow_data("papyrus_db_test", "papyrus", "papyrus-stackoverflow", "papyrus", None, ['IFco1Gh5EJ*U)ZY5)16ZKQ(('])
 
 
 def test_2():
@@ -30,7 +28,7 @@ def test_2():
     g = Gitana(CONFIG, None)
     g.delete_previous_logs()
 
-    g.update_stackoverflow_data("papyrus_db_test", "papyrus", "papyrus-forum", ['IFco1Gh5EJ*U)ZY9)16ZKQ(('])
+    g.update_stackoverflow_data("papyrus_db_test", "papyrus", "papyrus-forum", ['IFco1Gh5EJ*U)ZY5)16ZKQ(('])
 
 
 def main():
