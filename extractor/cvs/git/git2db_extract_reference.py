@@ -11,6 +11,7 @@ sys.path.insert(0, "..//..")
 
 from querier_git import GitQuerier
 from git_dao import GitDao
+from util.logging_util import LoggingUtil
 
 #do not import patches
 LIGHT_IMPORT_TYPE = 1
@@ -33,19 +34,15 @@ class Git2DbReference(object):
         self.before_date = before_date
         self.import_type = import_type
         self.from_sha = from_sha
-
+        self.fileHandler = None
         config.update({'database': db_name})
         self.config = config
+        self.logging_util = LoggingUtil()
 
     def __call__(self):
-        LOG_FILENAME = self.log_path + "-git2db"
-        self.logger = logging.getLogger(LOG_FILENAME)
-        fileHandler = logging.FileHandler(LOG_FILENAME + "-" + self.make_it_printable(self.ref_name) + ".log", mode='w')
-        formatter = logging.Formatter("%(asctime)s:%(levelname)s:%(message)s", "%Y-%m-%d %H:%M:%S")
-
-        fileHandler.setFormatter(formatter)
-        self.logger.setLevel(logging.INFO)
-        self.logger.addHandler(fileHandler)
+        log_filename = self.log_path + "-git2db-" + self.make_it_printable(self.ref_name)
+        self.logger = self.logging_util.get_logger(log_filename)
+        self.fileHandler = self.logging_util.get_file_handler(self.logger, log_filename, "info")
 
         try:
             self.querier = GitQuerier(self.git_repo_path, self.logger)
@@ -241,9 +238,9 @@ class Git2DbReference(object):
             self.get_info_contribution_in_reference(self.ref_name, self.repo_id, self.from_sha)
             end_time = datetime.now()
             self.dao.close_connection()
-
             minutes_and_seconds = divmod((end_time-start_time).total_seconds(), 60)
             self.logger.info("Git2DbReference finished after " + str(minutes_and_seconds[0])
                          + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
+            self.logging_util.remove_file_handler_logger(self.logger, self.fileHandler)
         except Exception, e:
             self.logger.error("Git2DbReference failed", exc_info=True)

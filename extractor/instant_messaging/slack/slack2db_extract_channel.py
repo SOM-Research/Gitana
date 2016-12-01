@@ -11,6 +11,7 @@ sys.path.insert(0, "..//..//..")
 
 from querier_slack import SlackQuerier
 from slack_dao import SlackDao
+from util.logging_util import LoggingUtil
 
 
 class SlackChannel2Db(object):
@@ -24,16 +25,12 @@ class SlackChannel2Db(object):
         self.token = token
         config.update({'database': db_name})
         self.config = config
+        self.logging_util = LoggingUtil()
 
     def __call__(self):
-        LOG_FILENAME = self.log_path + "-channel2db"
-        self.logger = logging.getLogger(LOG_FILENAME)
-        fileHandler = logging.FileHandler(LOG_FILENAME + "-" + str(self.interval[0]) + "-" + str(self.interval[-1]) + ".log", mode='w')
-        formatter = logging.Formatter("%(asctime)s:%(levelname)s:%(message)s", "%Y-%m-%d %H:%M:%S")
-
-        fileHandler.setFormatter(formatter)
-        self.logger.setLevel(logging.INFO)
-        self.logger.addHandler(fileHandler)
+        log_filename = self.log_path + "-channel2db-" + str(self.interval[0]) + "-" + str(self.interval[-1])
+        self.logger = self.logging_util.get_logger(log_filename)
+        self.fileHandler = self.logging_util.get_file_handler(self.logger, log_filename, "info")
 
         try:
             self.querier = SlackQuerier(self.token, self.logger)
@@ -170,5 +167,6 @@ class SlackChannel2Db(object):
             minutes_and_seconds = divmod((end_time-start_time).total_seconds(), 60)
             self.logger.info("SlackChannel2Db finished after " + str(minutes_and_seconds[0])
                            + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
+            self.logging_util.remove_file_handler_logger(self.logger, self.fileHandler)
         except Exception, e:
             self.logger.error("SlackChannel2Db failed", exc_info=True)
