@@ -4,8 +4,6 @@ __author__ = 'valerio cosentino'
 
 from datetime import datetime
 import multiprocessing
-import sys
-sys.path.insert(0, "..//..//..")
 
 from issue2db_extract_issue import BugzillaIssue2Db
 from issue2db_extract_issue_dependency import BugzillaIssueDependency2Db

@@ -2,9 +2,6 @@
 # -*- coding: utf-8 -*-
 __author__ = 'valerio cosentino'
 
-import sys
-sys.path.insert(0, "..//..")
-
 
 class DbSchema():
 

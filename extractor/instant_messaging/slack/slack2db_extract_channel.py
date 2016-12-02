@@ -3,11 +3,6 @@
 __author__ = 'valerio cosentino'
 
 from datetime import datetime
-import time
-import sys
-import logging
-import logging.handlers
-sys.path.insert(0, "..//..//..")
 
 from querier_slack import SlackQuerier
 from slack_dao import SlackDao

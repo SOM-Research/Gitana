@@ -9,13 +9,11 @@ import logging
 import logging.handlers
 import os
 from datetime import datetime
-import sys
 import json
 import uuid
 import errno
 from util.dsl_util import DslUtil
 from util.db_util import DbUtil
-sys.path.insert(0, "..")
 
 from exporter import resources
 from exporter.graph.gexf_generator import GexfGenerator

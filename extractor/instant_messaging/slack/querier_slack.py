@@ -2,10 +2,8 @@
 # -*- coding: utf-8 -*-
 __author__ = 'valerio cosentino'
 
-import sys
 import re
 from slacker import Slacker
-sys.path.insert(0, "..//..//..")
 
 from util.token_util import TokenUtil
 from util.date_util import DateUtil

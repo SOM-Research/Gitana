@@ -4,8 +4,6 @@ __author__ = 'valerio cosentino'
 
 from datetime import datetime
 import multiprocessing
-import sys
-sys.path.insert(0, "..//..//..")
 
 from util import multiprocessing_util
 from querier_slack import SlackQuerier

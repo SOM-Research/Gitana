@@ -4,8 +4,6 @@ __author__ = 'valerio cosentino'
 
 from datetime import datetime
 import multiprocessing
-import sys
-sys.path.insert(0, "..//..//..")
 
 from querier_eclipse_forum import EclipseForumQuerier
 from forum2db_extract_topic import EclipseTopic2Db

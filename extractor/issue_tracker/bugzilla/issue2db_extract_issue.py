@@ -2,15 +2,9 @@
 # -*- coding: utf-8 -*-
 __author__ = 'valerio cosentino'
 
-import mysql.connector
-from mysql.connector import errorcode
 from datetime import datetime
 import re
 from email.utils import parseaddr
-import sys
-import logging
-import logging.handlers
-sys.path.insert(0, "..//..//..")
 
 from querier_bugzilla import BugzillaQuerier
 from util.date_util import DateUtil

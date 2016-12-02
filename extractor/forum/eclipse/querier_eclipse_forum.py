@@ -4,9 +4,6 @@ __author__ = 'valerio cosentino'
 
 import time
 import os
-import sys
-
-sys.path.insert(0, "..//..//..")
 
 from selenium import webdriver
 import util

@@ -3,10 +3,6 @@
 __author__ = 'valerio cosentino'
 
 from datetime import datetime
-import logging
-import logging.handlers
-import sys
-sys.path.insert(0, "..//..//..")
 
 from querier_bugzilla import BugzillaQuerier
 from bugzilla_dao import BugzillaDao

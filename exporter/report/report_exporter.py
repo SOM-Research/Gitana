@@ -7,7 +7,6 @@ import logging
 import logging.handlers
 import os
 from datetime import datetime
-import sys
 import json
 import uuid
 import errno
@@ -16,7 +15,6 @@ from util.date_util import DateUtil
 from util.db_util import DbUtil
 from exporter.report.chart_generator import ChartGenerator
 from exporter.report.html_generator import HtmlGenerator
-sys.path.insert(0, "..")
 
 from exporter import resources
 

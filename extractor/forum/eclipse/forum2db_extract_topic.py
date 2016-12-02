@@ -4,10 +4,6 @@ __author__ = 'valerio cosentino'
 
 from datetime import datetime
 import time
-import sys
-import logging
-import logging.handlers
-sys.path.insert(0, "..//..//..")
 
 from querier_eclipse_forum import EclipseForumQuerier
 from util.date_util import DateUtil

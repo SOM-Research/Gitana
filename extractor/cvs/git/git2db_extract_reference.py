@@ -4,10 +4,6 @@ __author__ = 'valerio cosentino'
 
 import re
 from datetime import datetime
-import logging
-import logging.handlers
-import sys
-sys.path.insert(0, "..//..")
 
 from querier_git import GitQuerier
 from git_dao import GitDao

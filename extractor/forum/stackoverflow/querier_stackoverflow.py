@@ -3,10 +3,8 @@
 __author__ = 'valerio cosentino'
 
 import stackexchange
-import sys
 import re
 from BeautifulSoup import BeautifulSoup
-sys.path.insert(0, "..//..//..")
 
 from util.token_util import TokenUtil
 from util.date_util import DateUtil

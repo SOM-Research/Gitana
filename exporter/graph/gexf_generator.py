@@ -4,8 +4,6 @@ import networkx as nx
 from random import randint
 import errno
 import os
-import sys
-sys.path.insert(0, "..")
 
 DEFAULT_GRAPH_MODE = "dynamic"
 EXT = ".gexf"
