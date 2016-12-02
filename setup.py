@@ -19,12 +19,14 @@ setup(
         classifiers=[
             'Development Status :: 5 - Production/Stable',
             'Intended Audience :: Developers',
+            'Intended Audience :: Science/Research',
             'Topic :: Scientific/Engineering :: Information Analysis',
             'Programming Language :: Python :: 2',
             'Programming Language :: Python :: 2.6',
             'Programming Language :: Python :: 2.7',
+            'License :: OSI Approved :: MIT License'
         ],
-        keywords='mecana vilana gitana metrics graph',
+        keywords='gitana project-information-analysis communication-channels issue-trackers version-control-systems',
         packages=find_packages(exclude=['test', 'doc']),
 
         # List run-time dependencies here.  These will be installed by pip when
@@ -32,7 +34,7 @@ setup(
         # requirements files see:
         # https://packaging.python.org/en/latest/requirements.html
         install_requires=['networkx', 'mysql-connector', 'gitpython', 'python-bugzilla', 'pygithub', 'selenium',
-                          'py-stackexchange', 'beautifulsoup', 'slacker'],
+                          'py-stackexchange', 'beautifulsoup', 'slacker', 'pygal'],
 
         # List additional groups of dependencies here (e.g. development
         # dependencies). You can install these using the following syntax,
@@ -47,7 +49,7 @@ setup(
         # installed, specify them here.  If using Python 2.6 or less, then these
         # have to be included in MANIFEST.in as well.
         package_data={
-            'exporter': ['exporter/resources/queries.json'],
+            'exporter': ['exporter/resources/queries.json', 'exporter/resources/jumbotron.png'],
         },
         include_package_data=True,
 
