@@ -15,6 +15,8 @@ from extractor.cvs.git.git2db_extract_main import Git2DbMain
 from extractor.cvs.git.git2db_update import Git2DbUpdate
 from extractor.issue_tracker.bugzilla.issue2db_extract_main import BugzillaIssue2DbMain
 from extractor.issue_tracker.bugzilla.issue2db_update import BugzillaIssue2DbUpdate
+from extractor.issue_tracker.github.issue2db_extract_main import GitHubIssue2DbMain
+from extractor.issue_tracker.github.issue2db_update import GitHubIssue2DbUpdate
 from extractor.forum.eclipse.forum2db_extract_main import EclipseForum2DbMain
 from extractor.forum.eclipse.forum2db_update import EclipseForum2DbUpdate
 from extractor.forum.stackoverflow.stackoverflow2db_extract_main import StackOverflow2DbMain
@@ -83,68 +85,74 @@ class Gitana():
                                    self.config, self.logger)
         git2db.extract()
 
-    def update_git_data(self, db_name, project_name, repo_name, git_repo_path, before_date, recover_import, import_new_references, processes):
+    def update_git_data(self, db_name, project_name, repo_name, git_repo_path, before_date, processes):
         self.logger.info("updating git data")
         git2db = Git2DbUpdate(db_name, project_name,
-                              repo_name, git_repo_path, before_date, recover_import, import_new_references, processes,
+                              repo_name, git_repo_path, before_date, processes,
                               self.config, self.logger)
         git2db.update()
 
-    def import_bugzilla_tracker_data(self, db_name, project_name, repo_name, issue_tracker_name, url, product, before_date, recover_import, processes):
+    def import_bugzilla_tracker_data(self, db_name, project_name, repo_name, issue_tracker_name, url, product, before_date, processes):
         self.logger.info("importing bugzilla data")
         issue2db = BugzillaIssue2DbMain(db_name, project_name,
-                                repo_name, "bugzilla", issue_tracker_name, url, product, before_date, recover_import, processes,
+                                repo_name, "bugzilla", issue_tracker_name, url, product, before_date, processes,
                                 self.config, self.logger)
         issue2db.extract()
 
-    def update_bugzilla_tracker_data(self, db_name, project_name, repo_name, issue_tracker_name, product, processes):
+    def update_bugzilla_tracker_data(self, db_name, project_name, repo_name, issue_tracker_name, url, product, processes):
         self.logger.info("updating bugzilla data")
         issue2db = BugzillaIssue2DbUpdate(db_name, project_name,
-                                  repo_name, issue_tracker_name, product, processes,
+                                  repo_name, issue_tracker_name, url, product, processes,
                                   self.config, self.logger)
         issue2db.update()
 
-    def import_eclipse_forum_data(self, db_name, project_name, forum_name, eclipse_forum_url, before_date, recover_import, processes):
+    def import_eclipse_forum_data(self, db_name, project_name, forum_name, eclipse_forum_url, before_date, processes):
         self.logger.info("importing eclipse forum data")
         forum2db = EclipseForum2DbMain(db_name, project_name,
-                                "eclipse_forum", forum_name, eclipse_forum_url, before_date, recover_import, processes,
+                                "eclipse_forum", forum_name, eclipse_forum_url, before_date, processes,
                                 self.config, self.logger)
         forum2db.extract()
 
-    def update_eclipse_forum_data(self, db_name, project_name, forum_name, processes):
+    def update_eclipse_forum_data(self, db_name, project_name, forum_name, eclipse_forum_url, processes):
         self.logger.info("importing eclipse forum data")
-        forum2db = EclipseForum2DbUpdate(db_name, project_name, forum_name, processes,
+        forum2db = EclipseForum2DbUpdate(db_name, project_name, forum_name, eclipse_forum_url, processes,
                                   self.config, self.logger)
         forum2db.update()
 
-    def import_stackoverflow_data(self, db_name, project_name, forum_name, search_query, before_date, recover_import, tokens):
+    def import_stackoverflow_data(self, db_name, project_name, forum_name, search_query, before_date, tokens):
         self.logger.info("importing stackoverflow data")
         stackoverflow2db = StackOverflow2DbMain(db_name, project_name,
-                                                "stackoverflow", forum_name, search_query, before_date, recover_import, tokens,
+                                                "stackoverflow", forum_name, search_query, before_date, tokens,
                                                 self.config, self.logger)
         stackoverflow2db.extract()
 
-    def update_stackoverflow_data(self, db_name, project_name, forum_name, tokens):
+    def update_stackoverflow_data(self, db_name, project_name, forum_name, search_query, tokens):
         self.logger.info("updating stackoverflow data")
-        stackoverflow2db = StackOverflow2DbUpdate(db_name, project_name, forum_name, tokens,
+        stackoverflow2db = StackOverflow2DbUpdate(db_name, project_name, forum_name, search_query, tokens,
                                                   self.config, self.logger)
         stackoverflow2db.update()
 
-    def import_slack_data(self, db_name, project_name, instant_messaging_name, before_date, recover_import, tokens):
+    def import_slack_data(self, db_name, project_name, instant_messaging_name, before_date, channels, tokens):
         self.logger.info("importing slack data")
         slack2db = Slack2DbMain(db_name, project_name,
-                                "slack", instant_messaging_name, before_date, recover_import, tokens,
+                                "slack", instant_messaging_name, before_date, channels, tokens,
                                 self.config, self.logger)
         slack2db.extract()
 
     def update_slack_data(self, db_name, project_name, instant_messaging_name, tokens):
         self.logger.info("updating slack data")
-        #TODO
+        slack2db = Slack2DbUpdate(db_name, project_name, instant_messaging_name, tokens,
+                                  self.config, self.logger)
+        slack2db.update()
 
-    def import_github_tracker_data(self, db_name, project_name, repo_name, github_repo_full_name, before_date, recover_import, tokens):
-        #TODO
-        print "here"
+    def import_github_tracker_data(self, db_name, project_name, repo_name, issue_tracker_name, github_repo_full_name, before_date, tokens):
+        self.logger.info("importing github issue tracker data")
+        github2db = GitHubIssue2DbMain(db_name, project_name, repo_name, "github", issue_tracker_name, github_repo_full_name, before_date, tokens,
+                                       self.config, self.logger)
+        github2db.extract()
 
-    def update_github_tracker_data(self, db_name, project_name, repo_name, github_repo_full_name, tokens):
-        #TODO
-        print "here"
+    def update_github_tracker_data(self, db_name, project_name, repo_name, issue_tracker_name, github_repo_full_name, tokens):
+        self.logger.info("updating github issue tracker data")
+        github2db = Git2DbUpdate(db_name, project_name, repo_name, issue_tracker_name, github_repo_full_name, tokens,
+                                self.config, self.logger)
+        github2db.update()

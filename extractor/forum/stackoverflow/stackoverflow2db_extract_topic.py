@@ -11,6 +11,7 @@ sys.path.insert(0, "..//..//..")
 
 from querier_stackoverflow import StackOverflowQuerier
 from stackoverflow_dao import StackOverflowDao
+from util.logging_util import LoggingUtil
 
 
 class StackOverflowTopic2Db(object):
@@ -22,19 +23,16 @@ class StackOverflowTopic2Db(object):
         self.db_name = db_name
         self.forum_id = forum_id
         self.token = token
+        self.fileHandler = None
         config.update({'database': db_name})
         self.config = config
+        self.logging_util = LoggingUtil()
         self.pos = 0
 
     def __call__(self):
-        LOG_FILENAME = self.log_path + "-topic2db"
-        self.logger = logging.getLogger(LOG_FILENAME)
-        fileHandler = logging.FileHandler(LOG_FILENAME + "-" + str(self.interval[0]) + "-" + str(self.interval[-1]) + ".log", mode='w')
-        formatter = logging.Formatter("%(asctime)s:%(levelname)s:%(message)s", "%Y-%m-%d %H:%M:%S")
-
-        fileHandler.setFormatter(formatter)
-        self.logger.setLevel(logging.INFO)
-        self.logger.addHandler(fileHandler)
+        log_filename = self.log_path + "-topic2db-" + str(self.interval[0]) + "-" + str(self.interval[-1])
+        self.logger = self.logging_util.get_logger(log_filename)
+        self.fileHandler = self.logging_util.get_file_handler(self.logger, log_filename, "info")
 
         try:
             self.querier = StackOverflowQuerier(self.token, self.logger)
@@ -92,16 +90,16 @@ class StackOverflowTopic2Db(object):
             pos += 1
 
     def extract_topic(self, topic):
-        last_changed_at = self.querier.get_topic_last_changed_at(topic)
+        last_change_at = self.querier.get_topic_last_change_at(topic)
         own_id = self.querier.get_container_own_id(topic)
 
-        if self.dao.get_topic_last_changed_at(own_id, self.forum_id) != last_changed_at:
+        if self.dao.get_topic_last_change_at(own_id, self.forum_id) != last_change_at:
             name = self.querier.get_topic_name(topic)
             votes = self.querier.get_container_votes(topic)
             views = self.querier.get_topic_views(topic)
             created_at = self.querier.get_container_created_at(topic)
 
-            topic_id = self.dao.insert_topic(own_id, self.forum_id, name, votes, views, created_at, last_changed_at)
+            topic_id = self.dao.insert_topic(own_id, self.forum_id, name, votes, views, created_at, last_change_at)
             author_id = self.dao.get_user_id(self.querier.get_container_author(topic))
 
             self.pos = 0
@@ -129,5 +127,6 @@ class StackOverflowTopic2Db(object):
             minutes_and_seconds = divmod((end_time-start_time).total_seconds(), 60)
             self.logger.info("StackOverflowTopic2Db finished after " + str(minutes_and_seconds[0])
                            + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
+            self.logging_util.remove_file_handler_logger(self.logger, self.fileHandler)
         except Exception, e:
             self.logger.error("StackOverflowTopic2Db failed", exc_info=True)

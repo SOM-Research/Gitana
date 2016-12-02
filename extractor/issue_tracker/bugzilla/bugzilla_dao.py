@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 __author__ = 'valerio cosentino'
 
-from extractor.util.db_util import DbUtil
+from util.db_util import DbUtil
 
 
 class BugzillaDao():
@@ -17,36 +17,7 @@ class BugzillaDao():
             self.logger.error("BugzillaDao failed", exc_info=True)
 
     def select_issue_tracker_id(self, repo_id, issue_tracker_name):
-        found = None
-        cursor = self.cnx.cursor()
-        query = "SELECT id " \
-                "FROM issue_tracker " \
-                "WHERE repo_id = %s AND name = %s"
-        arguments = [repo_id, issue_tracker_name]
-        cursor.execute(query, arguments)
-        row = cursor.fetchone()
-        cursor.close()
-
-        if row:
-            found = row[0]
-
-        return found
-
-    def select_issue_tracker_url(self, repo_id, issue_tracker_name):
-        found = None
-        cursor = self.cnx.cursor()
-        query = "SELECT url " \
-                "FROM issue_tracker " \
-                "WHERE repo_id = %s AND name = %s"
-        arguments = [repo_id, issue_tracker_name]
-        cursor.execute(query, arguments)
-        row = cursor.fetchone()
-        cursor.close()
-
-        if row:
-            found = row[0]
-
-        return found
+        return self.db_util.select_issue_tracker_id(self.cnx, issue_tracker_name, self.logger)
 
     def insert_issue_comment(self, own_id, position, type, issue_id, body, votes, author_id, created_at):
         cursor = self.cnx.cursor()
@@ -97,29 +68,8 @@ class BugzillaDao():
         self.cnx.commit()
         cursor.close()
 
-    def insert_issue_tracker(self, repo_id, issue_tracker_name, url, type):
-        cursor = self.cnx.cursor()
-        query = "INSERT IGNORE INTO issue_tracker " \
-                "VALUES (%s, %s, %s, %s, %s)"
-        arguments = [None, repo_id, issue_tracker_name, url, type]
-        cursor.execute(query, arguments)
-        self.cnx.commit()
-
-        query = "SELECT id " \
-                "FROM issue_tracker " \
-                "WHERE name = %s"
-        arguments = [issue_tracker_name]
-        cursor.execute(query, arguments)
-
-        row = cursor.fetchone()
-        cursor.close()
-
-        if row:
-            found = row[0]
-        else:
-            self.logger.warning("no issue tracker linked to " + str(url))
-
-        return found
+    def insert_issue_tracker(self, repo_id, issue_tracker_name, type):
+        return self.db_util.insert_issue_tracker(self.cnx, repo_id, issue_tracker_name, type, self.logger)
 
     def get_already_imported_issue_ids(self, issue_tracker_id, repo_id):
         issue_ids = []
@@ -307,26 +257,27 @@ class BugzillaDao():
 
     def find_reference_id(self, version, issue_id, repo_id):
         found = None
-        try:
-            cursor = self.cnx.cursor()
-            query = "SELECT id FROM reference WHERE name = %s AND repo_id = %s"
-            arguments = [version, repo_id]
-            cursor.execute(query, arguments)
-            row = cursor.fetchone()
-            if row:
-                found = row[0]
-            else:
-                #sometimes the version is followed by extra information such as alpha, beta, RC, M.
-                query = "SELECT id FROM reference WHERE name LIKE '" + version + "%' AND repo_id = " + str(repo_id)
-                cursor.execute(query)
+        if version:
+            try:
+                cursor = self.cnx.cursor()
+                query = "SELECT id FROM reference WHERE name = %s AND repo_id = %s"
+                arguments = [version, repo_id]
+                cursor.execute(query, arguments)
                 row = cursor.fetchone()
-
                 if row:
                     found = row[0]
+                else:
+                    #sometimes the version is followed by extra information such as alpha, beta, RC, M.
+                    query = "SELECT id FROM reference WHERE name LIKE '" + version + "%' AND repo_id = " + str(repo_id)
+                    cursor.execute(query)
+                    row = cursor.fetchone()
 
-            cursor.close()
-        except Exception, e:
-            self.logger.warning("version (" + version + ") not inserted for issue id: " + str(issue_id), exc_info=True)
+                    if row:
+                        found = row[0]
+
+                cursor.close()
+            except Exception, e:
+                self.logger.warning("version (" + version + ") not inserted for issue id: " + str(issue_id), exc_info=True)
 
         return found
 
@@ -349,7 +300,7 @@ class BugzillaDao():
         return found
 
     def select_repo_id(self, project_id, repo_name):
-        return self.db_util.select_repo_id(self.cnx, project_id, repo_name, self.logger)
+        return self.db_util.select_repo_id(self.cnx, repo_name, self.logger)
 
     def get_cursor(self):
         return self.cnx.cursor()

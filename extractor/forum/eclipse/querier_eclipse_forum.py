@@ -9,7 +9,7 @@ import sys
 sys.path.insert(0, "..//..//..")
 
 from selenium import webdriver
-import extractor.util as util
+import util
 WEB_DRIVER_PATH = os.path.dirname(util.__file__) + "\selenium_driver\phantomjs.exe"
 
 
@@ -68,7 +68,7 @@ class EclipseForumQuerier():
 
         return found
 
-    def get_last_changed_at(self, topic_element):
+    def get_last_change_at(self, topic_element):
         try:
             found = self.get_created_at(topic_element.find_elements_by_tag_name("td")[-1])
         except:

@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 __author__ = 'valerio cosentino'
 
-import mysql.connector
-from mysql.connector import errorcode
 from datetime import datetime
 import multiprocessing
 import sys
@@ -12,7 +10,7 @@ sys.path.insert(0, "..//..//..")
 from issue2db_extract_issue import BugzillaIssue2Db
 from issue2db_extract_issue_dependency import BugzillaIssueDependency2Db
 from querier_bugzilla import BugzillaQuerier
-from extractor.util import multiprocessing_util
+from util import multiprocessing_util
 from bugzilla_dao import BugzillaDao
 
 
@@ -21,7 +19,7 @@ class BugzillaIssue2DbMain():
     NUM_PROCESSES = 5
 
     def __init__(self, db_name, project_name,
-                 repo_name, type, issue_tracker_name, url, product, before_date, recover_import, num_processes,
+                 repo_name, type, issue_tracker_name, url, product, before_date, num_processes,
                  config, logger):
         self.logger = logger
         self.log_path = self.logger.name.rsplit('.', 1)[0] + "-" + project_name
@@ -33,7 +31,6 @@ class BugzillaIssue2DbMain():
         self.issue_tracker_name = issue_tracker_name
         self.repo_name = repo_name
         self.before_date = before_date
-        self.recover_import = recover_import
 
         if num_processes:
             self.num_processes = num_processes
@@ -53,12 +50,9 @@ class BugzillaIssue2DbMain():
         return '-'.join([str(e) for e in elements])
 
     def insert_issue_data(self, repo_id, issue_tracker_id):
-        if self.recover_import:
-            imported = self.dao.get_already_imported_issue_ids(issue_tracker_id, repo_id)
-            issues = list(set(self.querier.get_issue_ids(None, None, self.before_date)) - set(imported))
-            issues.sort()
-        else:
-            issues = self.querier.get_issue_ids(None, None, self.before_date)
+        imported = self.dao.get_already_imported_issue_ids(issue_tracker_id, repo_id)
+        issues = list(set(self.querier.get_issue_ids(self.before_date)) - set(imported))
+        issues.sort()
 
         intervals = [i for i in multiprocessing_util.get_tasks_intervals(issues, self.num_processes) if len(i) > 0]
 
@@ -103,7 +97,7 @@ class BugzillaIssue2DbMain():
     def split_issue_extraction(self):
         project_id = self.dao.select_project_id(self.project_name)
         repo_id = self.dao.select_repo_id(project_id, self.repo_name)
-        issue_tracker_id = self.dao.insert_issue_tracker(repo_id, self.issue_tracker_name, self.url, self.type)
+        issue_tracker_id = self.dao.insert_issue_tracker(repo_id, self.issue_tracker_name, self.type)
         self.insert_issue_data(repo_id, issue_tracker_id)
 
         self.dao.restart_connection()

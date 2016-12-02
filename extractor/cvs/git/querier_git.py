@@ -6,7 +6,7 @@ from git import *
 import re
 from datetime import datetime
 import string
-from extractor.util.date_util import DateUtil
+from util.date_util import DateUtil
 import time
 
 
@@ -58,13 +58,13 @@ class GitQuerier():
 
         # a limitation in the gitpython api when working on windows causes
         # the diff method to stop working for diffs containing more than 7000 files
-        if len(files_in_commit) < 7000:
-            if retrieve_patch:
-                diffs = parent.diff(commit, create_patch=True)
-            else:
-                diffs = parent.diff(commit, create_patch=False)
-        else:
-            diffs = self.get_diffs_manually(parent, commit, retrieve_patch)
+        # if len(files_in_commit) < 7000:
+        #     if retrieve_patch:
+        #         diffs = parent.diff(commit, create_patch=True)
+        #     else:
+        #         diffs = parent.diff(commit, create_patch=False)
+        # else:
+        diffs = self.get_diffs_manually(parent, commit, retrieve_patch)
 
         return diffs
 
@@ -137,7 +137,7 @@ class GitQuerier():
         return file_path
 
     def get_file_current(self, diff):
-        if isinstance(diff, tuple):
+        if isinstance(diff, dict):
             file_current = diff.get('rename_to')
         else:
             if diff.rename_to:
@@ -188,7 +188,7 @@ class GitQuerier():
     def is_renamed(self, diff):
         flag = False
 
-        if isinstance(diff, tuple):
+        if isinstance(diff, dict):
             flag = diff.get('renamed')
         else:
             try:
@@ -274,7 +274,7 @@ class GitQuerier():
         return diff.new_file
 
     def get_rename_from(self, diff):
-        if isinstance(diff, tuple):
+        if isinstance(diff, dict):
             file_previous = diff.get("rename_from")
         else:
             if diff.rename_from:

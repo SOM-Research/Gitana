@@ -10,8 +10,9 @@ import logging.handlers
 sys.path.insert(0, "..//..//..")
 
 from querier_eclipse_forum import EclipseForumQuerier
-from extractor.util.date_util import DateUtil
+from util.date_util import DateUtil
 from eclipse_forum_dao import EclipseForumDao
+from util.logging_util import LoggingUtil
 
 
 class EclipseTopic2Db(object):
@@ -24,20 +25,16 @@ class EclipseTopic2Db(object):
         self.interval = interval
         self.db_name = db_name
         self.forum_id = forum_id
+        self.fileHandler = None
         config.update({'database': db_name})
         self.config = config
-
+        self.logging_util = LoggingUtil()
         self.date_util = DateUtil()
 
     def __call__(self):
-        LOG_FILENAME = self.log_path + "-topic2db"
-        self.logger = logging.getLogger(LOG_FILENAME)
-        fileHandler = logging.FileHandler(LOG_FILENAME + "-" + str(self.interval[0]) + "-" + str(self.interval[-1]) + ".log", mode='w')
-        formatter = logging.Formatter("%(asctime)s:%(levelname)s:%(message)s", "%Y-%m-%d %H:%M:%S")
-
-        fileHandler.setFormatter(formatter)
-        self.logger.setLevel(logging.INFO)
-        self.logger.addHandler(fileHandler)
+        log_filename = self.log_path + "-topic2db-" + str(self.interval[0]) + "-" + str(self.interval[-1])
+        self.logger = self.logging_util.get_logger(log_filename)
+        self.fileHandler = self.logging_util.get_file_handler(self.logger, log_filename, "info")
 
         try:
             self.querier = EclipseForumQuerier(None, self.logger)
@@ -103,5 +100,6 @@ class EclipseTopic2Db(object):
             minutes_and_seconds = divmod((end_time-start_time).total_seconds(), 60)
             self.logger.info("EclipseTopic2Db finished after " + str(minutes_and_seconds[0])
                            + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
+            self.logging_util.remove_file_handler_logger(self.logger, self.fileHandler)
         except Exception, e:
             self.logger.error("EclipseTopic2Db failed", exc_info=True)

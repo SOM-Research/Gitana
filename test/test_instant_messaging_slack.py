@@ -15,20 +15,19 @@ CONFIG = {
 
 
 def test_1():
-    #test simple
     g = Gitana(CONFIG, None)
     g.delete_previous_logs()
-    g.init_db("papyrus_db_test")
-    g.create_project("papyrus_db_test", "papyrus")
-    g.import_stackoverflow_data("papyrus_db_test", "papyrus", "papyrus-stackoverflow", "papyrus", None, ['IFco1Gh5EJ*U)ZY5)16ZKQ(('])
+    g.init_db("bootstrap_db_test")
+    g.create_project("bootstrap_db_test", "bootstrap")
+    g.import_slack_data("bootstrap_db_test", "bootstrap", "slack_bootstrap", "2016-08-12", ["random", "metascience", "softwareanalysis"], ['xoxp-67182691220-67204318994-110578093616-af58ccb5a30cb97455d256ee9acc0ef'])
 
 
 def test_2():
-    #test update
     g = Gitana(CONFIG, None)
     g.delete_previous_logs()
 
-    g.update_stackoverflow_data("papyrus_db_test", "papyrus", "papyrus-forum", ['IFco1Gh5EJ*U)ZY5)16ZKQ(('])
+    #remeber to delete the last messages from a channel
+    g.update_slack_data("bootstrap_db_test", "bootstrap", "slack_bootstrap", ['xoxp-67182691220-67204318994-110578093616-af58ccb5a30cb97455d256ee9acc0ef'])
 
 
 def main():
@@ -36,7 +35,6 @@ def main():
     test_1()
     #print "starting 2.."
     #test_2()
-
 
 if __name__ == "__main__":
     main()

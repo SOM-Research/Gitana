@@ -47,13 +47,37 @@ class DbUtil():
         cnx.commit()
         cursor.close()
 
-    def select_repo_id(self, cnx, project_id, repo_name, logger):
+    def insert_issue_tracker(self, cnx, repo_id, issue_tracker_name, type, logger):
+        cursor = cnx.cursor()
+        query = "INSERT IGNORE INTO issue_tracker " \
+                "VALUES (%s, %s, %s, %s)"
+        arguments = [None, repo_id, issue_tracker_name, type]
+        cursor.execute(query, arguments)
+        cnx.commit()
+
+        query = "SELECT id " \
+                "FROM issue_tracker " \
+                "WHERE name = %s"
+        arguments = [issue_tracker_name]
+        cursor.execute(query, arguments)
+
+        row = cursor.fetchone()
+        cursor.close()
+
+        if row:
+            found = row[0]
+        else:
+            logger.warning("no issue with name " + str(issue_tracker_name))
+
+        return found
+
+    def select_repo_id(self, cnx, repo_name, logger):
         found = None
         cursor = cnx.cursor()
         query = "SELECT id " \
                 "FROM repository " \
-                "WHERE name = %s AND project_id = %s"
-        arguments = [repo_name, project_id]
+                "WHERE name = %s"
+        arguments = [repo_name]
         cursor.execute(query, arguments)
 
         row = cursor.fetchone()
@@ -63,6 +87,25 @@ class DbUtil():
             found = row[0]
         else:
             logger.error("the repository " + repo_name + " does not exist")
+
+        return found
+
+    def select_instant_messaging_id(self, cnx, im_name, logger):
+        found = None
+        cursor = cnx.cursor()
+        query = "SELECT id " \
+                "FROM instant_messaging " \
+                "WHERE name = %s"
+        arguments = [im_name]
+        cursor.execute(query, arguments)
+
+        row = cursor.fetchone()
+        cursor.close()
+
+        if row:
+            found = row[0]
+        else:
+            logger.error("the instant messaging " + im_name + " does not exist")
 
         return found
 
@@ -114,6 +157,44 @@ class DbUtil():
                 found = row[0]
             else:
                 logger.warning("there is not user with this name " + name)
+
+        return found
+
+    def select_forum_id(self, cnx, forum_name, logger):
+        found = None
+        cursor = cnx.cursor()
+        query = "SELECT id " \
+                "FROM forum " \
+                "WHERE name = %s"
+        arguments = [forum_name]
+        cursor.execute(query, arguments)
+
+        row = cursor.fetchone()
+        cursor.close()
+
+        if row:
+            found = row[0]
+        else:
+            logger.error("the forum " + forum_name + " does not exist")
+
+        return found
+
+    def select_issue_tracker_id(self, cnx, issue_tracker_name, logger):
+        found = None
+        cursor = cnx.cursor()
+        query = "SELECT id " \
+                "FROM issue_tracker " \
+                "WHERE name = %s"
+        arguments = [issue_tracker_name]
+        cursor.execute(query, arguments)
+
+        row = cursor.fetchone()
+        cursor.close()
+
+        if row:
+            found = row[0]
+        else:
+            logger.error("the issue tracker " + issue_tracker_name + " does not exist")
 
         return found
 

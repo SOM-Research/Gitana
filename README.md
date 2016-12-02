@@ -6,6 +6,14 @@ in order to ease browsing and querying activities with standard SQL syntax and t
 To ensure efficiency, an incremental propagation mechanism refreshes the
 database content with the latest project activities.
 
+## Who is behind this project?
+
+* [Valerio Cosentino](http://github.com/valeriocos/ "Valerio Cosentino")
+* [Javier Canovas](http://github.com/jlcanovas/ "Javier Canovas")
+* [Jordi Cabot](http://github.com/jcabot/ "Jordi Cabot")
+
+Valerio, Javier and Jordi are currently members of [SOM](http://som-research.uoc.edu), a research team of IN3-UOC.
+
 ## Technical details
 
 Gitana is developed on Windows 7 and it relies on:
@@ -47,69 +55,66 @@ g = Gitana(CONFIG, "LOGS-PATH")
 
 ### initialize Gitana DB
 ```python
-g.init_db("NAME-OF-YOUR-DB")
+g.init_db("DB-NAME")
 
-# NAME-OF-YOUR-DB cannot be null, and must follow the format allowed in MySQL (http://dev.mysql.com/doc/refman/5.7/en/identifiers.html)
-# if a DB with the input name already exists in Gitana, the existing DB will be dropped and a new one will be created
+# DB-NAME cannot be null, and must follow the format allowed in MySQL (http://dev.mysql.com/doc/refman/5.7/en/identifiers.html)
+# if a DB having a name equal to DB-NAME already exists in Gitana, the existing DB will be dropped and a new one will be created
 ```
 
 ### create a project in Gitana
 ```python
-g.create_project("NAME-OF-YOUR-DB", "NAME-OF-THE-PROJECT")
+g.create_project("DB-NAME", "PROJECT-NAME")
 
-# NAME-OF-YOUR-DB should point to a DB already existing in Gitana 
-# NAME-OF-THE-PROJECT should not be null
+# DB-NAME should point to a DB already existing in Gitana
+# PROJECT-NAME should not be null
 ```
 
 ### import Git data
 ```python
-g.import_git_data("NAME-OF-YOUR-DB", "NAME-OF-THE-PROJECT", "NAME-OF-THE-GIT-REPO", "GIT-REPO-PATH", 
-                  "BEFORE-DATE", "RECOVERY-PROCESS", "LIST-OF-REFERENCES", "NUM-OF-PROCESSES")
+g.import_git_data("DB-NAME", "PROJECT-NAME", "GIT-REPO-NAME", "GIT-REPO-PATH",
+                  "BEFORE-DATE", "IMPORT-TYPE", "LIST-OF-REFERENCES", "NUM-OF-PROCESSES")
                   
-# NAME-OF-YOUR-DB and NAME-OF-THE-PROJECT should point to a DB and project already existing in Gitana 
-# NAME-OF-THE-GIT-REPO, GIT-REPO-PATH cannot be null
+# DB-NAME and PROJECT-NAME should point to a DB and project already existing in Gitana
+# GIT-REPO-NAME, GIT-REPO-PATH cannot be null
 # BEFORE-DATE can be None or "%Y-%m-%d". It allows to import references and commits created before a given date
-# RECOVER-IMPORT can be True or False. It allows to restart the import from the last commit inserted
-# LIST-OF-REFERENCES can be None or ["x1", .., "xn"]. It allows to import the data of a set of repo references (tag or branches)
+# IMPORT-TYPE can be 1, 2 or 3. It allows to define the granularity of the import process. 1 does not import patches, 2 imports patches but not at line level, 3 imports patches with line detail
+# LIST-OF-REFERENCES can be None or ["ref-name-1", .., "ref-name-n"]. It allows to import the data of a set of repo references (tag or branches)
 # NUM-OF-PROCESSES can be None or a int number. It is the number of parallel processes used to analyse the Git repo. if None, the number of processes is 10
 ```
 
 ### update Git data
-- it updates the references already stored in Gitana, and optionally import new references)
+- it updates the references already stored in Gitana.
 ```python
-g.update_git_data("NAME-OF-YOUR-DB", "NAME-OF-THE-PROJECT", "NAME-OF-THE-GIT-REPO", "GIT-REPO-PATH", 
-                  "BEFORE-DATE", "RECOVERY-PROCESS", "IMPORT-NEW-REFERENCES", "NUM-OF-PROCESSES")
+g.update_git_data("DB-NAME", "PROJECT-NAME", "GIT-REPO-NAME", "GIT-REPO-PATH",
+                  "BEFORE-DATE", "NUM-OF-PROCESSES")
                   
-# NAME-OF-YOUR-DB and NAME-OF-THE-PROJECT should point to a DB and project already existing in Gitana 
-# NAME-OF-THE-GIT-REPO, GIT-REPO-PATH cannot be null
+# DB-NAME and PROJECT-NAME should point to a DB and project already existing in Gitana
+# GIT-REPO-NAME, GIT-REPO-PATH cannot be null
 # BEFORE-DATE can be None or "%Y-%m-%d". It allows to import references and commits created before a given date
-# RECOVER-IMPORT can be True or False. It allows to restart the import from the last commit inserted
-# IMPORT-NEW-REFERENCES can be True or False. It allows to import new references in the Git repo not included in Gitana. If False, only the references included in the DB will be updated with the missing commits
 # NUM-OF-PROCESSES can be None or a int number. It is the number of parallel processes used to analyse the Git repo. if None, the number of processes is 10
 ```
 
 ### import Bugzilla data
 ```python
-g.import_bugzilla_tracker_data("NAME-OF-YOUR-DB", "NAME-OF-THE-PROJECT", "NAME-OF-THE-GIT-REPO", 
+g.import_bugzilla_tracker_data("DB-NAME", "PROJECT-NAME", "GIT-REPO-NAME",
                                "ISSUE-TRACKER-NAME", "BUGZILLA-URL", "PRODUCT-NAME-IN-BUGZILLA",
-                               "BEFORE-DATE", "RECOVER-IMPORT", "NUM-OF-PROCESSES")
+                               "BEFORE-DATE", "NUM-OF-PROCESSES")
   
-# NAME-OF-YOUR-DB, NAME-OF-THE-PROJECT, NAME-OF-THE-GIT-REPO should point to a DB, project and repo already existing in Gitana
+# DB-NAME, PROJECT-NAME, GIT-REPO-NAME should point to a DB, project and repo already existing in Gitana
 # ISSUE-TRACKER-NAME cannot be null. It is the name used to identify the issue tracker in the DB
 # BUGZILLA-URL cannot be null. It points to the URL REST API (e.g., "https://bugs.eclipse.org/bugs/xmlrpc.cgi")
 # PRODUCT-NAME cannot be null. It will collect the issues for the input product (e.g., "MDT.MoDisco")
 # BEFORE-DATE can be None or "%Y-%m-%d". It allows to import issues created before a given date
-# RECOVER-IMPORT can be True or False. It allows to restart the import from the last issue inserted
 # NUM-OF-PROCESSES can be None or a int number. It is the number of parallel processes used to collect issue tracker information. if None, the number of processes is 5
 ```
     
 ### update Bugzilla data
 - it updates only the issues already stored in Gitana. It does not import new ones
 ```python 
-g.update_bugzilla_tracker_data("NAME-OF-YOUR-DB", "NAME-OF-THE-PROJECT", "NAME-OF-THE-GIT-REPO",
+g.update_bugzilla_tracker_data("DB-NAME", "PROJECT-NAME", "GIT-REPO-NAME",
                                "ISSUE-TRACKER-NAME", "PRODUCT-NAME-IN-BUGZILLA", "NUM-OF-PROCESSES")
 
-# NAME-OF-YOUR-DB, NAME-OF-THE-PROJECT, NAME-OF-THE-GIT-REPO should point to a DB, project and repo already existing in Gitana 
+# DB-NAME, PROJECT-NAME, GIT-REPO-NAME should point to a DB, project and repo already existing in Gitana
 # ISSUE-TRACKER-NAME cannot be null. It points to the issue tracker stored in the DB
 # PRODUCT-NAME cannot be null. It will update the issues already in Gitana for the input product (e.g., "MDT.MoDisco")
 # NUM-OF-PROCESSES can be None or a int number. It is the number of parallel processes used to collect issue tracker information. if None, the number of processes is 5
@@ -117,47 +122,64 @@ g.update_bugzilla_tracker_data("NAME-OF-YOUR-DB", "NAME-OF-THE-PROJECT", "NAME-O
 
 ### import Eclipse forum data
 ```python 
-g.import_eclipse_forum_data("NAME-OF-YOUR-DB", "NAME-OF-THE-PROJECT", "FORUM-NAME", "ECLIPSE-FORUM-URL",
-                               "BEFORE-DATE", "RECOVER-IMPORT", "NUM-OF-PROCESSES")
+g.import_eclipse_forum_data("DB-NAME", "PROJECT-NAME", "FORUM-NAME", "ECLIPSE-FORUM-URL",
+                               "BEFORE-DATE", "NUM-OF-PROCESSES")
 
-# NAME-OF-YOUR-DB, NAME-OF-THE-PROJECT should point to a DB and project already existing in Gitana
+# DB-NAME, PROJECT-NAME should point to a DB and project already existing in Gitana
 # FORUM-NAME cannot be null. It is the name used to identify the forum in the DB
 # ECLIPSE-FORUM-URL cannot be null. It points to the URL of the Eclipse forum (e.g., "https://www.eclipse.org/forums/index.php/f/241/")
 # BEFORE-DATE can be None or "%Y-%m-%d". It allows to import topics created before a given date
-# RECOVER-IMPORT can be True or False. It allows to restart the import from the last topic inserted
 # NUM-OF-PROCESSES can be None or a int number. It is the number of parallel browsers used to collect forum information. if None, the number of processes is 2
 ```
 
 ### update Eclipse forum data 
 - it updates only the topics already stored in Gitana. It does not import new ones
 ```python 
-g.update_eclipse_forum_data("NAME-OF-YOUR-DB", "NAME-OF-THE-PROJECT", "FORUM-NAME", "NUM-OF-PROCESSES")
+g.update_eclipse_forum_data("DB-NAME", "PROJECT-NAME", "FORUM-NAME", "NUM-OF-PROCESSES")
 
-# NAME-OF-YOUR-DB, NAME-OF-THE-PROJECT should point to a DB and project already existing in Gitana 
+# DB-NAME, PROJECT-NAME should point to a DB and project already existing in Gitana
 # FORUM-NAME cannot be null. It points to the forum stored in the DB
 # NUM-OF-PROCESSES can be None or a int number. It is the number of parallel browsers used to collect forum information. if None, the number of processes is 2
 ```
 
 ### import Stackoverflow data
 ```python
-g.import_stackoverflow_data("NAME-OF-YOUR-DB", "NAME-OF-THE-PROJECT", "FORUM-NAME", "QUERY-STRING", "BEFORE-DATE", "RECOVER-IMPORT", "TOKENS")
+g.import_stackoverflow_data("DB-NAME", "PROJECT-NAME", "FORUM-NAME", "QUERY-STRING", "BEFORE-DATE", "TOKENS")
 
-# NAME-OF-YOUR-DB, NAME-OF-THE-PROJECT should point to a DB and project already existing in Gitana
+# DB-NAME, PROJECT-NAME should point to a DB and project already existing in Gitana
 # FORUM-NAME cannot be null. It is the name used to identify the forum in the DB
 # QUERY-STRING cannot be null. It is used to retrieved the Questions in Stackoverflow labelled with "QUERY-STRING"
 # BEFORE-DATE can be None or "%Y-%m-%d". It allows to import topics created before a given date
-# RECOVER-IMPORT can be True or False. It allows to restart the import from the last topic inserted
 # TOKENS cannot be null. Each token is passed to a process to speed up the collection of StackOverflow information.
 ```
 
 ### update Stackoverflow data
 ```python
-g.update_stackoverflow_data("NAME-OF-YOUR-DB", "NAME-OF-THE-PROJECT", "FORUM-NAME", "TOKENS")
+g.update_stackoverflow_data("DB-NAME", "PROJECT-NAME", "FORUM-NAME", "TOKENS")
 
-# NAME-OF-YOUR-DB, NAME-OF-THE-PROJECT should point to a DB and project already existing in Gitana
+# DB-NAME, PROJECT-NAME should point to a DB and project already existing in Gitana
 # FORUM-NAME cannot be null. It is the name used to identify the forum in the DB
 # QUERY-STRING cannot be null. It is used to retrieved the Questions in Stackoverflow labelled with "QUERY-STRING"
 # TOKENS cannot be null. Each token is passed to a process to speed up the collection of StackOverflow information.
+```
+
+### import Slack data
+```python
+g.import_slack_data("DB-NAME", "PROJECT-NAME", "INSTANT-MESSAGING-NAME", "BEFORE-DATE", "LIST-OF-CHANNELS", "TOKENS")
+
+# DB-NAME, PROJECT-NAME should point to a DB and project already existing in Gitana
+# INSTANT-MESSAGING-NAME cannot be null. It is the name used to identify the instant messaging service in the DB
+# BEFORE-DATE can be None or "%Y-%m-%d". It allows to import channels created before a given date
+# LIST-OF-CHANNELS. can be None or ["channel-name-1", .., "channel-name-n"]. It allows to import the data of a set of channels
+# TOKENS cannot be null. Each token is passed to a process to speed up the collection of Slack information.
+```
+
+### update Slack data
+```python
+g.update_slack_data("DB-NAME", "PROJECT-NAME", "INSTANT-MESSAGING-NAME", "TOKENS")
+# DB-NAME, PROJECT-NAME should point to a DB and project already existing in Gitana
+# INSTANT-MESSAGING-NAME cannot be null. It is the name used to identify the instant messaging service in the DB
+# TOKENS cannot be null. Each token is passed to a process to speed up the collection of Slack information.
 ```
 
 ### import GitHub-Issue-Tracker data
@@ -166,16 +188,6 @@ g.update_stackoverflow_data("NAME-OF-YOUR-DB", "NAME-OF-THE-PROJECT", "FORUM-NAM
 ```
 
 ### update GitHub-Issue-Tracker data
-```python
-...coming soon
-```
-
-### import Slack data
-```python
-...coming soon
-```
-
-### update Slack data
 ```python
 ...coming soon
 ```

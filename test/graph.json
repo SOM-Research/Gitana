@@ -1,0 +1,10 @@
+{"graph":
+    {"name": "users-on-issues",
+     "params": {"project": "papyrus",
+                "repo": "papyrus_repo",
+                "issuetracker": "bugzilla-papyrus",
+                "nodecolor": "random",
+                "edgecolor": "black",
+                "type": "undirected"}
+     }
+}

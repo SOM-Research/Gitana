@@ -1,4 +1,4 @@
-{"metrics":
+{"queries":
 [
  {"name": "users-on-issues",
  "PROJECTID": "1",
@@ -25,5 +25,68 @@
  "EDGECOLOR": "gray",
  "nodes": "SELECT author_id AS id, u.email AS label, COUNT(DISTINCT file_id) AS size, 'NODECOLOR' AS color FROM commit c JOIN file_modification fm ON c.id = fm.commit_id JOIN user u ON u.id = c.author_id JOIN repository r ON r.id = c.repo_id JOIN commit_in_reference cir ON cir.commit_id = c.id WHERE cir.ref_id in (REFERENCES) AND r.id = REPOID AND r.project_id = PROJECTID GROUP BY author_id;",
  "edges": "SELECT source, target, count(*) as weight, 'EDGECOLOR' AS color FROM ( SELECT c1.file_id, c1.author_id AS source, c2.author_id AS target, CONCAT(c1.author_id, '-', c2.author_id) AS pair FROM (SELECT author_id, file_id FROM commit c JOIN file_modification fm ON c.id = fm.commit_id JOIN repository r ON r.id = c.repo_id JOIN commit_in_reference cir ON cir.commit_id = c.id WHERE cir.ref_id in (REFERENCES) AND r.id = REPOID AND r.project_id = PROJECTID) AS c1 JOIN (SELECT author_id, file_id FROM commit c JOIN file_modification fm ON c.id = fm.commit_id JOIN repository r ON r.id = c.repo_id JOIN commit_in_reference cir ON cir.commit_id = c.id WHERE cir.ref_id in (REFERENCES) AND r.id = REPOID AND r.project_id = PROJECTID) AS c2 ON c1.file_id = c2.file_id AND c1.author_id > c2.author_id) AS file_interaction GROUP BY pair;"
+ },
+ {"name": "#commits",
+ "PROJECTID": "1",
+ "REPOID": "1",
+ "AFTERDATE": "2016-09-25",
+ "INTERVAL": "DAY",
+ "query": "SELECT count(*) AS counter, INTERVAL(committed_date) AS span FROM project p JOIN repository r ON p.id = r.project_id JOIN commit c ON c.repo_id = r.id WHERE p.id = PROJECTID AND r.id = REPOID AND c.committed_date >= 'AFTERDATE' GROUP BY INTERVAL(committed_date) ORDER BY span;"
+ },
+ {"name": "#repo-users",
+  "PROJECTID": "1",
+  "REPOID": "1",
+  "AFTERDATE": "2016-09-25",
+  "INTERVAL": "DAY",
+  "query": "SELECT count(*) AS counter, INTERVAL(committed_date) AS span FROM ( SELECT u1.id, c.committed_date FROM project p JOIN repository r ON p.id = r.project_id JOIN commit c ON c.repo_id = r.id JOIN user u1 ON u1.id = c.committer_id WHERE p.id = PROJECTID AND r.id = REPOID AND c.committed_date > 'AFTERDATE' UNION SELECT u1.id, c.committed_date FROM project p JOIN repository r ON p.id = r.project_id JOIN commit c ON c.repo_id = r.id JOIN user u1 ON u1.id = c.author_id WHERE p.id = PROJECTID AND r.id = REPOID AND c.committed_date >= 'AFTERDATE') AS active_users GROUP BY INTERVAL(committed_date) ORDER BY span;"
+ },
+ {"name": "#issues-closed",
+  "PROJECTID": "1",
+  "ISSUETRACKERID": "1",
+  "AFTERDATE": "2016-09-25",
+  "INTERVAL": "DAY",
+  "query": "SELECT count(distinct i.id) AS counter, INTERVAL(ie.created_at) AS span FROM issue_tracker it JOIN repository r on r.id = it.repo_id JOIN project p ON p.id = r.project_id JOIN issue i ON it.id = i.issue_tracker_id JOIN issue_event ie ON ie.issue_id = i.id JOIN issue_event_type iet ON iet.id = ie.event_type_id WHERE p.id = PROJECTID AND it.id = ISSUETRACKERID AND detail in ('closed') AND ie.created_at >= 'AFTERDATE' GROUP BY INTERVAL(ie.created_at) ORDER BY span;"
+ },
+ {"name": "#issues-open",
+  "PROJECTID": "1",
+  "ISSUETRACKERID": "1",
+  "AFTERDATE": "2016-09-25",
+  "INTERVAL": "DAY",
+  "query": "SELECT count(distinct i.id) AS counter, INTERVAL(ie.created_at) AS span FROM issue_tracker it JOIN repository r on r.id = it.repo_id JOIN project p ON p.id = r.project_id JOIN issue i ON it.id = i.issue_tracker_id JOIN issue_event ie ON ie.issue_id = i.id JOIN issue_event_type iet ON iet.id = ie.event_type_id WHERE p.id = PROJECTID AND it.id = ISSUETRACKERID AND detail in ('open','new') AND ie.created_at >= 'AFTERDATE' GROUP BY INTERVAL(ie.created_at) ORDER BY span;"
+ },
+ {"name": "#issue-tracker-users",
+  "PROJECTID": "1",
+  "ISSUETRACKERID": "1",
+  "AFTERDATE": "2016-09-25",
+  "INTERVAL": "DAY",
+  "query": "SELECT count(distinct user_id) AS counter, INTERVAL(created_at) AS span FROM ( SELECT i.reporter_id as user_id, i.created_at FROM issue_tracker it JOIN repository r on r.id = it.repo_id JOIN project p ON p.id = r.project_id JOIN issue i ON it.id = i.issue_tracker_id WHERE p.id = PROJECTID AND it.id = ISSUETRACKERID AND i.created_at >= 'AFTERDATE' UNION SELECT ie.target_user_id as user_id, ie.created_at FROM issue_tracker it JOIN repository r on r.id = it.repo_id JOIN project p ON p.id = r.project_id JOIN issue i ON it.id = i.issue_tracker_id JOIN issue_event ie ON ie.issue_id = i.id WHERE p.id = PROJECTID AND it.id = ISSUETRACKERID AND ie.created_at >= 'AFTERDATE') AS users GROUP BY INTERVAL(created_at) ORDER BY span;"
+ },
+ {"name": "#new-topics",
+  "PROJECTID": "1",
+  "FORUMID": "1",
+  "AFTERDATE": "2016-09-25",
+  "INTERVAL": "DAY",
+  "query": "SELECT count(*) AS counter, INTERVAL(t.created_at) AS span FROM project p JOIN forum f on p.id = f.project_id JOIN topic t ON t.forum_id = f.id WHERE p.id = PROJECTID AND f.id = FORUMID AND t.created_at >= 'AFTERDATE' GROUP BY INTERVAL(t.created_at) ORDER BY span;"
+ },
+ {"name": "#active-topics",
+  "PROJECTID": "1",
+  "FORUMID": "1",
+  "AFTERDATE": "2016-09-25",
+  "INTERVAL": "DAY",
+  "query": "SELECT count(*) AS counter, INTERVAL(t.last_change_at) AS span FROM project p JOIN forum f on p.id = f.project_id JOIN topic t ON t.forum_id = f.id WHERE p.id = PROJECTID AND f.id = FORUMID AND t.created_at >= 'AFTERDATE' GROUP BY INTERVAL(t.last_change_at) ORDER BY span;"
+ },
+ {"name": "#messages",
+  "PROJECTID": "1",
+  "FORUMID": "1",
+  "AFTERDATE": "2016-09-25",
+  "INTERVAL": "DAY",
+  "query": "SELECT count(*) AS counter, INTERVAL(m.created_at) AS span FROM project p JOIN forum f on p.id = f.project_id JOIN topic t ON t.forum_id = f.id JOIN message m ON m.topic_id = t.id WHERE p.id = PROJECTID AND f.id = FORUMID AND m.created_at >= 'AFTERDATE' GROUP BY INTERVAL(m.created_at) ORDER BY span;"
+ },
+ {"name": "#forum-users",
+  "PROJECTID": "1",
+  "FORUMID": "1",
+  "AFTERDATE": "2016-09-25",
+  "INTERVAL": "DAY",
+  "query": "SELECT count(distinct m.author_id) AS counter, INTERVAL(m.created_at) AS span FROM project p JOIN forum f on p.id = f.project_id JOIN topic t ON t.forum_id = f.id JOIN message m ON m.topic_id = t.id WHERE p.id = PROJECTID AND f.id = FORUMID AND m.created_at >= 'AFTERDATE' GROUP BY INTERVAL(m.created_at) ORDER BY span;"
  }
  ]}

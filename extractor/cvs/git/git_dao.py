@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 __author__ = 'valerio cosentino'
 
-from extractor.util.db_util import DbUtil
+from util.db_util import DbUtil
 
 
 class GitDao():
@@ -105,8 +105,8 @@ class GitDao():
 
         return found
 
-    def select_repo_id(self, project_id, repo_name):
-        return self.db_util.select_repo_id(self.cnx, project_id, repo_name, self.logger)
+    def select_repo_id(self, repo_name):
+        return self.db_util.select_repo_id(self.cnx, repo_name, self.logger)
 
     def insert_repo(self, project_id, repo_name):
         return self.db_util.insert_repo(self.cnx, project_id, repo_name, self.logger)
@@ -121,65 +121,6 @@ class GitDao():
             user_id = self.db_util.select_user_id_by_email(self.cnx, user_email, self.logger)
 
         return user_id
-
-    def delete_commit(self, commit_id, repo_id):
-        cursor = self.cnx.cursor()
-        query = "DELETE FROM commit WHERE id = %s AND repo_id = %s"
-        arguments = [commit_id, repo_id]
-        cursor.execute(query, arguments)
-        self.cnx.commit()
-        cursor.close()
-
-    def delete_file_related_info(self, commit_id):
-        cursor = self.cnx.cursor()
-        query = "SELECT id, file_id " \
-                "FROM file_modification f " \
-                "WHERE commit_id = %s"
-        arguments = [commit_id]
-        cursor.execute(query, arguments)
-
-        row = cursor.fetchone()
-
-        file_modification_ids = []
-        while row:
-            file_modification_ids.append(row[0])
-            row = cursor.fetchone()
-        cursor.close()
-
-        if file_modification_ids:
-            self.delete_line_details(file_modification_ids)
-        self.delete_file_modification(commit_id)
-
-    def delete_commit_parent(self, commit_id, repo_id):
-        cursor = self.cnx.cursor()
-        query = "DELETE FROM commit_parent WHERE commit_id = %s AND repo_id = %s"
-        arguments = [commit_id, repo_id]
-        cursor.execute(query, arguments)
-        self.cnx.commit()
-        cursor.close()
-
-    def delete_commit_in_reference(self, commit_id, repo_id):
-        cursor = self.cnx.cursor()
-        query = "DELETE FROM commit_in_reference WHERE commit_id = %s AND repo_id = %s"
-        arguments = [commit_id, repo_id]
-        cursor.execute(query, arguments)
-        self.cnx.commit()
-        cursor.close()
-
-    def delete_file_modification(self, commit_id):
-        cursor = self.cnx.cursor()
-        query = "DELETE FROM file_modification WHERE commit_id = %s"
-        arguments = [commit_id]
-        cursor.execute(query, arguments)
-        self.cnx.commit()
-        cursor.close()
-
-    def delete_line_details(self, file_modification_ids):
-        cursor = self.cnx.cursor()
-        query = "DELETE FROM line_detail WHERE file_modification_id IN (" + self.array2string(file_modification_ids) + ")"
-        cursor.execute(query)
-        self.cnx.commit()
-        cursor.close()
 
     def insert_commit_parents(self, parents, commit_id, sha, repo_id):
         cursor = self.cnx.cursor()

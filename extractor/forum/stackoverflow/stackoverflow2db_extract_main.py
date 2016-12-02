@@ -7,7 +7,7 @@ import multiprocessing
 import sys
 sys.path.insert(0, "..//..//..")
 
-from extractor.util import multiprocessing_util
+from util import multiprocessing_util
 from querier_stackoverflow import StackOverflowQuerier
 from stackoverflow2db_extract_topic import StackOverflowTopic2Db
 from stackoverflow_dao import StackOverflowDao
@@ -16,7 +16,7 @@ from stackoverflow_dao import StackOverflowDao
 class StackOverflow2DbMain():
 
     def __init__(self, db_name, project_name,
-                 type, forum_name, search_query, before_date, recover_import, tokens,
+                 type, forum_name, search_query, before_date, tokens,
                  config, logger):
         self.logger = logger
         self.log_path = self.logger.name.rsplit('.', 1)[0] + "-" + project_name
@@ -26,7 +26,6 @@ class StackOverflow2DbMain():
         self.project_name = project_name
         self.db_name = db_name
         self.before_date = before_date
-        self.recover_import = recover_import
         self.tokens = tokens
 
         config.update({'database': db_name})
@@ -62,7 +61,7 @@ class StackOverflow2DbMain():
         try:
             start_time = datetime.now()
             project_id = self.dao.select_project_id(self.project_name)
-            forum_id = self.dao.insert_forum(project_id, self.forum_name, None, self.type)
+            forum_id = self.dao.insert_forum(project_id, self.forum_name, self.type)
             self.get_topics(forum_id)
             self.dao.close_connection()
 

@@ -7,7 +7,7 @@ import multiprocessing
 import sys
 sys.path.insert(0, "..//..//..")
 
-from extractor.util import multiprocessing_util
+from util import multiprocessing_util
 from querier_stackoverflow import StackOverflowQuerier
 from stackoverflow2db_extract_topic import StackOverflowTopic2Db
 from stackoverflow_dao import StackOverflowDao
@@ -45,8 +45,8 @@ class StackOverflow2DbUpdate():
             # Start consumers
             multiprocessing_util.start_consumers(len(self.tokens), queue_extractors, results)
 
-            for interval in intervals:
-                topic_extractor = StackOverflowTopic2Db(self.db_name, forum_id, interval, self.config, self.log_path)
+            for i in range(len(intervals)):
+                topic_extractor = StackOverflowTopic2Db(self.db_name, forum_id, intervals[i], self.tokens[i], self.config, self.log_path)
                 queue_extractors.put(topic_extractor)
 
             # Add end-of-queue markers

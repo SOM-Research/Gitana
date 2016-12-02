@@ -1,0 +1,11 @@
+{"report":
+    {"project": "papyrus",
+     "time_span": "this_year",
+     "repo_activity": {"names": ["papyrus_repo"],
+                       "measures": ["#commits", "#repo-users"]},
+     "issue_tracker_activity": {"names": ["bugzilla-papyrus"],
+                                "measures": ["#issues-open", "#issues-closed", "#issue-tracker-users"]},
+     "forum_activity": {"names": ["papyrus-eclipse", "papyrus-stackoverflow"],
+                        "measures": ["#messages", "#forum-users", "#new-topics", "#active-topics"]}
+     }
+}

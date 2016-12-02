@@ -62,9 +62,6 @@ def test_4():
     g.create_project("papyrus_db_test", "papyrus")
     g.import_git_data("papyrus_db_test", "papyrus", "papyrus_repo", "C:\\Users\\atlanmod\\Desktop\\org.eclipse.papyrus", "2009-10-10", 1, REFERENCES, 20)
 
-    #test update
-    #g.update_git_data("papyrus_db_test", "papyrus", "papyrus_repo", "C:\\Users\\atlanmod\\Desktop\\org.eclipse.papyrus", "2012-10-10", True, False, 20)
-
 
 def test_4a():
     g = Gitana(CONFIG, None)
@@ -72,10 +69,10 @@ def test_4a():
     g.init_db("papyrus_db_test")
 
     g.create_project("papyrus_db_test", "papyrus")
-    g.import_git_data("papyrus_db_test", "papyrus", "papyrus_repo", "C:\\Users\\atlanmod\\Desktop\\org.eclipse.papyrus", "2010-10-10", 1, REFERENCES, 20)
+    g.import_git_data("papyrus_db_test", "papyrus", "papyrus_repo", "C:\\Users\\atlanmod\\Desktop\\org.eclipse.papyrus", "2010-10-10", 1, REFERENCES, 1)
 
     #test recover
-    g.update_git_data("papyrus_db_test", "papyrus", "papyrus_repo", "C:\\Users\\atlanmod\\Desktop\\org.eclipse.papyrus", None, True, False, 20)
+    g.update_git_data("papyrus_db_test", "papyrus", "papyrus_repo", "C:\\Users\\atlanmod\\Desktop\\org.eclipse.papyrus", None, 1)
 
 
 def test_5():
@@ -90,18 +87,18 @@ def test_5():
 
 
 def main():
-    # print "starting 1.."
-    # test_1()
-    # print "starting 2.."
-    # test_2()
-    # print "starting 3.."
-    # test_3()
-    print "starting 4.."
-    test_4()
-    # print "starting 4a.."
-    # test_4a()
-    # print "starting 5.."
-    # test_5()
+    #print "starting 1.."
+    #test_1()
+    #print "starting 2.."
+    #test_2()
+    #print "starting 3.."
+    #test_3()
+    #print "starting 4.."
+    #test_4()
+    print "starting 4a.."
+    test_4a()
+    #print "starting 5.."
+    #test_5()
 
 if __name__ == "__main__":
     main()

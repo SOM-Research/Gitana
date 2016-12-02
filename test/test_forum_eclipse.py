@@ -16,7 +16,7 @@ CONFIG = {
 
 def test_1(g):
     #test before date
-    g.import_eclipse_forum_data("papyrus_db_test", "papyrus", "papyrus-forum", "https://www.eclipse.org/forums/index.php/f/121/", "2012-12-05", False, 3)
+    g.import_eclipse_forum_data("papyrus_db_test", "papyrus", "papyrus-forum", "https://www.eclipse.org/forums/index.php/f/121/", "2012-12-05", 3)
 
 
 def test_2(g):
@@ -26,12 +26,12 @@ def test_2(g):
 
 def test_3(g):
     #test recover process
-    g.import_eclipse_forum_data("papyrus_db_test", "papyrus", "papyrus-forum", "https://www.eclipse.org/forums/index.php/f/121/", "2014-05-05", True, 3)
+    g.import_eclipse_forum_data("papyrus_db_test", "papyrus", "papyrus-forum", "https://www.eclipse.org/forums/index.php/f/121/", "2014-05-05", 3)
 
 
 def test_4(g):
     #test recover process
-    g.import_eclipse_forum_data("papyrus_db_test", "papyrus", "papyrus-forum", "https://www.eclipse.org/forums/index.php/f/121/", None, True, 3)
+    g.import_eclipse_forum_data("papyrus_db_test", "papyrus", "papyrus-forum", "https://www.eclipse.org/forums/index.php/f/121/", None, 3)
 
 
 def main():

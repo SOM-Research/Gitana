@@ -3,7 +3,7 @@
 __author__ = 'valerio cosentino'
 
 import bugzilla
-from extractor.util.date_util import DateUtil
+from util.date_util import DateUtil
 
 
 class BugzillaQuerier():
@@ -15,14 +15,10 @@ class BugzillaQuerier():
 
         self.date_util = DateUtil()
 
-    def get_issue_ids(self, from_issue_id, to_issue_id, before_date):
+    def get_issue_ids(self, before_date):
         #TODO - include_fields seems not to work properly, http://bugzilla.readthedocs.io/en/latest/api/core/v1/bug.html
         query = self.bzapi.build_query(product=self.product, include_fields=["id", "creation_time"])
         result = self.bzapi.query(query)
-        if from_issue_id and not to_issue_id:
-            result = [r for r in result if r.id >= from_issue_id]
-        elif from_issue_id and to_issue_id:
-            result = [r for r in result if r.id >= from_issue_id and r.id <= to_issue_id]
 
         if before_date:
             result = [r for r in result if r.creation_time <= self.date_util.get_timestamp(before_date, "%Y-%m-%d")]
@@ -45,11 +41,11 @@ class BugzillaQuerier():
     def get_issue_version(self, issue):
         return issue.version
 
-    def issue_last_change_time(self, issue):
-        return issue.last_change_time
+    def get_issue_last_change_time(self, issue):
+        return self.date_util.get_timestamp(issue.last_change_time, '%Y%m%dT%H:%M:%S')
 
     def get_issue_creation_time(self, issue):
-        return issue.creation_time
+        return self.date_util.get_timestamp(issue.creation_time, '%Y%m%dT%H:%M:%S')
 
     def get_issue_priority(self, issue):
         return issue.priority
