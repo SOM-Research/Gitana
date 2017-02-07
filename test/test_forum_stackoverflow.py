@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 __author__ = 'valerio cosentino'
 
-from gitana import Gitana
+from gitana.gitana import Gitana
 
 CONFIG = {
             'user': 'root',
@@ -20,7 +20,7 @@ def test_1():
     g.delete_previous_logs()
     g.init_db("papyrus_db_test")
     g.create_project("papyrus_db_test", "papyrus")
-    g.import_stackoverflow_data("papyrus_db_test", "papyrus", "papyrus-stackoverflow", "papyrus", None, ['IFco1Gh5EJ*U)ZY5)16ZKQ(('])
+    g.import_stackoverflow_data("papyrus_db_test", "papyrus", "papyrus-stackoverflow", "papyrus", None, ['MxTbS3KBl76SP6KCyT*DsA(('])
 
 
 def test_2():

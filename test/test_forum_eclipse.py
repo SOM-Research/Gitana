@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 __author__ = 'valerio cosentino'
 
-from gitana import Gitana
+from gitana.gitana import Gitana
 
 CONFIG = {
             'user': 'root',

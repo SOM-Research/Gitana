@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 __author__ = 'valerio cosentino'
 
-from gitana import Gitana
+from gitana.gitana import Gitana
 
 CONFIG = {
             'user': 'root',
@@ -13,8 +13,7 @@ CONFIG = {
             'buffered': True
         }
 
-REFERENCES = ["0.7.0", "0.7.1", "0.7.2", "0.7.3", "0.7.4", "0.8.0", "0.9.0",
-              "0.10.0", "1.0.0", "1.0.1", "1.1.2", "1.1.3", "1.1.4", "2.0.0"]
+REFERENCES = ["0.7.0", "0.7.1", "0.7.2", "0.7.3", "0.7.4"]
 
 
 def test_1(g):
@@ -34,8 +33,8 @@ def test_3(g):
 def main():
     g = Gitana(CONFIG, None)
     g.delete_previous_logs()
-    g.init_db("papyrus_db_test")
-    g.create_project("papyrus_db_test", "papyrus")
+    #g.init_db("papyrus_db_test")
+    #g.create_project("papyrus_db_test", "papyrus")
     #g.import_git_data("papyrus_db_test", "papyrus", "papyrus_repo", "C:\\Users\\atlanmod\\Desktop\\org.eclipse.papyrus", None, 1, REFERENCES, 20)
 
     #print "starting 1.."

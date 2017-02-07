@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 __author__ = 'valerio cosentino'
 
-from gitana import Gitana
+from gitana.gitana import Gitana
 
 CONFIG = {
             'user': 'root',
@@ -86,19 +86,38 @@ def test_5():
     g.import_git_data("papyrus_db_test", "papyrus", "papyrus_repo", "C:\\Users\\atlanmod\\Desktop\\org.eclipse.papyrus", None, 1, None, 20)
 
 
+def test_6():
+    g = Gitana(CONFIG, None)
+    g.delete_previous_logs()
+    g.init_db("dltk_db_test")
+    g.create_project("dltk_db_test", "dltk")
+
+    #test before date
+    g.import_git_data("dltk_db_test", "dltk", "dltk_repo", "C:\\Users\\atlanmod\\Desktop\\org.eclipse.dltk.core", None, 1, None, 20)
+
+
+def test_7():
+    g = Gitana(CONFIG, None)
+    g.delete_previous_logs()
+    g.init_db("cdt_db_test")
+    g.create_project("cdt_db_test", "cdt")
+
+    #test before date
+    g.import_git_data("cdt_db_test", "cdt", "cdt_repo", "C:\\Users\\atlanmod\\Desktop\\org.eclipse.cdt", None, 1, None, 20)
+
+
+def test_8():
+    g = Gitana(CONFIG, None)
+    g.delete_previous_logs()
+    g.init_db("2048_db_test")
+    g.create_project("2048_db_test", "2048")
+
+    #test before date
+    g.import_git_data("2048_db_test", "2048", "2048_repo", "C:\\Users\\atlanmod\\Desktop\\2048", None, 1, None, 20)
+
+
 def main():
-    #print "starting 1.."
-    #test_1()
-    #print "starting 2.."
-    #test_2()
-    #print "starting 3.."
-    #test_3()
-    #print "starting 4.."
-    #test_4()
-    print "starting 4a.."
-    test_4a()
-    #print "starting 5.."
-    #test_5()
+    test_8()
 
 if __name__ == "__main__":
     main()

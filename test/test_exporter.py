@@ -1,7 +1,7 @@
 __author__ = 'valerio cosentino'
 
-from exporter.report.report_exporter import ReportExporter
-from exporter.graph.graph_exporter import GraphExporter
+from exporters.report.report_exporter import ReportExporter
+from exporters.graph.graph_exporter import GraphExporter
 
 CONFIG = {
             'user': 'root',

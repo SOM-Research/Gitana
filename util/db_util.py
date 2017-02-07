@@ -29,13 +29,13 @@ class DbUtil():
         arguments = [project_name]
         cursor.execute(query, arguments)
         row = cursor.fetchone()
-        cursor.close()
 
         if row:
             found = row[0]
         else:
             logger.error("the project " + str(project_name) + " does not exist")
 
+        cursor.close()
         return found
 
     def insert_repo(self, cnx, project_id, repo_name, logger):
@@ -62,13 +62,13 @@ class DbUtil():
         cursor.execute(query, arguments)
 
         row = cursor.fetchone()
-        cursor.close()
 
         if row:
             found = row[0]
         else:
             logger.warning("no issue with name " + str(issue_tracker_name))
 
+        cursor.close()
         return found
 
     def select_repo_id(self, cnx, repo_name, logger):
@@ -81,13 +81,13 @@ class DbUtil():
         cursor.execute(query, arguments)
 
         row = cursor.fetchone()
-        cursor.close()
 
         if row:
             found = row[0]
         else:
             logger.error("the repository " + repo_name + " does not exist")
 
+        cursor.close()
         return found
 
     def select_instant_messaging_id(self, cnx, im_name, logger):
@@ -100,13 +100,13 @@ class DbUtil():
         cursor.execute(query, arguments)
 
         row = cursor.fetchone()
-        cursor.close()
 
         if row:
             found = row[0]
         else:
             logger.error("the instant messaging " + im_name + " does not exist")
 
+        cursor.close()
         return found
 
     def insert_user(self, cnx, name, email, logger):
@@ -130,13 +130,13 @@ class DbUtil():
             cursor.execute(query, arguments)
 
             row = cursor.fetchone()
-            cursor.close()
 
             if row:
                 found = row[0]
             else:
                 logger.warning("there is not user with this email " + email)
 
+            cursor.close()
         return found
 
     def select_user_id_by_name(self, cnx, name, logger):
@@ -151,13 +151,13 @@ class DbUtil():
             cursor.execute(query, arguments)
 
             row = cursor.fetchone()
-            cursor.close()
 
             if row:
                 found = row[0]
             else:
                 logger.warning("there is not user with this name " + name)
 
+            cursor.close()
         return found
 
     def select_forum_id(self, cnx, forum_name, logger):
@@ -170,13 +170,13 @@ class DbUtil():
         cursor.execute(query, arguments)
 
         row = cursor.fetchone()
-        cursor.close()
 
         if row:
             found = row[0]
         else:
             logger.error("the forum " + forum_name + " does not exist")
 
+        cursor.close()
         return found
 
     def select_issue_tracker_id(self, cnx, issue_tracker_name, logger):
@@ -189,13 +189,13 @@ class DbUtil():
         cursor.execute(query, arguments)
 
         row = cursor.fetchone()
-        cursor.close()
 
         if row:
             found = row[0]
         else:
             logger.error("the issue tracker " + issue_tracker_name + " does not exist")
 
+        cursor.close()
         return found
 
     def get_issue_dependency_type_id(self, cnx, name):
@@ -220,12 +220,27 @@ class DbUtil():
         arguments = [name]
         cursor.execute(query, arguments)
         row = cursor.fetchone()
-        cursor.close()
 
         if row:
             found = row[0]
 
+        cursor.close()
         return found
+
+    def set_database(self, cnx, db_name):
+        cursor = cnx.cursor()
+        use_database = "USE " + db_name
+        cursor.execute(use_database)
+        cursor.close()
+
+    def set_settings(self, cnx):
+        cursor = cnx.cursor()
+        cursor.execute("set global innodb_file_format = BARRACUDA")
+        cursor.execute("set global innodb_file_format_max = BARRACUDA")
+        cursor.execute("set global innodb_large_prefix = ON")
+        cursor.execute("set global character_set_server = utf8")
+        cursor.execute("set global max_connections = 500")
+        cursor.close()
 
     def restart_connection(self, config, logger):
         logger.info("restarting connection...")
