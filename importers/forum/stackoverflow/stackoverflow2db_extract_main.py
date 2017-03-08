@@ -37,7 +37,9 @@ class StackOverflow2DbMain():
         self._dao = None
 
     def _get_topics(self, forum_id):
-        topic_ids = self._querier.get_topic_ids(self._search_query, self._before_date)
+        topic_imported = self._dao.get_topic_own_ids(forum_id)
+        topic_ids = list(set(self._querier.get_topic_ids(self._search_query, self._before_date)) - set(topic_imported))
+        topic_ids.sort()
 
         intervals = [i for i in multiprocessing_util.get_tasks_intervals(topic_ids, len(self._tokens)) if len(i) > 0]
 

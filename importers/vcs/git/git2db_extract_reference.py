@@ -104,124 +104,127 @@ class Git2DbReference(object):
         return diffs
 
     def _analyse_commit(self, commit, repo_id, ref_id):
-        message = self._querier.get_commit_property(commit, "message")
-        author_name = self._querier.get_commit_property(commit, "author.name")
-        author_email = self._querier.get_commit_property(commit, "author.email")
-        committer_name = self._querier.get_commit_property(commit, "committer.name")
-        committer_email = self._querier.get_commit_property(commit, "committer.email")
-        size = self._querier.get_commit_property(commit, "size")
-        sha = self._querier.get_commit_property(commit, "hexsha")
-        authored_date = self._querier.get_commit_time(self._querier.get_commit_property(commit, "authored_date"))
-        committed_date = self._querier.get_commit_time(self._querier.get_commit_property(commit, "committed_date"))
-        #insert author
-        author_id = self._dao.get_user_id(author_name, author_email)
-        committer_id = self._dao.get_user_id(committer_name, committer_email)
+        try:
+            message = self._querier.get_commit_property(commit, "message")
+            author_name = self._querier.get_commit_property(commit, "author.name")
+            author_email = self._querier.get_commit_property(commit, "author.email")
+            committer_name = self._querier.get_commit_property(commit, "committer.name")
+            committer_email = self._querier.get_commit_property(commit, "committer.email")
+            size = self._querier.get_commit_property(commit, "size")
+            sha = self._querier.get_commit_property(commit, "hexsha")
+            authored_date = self._querier.get_commit_time(self._querier.get_commit_property(commit, "authored_date"))
+            committed_date = self._querier.get_commit_time(self._querier.get_commit_property(commit, "committed_date"))
+            #insert author
+            author_id = self._dao.get_user_id(author_name, author_email)
+            committer_id = self._dao.get_user_id(committer_name, committer_email)
 
-        commit_found = self._dao.select_commit_id(sha, repo_id)
-
-        if not commit_found:
-            #insert commit
-            self._dao.insert_commit(repo_id, sha, message, author_id, committer_id, authored_date, committed_date, size)
             commit_found = self._dao.select_commit_id(sha, repo_id)
 
-            commit_stats_files = commit.stats.files
-            try:
-                if self._querier.commit_has_no_parents(commit):
-                    for diff in self._querier.get_diffs_no_parent_commit(commit):
-                        file_path = diff[0]
-                        ext = self._get_ext(file_path)
+            if not commit_found:
+                #insert commit
+                self._dao.insert_commit(repo_id, sha, message, author_id, committer_id, authored_date, committed_date, size)
+                commit_found = self._dao.select_commit_id(sha, repo_id)
 
-                        self._dao.insert_file(repo_id, file_path, ext)
-                        file_id = self._dao.select_file_id(repo_id, file_path)
+                commit_stats_files = commit.stats.files
+                try:
+                    if self._querier.commit_has_no_parents(commit):
+                        for diff in self._querier.get_diffs_no_parent_commit(commit):
+                            file_path = diff[0]
+                            ext = self._get_ext(file_path)
 
-                        if self._import_type > Git2DbReference.LIGHT_IMPORT_TYPE:
-                            patch_content = re.sub(r'^(\w|\W)*\n@@', '@@', diff[1])
-                        else:
-                            patch_content = None
+                            self._dao.insert_file(repo_id, file_path, ext)
+                            file_id = self._dao.select_file_id(repo_id, file_path)
 
-                        stats = self._querier.get_stats_for_file(commit_stats_files, file_path)
-                        status = self._querier.get_status_with_diff(stats, diff)
+                            if self._import_type > Git2DbReference.LIGHT_IMPORT_TYPE:
+                                patch_content = re.sub(r'^(\w|\W)*\n@@', '@@', diff[1])
+                            else:
+                                patch_content = None
 
-                        #insert file modification
-                        self._dao.insert_file_modification(commit_found, file_id, status, stats[0], stats[1], stats[2], patch_content)
+                            stats = self._querier.get_stats_for_file(commit_stats_files, file_path)
+                            status = self._querier.get_status_with_diff(stats, diff)
 
-                        if self._import_type == Git2DbReference.FULL_IMPORT_TYPE:
-                            file_modification_id = self._dao.select_file_modification_id(commit_found, file_id)
-                            line_details = self._querier.get_line_details(patch_content, ext)
-                            for line_detail in line_details:
-                                self._dao.insert_line_details(file_modification_id, line_detail)
-                else:
-                    for diff in self._get_diffs_from_commit(commit, commit_stats_files.keys()):
-                        #self.dao.check_connection_alive()
-                        if self._querier.is_renamed(diff):
-                            file_previous = self._querier.get_rename_from(diff)
-                            ext_previous = self._get_ext(file_previous)
+                            #insert file modification
+                            self._dao.insert_file_modification(commit_found, file_id, status, stats[0], stats[1], stats[2], patch_content)
 
-                            file_current = self._querier.get_file_current(diff)
-                            ext_current = self._get_ext(file_current)
+                            if self._import_type == Git2DbReference.FULL_IMPORT_TYPE:
+                                file_modification_id = self._dao.select_file_modification_id(commit_found, file_id)
+                                line_details = self._querier.get_line_details(patch_content, ext)
+                                for line_detail in line_details:
+                                    self._dao.insert_line_details(file_modification_id, line_detail)
+                    else:
+                        for diff in self._get_diffs_from_commit(commit, commit_stats_files.keys()):
+                            #self.dao.check_connection_alive()
+                            if self._querier.is_renamed(diff):
+                                file_previous = self._querier.get_rename_from(diff)
+                                ext_previous = self._get_ext(file_previous)
 
-                            #insert new file
-                            self._dao.insert_file(repo_id, file_current, ext_current)
+                                file_current = self._querier.get_file_current(diff)
+                                ext_current = self._get_ext(file_current)
 
-                            #get id new file
-                            current_file_id = self._dao.select_file_id(repo_id, file_current)
+                                #insert new file
+                                self._dao.insert_file(repo_id, file_current, ext_current)
 
-                            #retrieve the id of the previous file
-                            previous_file_id = self._dao.select_file_id(repo_id, file_previous)
+                                #get id new file
+                                current_file_id = self._dao.select_file_id(repo_id, file_current)
 
-                            if not previous_file_id:
-                                self._dao.insert_file(repo_id, file_previous, ext_previous)
+                                #retrieve the id of the previous file
                                 previous_file_id = self._dao.select_file_id(repo_id, file_previous)
 
-                            if current_file_id == previous_file_id:
-                                self._logger.warning("previous file id is equal to current file id (" + str(current_file_id) + ") " + str(sha))
+                                if not previous_file_id:
+                                    self._dao.insert_file(repo_id, file_previous, ext_previous)
+                                    previous_file_id = self._dao.select_file_id(repo_id, file_previous)
+
+                                if current_file_id == previous_file_id:
+                                    self._logger.warning("previous file id is equal to current file id (" + str(current_file_id) + ") " + str(sha))
+                                else:
+                                    self._dao.insert_file_renamed(repo_id, current_file_id, previous_file_id)
+                                self._dao.insert_file_modification(commit_found, current_file_id, "renamed", 0, 0, 0, None)
                             else:
-                                self._dao.insert_file_renamed(repo_id, current_file_id, previous_file_id)
-                            self._dao.insert_file_modification(commit_found, current_file_id, "renamed", 0, 0, 0, None)
-                        else:
-                            #insert file
-                            #if the file does not have a path, it won't be inserted
-                            try:
-                                file_path = self._querier.get_file_path(diff)
+                                #insert file
+                                #if the file does not have a path, it won't be inserted
+                                try:
+                                    file_path = self._querier.get_file_path(diff)
 
-                                ext = self._get_ext(file_path)
+                                    ext = self._get_ext(file_path)
 
-                                stats = self._querier.get_stats_for_file(commit_stats_files, file_path)
-                                status = self._querier.get_status_with_diff(stats, diff)
+                                    stats = self._querier.get_stats_for_file(commit_stats_files, file_path)
+                                    status = self._querier.get_status_with_diff(stats, diff)
 
-                                #if the file is new, add it
-                                if self._querier.is_new_file(diff):
-                                    self._dao.insert_file(repo_id, file_path, ext)
-                                file_id = self._dao.select_file_id(repo_id, file_path)
-
-                                if not file_id:
-                                    self._dao.insert_file(repo_id, file_path, ext)
+                                    #if the file is new, add it
+                                    if self._querier.is_new_file(diff):
+                                        self._dao.insert_file(repo_id, file_path, ext)
                                     file_id = self._dao.select_file_id(repo_id, file_path)
 
-                                if self._import_type > Git2DbReference.LIGHT_IMPORT_TYPE:
-                                    #insert file modification (additions, deletions)
-                                    patch_content = self._querier.get_patch_content(diff)
-                                else:
-                                    patch_content = None
+                                    if not file_id:
+                                        self._dao.insert_file(repo_id, file_path, ext)
+                                        file_id = self._dao.select_file_id(repo_id, file_path)
 
-                                self._dao.insert_file_modification(commit_found, file_id, status, stats[0], stats[1], stats[2], patch_content)
+                                    if self._import_type > Git2DbReference.LIGHT_IMPORT_TYPE:
+                                        #insert file modification (additions, deletions)
+                                        patch_content = self._querier.get_patch_content(diff)
+                                    else:
+                                        patch_content = None
 
-                                if self._import_type == Git2DbReference.FULL_IMPORT_TYPE:
-                                    file_modification_id = self._dao.select_file_modification_id(commit_found, file_id)
-                                    line_details = self._querier.get_line_details(patch_content, ext)
-                                    for line_detail in line_details:
-                                        self._dao.insert_line_details(file_modification_id, line_detail)
-                            except Exception, e:
-                                self._logger.error("Something went wrong with commit " + str(sha), exc_info=True)
-            except Exception, e:
-                self._logger.error("Git2Db failed on commit " + str(sha), exc_info=True)
+                                    self._dao.insert_file_modification(commit_found, file_id, status, stats[0], stats[1], stats[2], patch_content)
 
-        # insert parents of the commit
-        self._dao.insert_commit_parents(commit.parents, commit_found, sha, repo_id)
-        # insert commits in reference
-        self._dao.insert_commit_in_reference(repo_id, commit_found, ref_id)
+                                    if self._import_type == Git2DbReference.FULL_IMPORT_TYPE:
+                                        file_modification_id = self._dao.select_file_modification_id(commit_found, file_id)
+                                        line_details = self._querier.get_line_details(patch_content, ext)
+                                        for line_detail in line_details:
+                                            self._dao.insert_line_details(file_modification_id, line_detail)
+                                except Exception, e:
+                                    self._logger.error("Something went wrong with commit " + str(sha), exc_info=True)
+                except Exception, e:
+                    self._logger.error("Git2Db failed on commit " + str(sha), exc_info=True)
 
-        #return commit_found
+            # insert parents of the commit
+            self._dao.insert_commit_parents(commit.parents, commit_found, sha, repo_id)
+            # insert commits in reference
+            self._dao.insert_commit_in_reference(repo_id, commit_found, ref_id)
+
+            #return commit_found
+        except Exception, e:
+            self._logger.error("Git2Db failed on commit " + str(sha), exc_info=True)
 
     def _analyse_commits(self, commits, ref, repo_id):
         ref_id = self._dao.select_reference_id(repo_id, ref)

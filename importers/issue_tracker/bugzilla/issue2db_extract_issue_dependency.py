@@ -52,7 +52,7 @@ class BugzillaIssueDependency2Db(object):
                 extracted = data.split("?id=")[1]
 
         if extracted:
-            dependent_issue = self.select_issue_id(extracted)
+            dependent_issue = self._dao.select_issue_id(extracted, self._issue_tracker_id, self._repo_id)
             if dependent_issue:
                 self._dao.insert_issue_dependency(issue_id, dependent_issue, type)
 

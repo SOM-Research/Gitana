@@ -33,7 +33,7 @@ class StackOverflow2DbUpdate():
         self._dao = None
 
     def _get_topics(self, forum_id):
-        topic_ids = self._dao.get_topic_ids(forum_id)
+        topic_ids = self._dao.get_topic_own_ids(forum_id)
 
         if topic_ids:
             intervals = [i for i in multiprocessing_util.get_tasks_intervals(topic_ids, len(self._tokens)) if len(i) > 0]
@@ -67,7 +67,9 @@ class StackOverflow2DbUpdate():
 
             project_id = self._dao.select_project_id(self._project_name)
             forum_id = self._dao.select_forum_id(self._forum_name, project_id)
-            self._get_topics(forum_id)
+
+            if forum_id:
+                self._get_topics(forum_id)
 
             end_time = datetime.now()
             minutes_and_seconds = self._logging_util.calculate_execution_time(end_time, start_time)

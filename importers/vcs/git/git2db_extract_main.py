@@ -43,7 +43,27 @@ class Git2DbMain():
         self._querier = None
         self._dao = None
 
+    def _get_existing_references(self, repo_id):
+        existing_refs = []
+
+        cursor = self._dao.get_cursor()
+        query = "SELECT ref.name " \
+                "FROM reference ref JOIN repository r ON ref.repo_id = r.id " \
+                "WHERE r.id = %s"
+        arguments = [repo_id]
+        self._dao.execute(cursor, query, arguments)
+
+        row = self._dao.fetchone(cursor)
+
+        while row:
+            existing_refs.append(row[0])
+            row = self._dao.fetchone(cursor)
+        self._dao.close_cursor(cursor)
+
+        return existing_refs
+
     def _get_info_contribution(self, repo_id):
+        existing_refs = self._get_existing_references(repo_id)
 
         queue_references = multiprocessing.JoinableQueue()
         results = multiprocessing.Queue()
@@ -54,17 +74,22 @@ class Git2DbMain():
         for reference in self._querier.get_references():
             if self._references:
                 if reference[0] in self._references:
+                    count = 0
+                    while count != self._num_processes:
+                        git_ref_extractor = Git2DbReference(self._db_name, repo_id, self._git_repo_path,
+                                                            self._before_date, self._import_type, reference[0], "",
+                                                            self._config, self._log_path)
+
+                        queue_references.put(git_ref_extractor)
+
+                        count += 1
+            else:
+                if reference[0] not in existing_refs:
                     git_ref_extractor = Git2DbReference(self._db_name, repo_id, self._git_repo_path,
                                                         self._before_date, self._import_type, reference[0], "",
                                                         self._config, self._log_path)
 
                     queue_references.put(git_ref_extractor)
-            else:
-                git_ref_extractor = Git2DbReference(self._db_name, repo_id, self._git_repo_path,
-                                                    self._before_date, self._import_type, reference[0], "",
-                                                    self._config, self._log_path)
-
-                queue_references.put(git_ref_extractor)
 
         # Add end-of-queue markers
         multiprocessing_util.add_poison_pills(self._num_processes, queue_references)

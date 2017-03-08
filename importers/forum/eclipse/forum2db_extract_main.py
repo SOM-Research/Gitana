@@ -51,9 +51,9 @@ class EclipseForum2DbMain():
         last_change_at = self._date_util.get_timestamp(self._querier.get_last_change_at(topic), "%a, %d %B %Y %H:%M")
 
         topic_id = self._dao.select_topic_id(forum_id, own_id)
-        if topic_id:
-            self._dao.update_topic_info(topic_id, forum_id, views, last_change_at)
-        else:
+        #if topic_id:
+        #    self._dao.update_topic_info(topic_id, forum_id, views, last_change_at)
+        if not topic_id:
             if self._before_date:
                 topic_created_at = self._querier.get_topic_created_at(topic)
                 if self._date_util.get_timestamp(topic_created_at, "%a, %d %B %Y") <= self._date_util.get_timestamp(self._before_date, "%Y-%m-%d"):

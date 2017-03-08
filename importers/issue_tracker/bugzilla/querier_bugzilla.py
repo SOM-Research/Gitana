@@ -13,7 +13,7 @@ class BugzillaQuerier():
 
     def __init__(self, url, product, logger):
         self._logger = logger
-        self._bzapi = self._init_bzapi()
+        self._bzapi = self._init_bzapi(url)
         self._product = product
         self._date_util = DateUtil()
 

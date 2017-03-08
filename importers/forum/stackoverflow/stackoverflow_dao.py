@@ -78,6 +78,25 @@ class StackOverflowDao():
         cursor.close()
         return found
 
+    def update_topic_created_at(self, topic_id, created_at, forum_id):
+        cursor = self._cnx.cursor()
+        query = "UPDATE topic SET created_at = %s WHERE id = %s AND forum_id = %s"
+        arguments = [created_at, topic_id, forum_id]
+        cursor.execute(query, arguments)
+        self._cnx.commit()
+        cursor.close()
+
+    def update_message(self, own_id, topic_id, body, votes):
+        try:
+            cursor = self._cnx.cursor()
+            query = "UPDATE message " \
+                    "SET body = %s, votes = %s WHERE own_id = %s AND topic_id = %s"
+            arguments = [body, votes, own_id, topic_id]
+            cursor.execute(query, arguments)
+            self._cnx.commit()
+        except:
+            self._logger.warning("message " + str(own_id) + ") for topic id: " + str(topic_id) + " not inserted", exc_info=True)
+
     def insert_message(self, own_id, pos, type, topic_id, body, votes, author_id, created_at):
         try:
             cursor = self._cnx.cursor()
@@ -134,6 +153,24 @@ class StackOverflowDao():
 
         cursor.close()
         return found
+
+    def get_topic_own_ids(self, forum_id):
+        topic_own_ids = []
+
+        cursor = self._cnx.cursor()
+        query = "SELECT own_id FROM topic WHERE forum_id = %s"
+        arguments = [forum_id]
+        cursor.execute(query, arguments)
+
+        row = cursor.fetchone()
+
+        while row:
+            topic_own_id = row[0]
+            topic_own_ids.append(topic_own_id)
+            row = cursor.fetchone()
+
+        cursor.close()
+        return topic_own_ids
 
     def get_topic_ids(self, forum_id):
         topic_ids = []

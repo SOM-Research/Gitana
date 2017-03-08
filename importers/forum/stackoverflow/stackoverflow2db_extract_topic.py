@@ -55,8 +55,14 @@ class StackOverflowTopic2Db(object):
             else:
                 message_type = "answer"
 
-            self._dao.insert_message(own_id, self.pos, self._dao.get_message_type_id(message_type), topic_id, self._querier.remove_html_tags(body), votes, author_id, created_at)
             answer_message_id = self._dao.select_message_id(own_id, topic_id)
+
+            if answer_message_id:
+                self._dao.update_message(own_id, topic_id, body, votes)
+            else:
+                self._dao.insert_message(own_id, self.pos, self._dao.get_message_type_id(message_type), topic_id, self._querier.remove_html_tags(body), votes, author_id, created_at)
+                answer_message_id = self._dao.select_message_id(own_id, topic_id)
+
             self._dao.insert_message_dependency(message_id, answer_message_id)
             self._extract_attachments(body, answer_message_id)
             self.pos += 1
@@ -70,8 +76,14 @@ class StackOverflowTopic2Db(object):
             author_id = self._dao.get_user_id(self._querier.get_container_author(c))
             created_at = self._querier.get_container_created_at(c)
             votes = self._querier.get_container_votes(c)
-            self._dao.insert_message(own_id, self.pos, self._dao.get_message_type_id("comment"), topic_id, self._querier.remove_html_tags(body), votes, author_id, created_at)
+
             comment_message_id = self._dao.select_message_id(own_id, topic_id)
+            if comment_message_id:
+                self._dao.update_message(own_id, topic_id, body, votes)
+            else:
+                self._dao.insert_message(own_id, self.pos, self._dao.get_message_type_id("comment"), topic_id, self._querier.remove_html_tags(body), votes, author_id, created_at)
+                comment_message_id = self._dao.select_message_id(own_id, topic_id)
+
             self._dao.insert_message_dependency(message_id, comment_message_id)
             self._extract_attachments(body, comment_message_id)
             self.pos += 1
@@ -105,9 +117,14 @@ class StackOverflowTopic2Db(object):
 
             self.pos = 0
             body = self._querier.get_container_body(topic)
-            self._dao.insert_message(own_id, self.pos, self._dao.get_message_type_id("question"), topic_id, self._querier.remove_html_tags(body),
-                                    votes, author_id, created_at)
+
             message_id = self._dao.select_message_id(own_id, topic_id)
+            if message_id:
+                self._dao.update_message(own_id, topic_id, self._querier.remove_html_tags(body), votes)
+            else:
+                self._dao.insert_message(own_id, self.pos, self._dao.get_message_type_id("question"), topic_id, self._querier.remove_html_tags(body),
+                                        votes, author_id, created_at)
+                message_id = self._dao.select_message_id(own_id, topic_id)
             self._extract_attachments(body, message_id)
 
             self.pos += 1

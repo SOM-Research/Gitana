@@ -67,7 +67,9 @@ class Slack2DbUpdate():
 
             project_id = self._dao.select_project_id(self._project_name)
             instant_messaging_id = self._dao.select_instant_messaging_id(self._instant_messaging_name, project_id)
-            self._update_channels(instant_messaging_id)
+
+            if instant_messaging_id:
+                self._update_channels(instant_messaging_id)
 
             end_time = datetime.now()
             minutes_and_seconds = self._logging_util.calculate_execution_time(end_time, start_time)

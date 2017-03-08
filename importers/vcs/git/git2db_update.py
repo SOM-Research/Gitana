@@ -11,6 +11,7 @@ from util import multiprocessing_util
 from git_dao import GitDao
 from util.logging_util import LoggingUtil
 
+
 class Git2DbUpdate():
 
     NUM_PROCESSES = 10

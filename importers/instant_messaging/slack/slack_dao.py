@@ -24,6 +24,7 @@ class SlackDao():
         return self._db_util.select_project_id(self._cnx, project_name, self._logger)
 
     def select_instant_messaging_id(self, instant_messaging_name, project_id):
+        found = None
         cursor = self._cnx.cursor()
         query = "SELECT id " \
                 "FROM instant_messaging " \

@@ -87,6 +87,24 @@ class EclipseForumDao():
         cursor.close()
         return topic_ids
 
+    def get_topic_own_ids(self, forum_id):
+        topic_own_ids = []
+
+        cursor = self._cnx.cursor()
+        query = "SELECT own_id FROM topic WHERE forum_id = %s"
+        arguments = [forum_id]
+        cursor.execute(query, arguments)
+
+        row = cursor.fetchone()
+
+        while row:
+            topic_own_id = row[0]
+            topic_own_ids.append(topic_own_id)
+            row = cursor.fetchone()
+
+        cursor.close()
+        return topic_own_ids
+
     def update_topic_created_at(self, topic_id, created_at, forum_id):
         cursor = self._cnx.cursor()
         query = "UPDATE topic SET created_at = %s WHERE id = %s AND forum_id = %s"
@@ -119,6 +137,7 @@ class EclipseForumDao():
             self._logger.warning("message " + str(own_id) + ") for topic id: " + str(topic_id) + " not inserted", exc_info=True)
 
     def select_forum_id(self, forum_name, project_id):
+        found = None
         cursor = self._cnx.cursor()
         query = "SELECT id " \
                 "FROM forum " \

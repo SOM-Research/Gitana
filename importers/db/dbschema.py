@@ -394,7 +394,6 @@ class DbSchema():
         create_table_project = "CREATE TABLE project( " \
                                "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
                                "name varchar(255), " \
-                               "INDEX n (name), " \
                                "CONSTRAINT name UNIQUE (name)" \
                                ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 
@@ -402,15 +401,19 @@ class DbSchema():
                             "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
                             "name varchar(256), " \
                             "email varchar(256), " \
-                            "CONSTRAINT namem UNIQUE (name, email), " \
-                            "INDEX ne (name, email) " \
+                            "CONSTRAINT namem UNIQUE (name, email) " \
                             ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
+
+        create_table_user_alias = "CREATE TABLE user_alias ( " \
+                                  "user_id int(20), " \
+                                  "alias_id int(20), " \
+                                  "CONSTRAINT a UNIQUE (alias_id) " \
+                                  ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 
         create_table_label = "CREATE TABLE label ( " \
                              "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
                              "name varchar(256), " \
-                             "CONSTRAINT name UNIQUE (name), " \
-                             "INDEX n (name) " \
+                             "CONSTRAINT name UNIQUE (name) " \
                              ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 
         create_table_message = "CREATE TABLE message ( " \
@@ -461,6 +464,7 @@ class DbSchema():
 
         cursor.execute(create_table_project)
         cursor.execute(create_table_user)
+        cursor.execute(create_table_user_alias)
         cursor.execute(create_table_label)
         cursor.execute(create_table_message)
         cursor.execute(create_table_message_dependency)
@@ -477,7 +481,6 @@ class DbSchema():
                                   "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
                                   "project_id int(20), " \
                                   "name varchar(255), " \
-                                  "INDEX n (name), " \
                                   "CONSTRAINT name UNIQUE (name)" \
                                   ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 
@@ -486,7 +489,6 @@ class DbSchema():
                                  "repo_id int(20), " \
                                  "name varchar(255), " \
                                  "type varchar(255), " \
-                                 "INDEX n (name), " \
                                  "CONSTRAINT name UNIQUE (repo_id, name, type) " \
                                  ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 
@@ -513,8 +515,6 @@ class DbSchema():
                                      "parent_id int(20), " \
                                      "parent_sha varchar(512), " \
                                      "PRIMARY KEY copa (repo_id, commit_id, parent_id), " \
-                                     "INDEX csha (commit_sha), " \
-                                     "INDEX psha (parent_sha), " \
                                      "CONSTRAINT cshapsha UNIQUE (repo_id, commit_id, parent_sha) " \
                                      ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 
@@ -530,7 +530,6 @@ class DbSchema():
                             "repo_id int(20), " \
                             "name varchar(512), " \
                             "ext varchar(255), " \
-                            "INDEX rrn (repo_id, name), " \
                             "CONSTRAINT rerena UNIQUE (repo_id, name) " \
                             ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 
@@ -538,9 +537,7 @@ class DbSchema():
                                     "repo_id int(20), " \
                                     "current_file_id int(20), " \
                                     "previous_file_id int(20), " \
-                                    "PRIMARY KEY cpc (current_file_id, previous_file_id), " \
-                                    "INDEX current (current_file_id), " \
-                                    "INDEX previous (previous_file_id) " \
+                                    "PRIMARY KEY cpc (current_file_id, previous_file_id) " \
                                     ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 
         create_table_file_modification = "CREATE TABLE file_modification ( " \
@@ -552,9 +549,7 @@ class DbSchema():
                                          "deletions numeric(10), " \
                                          "changes numeric(10), " \
                                          "patch longblob, " \
-                                         "CONSTRAINT cf UNIQUE (commit_id, file_id), " \
-                                         "INDEX c (commit_id), " \
-                                         "INDEX f (file_id) " \
+                                         "CONSTRAINT cf UNIQUE (commit_id, file_id) " \
                                          ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 
         create_table_line_detail = "CREATE TABLE line_detail( " \
@@ -565,8 +560,7 @@ class DbSchema():
                                    "is_partially_commented numeric(1), " \
                                    "is_empty numeric(1), " \
                                    "content longblob, " \
-                                   "PRIMARY KEY fityli (file_modification_id, type, line_number), " \
-                                   "INDEX fi (file_modification_id) " \
+                                   "PRIMARY KEY fityli (file_modification_id, type, line_number) " \
                                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 
 
@@ -637,8 +631,7 @@ class DbSchema():
         create_table_issue_event_type = "CREATE TABLE issue_event_type ( " \
                                         "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
                                         "name varchar(256), " \
-                                        "CONSTRAINT name UNIQUE (name), " \
-                                        "INDEX n (name) " \
+                                        "CONSTRAINT name UNIQUE (name) " \
                                         ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 
         create_table_issue_labelled = "CREATE TABLE issue_labelled ( " \
@@ -663,8 +656,7 @@ class DbSchema():
         create_issue_dependency_type = "CREATE TABLE issue_dependency_type (" \
                                        "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
                                        "name varchar(256), " \
-                                       "CONSTRAINT name UNIQUE (name), " \
-                                       "INDEX n (name) " \
+                                       "CONSTRAINT name UNIQUE (name) " \
                                        ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 
         insert_issue_dependency_type = "INSERT INTO issue_dependency_type VALUES (NULL, 'block'), " \

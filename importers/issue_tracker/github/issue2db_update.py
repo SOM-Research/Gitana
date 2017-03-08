@@ -84,27 +84,28 @@ class GitHubIssue2DbUpdate():
         issue_tracker_id = self._dao.select_issue_tracker_id(repo_id, self._issue_tracker_name)
         issue_tracker_url = self._url
 
-        cursor = self._dao.get_cursor()
-        query = "SELECT i.own_id FROM issue i " \
-                "JOIN issue_tracker it ON i.issue_tracker_id = it.id " \
-                "WHERE issue_tracker_id = %s AND repo_id = %s " \
-                "ORDER BY i.own_id ASC;"
-        arguments = [issue_tracker_id, repo_id]
-        self._dao.execute(cursor, query, arguments)
+        if issue_tracker_id:
+            cursor = self._dao.get_cursor()
+            query = "SELECT i.own_id FROM issue i " \
+                    "JOIN issue_tracker it ON i.issue_tracker_id = it.id " \
+                    "WHERE issue_tracker_id = %s AND repo_id = %s " \
+                    "ORDER BY i.own_id ASC;"
+            arguments = [issue_tracker_id, repo_id]
+            self._dao.execute(cursor, query, arguments)
 
-        issues = []
-        row = self._dao.fetchone(cursor)
-
-        while row:
-            issues.append(row[0])
+            issues = []
             row = self._dao.fetchone(cursor)
-        self._dao.close_cursor(cursor)
 
-        if issues:
-            intervals = [i for i in multiprocessing_util.get_tasks_intervals(issues, self._num_processes) if len(i) > 0]
+            while row:
+                issues.append(row[0])
+                row = self._dao.fetchone(cursor)
+            self._dao.close_cursor(cursor)
 
-            self.update_issue_content(repo_id, issue_tracker_id, intervals, issue_tracker_url)
-            self.update_issue_dependency(repo_id, issue_tracker_id, intervals, issue_tracker_url)
+            if issues:
+                intervals = [i for i in multiprocessing_util.get_tasks_intervals(issues, self._num_processes) if len(i) > 0]
+
+                self.update_issue_content(repo_id, issue_tracker_id, intervals, issue_tracker_url)
+                self.update_issue_dependency(repo_id, issue_tracker_id, intervals, issue_tracker_url)
 
     def update(self):
         try:

@@ -109,7 +109,7 @@ class Gitana():
                                                 self._config, self._log_path)
         stackoverflow2db.extract()
 
-    def update_stackoverflow_data(self, db_name, project_name, forum_name, search_query, tokens):
+    def update_stackoverflow_data(self, db_name, project_name, forum_name, tokens):
         stackoverflow2db = StackOverflow2DbUpdate(db_name, project_name, forum_name, tokens,
                                                   self._config, self._log_path)
         stackoverflow2db.update()
@@ -131,6 +131,6 @@ class Gitana():
         github2db.extract()
 
     def update_github_tracker_data(self, db_name, project_name, repo_name, issue_tracker_name, github_repo_full_name, tokens):
-        github2db = Git2DbUpdate(db_name, project_name, repo_name, issue_tracker_name, github_repo_full_name, tokens,
-                                self._config, self._log_path)
+        github2db = GitHubIssue2DbUpdate(db_name, project_name, repo_name, issue_tracker_name, github_repo_full_name, tokens,
+                                         self._config, self._log_path)
         github2db.update()
