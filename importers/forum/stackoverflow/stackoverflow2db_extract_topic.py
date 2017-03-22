@@ -138,8 +138,12 @@ class StackOverflowTopic2Db(object):
             start_time = datetime.now()
 
             for topic_id in self._interval:
-                topic = self._querier.get_topic(topic_id)
-                self._extract_topic(topic)
+                try:
+                    topic = self._querier.get_topic(topic_id)
+                    self._extract_topic(topic)
+                except Exception, e:
+                    self._logger.info("StackOverflowTopic2Db something went wrong with topic " + str(topic), e)
+                    continue
 
             end_time = datetime.now()
 

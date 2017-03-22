@@ -72,9 +72,12 @@ class EclipseForum2DbMain():
             topics_on_page = self._querier.get_topics()
 
             for t in topics_on_page:
-
-                topic_id = self._get_topic_info(forum_id, t)
-                topic_ids.append(topic_id)
+                try:
+                    topic_id = self._get_topic_info(forum_id, t)
+                    topic_ids.append(topic_id)
+                except Exception, e:
+                    self._logger.info("StackOverflowTopic2Db something went wrong with a topic ", e)
+                    continue
 
             next_page = self._querier.go_next_page()
 
