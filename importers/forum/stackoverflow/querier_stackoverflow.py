@@ -35,8 +35,11 @@ class StackOverflowQuerier():
         return [question.id for question in questions]
 
     def get_topic(self, question_id):
-        question = self._so.question(question_id, body="True")
-        self._token_util.wait_is_usable(self._so)
+        try:
+            question = self._so.question(question_id, body="True")
+            self._token_util.wait_is_usable(self._so)
+        except:
+            question = None
         return question
 
     def get_topic_name(self, question):

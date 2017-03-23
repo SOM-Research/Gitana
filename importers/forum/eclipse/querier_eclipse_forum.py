@@ -23,7 +23,8 @@ class EclipseForumQuerier():
 
     def start_browser(self):
         if not self._driver:
-            self._driver = webdriver.PhantomJS(executable_path=WEB_DRIVER_PATH)
+            #self._driver = webdriver.PhantomJS(executable_path=WEB_DRIVER_PATH)
+            self._driver = webdriver.PhantomJS()
             self._driver.maximize_window()
         self._driver.get(self._url)
 
@@ -34,25 +35,30 @@ class EclipseForumQuerier():
         self._url = url
 
     def get_topic_own_id(self, topic_element):
-        found = None
+        found = -1
         link = self.get_topic_url(topic_element)
         if link:
             found = int(link.strip("/").split("/")[-1].strip())
         return int(found)
 
     def get_topic_title(self, topic_element):
-        title = topic_element.find_element_by_class_name("big").text
+        try:
+            found = topic_element.find_element_by_class_name("big").text
         #small = topic_element.find_element_by_class_name("small").text
 
         #if small:
         #    title = title + " ( " + small + " )"
+        except:
+            self._logger.error("EclipseForumQuerier topic title not found")
+            found = None
 
-        return title
+        return found
 
     def get_topic_views(self, topic_element):
         try:
             found = int(topic_element.find_elements_by_tag_name("td")[-2].text)
         except:
+            self._logger.error("EclipseForumQuerier topic views not found")
             found = None
 
         return found
@@ -61,6 +67,7 @@ class EclipseForumQuerier():
         try:
             found = self.get_created_at(topic_element.find_elements_by_tag_name("td")[-1])
         except:
+            self._logger.error("EclipseForumQuerier topic last change not found")
             found = None
 
         return found
@@ -69,6 +76,7 @@ class EclipseForumQuerier():
         try:
             found = topic_element.find_elements_by_tag_name("td")[2].find_element_by_class_name("DateText").text
         except:
+            self._logger.error("EclipseForumQuerier topic created at not found")
             found = None
 
         return found
@@ -77,12 +85,19 @@ class EclipseForumQuerier():
         try:
             found = message_element.find_element_by_class_name("DateText").text
         except:
+            self._logger.error("EclipseForumQuerier message created at not found")
             found = None
 
         return found
 
     def get_topic_url(self, topic_element):
-        return topic_element.find_element_by_class_name("big").get_attribute("href")
+        try:
+            found = topic_element.find_element_by_class_name("big").get_attribute("href")
+        except:
+            self._logger.error("EclipseForumQuerier topic url not found")
+            found = None
+
+        return found
 
     def get_topics(self):
         while not self._driver.find_element_by_class_name("pad"):
@@ -92,9 +107,13 @@ class EclipseForumQuerier():
 
     def get_message_own_id(self, message):
         found = None
-        element = [m for m in message.find_elements_by_tag_name("a") if m.get_attribute("class") == "MsgSubText"][0]
-        if element:
-            found = element.get_attribute('href').split("#msg_")[-1]
+        try:
+            element = [m for m in message.find_elements_by_tag_name("a") if m.get_attribute("class") == "MsgSubText"][0]
+            if element:
+                found = element.get_attribute('href').split("#msg_")[-1]
+        except:
+            self._logger.error("EclipseForumQuerier message own id not found")
+            found = None
 
         return found
 
@@ -102,6 +121,7 @@ class EclipseForumQuerier():
         try:
             found = message.find_element_by_class_name("MsgR3").find_element_by_class_name("MsgBodyText").text
         except:
+            self._logger.error("EclipseForumQuerier message body not found")
             found = None
 
         return found
@@ -110,6 +130,7 @@ class EclipseForumQuerier():
         try:
             found = message.find_element_by_class_name("MsgR2").find_element_by_class_name("msgud").find_elements_by_tag_name("a")[0].text
         except:
+            self._logger.error("EclipseForumQuerier message author name not found")
             found = None
 
         return found
@@ -151,19 +172,22 @@ class EclipseForumQuerier():
         return found
 
     def get_attachment_size(self, attachment):
-        text = attachment.find_element_by_class_name("SmallText").text
-        quantity = text.lower().split(',')[0].split(' ')[-1].lower()
-        size = 0
-        if 'kb' in quantity:
-            size = float(quantity.strip('kb').strip('')) * 1000
-        elif 'mb' in quantity:
-            size = float(quantity.strip('mb').strip('')) * 1000000
-        elif 'gb' in quantity:
-            size = float(quantity.strip('gb').strip('')) * 1000000000
-        elif 'tb' in quantity:
-            size = float(quantity.strip('tb').strip('')) * 1000000000000
-        else:
-            self._logger.error("impossible to extract attachment size from " + quantity)
+        try:
+            size = 0
+            text = attachment.find_element_by_class_name("SmallText").text
+            quantity = text.lower().split(',')[0].split(' ')[-1].lower()
+            if 'kb' in quantity:
+                size = float(quantity.strip('kb').strip('')) * 1000
+            elif 'mb' in quantity:
+                size = float(quantity.strip('mb').strip('')) * 1000000
+            elif 'gb' in quantity:
+                size = float(quantity.strip('gb').strip('')) * 1000000000
+            elif 'tb' in quantity:
+                size = float(quantity.strip('tb').strip('')) * 1000000000000
+            else:
+                self._logger.error("EclipseForumQuerier impossible to extract attachment size from " + quantity)
+        except:
+            size = 0
 
         return size
 
