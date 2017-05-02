@@ -8,8 +8,18 @@ from datetime import datetime
 
 
 class DbSchema():
+    """
+    This class initializes the DB schema
+    """
 
     def __init__(self, config, log_root_path):
+        """
+        :type config: dict
+        :param config: the DB configuration file
+
+        :type log_root_path: str
+        :param log_root_path: the log folder path
+        """
         self._config = config
         self._log_root_path = log_root_path
         self._db_util = DbUtil()
@@ -18,9 +28,16 @@ class DbSchema():
         self._fileHandler = None
 
     def __del__(self):
+        #deletes the file handler of the logger
         self._logging_util.remove_file_handler_logger(self._logger, self._fileHandler)
 
     def init_database(self, db_name):
+        """
+        initializes the database tables, functions and stored procedures
+
+        :type db_name: str
+        :param db_name: the name of the DB to initialize
+        """
         try:
             log_path = self._log_root_path + "init-db-" + db_name
             self._logger = self._logging_util.get_logger(log_path)
@@ -50,6 +67,15 @@ class DbSchema():
             self._logger.error("init database failed", exc_info=True)
 
     def create_project(self, db_name, project_name):
+        """
+        inserts a project in the DB
+
+        :type db_name: str
+        :param db_name: the name of an existing DB
+
+        :type project_name: str
+        :param project_name: the name of the project to create
+        """
         self._cnx = self._db_util.get_connection(self._config)
         self.set_database(db_name)
         cursor = self._cnx.cursor()
@@ -62,6 +88,12 @@ class DbSchema():
         self._db_util.close_connection(self._cnx)
 
     def list_projects(self, db_name):
+        """
+        lists all projects contained in the DB
+
+        :type db_name: str
+        :param db_name: the name of the DB
+        """
         self._cnx = self._db_util.get_connection(self._config)
         project_names = []
         self.set_database(db_name)
@@ -80,6 +112,12 @@ class DbSchema():
         return project_names
 
     def set_database(self, db_name):
+        """
+        sets the DB used by the tool
+
+        :type db_name: str
+        :param db_name: the name of the DB
+        """
         try:
             if not self._logger:
                 log_path = self._log_root_path + "set-db-" + db_name
@@ -93,9 +131,11 @@ class DbSchema():
             self._logger.error("set database failed", exc_info=True)
 
     def _set_settings(self):
+        #sets the settings (max connections, charset, file format, ...) used by the DB
         self._db_util.set_settings(self._cnx)
 
     def _create_database(self, db_name):
+        #creates the database
         cursor = self._cnx.cursor()
 
         drop_database_if_exists = "DROP DATABASE IF EXISTS " + db_name
@@ -107,6 +147,7 @@ class DbSchema():
         cursor.close()
 
     def _init_functions(self):
+        #initializes functions
         cursor = self._cnx.cursor()
 
         get_file_history = """
@@ -257,6 +298,7 @@ class DbSchema():
         cursor.close()
 
     def _init_stored_procedures(self):
+        #initializes stored procedures
         cursor = self._cnx.cursor()
 
         get_file_version = """
@@ -389,6 +431,7 @@ class DbSchema():
         cursor.close()
 
     def _init_shared_tables(self):
+        #initializes shared tables used by tables modeling git, issue tracker, forum and instant messaging data
         cursor = self._cnx.cursor()
 
         create_table_project = "CREATE TABLE project( " \
@@ -475,6 +518,7 @@ class DbSchema():
         cursor.close()
 
     def _init_git_tables(self):
+        #initializes tables used to model git data
         cursor = self._cnx.cursor()
 
         create_table_repository = "CREATE TABLE repository( " \
@@ -576,6 +620,7 @@ class DbSchema():
         cursor.close()
 
     def _init_issue_tracker_tables(self):
+        #initializes tables used to model issue tracker data
         cursor = self._cnx.cursor()
 
         create_table_issue_tracker = "CREATE TABLE issue_tracker ( " \
@@ -678,6 +723,7 @@ class DbSchema():
         cursor.close()
 
     def _init_forum_tables(self):
+        #initializes tables used to model forum data
         cursor = self._cnx.cursor()
 
         create_table_forum = "CREATE TABLE forum ( " \
@@ -706,6 +752,7 @@ class DbSchema():
         cursor.close()
 
     def _init_instant_messaging_tables(self):
+        #initializes tables used to model instant messaging data
         cursor = self._cnx.cursor()
 
         create_table_instant_messaging = "CREATE TABLE instant_messaging ( " \

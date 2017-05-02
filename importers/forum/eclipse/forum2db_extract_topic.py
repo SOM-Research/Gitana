@@ -12,11 +12,31 @@ from util.logging_util import LoggingUtil
 
 
 class EclipseTopic2Db(object):
+    """
+    This class handles the import of Eclipse forum topics
+    """
 
     TOPIC_URL = 'https://www.eclipse.org/forums/index.php/t/'
 
     def __init__(self, db_name, forum_id, interval,
                  config, log_root_path):
+        """
+        :type db_name: str
+        :param db_name: the name of an existing DB
+
+        :type forum_id: int
+        :param forum_id: the id of an existing forum in the DB
+
+        :type interval: list int
+        :param interval: a list of topic ids to import
+
+        :type config: dict
+        :param config: the DB configuration file
+
+        :type log_folder_path: str
+        :param log_folder_path: the log folder path
+        """
+
         self._log_root_path = log_root_path
         self._interval = interval
         self._db_name = db_name
@@ -47,6 +67,7 @@ class EclipseTopic2Db(object):
                 self._dao.close_connection()
 
     def _get_message_attachments_info(self, message_id, message):
+        #get attachment informatio of messages
         attachments = self._querier.message_get_attachments(message)
 
         for a in attachments:
@@ -59,6 +80,7 @@ class EclipseTopic2Db(object):
             self._dao.insert_message_attachment(url, own_id, name, extension, size, message_id)
 
     def _get_message_info(self, topic_id, message, pos):
+        #get information of topic messages
         own_id = self._querier.get_message_own_id(message)
         created_at = self._date_util.get_timestamp(self._querier.get_created_at(message), "%a, %d %B %Y %H:%M")
         body = self._querier.get_message_body(message)
@@ -72,6 +94,9 @@ class EclipseTopic2Db(object):
             self._dao.update_topic_created_at(topic_id, created_at, self._forum_id)
 
     def extract(self):
+        """
+        extracts Eclipse forum topic data and stores it in the DB
+        """
         self._logger.info("EclipseTopic2Db started")
         start_time = datetime.now()
 

@@ -14,11 +14,36 @@ from util.logging_util import LoggingUtil
 
 
 class EclipseForum2DbUpdate():
+    """
+    This class handles the update of Eclipse forum data
+    """
 
     NUM_PROCESSES = 2
 
     def __init__(self, db_name, project_name, forum_name, eclipse_forum_url, num_processes,
                  config, log_root_path):
+        """
+        :type db_name: str
+        :param db_name: the name of an existing DB
+
+        :type project_name: str
+        :param project_name: the name of an existing project in the DB
+
+        :type forum_name: str
+        :param forum_name: the name of an existing forum in the DB to update
+
+        :type eclipse_forum_url: str
+        :param eclipse_forum_url: the URL of the forum
+
+        :type num_processes: int
+        :param num_processes: number of processes to import the data (default 2)
+
+        :type config: dict
+        :param config: the DB configuration file
+
+        :type log_folder_path: str
+        :param log_folder_path: the log folder path
+        """
         self._log_path = log_root_path + "update-eclipse-forum-" + db_name + "-" + project_name + "-" + forum_name
         self._project_name = project_name
         self._url = eclipse_forum_url
@@ -42,6 +67,7 @@ class EclipseForum2DbUpdate():
         self._dao = None
 
     def _update_topics_info(self, forum_id):
+        #update topics of a given forum
         next_page = True
         while next_page:
             topics_on_page = self._querier.get_topics()
@@ -59,6 +85,7 @@ class EclipseForum2DbUpdate():
             next_page = self._querier.go_next_page()
 
     def _get_topics(self, forum_id):
+        #update topics of a forum
         topic_ids = self._dao.get_topic_ids(forum_id)
 
         if topic_ids:
@@ -83,6 +110,9 @@ class EclipseForum2DbUpdate():
             queue_extractors.join()
 
     def update(self):
+        """
+        updates Eclipse forum data stored in the DB
+        """
         try:
             self._logger = self._logging_util.get_logger(self._log_path)
             self._fileHandler = self._logging_util.get_file_handler(self._logger, self._log_path, "info")

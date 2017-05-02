@@ -14,12 +14,41 @@ from util.logging_util import LoggingUtil
 
 
 class EclipseForum2DbMain():
+    """
+    This class handles the import of Eclipse forum data
+    """
 
     NUM_PROCESSES = 2
 
     def __init__(self, db_name, project_name,
                  type, forum_name, url, before_date, num_processes,
                  config, log_root_path):
+        """
+        :type db_name: str
+        :param db_name: the name of an existing DB
+
+        :type project_name: str
+        :param project_name: the name of an existing project in the DB
+
+        :type forum_name: str
+        :param forum_name: the name of the forum to import
+
+        :type url: str
+        :param url: the URL of the forum
+
+        :type before_date: str
+        :param before_date: import data before date (YYYY-mm-dd)
+
+        :type num_processes: int
+        :param num_processes: number of processes to import the data (default 2)
+
+        :type config: dict
+        :param config: the DB configuration file
+
+        :type log_folder_path: str
+        :param log_folder_path: the log folder path
+        """
+
         self._log_path = log_root_path + "import-eclipse-forum-" + db_name + "-" + project_name + "-" + forum_name
         self._type = type
         self._url = url
@@ -45,6 +74,7 @@ class EclipseForum2DbMain():
         self._dao = None
 
     def _get_topic_info(self, forum_id, topic):
+        #get topic information
         own_id = self._querier.get_topic_own_id(topic)
         title = self._querier.get_topic_title(topic)
         views = self._querier.get_topic_views(topic)
@@ -65,6 +95,7 @@ class EclipseForum2DbMain():
         return topic_id
 
     def _get_topic_ids(self, forum_id):
+        #get list of topic ids of a forum
         topic_ids = []
 
         next_page = True
@@ -80,6 +111,7 @@ class EclipseForum2DbMain():
         return [ti for ti in topic_ids if ti is not None]
 
     def _get_topics(self, forum_id):
+        #insert topics to DB
         self._querier.start_browser()
         topic_ids = self._get_topic_ids(forum_id)
         self._querier.close_browser()
@@ -103,6 +135,9 @@ class EclipseForum2DbMain():
         queue_extractors.join()
 
     def extract(self):
+        """
+        extracts Eclipse forum data and stores it in the DB
+        """
         try:
             self._logger = self._logging_util.get_logger(self._log_path)
             self._fileHandler = self._logging_util.get_file_handler(self._logger, self._log_path, "info")
