@@ -6,6 +6,10 @@ in order to ease browsing and querying activities with standard SQL syntax and t
 To ensure efficiency, an incremental propagation mechanism refreshes the
 database content with the latest project activities.
 
+## Documentation
+
+More information can be found on the [GitHub documentation site.](http://gitanadocs.getforge.io/)
+
 ## Who is behind this project?
 
 * [Valerio Cosentino](http://github.com/valeriocos/ "Valerio Cosentino")
@@ -29,8 +33,8 @@ After installing MySQL Server and Python 2.7.6, follow the instructions below to
  - run the following command:
    ```
    pip install -r requirements.txt
-   ```
-
+   ```   
+   
 ## How to use Gitana (master version)
 
 ### import Gitana
