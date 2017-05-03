@@ -218,6 +218,9 @@ class EclipseForumDao():
         :type topic_id: int
         :param topic_id: DB topic id
 
+        :type body: str
+        :param body: message body
+
         :type votes: int
         :param votes: number of votes received
 

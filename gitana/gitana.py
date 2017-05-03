@@ -27,7 +27,7 @@ from importers.instant_messaging.slack.slack2db_update import Slack2DbUpdate
 
 class Gitana():
     """
-    This class represents the facade of the tool
+    This is the main class you instanciate to use Gitana functionalities
     """
 
     LOG_FOLDER_PATH = "logs"

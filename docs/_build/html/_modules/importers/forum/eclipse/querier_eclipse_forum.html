@@ -1,0 +1,443 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>importers.forum.eclipse.querier_eclipse_forum &#8212; Gitana 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for importers.forum.eclipse.querier_eclipse_forum</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;valerio cosentino&#39;</span>
+
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">selenium</span> <span class="k">import</span> <span class="n">webdriver</span>
+<span class="kn">import</span> <span class="nn">util</span>
+<span class="n">WEB_DRIVER_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">util</span><span class="o">.</span><span class="vm">__file__</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;\selenium_driver\phantomjs.exe&quot;</span>
+
+
+<div class="viewcode-block" id="EclipseForumQuerier"><a class="viewcode-back" href="../../../../eclipseforum.html#importers.forum.eclipse.querier_eclipse_forum.EclipseForumQuerier">[docs]</a><span class="k">class</span> <span class="nc">EclipseForumQuerier</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class collects the data available on the Eclipse forum viw Web scraping</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :type url: str</span>
+<span class="sd">        :param url: the URL of the Eclipse forum</span>
+
+<span class="sd">        :type logger: Object</span>
+<span class="sd">        :param logger: logger</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_url</span> <span class="o">=</span> <span class="n">url</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logger</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_driver</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;EclipseForumQuerier init failed&quot;</span><span class="p">)</span>
+            <span class="k">raise</span>
+
+<div class="viewcode-block" id="EclipseForumQuerier.start_browser"><a class="viewcode-back" href="../../../../eclipseforum.html#importers.forum.eclipse.querier_eclipse_forum.EclipseForumQuerier.start_browser">[docs]</a>    <span class="k">def</span> <span class="nf">start_browser</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        starts the browser used to crawl</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_driver</span><span class="p">:</span>
+            <span class="c1">#self._driver = webdriver.PhantomJS(executable_path=WEB_DRIVER_PATH)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_driver</span> <span class="o">=</span> <span class="n">webdriver</span><span class="o">.</span><span class="n">PhantomJS</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_driver</span><span class="o">.</span><span class="n">maximize_window</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_driver</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_url</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EclipseForumQuerier.close_browser"><a class="viewcode-back" href="../../../../eclipseforum.html#importers.forum.eclipse.querier_eclipse_forum.EclipseForumQuerier.close_browser">[docs]</a>    <span class="k">def</span> <span class="nf">close_browser</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        closes the browser</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_driver</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="EclipseForumQuerier.set_url"><a class="viewcode-back" href="../../../../eclipseforum.html#importers.forum.eclipse.querier_eclipse_forum.EclipseForumQuerier.set_url">[docs]</a>    <span class="k">def</span> <span class="nf">set_url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        sets the initial URL of the browser</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_url</span> <span class="o">=</span> <span class="n">url</span></div>
+
+<div class="viewcode-block" id="EclipseForumQuerier.get_topic_own_id"><a class="viewcode-back" href="../../../../eclipseforum.html#importers.forum.eclipse.querier_eclipse_forum.EclipseForumQuerier.get_topic_own_id">[docs]</a>    <span class="k">def</span> <span class="nf">get_topic_own_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">topic_element</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the data source topic id</span>
+
+<span class="sd">        :type topic_element: Object</span>
+<span class="sd">        :param topic_element: the Object representing the topic</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">link</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_topic_url</span><span class="p">(</span><span class="n">topic_element</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">link</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">link</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">found</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EclipseForumQuerier.get_topic_title"><a class="viewcode-back" href="../../../../eclipseforum.html#importers.forum.eclipse.querier_eclipse_forum.EclipseForumQuerier.get_topic_title">[docs]</a>    <span class="k">def</span> <span class="nf">get_topic_title</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">topic_element</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the topic title</span>
+
+<span class="sd">        :type topic_element: Object</span>
+<span class="sd">        :param topic_element: the Object representing the topic</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="n">topic_element</span><span class="o">.</span><span class="n">find_element_by_class_name</span><span class="p">(</span><span class="s2">&quot;big&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
+        <span class="c1">#small = topic_element.find_element_by_class_name(&quot;small&quot;).text</span>
+
+        <span class="c1">#if small:</span>
+        <span class="c1">#    title = title + &quot; ( &quot; + small + &quot; )&quot;</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;EclipseForumQuerier topic title not found&quot;</span><span class="p">)</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="EclipseForumQuerier.get_topic_views"><a class="viewcode-back" href="../../../../eclipseforum.html#importers.forum.eclipse.querier_eclipse_forum.EclipseForumQuerier.get_topic_views">[docs]</a>    <span class="k">def</span> <span class="nf">get_topic_views</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">topic_element</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the topic views</span>
+
+<span class="sd">        :type topic_element: Object</span>
+<span class="sd">        :param topic_element: the Object representing the topic</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">topic_element</span><span class="o">.</span><span class="n">find_elements_by_tag_name</span><span class="p">(</span><span class="s2">&quot;td&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;EclipseForumQuerier topic views not found&quot;</span><span class="p">)</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="EclipseForumQuerier.get_last_change_at"><a class="viewcode-back" href="../../../../eclipseforum.html#importers.forum.eclipse.querier_eclipse_forum.EclipseForumQuerier.get_last_change_at">[docs]</a>    <span class="k">def</span> <span class="nf">get_last_change_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">topic_element</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets last change date</span>
+
+<span class="sd">        :type topic_element: Object</span>
+<span class="sd">        :param topic_element: the Object representing the topic</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_created_at</span><span class="p">(</span><span class="n">topic_element</span><span class="o">.</span><span class="n">find_elements_by_tag_name</span><span class="p">(</span><span class="s2">&quot;td&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;EclipseForumQuerier topic last change not found&quot;</span><span class="p">)</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="EclipseForumQuerier.get_topic_created_at"><a class="viewcode-back" href="../../../../eclipseforum.html#importers.forum.eclipse.querier_eclipse_forum.EclipseForumQuerier.get_topic_created_at">[docs]</a>    <span class="k">def</span> <span class="nf">get_topic_created_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">topic_element</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets topic creation date</span>
+
+<span class="sd">        :type topic_element: Object</span>
+<span class="sd">        :param topic_element: the Object representing the topic</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="n">topic_element</span><span class="o">.</span><span class="n">find_elements_by_tag_name</span><span class="p">(</span><span class="s2">&quot;td&quot;</span><span class="p">)[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">find_element_by_class_name</span><span class="p">(</span><span class="s2">&quot;DateText&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;EclipseForumQuerier topic created at not found&quot;</span><span class="p">)</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="EclipseForumQuerier.get_created_at"><a class="viewcode-back" href="../../../../eclipseforum.html#importers.forum.eclipse.querier_eclipse_forum.EclipseForumQuerier.get_created_at">[docs]</a>    <span class="k">def</span> <span class="nf">get_created_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message_element</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets message creation date</span>
+
+<span class="sd">        :type message_element: Object</span>
+<span class="sd">        :param message_element: the Object representing the message</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="n">message_element</span><span class="o">.</span><span class="n">find_element_by_class_name</span><span class="p">(</span><span class="s2">&quot;DateText&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;EclipseForumQuerier message created at not found&quot;</span><span class="p">)</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="EclipseForumQuerier.get_topic_url"><a class="viewcode-back" href="../../../../eclipseforum.html#importers.forum.eclipse.querier_eclipse_forum.EclipseForumQuerier.get_topic_url">[docs]</a>    <span class="k">def</span> <span class="nf">get_topic_url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">topic_element</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets topic url</span>
+
+<span class="sd">        :type topic_element: Object</span>
+<span class="sd">        :param topic_element: the Object representing the topic</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="n">topic_element</span><span class="o">.</span><span class="n">find_element_by_class_name</span><span class="p">(</span><span class="s2">&quot;big&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">get_attribute</span><span class="p">(</span><span class="s2">&quot;href&quot;</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;EclipseForumQuerier topic url not found&quot;</span><span class="p">)</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="EclipseForumQuerier.get_topics"><a class="viewcode-back" href="../../../../eclipseforum.html#importers.forum.eclipse.querier_eclipse_forum.EclipseForumQuerier.get_topics">[docs]</a>    <span class="k">def</span> <span class="nf">get_topics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets topics</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_driver</span><span class="o">.</span><span class="n">find_element_by_class_name</span><span class="p">(</span><span class="s2">&quot;pad&quot;</span><span class="p">):</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_driver</span><span class="o">.</span><span class="n">find_element_by_class_name</span><span class="p">(</span><span class="s2">&quot;pad&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">find_elements_by_tag_name</span><span class="p">(</span><span class="s2">&quot;tr&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]</span></div>
+
+<div class="viewcode-block" id="EclipseForumQuerier.get_message_own_id"><a class="viewcode-back" href="../../../../eclipseforum.html#importers.forum.eclipse.querier_eclipse_forum.EclipseForumQuerier.get_message_own_id">[docs]</a>    <span class="k">def</span> <span class="nf">get_message_own_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the data source message id</span>
+
+<span class="sd">        :type message: Object</span>
+<span class="sd">        :param message: the Object representing the message</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">element</span> <span class="o">=</span> <span class="p">[</span><span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">message</span><span class="o">.</span><span class="n">find_elements_by_tag_name</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">get_attribute</span><span class="p">(</span><span class="s2">&quot;class&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;MsgSubText&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">element</span><span class="p">:</span>
+                <span class="n">found</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">get_attribute</span><span class="p">(</span><span class="s1">&#39;href&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;#msg_&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;EclipseForumQuerier message own id not found&quot;</span><span class="p">)</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="EclipseForumQuerier.get_message_body"><a class="viewcode-back" href="../../../../eclipseforum.html#importers.forum.eclipse.querier_eclipse_forum.EclipseForumQuerier.get_message_body">[docs]</a>    <span class="k">def</span> <span class="nf">get_message_body</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the message body</span>
+
+<span class="sd">        :type message: Object</span>
+<span class="sd">        :param message: the Object representing the message</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">find_element_by_class_name</span><span class="p">(</span><span class="s2">&quot;MsgR3&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">find_element_by_class_name</span><span class="p">(</span><span class="s2">&quot;MsgBodyText&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;EclipseForumQuerier message body not found&quot;</span><span class="p">)</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="EclipseForumQuerier.get_message_author_name"><a class="viewcode-back" href="../../../../eclipseforum.html#importers.forum.eclipse.querier_eclipse_forum.EclipseForumQuerier.get_message_author_name">[docs]</a>    <span class="k">def</span> <span class="nf">get_message_author_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the message author name</span>
+
+<span class="sd">        :type message: Object</span>
+<span class="sd">        :param message: the Object representing the message</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">find_element_by_class_name</span><span class="p">(</span><span class="s2">&quot;MsgR2&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">find_element_by_class_name</span><span class="p">(</span><span class="s2">&quot;msgud&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">find_elements_by_tag_name</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">text</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;EclipseForumQuerier message author name not found&quot;</span><span class="p">)</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="EclipseForumQuerier.message_has_attachments"><a class="viewcode-back" href="../../../../eclipseforum.html#importers.forum.eclipse.querier_eclipse_forum.EclipseForumQuerier.message_has_attachments">[docs]</a>    <span class="k">def</span> <span class="nf">message_has_attachments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        checks that a message has attachments</span>
+
+<span class="sd">        :type message: Object</span>
+<span class="sd">        :param message: the Object representing the message</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">find_element_by_class_name</span><span class="p">(</span><span class="s2">&quot;AttachmentsList&quot;</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="EclipseForumQuerier.message_get_attachments"><a class="viewcode-back" href="../../../../eclipseforum.html#importers.forum.eclipse.querier_eclipse_forum.EclipseForumQuerier.message_get_attachments">[docs]</a>    <span class="k">def</span> <span class="nf">message_get_attachments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets attachments of a message</span>
+
+<span class="sd">        :type message: Object</span>
+<span class="sd">        :param message: the Object representing the message</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">find_element_by_class_name</span><span class="p">(</span><span class="s2">&quot;AttachmentsList&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">find_elements_by_tag_name</span><span class="p">(</span><span class="s2">&quot;li&quot;</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="EclipseForumQuerier.get_attachment_url"><a class="viewcode-back" href="../../../../eclipseforum.html#importers.forum.eclipse.querier_eclipse_forum.EclipseForumQuerier.get_attachment_url">[docs]</a>    <span class="k">def</span> <span class="nf">get_attachment_url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attachment</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets URL attachments</span>
+
+<span class="sd">        :type attachment: Object</span>
+<span class="sd">        :param attachment: the Object representing the attachment</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="n">attachment</span><span class="o">.</span><span class="n">find_elements_by_tag_name</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_attribute</span><span class="p">(</span><span class="s2">&quot;href&quot;</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="EclipseForumQuerier.get_attachment_own_id"><a class="viewcode-back" href="../../../../eclipseforum.html#importers.forum.eclipse.querier_eclipse_forum.EclipseForumQuerier.get_attachment_own_id">[docs]</a>    <span class="k">def</span> <span class="nf">get_attachment_own_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attachment</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets data source attachment id</span>
+
+<span class="sd">        :type attachment: Object</span>
+<span class="sd">        :param attachment: the Object representing the attachment</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_attachment_url</span><span class="p">(</span><span class="n">attachment</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">url</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;&amp;id=&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;&amp;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EclipseForumQuerier.get_attachment_name"><a class="viewcode-back" href="../../../../eclipseforum.html#importers.forum.eclipse.querier_eclipse_forum.EclipseForumQuerier.get_attachment_name">[docs]</a>    <span class="k">def</span> <span class="nf">get_attachment_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attachment</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets attachment name</span>
+
+<span class="sd">        :type attachment: Object</span>
+<span class="sd">        :param attachment: the Object representing the attachment</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="n">attachment</span><span class="o">.</span><span class="n">find_elements_by_tag_name</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">text</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="EclipseForumQuerier.get_attachment_size"><a class="viewcode-back" href="../../../../eclipseforum.html#importers.forum.eclipse.querier_eclipse_forum.EclipseForumQuerier.get_attachment_size">[docs]</a>    <span class="k">def</span> <span class="nf">get_attachment_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attachment</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets attachment size</span>
+
+<span class="sd">        :type attachment: Object</span>
+<span class="sd">        :param attachment: the Object representing the attachment</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">size</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="n">attachment</span><span class="o">.</span><span class="n">find_element_by_class_name</span><span class="p">(</span><span class="s2">&quot;SmallText&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
+            <span class="n">quantity</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="k">if</span> <span class="s1">&#39;kb&#39;</span> <span class="ow">in</span> <span class="n">quantity</span><span class="p">:</span>
+                <span class="n">size</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">quantity</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;kb&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">))</span> <span class="o">*</span> <span class="mi">1000</span>
+            <span class="k">elif</span> <span class="s1">&#39;mb&#39;</span> <span class="ow">in</span> <span class="n">quantity</span><span class="p">:</span>
+                <span class="n">size</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">quantity</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;mb&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">))</span> <span class="o">*</span> <span class="mi">1000000</span>
+            <span class="k">elif</span> <span class="s1">&#39;gb&#39;</span> <span class="ow">in</span> <span class="n">quantity</span><span class="p">:</span>
+                <span class="n">size</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">quantity</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;gb&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">))</span> <span class="o">*</span> <span class="mi">1000000000</span>
+            <span class="k">elif</span> <span class="s1">&#39;tb&#39;</span> <span class="ow">in</span> <span class="n">quantity</span><span class="p">:</span>
+                <span class="n">size</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">quantity</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;tb&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">))</span> <span class="o">*</span> <span class="mi">1000000000000</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;EclipseForumQuerier impossible to extract attachment size from &quot;</span> <span class="o">+</span> <span class="n">quantity</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">size</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">return</span> <span class="n">size</span></div>
+
+<div class="viewcode-block" id="EclipseForumQuerier.get_messages"><a class="viewcode-back" href="../../../../eclipseforum.html#importers.forum.eclipse.querier_eclipse_forum.EclipseForumQuerier.get_messages">[docs]</a>    <span class="k">def</span> <span class="nf">get_messages</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets list of messages</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">found</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_driver</span><span class="o">.</span><span class="n">find_elements_by_class_name</span><span class="p">(</span><span class="s2">&quot;MsgTable&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">found</span><span class="p">:</span>
+                    <span class="k">break</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">continue</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">found</span></div>
+
+    <span class="k">def</span> <span class="nf">_load_next_page</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1">#loas the next page</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">found</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_driver</span><span class="o">.</span><span class="n">find_element_by_class_name</span><span class="p">(</span><span class="s2">&quot;ForumBackground&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">find_elements_by_tag_name</span><span class="p">(</span><span class="s2">&quot;table&quot;</span><span class="p">)[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">text</span>
+                <span class="k">if</span> <span class="n">found</span><span class="p">:</span>
+                    <span class="k">break</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">continue</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">go_next_page</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1">#goes to the next page</span>
+        <span class="n">done</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="p">[</span><span class="n">l</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_driver</span><span class="o">.</span><span class="n">find_elements_by_class_name</span><span class="p">(</span><span class="s2">&quot;PagerLink&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">l</span><span class="o">.</span><span class="n">get_attribute</span><span class="p">(</span><span class="s2">&quot;accesskey&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;n&quot;</span><span class="p">]</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="n">found</span><span class="p">:</span>
+            <span class="n">found</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">click</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_load_next_page</span><span class="p">()</span>
+            <span class="n">done</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">return</span> <span class="n">done</span></div>
+
+
+
+
+
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Valerio Cosentino.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -13,10 +13,42 @@ from util.logging_util import LoggingUtil
 
 
 class StackOverflow2DbMain():
+    """
+    This class handles the import of Stackoverflow data
+    """
 
     def __init__(self, db_name, project_name,
                  type, forum_name, search_query, before_date, tokens,
                  config, log_root_path):
+        """
+        :type db_name: str
+        :param db_name: the name of an existing DB
+
+        :type project_name: str
+        :param project_name: the name of an existing project in the DB
+
+        :type type: str
+        :param type: type of the forum (Stackoverflow, Eclipse forum)
+
+        :type forum_name: str
+        :param forum_name: the name of the forum to import
+
+        :type search_query: str
+        :param search_query: a label used to mark questions in Stackoverflow
+
+        :type before_date: str
+        :param before_date: import data before date (YYYY-mm-dd)
+
+        :type tokens: list str
+        :param tokens: list of Stackoverflow tokens
+
+        :type config: dict
+        :param config: the DB configuration file
+
+        :type log_folder_path: str
+        :param log_folder_path: the log folder path
+        """
+
         self._log_path = log_root_path + "import-stackoverflow-" + db_name + "-" + project_name + "-" + forum_name
         self._type = type
         self._forum_name = forum_name
@@ -37,6 +69,7 @@ class StackOverflow2DbMain():
         self._dao = None
 
     def _get_topics(self, forum_id):
+        #processes Stackoverflow questions
         topic_imported = self._dao.get_topic_own_ids(forum_id)
         topic_ids = list(set(self._querier.get_topic_ids(self._search_query, self._before_date)) - set(topic_imported))
         topic_ids.sort()
@@ -62,6 +95,9 @@ class StackOverflow2DbMain():
         queue_extractors.join()
 
     def extract(self):
+        """
+        extracts Stackoverflow data and stores it in the DB
+        """
         try:
             self._logger = self._logging_util.get_logger(self._log_path)
             self._fileHandler = self._logging_util.get_file_handler(self._logger, self._log_path, "info")

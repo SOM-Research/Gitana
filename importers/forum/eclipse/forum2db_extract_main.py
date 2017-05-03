@@ -30,6 +30,9 @@ class EclipseForum2DbMain():
         :type project_name: str
         :param project_name: the name of an existing project in the DB
 
+        :type type: str
+        :param type: type of the forum (Stackoverflow, Eclipse forum)
+
         :type forum_name: str
         :param forum_name: the name of the forum to import
 

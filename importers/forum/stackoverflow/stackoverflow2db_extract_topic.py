@@ -10,9 +10,32 @@ from util.logging_util import LoggingUtil
 
 
 class StackOverflowTopic2Db(object):
+    """
+    This class handles the import of Stackoverflow topics
+    """
 
     def __init__(self, db_name, forum_id, interval, token,
                  config, log_root_path):
+        """
+        :type db_name: str
+        :param db_name: the name of an existing DB
+
+        :type forum_id: int
+        :param forum_id: the id of an existing forum in the DB
+
+        :type interval: list int
+        :param interval: a list of topic ids to import
+
+        :type token: str
+        :param token: a Stackoverflow token
+
+        :type config: dict
+        :param config: the DB configuration file
+
+        :type log_folder_path: str
+        :param log_folder_path: the log folder path
+        """
+
         self._log_root_path = log_root_path
         self._interval = interval
         self._db_name = db_name
@@ -43,6 +66,7 @@ class StackOverflowTopic2Db(object):
                 self._dao.close_connection()
 
     def _extract_answers(self, answers, topic_id, message_id):
+        #extracts answers
         for a in answers:
             own_id = self._querier.get_container_own_id(a)
             body = self._querier.get_container_body(a)
@@ -70,6 +94,7 @@ class StackOverflowTopic2Db(object):
             self._extract_comment_messages(self._querier.get_comments(a), topic_id, answer_message_id)
 
     def _extract_comment_messages(self, comments, topic_id, message_id):
+        #extracts comments
         for c in comments:
             own_id = self._querier.get_container_own_id(c)
             body = self._querier.get_container_body(c)
@@ -89,11 +114,13 @@ class StackOverflowTopic2Db(object):
             self.pos += 1
 
     def _extract_attachments(self, body, message_id):
+        #extracts attachments
         attachments = self._querier.get_attachments(body)
         if attachments:
             self._insert_attachments(attachments, message_id)
 
     def _insert_attachments(self, attachments, message_id):
+        #inserts attachments
         pos = 0
         for attachment in attachments:
             attachment_name = self._querier.get_attachment_name(attachment)
@@ -103,6 +130,7 @@ class StackOverflowTopic2Db(object):
             pos += 1
 
     def _extract_topic(self, topic):
+        #extracts a topic
         last_change_at = self._querier.get_topic_last_change_at(topic)
         own_id = self._querier.get_container_own_id(topic)
 
@@ -133,6 +161,9 @@ class StackOverflowTopic2Db(object):
             self._extract_answers(self._querier.get_answers(topic), topic_id, message_id)
 
     def extract(self):
+        """
+        extracts Stackoverflow topic data and stores it in the DB
+        """
         try:
             self._logger.info("StackOverflowTopic2Db started")
             start_time = datetime.now()

@@ -1,0 +1,344 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>importers.forum.stackoverflow.querier_stackoverflow &#8212; Gitana 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for importers.forum.stackoverflow.querier_stackoverflow</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;valerio cosentino&#39;</span>
+
+<span class="kn">import</span> <span class="nn">stackexchange</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">BeautifulSoup</span> <span class="k">import</span> <span class="n">BeautifulSoup</span>
+
+<span class="kn">from</span> <span class="nn">util.token_util</span> <span class="k">import</span> <span class="n">TokenUtil</span>
+<span class="kn">from</span> <span class="nn">util.date_util</span> <span class="k">import</span> <span class="n">DateUtil</span>
+
+
+<div class="viewcode-block" id="StackOverflowQuerier"><a class="viewcode-back" href="../../../../stackoverflow.html#importers.forum.stackoverflow.querier_stackoverflow.StackOverflowQuerier">[docs]</a><span class="k">class</span> <span class="nc">StackOverflowQuerier</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class collects the data available on Stackoverflow via its API</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">token</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :type token: str</span>
+<span class="sd">        :param token: the token to access the Stackoverflow API</span>
+
+<span class="sd">        :type logger: Object</span>
+<span class="sd">        :param logger: logger</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_token</span> <span class="o">=</span> <span class="n">token</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logger</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_token_util</span> <span class="o">=</span> <span class="n">TokenUtil</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">,</span> <span class="s2">&quot;stackoverflow&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_date_util</span> <span class="o">=</span> <span class="n">DateUtil</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_so</span> <span class="o">=</span> <span class="n">stackexchange</span><span class="o">.</span><span class="n">Site</span><span class="p">(</span><span class="n">stackexchange</span><span class="o">.</span><span class="n">StackOverflow</span><span class="p">,</span> <span class="n">app_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_token</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;StackOverflowQuerier init failed&quot;</span><span class="p">)</span>
+            <span class="k">raise</span>
+
+<div class="viewcode-block" id="StackOverflowQuerier.get_topic_ids"><a class="viewcode-back" href="../../../../stackoverflow.html#importers.forum.stackoverflow.querier_stackoverflow.StackOverflowQuerier.get_topic_ids">[docs]</a>    <span class="k">def</span> <span class="nf">get_topic_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">search_query</span><span class="p">,</span> <span class="n">before_date</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the data source topic ids</span>
+
+<span class="sd">        :type search_query: str</span>
+<span class="sd">        :param search_query: a label used to mark questions in Stackoverflow</span>
+
+<span class="sd">        :type before_date: str</span>
+<span class="sd">        :param before_date: selects questions with creation date before a given date (YYYY-mm-dd)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">questions</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">question</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_so</span><span class="o">.</span><span class="n">questions</span><span class="p">(</span><span class="n">tagged</span><span class="o">=</span><span class="p">[</span><span class="n">search_query</span><span class="p">],</span> <span class="n">pagesize</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">fetch</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_token_util</span><span class="o">.</span><span class="n">wait_is_usable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_so</span><span class="p">)</span>
+            <span class="n">questions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">question</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">before_date</span><span class="p">:</span>
+            <span class="n">questions</span> <span class="o">=</span> <span class="p">[</span><span class="n">q</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">questions</span> <span class="k">if</span> <span class="n">q</span><span class="o">.</span><span class="n">creation_date</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_date_util</span><span class="o">.</span><span class="n">get_timestamp</span><span class="p">(</span><span class="n">before_date</span><span class="p">,</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)]</span>
+
+        <span class="k">return</span> <span class="p">[</span><span class="n">question</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">question</span> <span class="ow">in</span> <span class="n">questions</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="StackOverflowQuerier.get_topic"><a class="viewcode-back" href="../../../../stackoverflow.html#importers.forum.stackoverflow.querier_stackoverflow.StackOverflowQuerier.get_topic">[docs]</a>    <span class="k">def</span> <span class="nf">get_topic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">question_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the topic body</span>
+
+<span class="sd">        :type question_id: int</span>
+<span class="sd">        :param question_id: the data source question id</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">question</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_so</span><span class="o">.</span><span class="n">question</span><span class="p">(</span><span class="n">question_id</span><span class="p">,</span> <span class="n">body</span><span class="o">=</span><span class="s2">&quot;True&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_token_util</span><span class="o">.</span><span class="n">wait_is_usable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_so</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">question</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">question</span></div>
+
+<div class="viewcode-block" id="StackOverflowQuerier.get_topic_name"><a class="viewcode-back" href="../../../../stackoverflow.html#importers.forum.stackoverflow.querier_stackoverflow.StackOverflowQuerier.get_topic_name">[docs]</a>    <span class="k">def</span> <span class="nf">get_topic_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">question</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the topic title</span>
+
+<span class="sd">        :type question: Object</span>
+<span class="sd">        :param question: the Object representing the question</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">question</span><span class="o">.</span><span class="n">title</span></div>
+
+<div class="viewcode-block" id="StackOverflowQuerier.get_container_own_id"><a class="viewcode-back" href="../../../../stackoverflow.html#importers.forum.stackoverflow.querier_stackoverflow.StackOverflowQuerier.get_container_own_id">[docs]</a>    <span class="k">def</span> <span class="nf">get_container_own_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">container</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the data source container id</span>
+
+<span class="sd">        :type container: Object</span>
+<span class="sd">        :param container: the Object representing the container</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">container</span><span class="o">.</span><span class="n">id</span></div>
+
+<div class="viewcode-block" id="StackOverflowQuerier.get_container_votes"><a class="viewcode-back" href="../../../../stackoverflow.html#importers.forum.stackoverflow.querier_stackoverflow.StackOverflowQuerier.get_container_votes">[docs]</a>    <span class="k">def</span> <span class="nf">get_container_votes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">container</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the data source container votes</span>
+
+<span class="sd">        :type container: Object</span>
+<span class="sd">        :param container: the Object representing the container</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">container</span><span class="o">.</span><span class="n">score</span></div>
+
+<div class="viewcode-block" id="StackOverflowQuerier.get_topic_views"><a class="viewcode-back" href="../../../../stackoverflow.html#importers.forum.stackoverflow.querier_stackoverflow.StackOverflowQuerier.get_topic_views">[docs]</a>    <span class="k">def</span> <span class="nf">get_topic_views</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">question</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the topic view count</span>
+
+<span class="sd">        :type container: Object</span>
+<span class="sd">        :param container: the Object representing the question</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">question</span><span class="o">.</span><span class="n">view_count</span></div>
+
+    <span class="k">def</span> <span class="nf">is_accepted_answer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">answer</span><span class="p">):</span>
+        <span class="c1">#TODO</span>
+        <span class="nb">print</span> <span class="s2">&quot;here&quot;</span>
+
+<div class="viewcode-block" id="StackOverflowQuerier.get_container_created_at"><a class="viewcode-back" href="../../../../stackoverflow.html#importers.forum.stackoverflow.querier_stackoverflow.StackOverflowQuerier.get_container_created_at">[docs]</a>    <span class="k">def</span> <span class="nf">get_container_created_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">container</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the container creation date</span>
+
+<span class="sd">        :type container: Object</span>
+<span class="sd">        :param container: the Object representing the container</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">container</span><span class="o">.</span><span class="n">creation_date</span></div>
+
+<div class="viewcode-block" id="StackOverflowQuerier.get_topic_last_change_at"><a class="viewcode-back" href="../../../../stackoverflow.html#importers.forum.stackoverflow.querier_stackoverflow.StackOverflowQuerier.get_topic_last_change_at">[docs]</a>    <span class="k">def</span> <span class="nf">get_topic_last_change_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">question</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the topic last change date</span>
+
+<span class="sd">        :type question: Object</span>
+<span class="sd">        :param question: the Object representing the question</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">question</span><span class="o">.</span><span class="n">last_activity_date</span></div>
+
+<div class="viewcode-block" id="StackOverflowQuerier.get_container_body"><a class="viewcode-back" href="../../../../stackoverflow.html#importers.forum.stackoverflow.querier_stackoverflow.StackOverflowQuerier.get_container_body">[docs]</a>    <span class="k">def</span> <span class="nf">get_container_body</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">container</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the container body</span>
+
+<span class="sd">        :type container: Object</span>
+<span class="sd">        :param container: the Object representing the container</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">container</span><span class="o">.</span><span class="n">body</span></div>
+
+<div class="viewcode-block" id="StackOverflowQuerier.remove_html_tags"><a class="viewcode-back" href="../../../../stackoverflow.html#importers.forum.stackoverflow.querier_stackoverflow.StackOverflowQuerier.remove_html_tags">[docs]</a>    <span class="k">def</span> <span class="nf">remove_html_tags</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">html_text</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        removes HTML tags from html text</span>
+
+<span class="sd">        :type html_text: str</span>
+<span class="sd">        :param html_text: the html text of a question/answer/comment</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">html_text</span><span class="p">)</span><span class="o">.</span><span class="n">text</span></div>
+
+<div class="viewcode-block" id="StackOverflowQuerier.get_container_author"><a class="viewcode-back" href="../../../../stackoverflow.html#importers.forum.stackoverflow.querier_stackoverflow.StackOverflowQuerier.get_container_author">[docs]</a>    <span class="k">def</span> <span class="nf">get_container_author</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">container</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the container author</span>
+
+<span class="sd">        :type container: Object</span>
+<span class="sd">        :param container: the Object representing the container</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">user</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_so</span><span class="o">.</span><span class="n">user</span><span class="p">(</span><span class="n">container</span><span class="o">.</span><span class="n">owner_id</span><span class="p">)</span><span class="o">.</span><span class="n">display_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_token_util</span><span class="o">.</span><span class="n">wait_is_usable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_so</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">user</span></div>
+
+<div class="viewcode-block" id="StackOverflowQuerier.get_comments"><a class="viewcode-back" href="../../../../stackoverflow.html#importers.forum.stackoverflow.querier_stackoverflow.StackOverflowQuerier.get_comments">[docs]</a>    <span class="k">def</span> <span class="nf">get_comments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">container</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the container comments</span>
+
+<span class="sd">        :type container: Object</span>
+<span class="sd">        :param container: the Object representing the container</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">comments</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">comment</span> <span class="ow">in</span> <span class="n">container</span><span class="o">.</span><span class="n">comments</span><span class="o">.</span><span class="n">fetch</span><span class="p">():</span>
+                <span class="n">comments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">comment</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_token_util</span><span class="o">.</span><span class="n">wait_is_usable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_so</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Stackexchange error when retrieving comments&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">comments</span></div>
+
+<div class="viewcode-block" id="StackOverflowQuerier.get_answers"><a class="viewcode-back" href="../../../../stackoverflow.html#importers.forum.stackoverflow.querier_stackoverflow.StackOverflowQuerier.get_answers">[docs]</a>    <span class="k">def</span> <span class="nf">get_answers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">question</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the answer of a question</span>
+
+<span class="sd">        :type question: Object</span>
+<span class="sd">        :param question: the Object representing the question</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">answers</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">answer</span> <span class="ow">in</span> <span class="n">question</span><span class="o">.</span><span class="n">answers</span><span class="p">:</span>
+            <span class="n">answers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">answer</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_token_util</span><span class="o">.</span><span class="n">wait_is_usable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_so</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">answers</span></div>
+
+<div class="viewcode-block" id="StackOverflowQuerier.get_attachments"><a class="viewcode-back" href="../../../../stackoverflow.html#importers.forum.stackoverflow.querier_stackoverflow.StackOverflowQuerier.get_attachments">[docs]</a>    <span class="k">def</span> <span class="nf">get_attachments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">body</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        extracts the attachments from a text</span>
+
+<span class="sd">        :type body: str</span>
+<span class="sd">        :param body: text of a question/comment/answer</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;&lt;a href=[^ ]*a&gt;&quot;</span><span class="p">)</span>
+        <span class="n">matches</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
+
+        <span class="n">attachments</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">matches</span><span class="p">:</span>
+            <span class="n">attachments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">attachments</span></div>
+
+<div class="viewcode-block" id="StackOverflowQuerier.get_attachment_name"><a class="viewcode-back" href="../../../../stackoverflow.html#importers.forum.stackoverflow.querier_stackoverflow.StackOverflowQuerier.get_attachment_name">[docs]</a>    <span class="k">def</span> <span class="nf">get_attachment_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">html_tag</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        extracts the attachment name</span>
+
+<span class="sd">        :type html_tag: str</span>
+<span class="sd">        :param html_tag: text</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;&gt;.*&lt;/a&gt;&quot;</span><span class="p">)</span>
+        <span class="n">matches</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">html_tag</span><span class="p">)</span>
+
+        <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">matches</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="n">matches</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;&lt;/a&gt;&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">:]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;url name not extracted for: &quot;</span> <span class="o">+</span> <span class="n">html_tag</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="StackOverflowQuerier.get_attachment_url"><a class="viewcode-back" href="../../../../stackoverflow.html#importers.forum.stackoverflow.querier_stackoverflow.StackOverflowQuerier.get_attachment_url">[docs]</a>    <span class="k">def</span> <span class="nf">get_attachment_url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">html_tag</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        extracts the attachment url</span>
+
+<span class="sd">        :type html_tag: str</span>
+<span class="sd">        :param html_tag: text</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2">.*</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">matches</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">html_tag</span><span class="p">)</span>
+
+        <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">matches</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="n">matches</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;url not extracted for: &quot;</span> <span class="o">+</span> <span class="n">html_tag</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="StackOverflowQuerier.generate_attachment_id"><a class="viewcode-back" href="../../../../stackoverflow.html#importers.forum.stackoverflow.querier_stackoverflow.StackOverflowQuerier.generate_attachment_id">[docs]</a>    <span class="k">def</span> <span class="nf">generate_attachment_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message_id</span><span class="p">,</span> <span class="n">pos</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        creates id for attachment using the message id and position</span>
+
+<span class="sd">        :type message_id: int</span>
+<span class="sd">        :param message_id: id of the message where the attachment was found</span>
+
+<span class="sd">        :type pos: int</span>
+<span class="sd">        :param pos: position of the message where the attachment was found</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">message_id</span><span class="p">)</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span></div></div>
+
+
+
+
+
+
+
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Valerio Cosentino.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

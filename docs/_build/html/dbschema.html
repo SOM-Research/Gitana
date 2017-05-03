@@ -1,0 +1,171 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>DbSchema &#8212; Gitana 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Eclipse Forum" href="eclipseforum.html" />
+    <link rel="prev" title="Importers" href="importers.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-importers.db.dbschema">
+<span id="dbschema"></span><h1>DbSchema<a class="headerlink" href="#module-importers.db.dbschema" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="importers.db.dbschema.DbSchema">
+<em class="property">class </em><code class="descclassname">importers.db.dbschema.</code><code class="descname">DbSchema</code><span class="sig-paren">(</span><em>config</em>, <em>log_root_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/db/dbschema.html#DbSchema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.db.dbschema.DbSchema" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class initializes the DB schema</p>
+<dl class="method">
+<dt id="importers.db.dbschema.DbSchema.create_project">
+<code class="descname">create_project</code><span class="sig-paren">(</span><em>db_name</em>, <em>project_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/db/dbschema.html#DbSchema.create_project"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.db.dbschema.DbSchema.create_project" title="Permalink to this definition">¶</a></dt>
+<dd><p>inserts a project in the DB</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>db_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of an existing DB</li>
+<li><strong>project_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of the project to create</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="importers.db.dbschema.DbSchema.init_database">
+<code class="descname">init_database</code><span class="sig-paren">(</span><em>db_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/db/dbschema.html#DbSchema.init_database"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.db.dbschema.DbSchema.init_database" title="Permalink to this definition">¶</a></dt>
+<dd><p>initializes the database tables, functions and stored procedures</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>db_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of the DB to initialize</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="importers.db.dbschema.DbSchema.list_projects">
+<code class="descname">list_projects</code><span class="sig-paren">(</span><em>db_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/db/dbschema.html#DbSchema.list_projects"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.db.dbschema.DbSchema.list_projects" title="Permalink to this definition">¶</a></dt>
+<dd><p>lists all projects contained in the DB</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>db_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of the DB</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="importers.db.dbschema.DbSchema.set_database">
+<code class="descname">set_database</code><span class="sig-paren">(</span><em>db_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/db/dbschema.html#DbSchema.set_database"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.db.dbschema.DbSchema.set_database" title="Permalink to this definition">¶</a></dt>
+<dd><p>sets the DB used by the tool</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>db_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of the DB</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="reference.html">Reference</a><ul>
+  <li><a href="importers.html">Importers</a><ul>
+      <li>Previous: <a href="importers.html" title="previous chapter">Importers</a></li>
+      <li>Next: <a href="eclipseforum.html" title="next chapter">Eclipse Forum</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/dbschema.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Valerio Cosentino.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/dbschema.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

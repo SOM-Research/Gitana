@@ -13,9 +13,31 @@ from util.logging_util import LoggingUtil
 
 
 class StackOverflow2DbUpdate():
+    """
+    This class handles the update of Stackoveflow data
+    """
 
     def __init__(self, db_name, project_name, forum_name, tokens,
                  config, log_root_path):
+        """
+        :type db_name: str
+        :param db_name: the name of an existing DB
+
+        :type project_name: str
+        :param project_name: the name of an existing project in the DB
+
+        :type forum_name: str
+        :param forum_name: the name of an existing forum in the DB to update
+
+        :type tokens: list of tokens
+        :param tokens: a list of Stackoverflow tokens
+
+        :type config: dict
+        :param config: the DB configuration file
+
+        :type log_folder_path: str
+        :param log_folder_path: the log folder path
+        """
         self._log_path = log_root_path + "update-stackoverflow-" + db_name + "-" + project_name + "-" + forum_name
         self._project_name = project_name
         self._db_name = db_name
@@ -33,6 +55,7 @@ class StackOverflow2DbUpdate():
         self._dao = None
 
     def _get_topics(self, forum_id):
+        #updates topics of a forum
         topic_ids = self._dao.get_topic_own_ids(forum_id)
 
         if topic_ids:
@@ -55,6 +78,9 @@ class StackOverflow2DbUpdate():
             queue_extractors.join()
 
     def update(self):
+        """
+        updates the Stackoverflow data stored in the DB
+        """
         try:
             self._logger = self._logging_util.get_logger(self._log_path)
             self._fileHandler = self._logging_util.get_file_handler(self._logger, self._log_path, "info")

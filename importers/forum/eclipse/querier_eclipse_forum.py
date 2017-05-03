@@ -12,7 +12,7 @@ WEB_DRIVER_PATH = os.path.dirname(util.__file__) + "\selenium_driver\phantomjs.e
 
 class EclipseForumQuerier():
     """
-    This class collects the data available in the Eclipse forum web pages
+    This class collects the data available on the Eclipse forum viw Web scraping
     """
 
     def __init__(self, url, logger):

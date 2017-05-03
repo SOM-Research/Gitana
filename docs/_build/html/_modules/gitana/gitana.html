@@ -1,0 +1,523 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>gitana.gitana &#8212; Gitana 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for gitana.gitana</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;valerio cosentino&#39;</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Gitana exports and digests the data of a Git repository, issue trackers and Q&amp;A web-sites to a relational database</span>
+<span class="sd">in order to ease browsing and querying activities with standard SQL syntax and tools.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+
+<span class="kn">from</span> <span class="nn">importers.db.dbschema</span> <span class="k">import</span> <span class="n">DbSchema</span>
+<span class="kn">from</span> <span class="nn">importers.vcs.git.git2db_extract_main</span> <span class="k">import</span> <span class="n">Git2DbMain</span>
+<span class="kn">from</span> <span class="nn">importers.vcs.git.git2db_update</span> <span class="k">import</span> <span class="n">Git2DbUpdate</span>
+<span class="kn">from</span> <span class="nn">importers.issue_tracker.bugzilla.issue2db_extract_main</span> <span class="k">import</span> <span class="n">BugzillaIssue2DbMain</span>
+<span class="kn">from</span> <span class="nn">importers.issue_tracker.bugzilla.issue2db_update</span> <span class="k">import</span> <span class="n">BugzillaIssue2DbUpdate</span>
+<span class="kn">from</span> <span class="nn">importers.issue_tracker.github.issue2db_extract_main</span> <span class="k">import</span> <span class="n">GitHubIssue2DbMain</span>
+<span class="kn">from</span> <span class="nn">importers.issue_tracker.github.issue2db_update</span> <span class="k">import</span> <span class="n">GitHubIssue2DbUpdate</span>
+<span class="kn">from</span> <span class="nn">importers.forum.eclipse.forum2db_extract_main</span> <span class="k">import</span> <span class="n">EclipseForum2DbMain</span>
+<span class="kn">from</span> <span class="nn">importers.forum.eclipse.forum2db_update</span> <span class="k">import</span> <span class="n">EclipseForum2DbUpdate</span>
+<span class="kn">from</span> <span class="nn">importers.forum.stackoverflow.stackoverflow2db_extract_main</span> <span class="k">import</span> <span class="n">StackOverflow2DbMain</span>
+<span class="kn">from</span> <span class="nn">importers.forum.stackoverflow.stackoverflow2db_update</span> <span class="k">import</span> <span class="n">StackOverflow2DbUpdate</span>
+<span class="kn">from</span> <span class="nn">importers.instant_messaging.slack.slack2db_extract_main</span> <span class="k">import</span> <span class="n">Slack2DbMain</span>
+<span class="kn">from</span> <span class="nn">importers.instant_messaging.slack.slack2db_update</span> <span class="k">import</span> <span class="n">Slack2DbUpdate</span>
+
+
+<div class="viewcode-block" id="Gitana"><a class="viewcode-back" href="../../reference.html#gitana.gitana.Gitana">[docs]</a><span class="k">class</span> <span class="nc">Gitana</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This is the main class you instanciate to use Gitana functionalities</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">LOG_FOLDER_PATH</span> <span class="o">=</span> <span class="s2">&quot;logs&quot;</span>
+    <span class="n">LOG_NAME</span> <span class="o">=</span> <span class="s2">&quot;gitana&quot;</span>
+    <span class="n">STACKOVERFLOW_TYPE</span> <span class="o">=</span> <span class="s1">&#39;stackoverflow&#39;</span>
+    <span class="n">ECLIPSE_FORUM_TYPE</span> <span class="o">=</span> <span class="s1">&#39;eclipse_forum&#39;</span>
+    <span class="n">GITHUB_TYPE</span> <span class="o">=</span> <span class="s1">&#39;github&#39;</span>
+    <span class="n">BUGZILLA_TYPE</span> <span class="o">=</span> <span class="s1">&#39;bugzilla&#39;</span>
+    <span class="n">SLACK_TYPE</span> <span class="o">=</span> <span class="s1">&#39;slack&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">log_folder_path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :type config: dict</span>
+<span class="sd">        :param config: the DB configuration file</span>
+
+<span class="sd">        :type log_folder_path: str</span>
+<span class="sd">        :param log_folder_path: the log folder path</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_config</span> <span class="o">=</span> <span class="n">config</span>
+
+        <span class="k">if</span> <span class="n">log_folder_path</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">create_log_folder</span><span class="p">(</span><span class="n">log_folder_path</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_folder_path</span> <span class="o">=</span> <span class="n">log_folder_path</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">create_log_folder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">LOG_FOLDER_PATH</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_folder_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">LOG_FOLDER_PATH</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_folder_path</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">Gitana</span><span class="o">.</span><span class="n">LOG_NAME</span> <span class="o">+</span> <span class="s2">&quot;-&quot;</span>
+
+<div class="viewcode-block" id="Gitana.create_log_folder"><a class="viewcode-back" href="../../reference.html#gitana.gitana.Gitana.create_log_folder">[docs]</a>    <span class="k">def</span> <span class="nf">create_log_folder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        creates the log folder</span>
+
+<span class="sd">        :type name: str</span>
+<span class="sd">        :param name: the log folder path</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Gitana.delete_previous_logs"><a class="viewcode-back" href="../../reference.html#gitana.gitana.Gitana.delete_previous_logs">[docs]</a>    <span class="k">def</span> <span class="nf">delete_previous_logs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        deletes the content of the log folder</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">files</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_log_folder_path</span> <span class="o">+</span> <span class="s2">&quot;/*&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">continue</span></div>
+
+<div class="viewcode-block" id="Gitana.init_db"><a class="viewcode-back" href="../../reference.html#gitana.gitana.Gitana.init_db">[docs]</a>    <span class="k">def</span> <span class="nf">init_db</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        initializes the Gitana DB schema</span>
+
+<span class="sd">        :type db_name: str</span>
+<span class="sd">        :param db_name: the name of the DB to initialize</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">db</span> <span class="o">=</span> <span class="n">DbSchema</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_path</span><span class="p">)</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">init_database</span><span class="p">(</span><span class="n">db_name</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Gitana.create_project"><a class="viewcode-back" href="../../reference.html#gitana.gitana.Gitana.create_project">[docs]</a>    <span class="k">def</span> <span class="nf">create_project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        inserts a project in the DB</span>
+
+<span class="sd">        :type db_name: str</span>
+<span class="sd">        :param db_name: the name of an existing DB</span>
+
+<span class="sd">        :type project_name: str</span>
+<span class="sd">        :param project_name: the name of the project to create</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">db</span> <span class="o">=</span> <span class="n">DbSchema</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_path</span><span class="p">)</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">create_project</span><span class="p">(</span><span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Gitana.list_projects"><a class="viewcode-back" href="../../reference.html#gitana.gitana.Gitana.list_projects">[docs]</a>    <span class="k">def</span> <span class="nf">list_projects</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        lists all projects contained in the DB</span>
+
+<span class="sd">        :type db_name: str</span>
+<span class="sd">        :param db_name: the name of the DB</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">db</span> <span class="o">=</span> <span class="n">DbSchema</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_path</span><span class="p">)</span>
+        <span class="n">projects</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">list_projects</span><span class="p">(</span><span class="n">db_name</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">projects</span><span class="p">:</span>
+            <span class="nb">print</span> <span class="n">p</span></div>
+
+<div class="viewcode-block" id="Gitana.import_git_data"><a class="viewcode-back" href="../../reference.html#gitana.gitana.Gitana.import_git_data">[docs]</a>    <span class="k">def</span> <span class="nf">import_git_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">repo_name</span><span class="p">,</span> <span class="n">git_repo_path</span><span class="p">,</span> <span class="n">before_date</span><span class="p">,</span> <span class="n">import_type</span><span class="p">,</span> <span class="n">references</span><span class="p">,</span> <span class="n">processes</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        imports Git data to the DB</span>
+
+<span class="sd">        :type db_name: str</span>
+<span class="sd">        :param db_name: the name of an existing DB</span>
+
+<span class="sd">        :type project_name: str</span>
+<span class="sd">        :param project_name: the name of an existing project in the DB</span>
+
+<span class="sd">        :type repo_name: str</span>
+<span class="sd">        :param repo_name: the name of the repository to import</span>
+
+<span class="sd">        :type git_repo_path: str</span>
+<span class="sd">        :param git_repo_path: the path of the repository</span>
+
+<span class="sd">        :type before_date: str</span>
+<span class="sd">        :param before_date: import data before date (YYYY-mm-dd)</span>
+
+<span class="sd">        :type import_type: int</span>
+<span class="sd">        :param import_type: 1 = do not import patch content, 2 = import patch content but not at line level, 3 = import patch content at line level</span>
+
+<span class="sd">        :type references: list str</span>
+<span class="sd">        :param references: list of references (branches and tags) to import</span>
+
+<span class="sd">        :type processes: int</span>
+<span class="sd">        :param processes: number of processes to import the data (default 10)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">git2db</span> <span class="o">=</span> <span class="n">Git2DbMain</span><span class="p">(</span><span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span>
+                                   <span class="n">repo_name</span><span class="p">,</span> <span class="n">git_repo_path</span><span class="p">,</span> <span class="n">before_date</span><span class="p">,</span> <span class="n">import_type</span><span class="p">,</span> <span class="n">references</span><span class="p">,</span> <span class="n">processes</span><span class="p">,</span>
+                                   <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_path</span><span class="p">)</span>
+        <span class="n">git2db</span><span class="o">.</span><span class="n">extract</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Gitana.update_git_data"><a class="viewcode-back" href="../../reference.html#gitana.gitana.Gitana.update_git_data">[docs]</a>    <span class="k">def</span> <span class="nf">update_git_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">repo_name</span><span class="p">,</span> <span class="n">git_repo_path</span><span class="p">,</span> <span class="n">before_date</span><span class="p">,</span> <span class="n">processes</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        updates the Git data stored in the DB</span>
+
+<span class="sd">        :type db_name: str</span>
+<span class="sd">        :param db_name: the name of an existing DB</span>
+
+<span class="sd">        :type project_name: str</span>
+<span class="sd">        :param project_name: the name of an existing project in the DB</span>
+
+<span class="sd">        :type repo_name: str</span>
+<span class="sd">        :param repo_name: the name of an existing repository in the DB to update</span>
+
+<span class="sd">        :type git_repo_path: str</span>
+<span class="sd">        :param git_repo_path: the path of the repository</span>
+
+<span class="sd">        :type before_date: str</span>
+<span class="sd">        :param before_date: import data before date (YYYY-mm-dd)</span>
+
+<span class="sd">        :type processes: int</span>
+<span class="sd">        :param processes: number of processes to import the data (default 10)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">git2db</span> <span class="o">=</span> <span class="n">Git2DbUpdate</span><span class="p">(</span><span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span>
+                              <span class="n">repo_name</span><span class="p">,</span> <span class="n">git_repo_path</span><span class="p">,</span> <span class="n">before_date</span><span class="p">,</span> <span class="n">processes</span><span class="p">,</span>
+                              <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_path</span><span class="p">)</span>
+        <span class="n">git2db</span><span class="o">.</span><span class="n">update</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Gitana.import_bugzilla_tracker_data"><a class="viewcode-back" href="../../reference.html#gitana.gitana.Gitana.import_bugzilla_tracker_data">[docs]</a>    <span class="k">def</span> <span class="nf">import_bugzilla_tracker_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">repo_name</span><span class="p">,</span> <span class="n">issue_tracker_name</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">product</span><span class="p">,</span> <span class="n">before_date</span><span class="p">,</span> <span class="n">processes</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        imports Bugzilla issue tracker data to the DB</span>
+
+<span class="sd">        :type db_name: str</span>
+<span class="sd">        :param db_name: the name of an existing DB</span>
+
+<span class="sd">        :type project_name: str</span>
+<span class="sd">        :param project_name: the name of an existing project in the DB</span>
+
+<span class="sd">        :type repo_name: str</span>
+<span class="sd">        :param repo_name: the name of an existing repository in the DB</span>
+
+<span class="sd">        :type issue_tracker_name: str</span>
+<span class="sd">        :param issue_tracker_name: the name of the issue tracker to import</span>
+
+<span class="sd">        :type url: str</span>
+<span class="sd">        :param url: the URL of the issue tracker</span>
+
+<span class="sd">        :type product: str</span>
+<span class="sd">        :param product: the name of the product used in the issue tracker</span>
+
+<span class="sd">        :type before_date: str</span>
+<span class="sd">        :param before_date: import data before date (YYYY-mm-dd)</span>
+
+<span class="sd">        :type processes: int</span>
+<span class="sd">        :param processes: number of processes to import the data (default 5)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">issue2db</span> <span class="o">=</span> <span class="n">BugzillaIssue2DbMain</span><span class="p">(</span><span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span>
+                                <span class="n">repo_name</span><span class="p">,</span> <span class="n">Gitana</span><span class="o">.</span><span class="n">BUGZILLA_TYPE</span><span class="p">,</span> <span class="n">issue_tracker_name</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">product</span><span class="p">,</span> <span class="n">before_date</span><span class="p">,</span> <span class="n">processes</span><span class="p">,</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_path</span><span class="p">)</span>
+        <span class="n">issue2db</span><span class="o">.</span><span class="n">extract</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Gitana.update_bugzilla_tracker_data"><a class="viewcode-back" href="../../reference.html#gitana.gitana.Gitana.update_bugzilla_tracker_data">[docs]</a>    <span class="k">def</span> <span class="nf">update_bugzilla_tracker_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">repo_name</span><span class="p">,</span> <span class="n">issue_tracker_name</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">product</span><span class="p">,</span> <span class="n">processes</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        updates the Bugzilla issue tracker data stored in the DB</span>
+
+<span class="sd">        :type db_name: str</span>
+<span class="sd">        :param db_name: the name of an existing DB</span>
+
+<span class="sd">        :type project_name: str</span>
+<span class="sd">        :param project_name: the name of an existing project in the DB</span>
+
+<span class="sd">        :type repo_name: str</span>
+<span class="sd">        :param repo_name: the name of an existing repository in the DB</span>
+
+<span class="sd">        :type issue_tracker_name: str</span>
+<span class="sd">        :param issue_tracker_name: the name of an existing issue tracker in the DB to update</span>
+
+<span class="sd">        :type url: str</span>
+<span class="sd">        :param url: the URL of the issue tracker</span>
+
+<span class="sd">        :type product: str</span>
+<span class="sd">        :param product: the name of the product used in the issue tracker</span>
+
+<span class="sd">        :type processes: int</span>
+<span class="sd">        :param processes: number of processes to import the data (default 5)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">issue2db</span> <span class="o">=</span> <span class="n">BugzillaIssue2DbUpdate</span><span class="p">(</span><span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span>
+                                  <span class="n">repo_name</span><span class="p">,</span> <span class="n">issue_tracker_name</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">product</span><span class="p">,</span> <span class="n">processes</span><span class="p">,</span>
+                                  <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_path</span><span class="p">)</span>
+        <span class="n">issue2db</span><span class="o">.</span><span class="n">update</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Gitana.import_eclipse_forum_data"><a class="viewcode-back" href="../../reference.html#gitana.gitana.Gitana.import_eclipse_forum_data">[docs]</a>    <span class="k">def</span> <span class="nf">import_eclipse_forum_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">forum_name</span><span class="p">,</span> <span class="n">eclipse_forum_url</span><span class="p">,</span> <span class="n">before_date</span><span class="p">,</span> <span class="n">processes</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        imports Eclipse forum data to the DB</span>
+
+<span class="sd">        :type db_name: str</span>
+<span class="sd">        :param db_name: the name of an existing DB</span>
+
+<span class="sd">        :type project_name: str</span>
+<span class="sd">        :param project_name: the name of an existing project in the DB</span>
+
+<span class="sd">        :type forum_name: str</span>
+<span class="sd">        :param forum_name: the name of the forum to import</span>
+
+<span class="sd">        :type eclipse_forum_url: str</span>
+<span class="sd">        :param eclipse_forum_url: the URL of the forum</span>
+
+<span class="sd">        :type before_date: str</span>
+<span class="sd">        :param before_date: import data before date (YYYY-mm-dd)</span>
+
+<span class="sd">        :type processes: int</span>
+<span class="sd">        :param processes: number of processes to import the data (default 2)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">forum2db</span> <span class="o">=</span> <span class="n">EclipseForum2DbMain</span><span class="p">(</span><span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span>
+                                <span class="n">Gitana</span><span class="o">.</span><span class="n">ECLIPSE_FORUM_TYPE</span><span class="p">,</span> <span class="n">forum_name</span><span class="p">,</span> <span class="n">eclipse_forum_url</span><span class="p">,</span> <span class="n">before_date</span><span class="p">,</span> <span class="n">processes</span><span class="p">,</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_path</span><span class="p">)</span>
+        <span class="n">forum2db</span><span class="o">.</span><span class="n">extract</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Gitana.update_eclipse_forum_data"><a class="viewcode-back" href="../../reference.html#gitana.gitana.Gitana.update_eclipse_forum_data">[docs]</a>    <span class="k">def</span> <span class="nf">update_eclipse_forum_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">forum_name</span><span class="p">,</span> <span class="n">eclipse_forum_url</span><span class="p">,</span> <span class="n">processes</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        updates the Eclipse forum data stored in the DB</span>
+
+<span class="sd">        :type db_name: str</span>
+<span class="sd">        :param db_name: the name of an existing DB</span>
+
+<span class="sd">        :type project_name: str</span>
+<span class="sd">        :param project_name: the name of an existing project in the DB</span>
+
+<span class="sd">        :type forum_name: str</span>
+<span class="sd">        :param forum_name: the name of an existing forum in the DB to update</span>
+
+<span class="sd">        :type eclipse_forum_url: str</span>
+<span class="sd">        :param eclipse_forum_url: the URL of the forum</span>
+
+<span class="sd">        :type processes: int</span>
+<span class="sd">        :param processes: number of processes to import the data (default 2)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">forum2db</span> <span class="o">=</span> <span class="n">EclipseForum2DbUpdate</span><span class="p">(</span><span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">forum_name</span><span class="p">,</span> <span class="n">eclipse_forum_url</span><span class="p">,</span> <span class="n">processes</span><span class="p">,</span>
+                                  <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_path</span><span class="p">)</span>
+        <span class="n">forum2db</span><span class="o">.</span><span class="n">update</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Gitana.import_stackoverflow_data"><a class="viewcode-back" href="../../reference.html#gitana.gitana.Gitana.import_stackoverflow_data">[docs]</a>    <span class="k">def</span> <span class="nf">import_stackoverflow_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">forum_name</span><span class="p">,</span> <span class="n">search_query</span><span class="p">,</span> <span class="n">before_date</span><span class="p">,</span> <span class="n">tokens</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        imports Stackoverflow data to the DB</span>
+
+<span class="sd">        :type db_name: str</span>
+<span class="sd">        :param db_name: the name of an existing DB</span>
+
+<span class="sd">        :type project_name: str</span>
+<span class="sd">        :param project_name: the name of an existing project in the DB</span>
+
+<span class="sd">        :type forum_name: str</span>
+<span class="sd">        :param forum_name: the name of the forum to import</span>
+
+<span class="sd">        :type search_query: str</span>
+<span class="sd">        :param search_query: retrieves Stackoverflow questions labeled with a given string</span>
+
+<span class="sd">        :type before_date: str</span>
+<span class="sd">        :param before_date: import data before date (YYYY-mm-dd)</span>
+
+<span class="sd">        :type tokens: list str</span>
+<span class="sd">        :param tokens: list of Stackoverflow tokens</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">stackoverflow2db</span> <span class="o">=</span> <span class="n">StackOverflow2DbMain</span><span class="p">(</span><span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span>
+                                                <span class="n">Gitana</span><span class="o">.</span><span class="n">STACKOVERFLOW_TYPE</span><span class="p">,</span> <span class="n">forum_name</span><span class="p">,</span> <span class="n">search_query</span><span class="p">,</span> <span class="n">before_date</span><span class="p">,</span> <span class="n">tokens</span><span class="p">,</span>
+                                                <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_path</span><span class="p">)</span>
+        <span class="n">stackoverflow2db</span><span class="o">.</span><span class="n">extract</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Gitana.update_stackoverflow_data"><a class="viewcode-back" href="../../reference.html#gitana.gitana.Gitana.update_stackoverflow_data">[docs]</a>    <span class="k">def</span> <span class="nf">update_stackoverflow_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">forum_name</span><span class="p">,</span> <span class="n">tokens</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        updates Stackoverflow data stored in the DB</span>
+
+<span class="sd">        :type db_name: str</span>
+<span class="sd">        :param db_name: the name of an existing DB</span>
+
+<span class="sd">        :type project_name: str</span>
+<span class="sd">        :param project_name: the name of an existing project in the DB</span>
+
+<span class="sd">        :type forum_name: str</span>
+<span class="sd">        :param forum_name: the name of an existing forum in the DB to update</span>
+
+<span class="sd">        :type tokens: list str</span>
+<span class="sd">        :param tokens: list of Stackoverflow tokens</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">stackoverflow2db</span> <span class="o">=</span> <span class="n">StackOverflow2DbUpdate</span><span class="p">(</span><span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">forum_name</span><span class="p">,</span> <span class="n">tokens</span><span class="p">,</span>
+                                                  <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_path</span><span class="p">)</span>
+        <span class="n">stackoverflow2db</span><span class="o">.</span><span class="n">update</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Gitana.import_slack_data"><a class="viewcode-back" href="../../reference.html#gitana.gitana.Gitana.import_slack_data">[docs]</a>    <span class="k">def</span> <span class="nf">import_slack_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">instant_messaging_name</span><span class="p">,</span> <span class="n">before_date</span><span class="p">,</span> <span class="n">channels</span><span class="p">,</span> <span class="n">tokens</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        imports Slack data to the DB</span>
+
+<span class="sd">        :type db_name: str</span>
+<span class="sd">        :param db_name: the name of an existing DB</span>
+
+<span class="sd">        :type project_name: str</span>
+<span class="sd">        :param project_name: the name of an existing project in the DB</span>
+
+<span class="sd">        :type instant_messaging_name: str</span>
+<span class="sd">        :param instant_messaging_name: the name of the instant messaging to import</span>
+
+<span class="sd">        :type before_date: str</span>
+<span class="sd">        :param before_date: import data before date (YYYY-mm-dd)</span>
+
+<span class="sd">        :type channels: list str</span>
+<span class="sd">        :param channels: list of channels to import</span>
+
+<span class="sd">        :type tokens: list str</span>
+<span class="sd">        :param tokens: list of Slack tokens</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">slack2db</span> <span class="o">=</span> <span class="n">Slack2DbMain</span><span class="p">(</span><span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span>
+                                <span class="n">Gitana</span><span class="o">.</span><span class="n">SLACK_TYPE</span><span class="p">,</span> <span class="n">instant_messaging_name</span><span class="p">,</span> <span class="n">before_date</span><span class="p">,</span> <span class="n">channels</span><span class="p">,</span> <span class="n">tokens</span><span class="p">,</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_path</span><span class="p">)</span>
+        <span class="n">slack2db</span><span class="o">.</span><span class="n">extract</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Gitana.update_slack_data"><a class="viewcode-back" href="../../reference.html#gitana.gitana.Gitana.update_slack_data">[docs]</a>    <span class="k">def</span> <span class="nf">update_slack_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">instant_messaging_name</span><span class="p">,</span> <span class="n">tokens</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        updates Slack data stored in the DB</span>
+
+<span class="sd">        :type db_name: str</span>
+<span class="sd">        :param db_name: the name of an existing DB</span>
+
+<span class="sd">        :type project_name: str</span>
+<span class="sd">        :param project_name: the name of an existing project in the DB</span>
+
+<span class="sd">        :type instant_messaging_name: str</span>
+<span class="sd">        :param instant_messaging_name: the name of an existing instant messaging in the DB to update</span>
+
+<span class="sd">        :type tokens: list str</span>
+<span class="sd">        :param tokens: list of Slack tokens</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">slack2db</span> <span class="o">=</span> <span class="n">Slack2DbUpdate</span><span class="p">(</span><span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">instant_messaging_name</span><span class="p">,</span> <span class="n">tokens</span><span class="p">,</span>
+                                  <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_path</span><span class="p">)</span>
+        <span class="n">slack2db</span><span class="o">.</span><span class="n">update</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Gitana.import_github_tracker_data"><a class="viewcode-back" href="../../reference.html#gitana.gitana.Gitana.import_github_tracker_data">[docs]</a>    <span class="k">def</span> <span class="nf">import_github_tracker_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">repo_name</span><span class="p">,</span> <span class="n">issue_tracker_name</span><span class="p">,</span> <span class="n">github_repo_full_name</span><span class="p">,</span> <span class="n">before_date</span><span class="p">,</span> <span class="n">tokens</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        imports GitHub issue tracker data to the DB</span>
+
+<span class="sd">        :type db_name: str</span>
+<span class="sd">        :param db_name: the name of an existing DB</span>
+
+<span class="sd">        :type project_name: str</span>
+<span class="sd">        :param project_name: the name of an existing project in the DB</span>
+
+<span class="sd">        :type repo_name: str</span>
+<span class="sd">        :param repo_name: the name of an existing repository in the DB</span>
+
+<span class="sd">        :type issue_tracker_name: str</span>
+<span class="sd">        :param issue_tracker_name: the name of the issue tracker to import</span>
+
+<span class="sd">        :type github_repo_full_name: str</span>
+<span class="sd">        :param github_repo_full_name: full name of the GitHub repository</span>
+
+<span class="sd">        :type before_date: str</span>
+<span class="sd">        :param before_date: import data before date (YYYY-mm-dd)</span>
+
+<span class="sd">        :type tokens: list str</span>
+<span class="sd">        :param tokens: list of GitHub tokens</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">github2db</span> <span class="o">=</span> <span class="n">GitHubIssue2DbMain</span><span class="p">(</span><span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">repo_name</span><span class="p">,</span> <span class="n">Gitana</span><span class="o">.</span><span class="n">GITHUB_TYPE</span><span class="p">,</span> <span class="n">issue_tracker_name</span><span class="p">,</span> <span class="n">github_repo_full_name</span><span class="p">,</span> <span class="n">before_date</span><span class="p">,</span> <span class="n">tokens</span><span class="p">,</span>
+                                       <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_path</span><span class="p">)</span>
+        <span class="n">github2db</span><span class="o">.</span><span class="n">extract</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Gitana.update_github_tracker_data"><a class="viewcode-back" href="../../reference.html#gitana.gitana.Gitana.update_github_tracker_data">[docs]</a>    <span class="k">def</span> <span class="nf">update_github_tracker_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">repo_name</span><span class="p">,</span> <span class="n">issue_tracker_name</span><span class="p">,</span> <span class="n">github_repo_full_name</span><span class="p">,</span> <span class="n">tokens</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        updates GitHub issue tracker data stored in the DB</span>
+
+<span class="sd">        :type db_name: str</span>
+<span class="sd">        :param db_name: the name of an existing DB</span>
+
+<span class="sd">        :type project_name: str</span>
+<span class="sd">        :param project_name: the name of an existing project in the DB</span>
+
+<span class="sd">        :type repo_name: str</span>
+<span class="sd">        :param repo_name: the name of an existing repository in the DB</span>
+
+<span class="sd">        :type issue_tracker_name: str</span>
+<span class="sd">        :param issue_tracker_name: the name of an existing issue tracker to update</span>
+
+<span class="sd">        :type github_repo_full_name: str</span>
+<span class="sd">        :param github_repo_full_name: full name of the GitHub repository</span>
+
+<span class="sd">        :type tokens: list str</span>
+<span class="sd">        :param tokens: list of GitHub tokens</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">github2db</span> <span class="o">=</span> <span class="n">GitHubIssue2DbUpdate</span><span class="p">(</span><span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">repo_name</span><span class="p">,</span> <span class="n">issue_tracker_name</span><span class="p">,</span> <span class="n">github_repo_full_name</span><span class="p">,</span> <span class="n">tokens</span><span class="p">,</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_path</span><span class="p">)</span>
+        <span class="n">github2db</span><span class="o">.</span><span class="n">update</span><span class="p">()</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Valerio Cosentino.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

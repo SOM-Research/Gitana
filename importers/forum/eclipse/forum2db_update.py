@@ -111,7 +111,7 @@ class EclipseForum2DbUpdate():
 
     def update(self):
         """
-        updates Eclipse forum data stored in the DB
+        updates the Eclipse forum data stored in the DB
         """
         try:
             self._logger = self._logging_util.get_logger(self._log_path)
