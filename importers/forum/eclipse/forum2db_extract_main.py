@@ -51,7 +51,6 @@ class EclipseForum2DbMain():
         :type log_folder_path: str
         :param log_folder_path: the log folder path
         """
-
         self._log_path = log_root_path + "import-eclipse-forum-" + db_name + "-" + project_name + "-" + forum_name
         self._type = type
         self._url = url

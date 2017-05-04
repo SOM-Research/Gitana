@@ -13,9 +13,31 @@ from util.logging_util import LoggingUtil
 
 
 class Slack2DbUpdate():
+    """
+    This class handles the update of Slack data
+    """
 
     def __init__(self, db_name, project_name, instant_messaging_name, tokens,
                  config, log_root_path):
+        """
+        :type db_name: str
+        :param db_name: the name of an existing DB
+
+        :type project_name: str
+        :param project_name: the name of an existing project in the DB
+
+        :type instant_messaging_name: str
+        :param instant_messaging_name: the name of an existing instant messaging in the DB to update
+
+        :type tokens: list of tokens
+        :param tokens: a list of Slack tokens
+
+        :type config: dict
+        :param config: the DB configuration file
+
+        :type log_folder_path: str
+        :param log_folder_path: the log folder path
+        """
         self._log_path = log_root_path + "update-slack-" + db_name + "-" + project_name + "-" + instant_messaging_name
         self._project_name = project_name
         self._db_name = db_name
@@ -33,6 +55,7 @@ class Slack2DbUpdate():
         self._dao = None
 
     def _update_channels(self, instant_messaging_id):
+        #updates channels of a instant messaging
         channel_ids = self._dao.get_channel_ids(instant_messaging_id)
 
         if channel_ids:
@@ -55,6 +78,9 @@ class Slack2DbUpdate():
             queue_extractors.join()
 
     def update(self):
+        """
+        updates the Slack data stored in the DB
+        """
         try:
             self._logger = self._logging_util.get_logger(self._log_path)
             self._fileHandler = self._logging_util.get_file_handler(self._logger, self._log_path, "info")

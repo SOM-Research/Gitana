@@ -1,0 +1,767 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>importers.issue_tracker.bugzilla.bugzilla_dao &#8212; Gitana 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for importers.issue_tracker.bugzilla.bugzilla_dao</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;valerio cosentino&#39;</span>
+
+<span class="kn">from</span> <span class="nn">util.db_util</span> <span class="k">import</span> <span class="n">DbUtil</span>
+
+
+<div class="viewcode-block" id="BugzillaDao"><a class="viewcode-back" href="../../../../bugzilla.html#importers.issue_tracker.bugzilla.bugzilla_dao.BugzillaDao">[docs]</a><span class="k">class</span> <span class="nc">BugzillaDao</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class handles the persistence and retrieval of Bugzilla issue tracker data</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :type config: dict</span>
+<span class="sd">        :param config: the DB configuration file</span>
+
+<span class="sd">        :type logger: Object</span>
+<span class="sd">        :param logger: logger</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_config</span> <span class="o">=</span> <span class="n">config</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logger</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_db_util</span> <span class="o">=</span> <span class="n">DbUtil</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_util</span><span class="o">.</span><span class="n">get_connection</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;BugzillaDao init failed&quot;</span><span class="p">)</span>
+            <span class="k">raise</span>
+
+<div class="viewcode-block" id="BugzillaDao.select_issue_tracker_id"><a class="viewcode-back" href="../../../../bugzilla.html#importers.issue_tracker.bugzilla.bugzilla_dao.BugzillaDao.select_issue_tracker_id">[docs]</a>    <span class="k">def</span> <span class="nf">select_issue_tracker_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">,</span> <span class="n">issue_tracker_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets DB issue tracker id by its name</span>
+
+<span class="sd">        :type repo_id: int</span>
+<span class="sd">        :param repo_id: id of the repository associated to the issue tracker</span>
+
+<span class="sd">        :type issue_tracker_name: str</span>
+<span class="sd">        :param issue_tracker_name: issue tracker name</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_util</span><span class="o">.</span><span class="n">select_issue_tracker_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="p">,</span> <span class="n">issue_tracker_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BugzillaDao.insert_issue_comment"><a class="viewcode-back" href="../../../../bugzilla.html#importers.issue_tracker.bugzilla.bugzilla_dao.BugzillaDao.insert_issue_comment">[docs]</a>    <span class="k">def</span> <span class="nf">insert_issue_comment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">own_id</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="n">issue_id</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">votes</span><span class="p">,</span> <span class="n">author_id</span><span class="p">,</span> <span class="n">created_at</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        inserts issue comment</span>
+
+<span class="sd">        :type own_id: id</span>
+<span class="sd">        :param own_id: data source message id</span>
+
+<span class="sd">        :type position: int</span>
+<span class="sd">        :param position: position of the comment</span>
+
+<span class="sd">        :type type: str</span>
+<span class="sd">        :param type: type of the message</span>
+
+<span class="sd">        :type issue_id: id</span>
+<span class="sd">        :param issue_id: DB issue id</span>
+
+<span class="sd">        :type body: str</span>
+<span class="sd">        :param body: body of the comment</span>
+
+<span class="sd">        :type votes: int</span>
+<span class="sd">        :param votes: votes of the comment</span>
+
+<span class="sd">        :type author_id: int</span>
+<span class="sd">        :param author_id: id of the author</span>
+
+<span class="sd">        :type created_at: str</span>
+<span class="sd">        :param created_at: creation date of the comment</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;INSERT IGNORE INTO message &quot;</span> \
+                <span class="s2">&quot;VALUES (</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">)&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">own_id</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="n">issue_id</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">votes</span><span class="p">,</span> <span class="n">author_id</span><span class="p">,</span> <span class="n">created_at</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="BugzillaDao.select_event_type"><a class="viewcode-back" href="../../../../bugzilla.html#importers.issue_tracker.bugzilla.bugzilla_dao.BugzillaDao.select_event_type">[docs]</a>    <span class="k">def</span> <span class="nf">select_event_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        selects event type id by its name</span>
+
+<span class="sd">        :type name: str</span>
+<span class="sd">        :param name: name of the event</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;SELECT id FROM issue_event_type WHERE name = </span><span class="si">%s</span><span class="s2">&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="BugzillaDao.insert_issue_event"><a class="viewcode-back" href="../../../../bugzilla.html#importers.issue_tracker.bugzilla.bugzilla_dao.BugzillaDao.insert_issue_event">[docs]</a>    <span class="k">def</span> <span class="nf">insert_issue_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">issue_id</span><span class="p">,</span> <span class="n">event_type_id</span><span class="p">,</span> <span class="n">detail</span><span class="p">,</span> <span class="n">creator_id</span><span class="p">,</span> <span class="n">created_at</span><span class="p">,</span> <span class="n">target_user_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        inserts issue event</span>
+
+<span class="sd">        :type issue_id: int</span>
+<span class="sd">        :param issue_id: DB issue id</span>
+
+<span class="sd">        :type event_type_id: int</span>
+<span class="sd">        :param event_type_id: event type id</span>
+
+<span class="sd">        :type detail: str</span>
+<span class="sd">        :param detail: detail of the event</span>
+
+<span class="sd">        :type creator_id: int</span>
+<span class="sd">        :param creator_id: id of the creator</span>
+
+<span class="sd">        :type created_at: str</span>
+<span class="sd">        :param created_at: creation date of the event</span>
+
+<span class="sd">        :type target_user_id: int</span>
+<span class="sd">        :param target_user_id: target user id</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;INSERT IGNORE INTO issue_event &quot;</span> \
+                <span class="s2">&quot;VALUES (</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">)&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">issue_id</span><span class="p">,</span> <span class="n">event_type_id</span><span class="p">,</span> <span class="n">detail</span><span class="p">,</span> <span class="n">creator_id</span><span class="p">,</span> <span class="n">created_at</span><span class="p">,</span> <span class="n">target_user_id</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="BugzillaDao.insert_issue_commit_dependency"><a class="viewcode-back" href="../../../../bugzilla.html#importers.issue_tracker.bugzilla.bugzilla_dao.BugzillaDao.insert_issue_commit_dependency">[docs]</a>    <span class="k">def</span> <span class="nf">insert_issue_commit_dependency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">issue_id</span><span class="p">,</span> <span class="n">commit_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        inserts dependency between commit and issue</span>
+
+<span class="sd">        :type issue_id: int</span>
+<span class="sd">        :param issue_id: DB issue id</span>
+
+<span class="sd">        :type commit_id: int</span>
+<span class="sd">        :param commit_id: DB commit id</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;INSERT IGNORE INTO issue_commit_dependency &quot;</span> \
+                <span class="s2">&quot;VALUES (</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">)&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">issue_id</span><span class="p">,</span> <span class="n">commit_id</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="BugzillaDao.insert_event_type"><a class="viewcode-back" href="../../../../bugzilla.html#importers.issue_tracker.bugzilla.bugzilla_dao.BugzillaDao.insert_event_type">[docs]</a>    <span class="k">def</span> <span class="nf">insert_event_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        inserts event type</span>
+
+<span class="sd">        :type name: str</span>
+<span class="sd">        :param name: event type name</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;INSERT IGNORE INTO issue_event_type &quot;</span> \
+                <span class="s2">&quot;VALUES (</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">)&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="BugzillaDao.insert_issue_tracker"><a class="viewcode-back" href="../../../../bugzilla.html#importers.issue_tracker.bugzilla.bugzilla_dao.BugzillaDao.insert_issue_tracker">[docs]</a>    <span class="k">def</span> <span class="nf">insert_issue_tracker</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">,</span> <span class="n">issue_tracker_name</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        inserts issue tracker</span>
+
+<span class="sd">        :type repo_id: int</span>
+<span class="sd">        :param repo_id: DB repo id</span>
+
+<span class="sd">        :type issue_tracker_name: str</span>
+<span class="sd">        :param issue_tracker_name: issue tracker name</span>
+
+<span class="sd">        :type type: str</span>
+<span class="sd">        :param type: issue tracker type (github, bugzilla, etc.)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_util</span><span class="o">.</span><span class="n">insert_issue_tracker</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">,</span> <span class="n">issue_tracker_name</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BugzillaDao.get_already_imported_issue_ids"><a class="viewcode-back" href="../../../../bugzilla.html#importers.issue_tracker.bugzilla.bugzilla_dao.BugzillaDao.get_already_imported_issue_ids">[docs]</a>    <span class="k">def</span> <span class="nf">get_already_imported_issue_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">issue_tracker_id</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets issues already stored in DB</span>
+
+<span class="sd">        :type issue_tracker_id: int</span>
+<span class="sd">        :param issue_tracker_id: DB issue tracker id</span>
+
+<span class="sd">        :type repo_id: int</span>
+<span class="sd">        :param repo_id: DB repo id</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">issue_ids</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;SELECT i.id FROM issue i &quot;</span> \
+                <span class="s2">&quot;JOIN issue_tracker it ON i.issue_tracker_id = it.id &quot;</span> \
+                <span class="s2">&quot;WHERE issue_tracker_id = </span><span class="si">%s</span><span class="s2"> AND repo_id = </span><span class="si">%s</span><span class="s2"> &quot;</span> \
+                <span class="s2">&quot;ORDER BY i.id ASC;&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">issue_tracker_id</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+
+        <span class="k">while</span> <span class="n">row</span><span class="p">:</span>
+            <span class="n">own_id</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">issue_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">own_id</span><span class="p">)</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">issue_ids</span></div>
+
+<div class="viewcode-block" id="BugzillaDao.get_message_type_id"><a class="viewcode-back" href="../../../../bugzilla.html#importers.issue_tracker.bugzilla.bugzilla_dao.BugzillaDao.get_message_type_id">[docs]</a>    <span class="k">def</span> <span class="nf">get_message_type_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message_type</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets message type id</span>
+
+<span class="sd">        :type message_type: str</span>
+<span class="sd">        :param message_type: message type</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_util</span><span class="o">.</span><span class="n">get_message_type_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="p">,</span> <span class="n">message_type</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BugzillaDao.insert_issue_dependency"><a class="viewcode-back" href="../../../../bugzilla.html#importers.issue_tracker.bugzilla.bugzilla_dao.BugzillaDao.insert_issue_dependency">[docs]</a>    <span class="k">def</span> <span class="nf">insert_issue_dependency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">issue_source_id</span><span class="p">,</span> <span class="n">issue_target_id</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        inserts dependency between issues</span>
+
+<span class="sd">        :type issue_source_id: int</span>
+<span class="sd">        :param issue_source_id: issue source id</span>
+
+<span class="sd">        :type issue_target_id: int</span>
+<span class="sd">        :param issue_target_id: issue target id</span>
+
+<span class="sd">        :type type: str</span>
+<span class="sd">        :param type: type of dependency</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;INSERT IGNORE INTO issue_dependency &quot;</span> \
+                <span class="s2">&quot;VALUES (</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">)&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">issue_source_id</span><span class="p">,</span> <span class="n">issue_target_id</span><span class="p">,</span> <span class="nb">type</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="BugzillaDao.select_project_id"><a class="viewcode-back" href="../../../../bugzilla.html#importers.issue_tracker.bugzilla.bugzilla_dao.BugzillaDao.select_project_id">[docs]</a>    <span class="k">def</span> <span class="nf">select_project_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">project_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        selects project id by its name</span>
+
+<span class="sd">        :type project_name: str</span>
+<span class="sd">        :param project_name: name of a project</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_util</span><span class="o">.</span><span class="n">select_project_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BugzillaDao.select_issue_own_id"><a class="viewcode-back" href="../../../../bugzilla.html#importers.issue_tracker.bugzilla.bugzilla_dao.BugzillaDao.select_issue_own_id">[docs]</a>    <span class="k">def</span> <span class="nf">select_issue_own_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">issue_id</span><span class="p">,</span> <span class="n">issue_tracker_id</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        selects data source issue id</span>
+
+<span class="sd">        :type issue_id: int</span>
+<span class="sd">        :param issue_id: DB issue id</span>
+
+<span class="sd">        :type issue_tracker_id: int</span>
+<span class="sd">        :param issue_tracker_id: issue tracker id</span>
+
+<span class="sd">        :type repo_id: int</span>
+<span class="sd">        :param repo_id: repository id</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;SELECT i.own_id &quot;</span> \
+                <span class="s2">&quot;FROM issue i JOIN issue_tracker it ON i.issue_tracker_id = it.id &quot;</span> \
+                <span class="s2">&quot;WHERE i.id = </span><span class="si">%s</span><span class="s2"> AND issue_tracker_id = </span><span class="si">%s</span><span class="s2"> AND repo_id = </span><span class="si">%s</span><span class="s2">&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">issue_id</span><span class="p">,</span> <span class="n">issue_tracker_id</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="BugzillaDao.get_issue_dependency_type_id"><a class="viewcode-back" href="../../../../bugzilla.html#importers.issue_tracker.bugzilla.bugzilla_dao.BugzillaDao.get_issue_dependency_type_id">[docs]</a>    <span class="k">def</span> <span class="nf">get_issue_dependency_type_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        get id of the issue dependency type</span>
+
+<span class="sd">        :type name: str</span>
+<span class="sd">        :param name: name of the dependency type</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_util</span><span class="o">.</span><span class="n">get_issue_dependency_type_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BugzillaDao.select_commit"><a class="viewcode-back" href="../../../../bugzilla.html#importers.issue_tracker.bugzilla.bugzilla_dao.BugzillaDao.select_commit">[docs]</a>    <span class="k">def</span> <span class="nf">select_commit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sha</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets commit by its SHA</span>
+
+<span class="sd">        :type sha: str</span>
+<span class="sd">        :param sha: SHA of the commit</span>
+
+<span class="sd">        :type repo_id: int</span>
+<span class="sd">        :param repo_id: repository id</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;SELECT id &quot;</span> \
+                <span class="s2">&quot;FROM commit &quot;</span> \
+                <span class="s2">&quot;WHERE sha = </span><span class="si">%s</span><span class="s2"> AND repo_id = </span><span class="si">%s</span><span class="s2">&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">sha</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="BugzillaDao.select_issue_id"><a class="viewcode-back" href="../../../../bugzilla.html#importers.issue_tracker.bugzilla.bugzilla_dao.BugzillaDao.select_issue_id">[docs]</a>    <span class="k">def</span> <span class="nf">select_issue_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">issue_own_id</span><span class="p">,</span> <span class="n">issue_tracker_id</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets issue id</span>
+
+<span class="sd">        :type issue_own_id: int</span>
+<span class="sd">        :param issue_own_id: data source issue id</span>
+
+<span class="sd">        :type issue_tracker_id: int</span>
+<span class="sd">        :param issue_tracker_id: issue tracker id</span>
+
+<span class="sd">        :type repo_id: int</span>
+<span class="sd">        :param repo_id: repository id</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;SELECT i.id FROM issue i &quot;</span> \
+                <span class="s2">&quot;JOIN issue_tracker it ON i.issue_tracker_id = it.id &quot;</span> \
+                <span class="s2">&quot;WHERE own_id = </span><span class="si">%s</span><span class="s2"> AND issue_tracker_id = </span><span class="si">%s</span><span class="s2"> AND repo_id = </span><span class="si">%s</span><span class="s2">&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">issue_own_id</span><span class="p">,</span> <span class="n">issue_tracker_id</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="BugzillaDao.update_issue"><a class="viewcode-back" href="../../../../bugzilla.html#importers.issue_tracker.bugzilla.bugzilla_dao.BugzillaDao.update_issue">[docs]</a>    <span class="k">def</span> <span class="nf">update_issue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">issue_id</span><span class="p">,</span> <span class="n">issue_tracker_id</span><span class="p">,</span> <span class="n">summary</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">version</span><span class="p">,</span> <span class="n">hardware</span><span class="p">,</span> <span class="n">priority</span><span class="p">,</span> <span class="n">severity</span><span class="p">,</span> <span class="n">reference_id</span><span class="p">,</span> <span class="n">last_change_at</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        updates an issue</span>
+
+<span class="sd">        :type issue_id: int</span>
+<span class="sd">        :param issue_id: DB issue id</span>
+
+<span class="sd">        :type issue_tracker_id: int</span>
+<span class="sd">        :param issue_tracker_id: issue tracker id</span>
+
+<span class="sd">        :type summary: str</span>
+<span class="sd">        :param summary: new issue description</span>
+
+<span class="sd">        :type component: str</span>
+<span class="sd">        :param component: component where the issue was found</span>
+
+<span class="sd">        :type version: str</span>
+<span class="sd">        :param version: version where the issue was found</span>
+
+<span class="sd">        :type hardware: str</span>
+<span class="sd">        :param hardware: hardware where the issue was found</span>
+
+<span class="sd">        :type priority: str</span>
+<span class="sd">        :param priority: priority of the issue</span>
+
+<span class="sd">        :type severity: str</span>
+<span class="sd">        :param severity: severity of the issue</span>
+
+<span class="sd">        :type reference_id: int</span>
+<span class="sd">        :param reference_id: id of the Git reference where the issue was found</span>
+
+<span class="sd">        :type last_change_at: str</span>
+<span class="sd">        :param last_change_at: last change date of the issue</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;UPDATE issue SET last_change_at = </span><span class="si">%s</span><span class="s2">, summary = </span><span class="si">%s</span><span class="s2">, component = </span><span class="si">%s</span><span class="s2">, version = </span><span class="si">%s</span><span class="s2">, hardware = </span><span class="si">%s</span><span class="s2">, priority = </span><span class="si">%s</span><span class="s2">, severity = </span><span class="si">%s</span><span class="s2">, reference_id = </span><span class="si">%s</span><span class="s2"> WHERE own_id = </span><span class="si">%s</span><span class="s2"> AND issue_tracker_id = </span><span class="si">%s</span><span class="s2">&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">last_change_at</span><span class="p">,</span> <span class="n">summary</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">version</span><span class="p">,</span> <span class="n">hardware</span><span class="p">,</span> <span class="n">priority</span><span class="p">,</span> <span class="n">severity</span><span class="p">,</span> <span class="n">reference_id</span><span class="p">,</span> <span class="n">issue_id</span><span class="p">,</span> <span class="n">issue_tracker_id</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="BugzillaDao.insert_issue"><a class="viewcode-back" href="../../../../bugzilla.html#importers.issue_tracker.bugzilla.bugzilla_dao.BugzillaDao.insert_issue">[docs]</a>    <span class="k">def</span> <span class="nf">insert_issue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">issue_own_id</span><span class="p">,</span> <span class="n">issue_tracker_id</span><span class="p">,</span> <span class="n">summary</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">version</span><span class="p">,</span> <span class="n">hardware</span><span class="p">,</span> <span class="n">priority</span><span class="p">,</span> <span class="n">severity</span><span class="p">,</span> <span class="n">reference_id</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">created_at</span><span class="p">,</span> <span class="n">last_change_at</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        inserts an issue</span>
+
+<span class="sd">        :type issue_own_id: int</span>
+<span class="sd">        :param issue_own_id: data source issue id</span>
+
+<span class="sd">        :type issue_tracker_id: int</span>
+<span class="sd">        :param issue_tracker_id: issue tracker id</span>
+
+<span class="sd">        :type summary: str</span>
+<span class="sd">        :param summary: new issue description</span>
+
+<span class="sd">        :type component: str</span>
+<span class="sd">        :param component: component where the issue was found</span>
+
+<span class="sd">        :type version: str</span>
+<span class="sd">        :param version: version where the issue was found</span>
+
+<span class="sd">        :type hardware: str</span>
+<span class="sd">        :param hardware: hardware where the issue was found</span>
+
+<span class="sd">        :type priority: str</span>
+<span class="sd">        :param priority: priority of the issue</span>
+
+<span class="sd">        :type severity: str</span>
+<span class="sd">        :param severity: severity of the issue</span>
+
+<span class="sd">        :type reference_id: int</span>
+<span class="sd">        :param reference_id: id of the Git reference where the issue was found</span>
+
+<span class="sd">        :type user_id: int</span>
+<span class="sd">        :param user_id: issue creator id</span>
+
+<span class="sd">        :type created_at: str</span>
+<span class="sd">        :param created_at: creation date of the issue</span>
+
+<span class="sd">        :type last_change_at: str</span>
+<span class="sd">        :param last_change_at: last change date of the issue</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;INSERT IGNORE INTO issue &quot;</span> \
+                <span class="s2">&quot;VALUES (</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">)&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">issue_own_id</span><span class="p">,</span> <span class="n">issue_tracker_id</span><span class="p">,</span> <span class="n">summary</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">version</span><span class="p">,</span> <span class="n">hardware</span><span class="p">,</span> <span class="n">priority</span><span class="p">,</span> <span class="n">severity</span><span class="p">,</span> <span class="n">reference_id</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">created_at</span><span class="p">,</span> <span class="n">last_change_at</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="BugzillaDao.insert_label"><a class="viewcode-back" href="../../../../bugzilla.html#importers.issue_tracker.bugzilla.bugzilla_dao.BugzillaDao.insert_label">[docs]</a>    <span class="k">def</span> <span class="nf">insert_label</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        inserts a label</span>
+
+<span class="sd">        :type name: str</span>
+<span class="sd">        :param name: the name of the label</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;INSERT IGNORE INTO label &quot;</span> \
+                <span class="s2">&quot;VALUES (</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">)&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="BugzillaDao.select_label_id"><a class="viewcode-back" href="../../../../bugzilla.html#importers.issue_tracker.bugzilla.bugzilla_dao.BugzillaDao.select_label_id">[docs]</a>    <span class="k">def</span> <span class="nf">select_label_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        selects the label id by its name</span>
+
+<span class="sd">        :type name: str</span>
+<span class="sd">        :param name: the name of the label</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;SELECT id FROM label WHERE name = </span><span class="si">%s</span><span class="s2">&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="BugzillaDao.select_issue_comment_id"><a class="viewcode-back" href="../../../../bugzilla.html#importers.issue_tracker.bugzilla.bugzilla_dao.BugzillaDao.select_issue_comment_id">[docs]</a>    <span class="k">def</span> <span class="nf">select_issue_comment_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">own_id</span><span class="p">,</span> <span class="n">issue_id</span><span class="p">,</span> <span class="n">created_at</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        selects the id of an issue comment</span>
+
+<span class="sd">        :type own_id: int</span>
+<span class="sd">        :param own_id: data source comment id</span>
+
+<span class="sd">        :type issue_id: int</span>
+<span class="sd">        :param issue_id: DB issue id</span>
+
+<span class="sd">        :type created_at: str</span>
+<span class="sd">        :param created_at: creation date of the issue</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;SELECT id FROM message WHERE own_id = </span><span class="si">%s</span><span class="s2"> AND issue_id = </span><span class="si">%s</span><span class="s2"> AND created_at = </span><span class="si">%s</span><span class="s2">&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">own_id</span><span class="p">,</span> <span class="n">issue_id</span><span class="p">,</span> <span class="n">created_at</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="BugzillaDao.get_user_id"><a class="viewcode-back" href="../../../../bugzilla.html#importers.issue_tracker.bugzilla.bugzilla_dao.BugzillaDao.get_user_id">[docs]</a>    <span class="k">def</span> <span class="nf">get_user_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_email</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        selects the id of a user</span>
+
+<span class="sd">        :type user_name: str</span>
+<span class="sd">        :param user_name: name of the user</span>
+
+<span class="sd">        :type user_email: str</span>
+<span class="sd">        :param user_email: email of the user</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">user_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_util</span><span class="o">.</span><span class="n">select_user_id_by_email</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="p">,</span> <span class="n">user_email</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">user_id</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_db_util</span><span class="o">.</span><span class="n">insert_user</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_email</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">)</span>
+            <span class="n">user_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_util</span><span class="o">.</span><span class="n">select_user_id_by_email</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="p">,</span> <span class="n">user_email</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">user_id</span></div>
+
+<div class="viewcode-block" id="BugzillaDao.insert_subscriber"><a class="viewcode-back" href="../../../../bugzilla.html#importers.issue_tracker.bugzilla.bugzilla_dao.BugzillaDao.insert_subscriber">[docs]</a>    <span class="k">def</span> <span class="nf">insert_subscriber</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">issue_id</span><span class="p">,</span> <span class="n">subscriber_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        inserts issue subscriber</span>
+
+<span class="sd">        :type issue_id: int</span>
+<span class="sd">        :param issue_id: db issue id</span>
+
+<span class="sd">        :type subscriber_id: int</span>
+<span class="sd">        :param subscriber_id: subscriber id</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;INSERT IGNORE INTO issue_subscriber &quot;</span> \
+                <span class="s2">&quot;VALUES (</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">)&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">issue_id</span><span class="p">,</span> <span class="n">subscriber_id</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="BugzillaDao.insert_assignee"><a class="viewcode-back" href="../../../../bugzilla.html#importers.issue_tracker.bugzilla.bugzilla_dao.BugzillaDao.insert_assignee">[docs]</a>    <span class="k">def</span> <span class="nf">insert_assignee</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">issue_id</span><span class="p">,</span> <span class="n">assignee_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        inserts issue assignee</span>
+
+<span class="sd">        :type issue_id: int</span>
+<span class="sd">        :param issue_id: db issue id</span>
+
+<span class="sd">        :type assignee_id: int</span>
+<span class="sd">        :param assignee_id: assignee id</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;INSERT IGNORE INTO issue_assignee &quot;</span> \
+                <span class="s2">&quot;VALUES (</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">)&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">issue_id</span><span class="p">,</span> <span class="n">assignee_id</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="BugzillaDao.insert_attachment"><a class="viewcode-back" href="../../../../bugzilla.html#importers.issue_tracker.bugzilla.bugzilla_dao.BugzillaDao.insert_attachment">[docs]</a>    <span class="k">def</span> <span class="nf">insert_attachment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attachment_id</span><span class="p">,</span> <span class="n">issue_comment_id</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">extension</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        inserts attachment</span>
+
+<span class="sd">        :type attachment_id: int</span>
+<span class="sd">        :param attachment_id: db attachment id</span>
+
+<span class="sd">        :type issue_comment_id: int</span>
+<span class="sd">        :param issue_comment_id: issue comment id</span>
+
+<span class="sd">        :type name: str</span>
+<span class="sd">        :param name: name of the attachment</span>
+
+<span class="sd">        :type extension: str</span>
+<span class="sd">        :param extension: extension of the attachment</span>
+
+<span class="sd">        :type size: str</span>
+<span class="sd">        :param size: size of the attachment</span>
+
+<span class="sd">        :type url: str</span>
+<span class="sd">        :param url: url of the attachment</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;INSERT IGNORE INTO attachment &quot;</span> \
+                <span class="s2">&quot;VALUES (</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">)&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">attachment_id</span><span class="p">,</span> <span class="n">issue_comment_id</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">extension</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">url</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="BugzillaDao.assign_label_to_issue"><a class="viewcode-back" href="../../../../bugzilla.html#importers.issue_tracker.bugzilla.bugzilla_dao.BugzillaDao.assign_label_to_issue">[docs]</a>    <span class="k">def</span> <span class="nf">assign_label_to_issue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">issue_id</span><span class="p">,</span> <span class="n">label_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        links label to issue</span>
+
+<span class="sd">        :type issue_id: int</span>
+<span class="sd">        :param issue_id: db issue id</span>
+
+<span class="sd">        :type label_id: int</span>
+<span class="sd">        :param label_id: label id</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;INSERT IGNORE INTO issue_labelled &quot;</span> \
+                <span class="s2">&quot;VALUES (</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">)&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">issue_id</span><span class="p">,</span> <span class="n">label_id</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="BugzillaDao.find_reference_id"><a class="viewcode-back" href="../../../../bugzilla.html#importers.issue_tracker.bugzilla.bugzilla_dao.BugzillaDao.find_reference_id">[docs]</a>    <span class="k">def</span> <span class="nf">find_reference_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">version</span><span class="p">,</span> <span class="n">issue_id</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        retrieves reference id</span>
+
+<span class="sd">        :type version: str</span>
+<span class="sd">        :param version: name of the reference</span>
+
+<span class="sd">        :type issue_id: int</span>
+<span class="sd">        :param issue_id: db issue id</span>
+
+<span class="sd">        :type repo_id: int</span>
+<span class="sd">        :param repo_id: repository id</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">version</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+                <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;SELECT id FROM reference WHERE name = </span><span class="si">%s</span><span class="s2"> AND repo_id = </span><span class="si">%s</span><span class="s2">&quot;</span>
+                <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">version</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">]</span>
+                <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+                <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
+                    <span class="n">found</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1">#sometimes the version is followed by extra information such as alpha, beta, RC, M.</span>
+                    <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;SELECT id FROM reference WHERE name LIKE &#39;&quot;</span> <span class="o">+</span> <span class="n">version</span> <span class="o">+</span> <span class="s2">&quot;%&#39; AND repo_id = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">repo_id</span><span class="p">)</span>
+                    <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+                    <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+
+                    <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
+                        <span class="n">found</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+                <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;version (&quot;</span> <span class="o">+</span> <span class="n">version</span> <span class="o">+</span> <span class="s2">&quot;) not inserted for issue id: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">issue_id</span><span class="p">),</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="BugzillaDao.select_last_change_issue"><a class="viewcode-back" href="../../../../bugzilla.html#importers.issue_tracker.bugzilla.bugzilla_dao.BugzillaDao.select_last_change_issue">[docs]</a>    <span class="k">def</span> <span class="nf">select_last_change_issue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">issue_id</span><span class="p">,</span> <span class="n">issue_tracker_id</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        retrieves last change date of an issue</span>
+
+<span class="sd">        :type issue_id: int</span>
+<span class="sd">        :param issue_id: db issue id</span>
+
+<span class="sd">        :type issue_tracker_id: int</span>
+<span class="sd">        :param issue_tracker_id: issue tracker id</span>
+
+<span class="sd">        :type repo_id: int</span>
+<span class="sd">        :param repo_id: repository id</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;SELECT i.last_change_at &quot;</span> \
+                <span class="s2">&quot;FROM issue i JOIN issue_tracker it ON i.issue_tracker_id = it.id &quot;</span> \
+                <span class="s2">&quot;WHERE own_id = </span><span class="si">%s</span><span class="s2"> AND issue_tracker_id = </span><span class="si">%s</span><span class="s2"> AND repo_id = </span><span class="si">%s</span><span class="s2">&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">issue_id</span><span class="p">,</span> <span class="n">issue_tracker_id</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="BugzillaDao.select_repo_id"><a class="viewcode-back" href="../../../../bugzilla.html#importers.issue_tracker.bugzilla.bugzilla_dao.BugzillaDao.select_repo_id">[docs]</a>    <span class="k">def</span> <span class="nf">select_repo_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">project_id</span><span class="p">,</span> <span class="n">repo_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        selects repository id</span>
+
+<span class="sd">        :type project_id: int</span>
+<span class="sd">        :param project_id: project id</span>
+
+<span class="sd">        :type repo_name: int</span>
+<span class="sd">        :param repo_name: repository name</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_util</span><span class="o">.</span><span class="n">select_repo_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="p">,</span> <span class="n">repo_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">get_cursor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">close_cursor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cursor</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">fetchone</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cursor</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cursor</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">):</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">close_connection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_db_util</span><span class="o">.</span><span class="n">close_connection</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">restart_connection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_util</span><span class="o">.</span><span class="n">restart_connection</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Valerio Cosentino.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

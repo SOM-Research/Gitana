@@ -1,0 +1,848 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Slack Instant Messaging &#8212; Gitana 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Exporters" href="exporters.html" />
+    <link rel="prev" title="Stackoverflow" href="stackoverflow.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-importers.instant_messaging.slack.slack2db_extract_main">
+<span id="slack-instant-messaging"></span><h1>Slack Instant Messaging<a class="headerlink" href="#module-importers.instant_messaging.slack.slack2db_extract_main" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="importers.instant_messaging.slack.slack2db_extract_main.Slack2DbMain">
+<em class="property">class </em><code class="descclassname">importers.instant_messaging.slack.slack2db_extract_main.</code><code class="descname">Slack2DbMain</code><span class="sig-paren">(</span><em>db_name</em>, <em>project_name</em>, <em>type</em>, <em>instant_messaging_name</em>, <em>before_date</em>, <em>channels</em>, <em>tokens</em>, <em>config</em>, <em>log_root_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/instant_messaging/slack/slack2db_extract_main.html#Slack2DbMain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.instant_messaging.slack.slack2db_extract_main.Slack2DbMain" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class handles the import of Slack data</p>
+<dl class="method">
+<dt id="importers.instant_messaging.slack.slack2db_extract_main.Slack2DbMain.extract">
+<code class="descname">extract</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/instant_messaging/slack/slack2db_extract_main.html#Slack2DbMain.extract"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.instant_messaging.slack.slack2db_extract_main.Slack2DbMain.extract" title="Permalink to this definition">¶</a></dt>
+<dd><p>extracts Slack data and stores it in the DB</p>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-importers.instant_messaging.slack.slack2db_update"></span><dl class="class">
+<dt id="importers.instant_messaging.slack.slack2db_update.Slack2DbUpdate">
+<em class="property">class </em><code class="descclassname">importers.instant_messaging.slack.slack2db_update.</code><code class="descname">Slack2DbUpdate</code><span class="sig-paren">(</span><em>db_name</em>, <em>project_name</em>, <em>instant_messaging_name</em>, <em>tokens</em>, <em>config</em>, <em>log_root_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/instant_messaging/slack/slack2db_update.html#Slack2DbUpdate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.instant_messaging.slack.slack2db_update.Slack2DbUpdate" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class handles the update of Slack data</p>
+<dl class="method">
+<dt id="importers.instant_messaging.slack.slack2db_update.Slack2DbUpdate.update">
+<code class="descname">update</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/instant_messaging/slack/slack2db_update.html#Slack2DbUpdate.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.instant_messaging.slack.slack2db_update.Slack2DbUpdate.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>updates the Slack data stored in the DB</p>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-importers.instant_messaging.slack.slack2db_extract_channel"></span><dl class="class">
+<dt id="importers.instant_messaging.slack.slack2db_extract_channel.SlackChannel2Db">
+<em class="property">class </em><code class="descclassname">importers.instant_messaging.slack.slack2db_extract_channel.</code><code class="descname">SlackChannel2Db</code><span class="sig-paren">(</span><em>db_name</em>, <em>instant_messaging_id</em>, <em>interval</em>, <em>token</em>, <em>config</em>, <em>log_root_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/instant_messaging/slack/slack2db_extract_channel.html#SlackChannel2Db"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.instant_messaging.slack.slack2db_extract_channel.SlackChannel2Db" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class handles the import of Slack channels</p>
+<dl class="method">
+<dt id="importers.instant_messaging.slack.slack2db_extract_channel.SlackChannel2Db.extract">
+<code class="descname">extract</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/instant_messaging/slack/slack2db_extract_channel.html#SlackChannel2Db.extract"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.instant_messaging.slack.slack2db_extract_channel.SlackChannel2Db.extract" title="Permalink to this definition">¶</a></dt>
+<dd><p>extracts Slack channel data and stores it in the DB</p>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-importers.instant_messaging.slack.slack_dao"></span><dl class="class">
+<dt id="importers.instant_messaging.slack.slack_dao.SlackDao">
+<em class="property">class </em><code class="descclassname">importers.instant_messaging.slack.slack_dao.</code><code class="descname">SlackDao</code><span class="sig-paren">(</span><em>config</em>, <em>logger</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/instant_messaging/slack/slack_dao.html#SlackDao"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.instant_messaging.slack.slack_dao.SlackDao" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class handles the persistence and retrieval of Slack data</p>
+<dl class="method">
+<dt id="importers.instant_messaging.slack.slack_dao.SlackDao.close_connection">
+<code class="descname">close_connection</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/instant_messaging/slack/slack_dao.html#SlackDao.close_connection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.instant_messaging.slack.slack_dao.SlackDao.close_connection" title="Permalink to this definition">¶</a></dt>
+<dd><p>closes DB connection</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="importers.instant_messaging.slack.slack_dao.SlackDao.get_channel_ids">
+<code class="descname">get_channel_ids</code><span class="sig-paren">(</span><em>instant_messaging_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/instant_messaging/slack/slack_dao.html#SlackDao.get_channel_ids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.instant_messaging.slack.slack_dao.SlackDao.get_channel_ids" title="Permalink to this definition">¶</a></dt>
+<dd><p>gets list of channel ids in a given instant messaging</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>instant_messaging_id</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; DB instant messaging id</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="importers.instant_messaging.slack.slack_dao.SlackDao.get_channel_last_change_at">
+<code class="descname">get_channel_last_change_at</code><span class="sig-paren">(</span><em>own_id</em>, <em>instant_messaging_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/instant_messaging/slack/slack_dao.html#SlackDao.get_channel_last_change_at"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.instant_messaging.slack.slack_dao.SlackDao.get_channel_last_change_at" title="Permalink to this definition">¶</a></dt>
+<dd><p>gets last change date of a channel</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>own_id</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; data source channel id</li>
+<li><strong>instant_messaging_id</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; DB instant messaging id</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="importers.instant_messaging.slack.slack_dao.SlackDao.get_comments">
+<code class="descname">get_comments</code><span class="sig-paren">(</span><em>message_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/instant_messaging/slack/slack_dao.html#SlackDao.get_comments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.instant_messaging.slack.slack_dao.SlackDao.get_comments" title="Permalink to this definition">¶</a></dt>
+<dd><p>gets comments of a message</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message_id</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; DB message id</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="importers.instant_messaging.slack.slack_dao.SlackDao.get_message_type_id">
+<code class="descname">get_message_type_id</code><span class="sig-paren">(</span><em>message_type</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/instant_messaging/slack/slack_dao.html#SlackDao.get_message_type_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.instant_messaging.slack.slack_dao.SlackDao.get_message_type_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>gets the id associated to a given type of message</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message_type</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; message type</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="importers.instant_messaging.slack.slack_dao.SlackDao.get_user_id">
+<code class="descname">get_user_id</code><span class="sig-paren">(</span><em>user_name</em>, <em>user_email</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/instant_messaging/slack/slack_dao.html#SlackDao.get_user_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.instant_messaging.slack.slack_dao.SlackDao.get_user_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>gets the id associated to a user name</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>user_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; user name</li>
+<li><strong>user_email</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; user email</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="importers.instant_messaging.slack.slack_dao.SlackDao.insert_attachment">
+<code class="descname">insert_attachment</code><span class="sig-paren">(</span><em>own_id</em>, <em>message_id</em>, <em>name</em>, <em>extension</em>, <em>bytes</em>, <em>url</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/instant_messaging/slack/slack_dao.html#SlackDao.insert_attachment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.instant_messaging.slack.slack_dao.SlackDao.insert_attachment" title="Permalink to this definition">¶</a></dt>
+<dd><p>insert attachment of a message</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>own_id</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; data source message id</li>
+<li><strong>message_id</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; DB message id</li>
+<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; attachment name</li>
+<li><strong>extension</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; attachment extension</li>
+<li><strong>bytes</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; attachment size in bytes</li>
+<li><strong>url</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; attachment url</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="importers.instant_messaging.slack.slack_dao.SlackDao.insert_channel">
+<code class="descname">insert_channel</code><span class="sig-paren">(</span><em>own_id</em>, <em>instant_messaging_id</em>, <em>name</em>, <em>description</em>, <em>created_at</em>, <em>last_change_at</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/instant_messaging/slack/slack_dao.html#SlackDao.insert_channel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.instant_messaging.slack.slack_dao.SlackDao.insert_channel" title="Permalink to this definition">¶</a></dt>
+<dd><p>inserts channel to DB</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>own_id</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; data source channel id</li>
+<li><strong>instant_messaging_id</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; instant messaging id</li>
+<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; title of the channel</li>
+<li><strong>description</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; channel description</li>
+<li><strong>created_at</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; creation date</li>
+<li><strong>last_change_at</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; last change date</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="importers.instant_messaging.slack.slack_dao.SlackDao.insert_instant_messaging">
+<code class="descname">insert_instant_messaging</code><span class="sig-paren">(</span><em>project_id</em>, <em>instant_messaging_name</em>, <em>type</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/instant_messaging/slack/slack_dao.html#SlackDao.insert_instant_messaging"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.instant_messaging.slack.slack_dao.SlackDao.insert_instant_messaging" title="Permalink to this definition">¶</a></dt>
+<dd><p>inserts instant messaging to DB</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>project_id</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; project id</li>
+<li><strong>instant_messaging_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; instant messaging name</li>
+<li><strong>type</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; instant messaging type (Slack, IRC)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="importers.instant_messaging.slack.slack_dao.SlackDao.insert_message">
+<code class="descname">insert_message</code><span class="sig-paren">(</span><em>own_id</em>, <em>pos</em>, <em>type</em>, <em>channel_id</em>, <em>body</em>, <em>author_id</em>, <em>created_at</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/instant_messaging/slack/slack_dao.html#SlackDao.insert_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.instant_messaging.slack.slack_dao.SlackDao.insert_message" title="Permalink to this definition">¶</a></dt>
+<dd><p>inserts message to DB</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>own_id</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; data source message id</li>
+<li><strong>pos</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; position of the message in the topic</li>
+<li><strong>type</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; type of the message (question, reply)</li>
+<li><strong>channel_id</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; DB channel id</li>
+<li><strong>body</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; message body</li>
+<li><strong>author_id</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; id of the author</li>
+<li><strong>created_at</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; creation time of the message</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="importers.instant_messaging.slack.slack_dao.SlackDao.insert_message_dependency">
+<code class="descname">insert_message_dependency</code><span class="sig-paren">(</span><em>source_message_id</em>, <em>target_message_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/instant_messaging/slack/slack_dao.html#SlackDao.insert_message_dependency"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.instant_messaging.slack.slack_dao.SlackDao.insert_message_dependency" title="Permalink to this definition">¶</a></dt>
+<dd><p>inserts dependency between two messages</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>source_message_id</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; DB source message id</li>
+<li><strong>target_message_id</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; DB target message id</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="importers.instant_messaging.slack.slack_dao.SlackDao.insert_url_attachment">
+<code class="descname">insert_url_attachment</code><span class="sig-paren">(</span><em>own_id</em>, <em>message_id</em>, <em>name</em>, <em>extension</em>, <em>url</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/instant_messaging/slack/slack_dao.html#SlackDao.insert_url_attachment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.instant_messaging.slack.slack_dao.SlackDao.insert_url_attachment" title="Permalink to this definition">¶</a></dt>
+<dd><p>insert attachment URL</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>own_id</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; data source message id</li>
+<li><strong>message_id</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; DB message id</li>
+<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; attachment name</li>
+<li><strong>extension</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; attachment extension</li>
+<li><strong>url</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; attachment url</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="importers.instant_messaging.slack.slack_dao.SlackDao.select_channel_own_id">
+<code class="descname">select_channel_own_id</code><span class="sig-paren">(</span><em>channel_id</em>, <em>instant_messaging_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/instant_messaging/slack/slack_dao.html#SlackDao.select_channel_own_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.instant_messaging.slack.slack_dao.SlackDao.select_channel_own_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>gets data source channel id</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>channel_id</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; DB channel id</li>
+<li><strong>instant_messaging_id</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; DB instant messaging id</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="importers.instant_messaging.slack.slack_dao.SlackDao.select_instant_messaging_id">
+<code class="descname">select_instant_messaging_id</code><span class="sig-paren">(</span><em>instant_messaging_name</em>, <em>project_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/instant_messaging/slack/slack_dao.html#SlackDao.select_instant_messaging_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.instant_messaging.slack.slack_dao.SlackDao.select_instant_messaging_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>gets DB instant messaging id by its name</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>instant_messaging_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; instant messaging name</li>
+<li><strong>project_id</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; project id</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="importers.instant_messaging.slack.slack_dao.SlackDao.select_message_id">
+<code class="descname">select_message_id</code><span class="sig-paren">(</span><em>own_id</em>, <em>channel_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/instant_messaging/slack/slack_dao.html#SlackDao.select_message_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.instant_messaging.slack.slack_dao.SlackDao.select_message_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>gets message id</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>own_id</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; data source message id</li>
+<li><strong>channel_id</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; DB channel id</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="importers.instant_messaging.slack.slack_dao.SlackDao.select_project_id">
+<code class="descname">select_project_id</code><span class="sig-paren">(</span><em>project_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/instant_messaging/slack/slack_dao.html#SlackDao.select_project_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.instant_messaging.slack.slack_dao.SlackDao.select_project_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>gets the project id</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>project_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of a project</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-importers.instant_messaging.slack.querier_slack"></span><dl class="class">
+<dt id="importers.instant_messaging.slack.querier_slack.SlackQuerier">
+<em class="property">class </em><code class="descclassname">importers.instant_messaging.slack.querier_slack.</code><code class="descname">SlackQuerier</code><span class="sig-paren">(</span><em>token</em>, <em>logger</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/instant_messaging/slack/querier_slack.html#SlackQuerier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.instant_messaging.slack.querier_slack.SlackQuerier" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class collects the data available on the Eclipse forum viw Web scraping</p>
+<dl class="method">
+<dt id="importers.instant_messaging.slack.querier_slack.SlackQuerier.file_attachment_get_comment">
+<code class="descname">file_attachment_get_comment</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/instant_messaging/slack/querier_slack.html#SlackQuerier.file_attachment_get_comment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.instant_messaging.slack.querier_slack.SlackQuerier.file_attachment_get_comment" title="Permalink to this definition">¶</a></dt>
+<dd><p>gets the initial comment of an attached file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<em>Object</em>) &#8211; the Object representing the message</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="importers.instant_messaging.slack.querier_slack.SlackQuerier.generate_url_attachment_id">
+<code class="descname">generate_url_attachment_id</code><span class="sig-paren">(</span><em>message_id</em>, <em>pos</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/instant_messaging/slack/querier_slack.html#SlackQuerier.generate_url_attachment_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.instant_messaging.slack.querier_slack.SlackQuerier.generate_url_attachment_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>generates the id of an attachment URL</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>message_id</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; message id</li>
+<li><strong>pos</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; message position</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="importers.instant_messaging.slack.querier_slack.SlackQuerier.get_attachament_name">
+<code class="descname">get_attachament_name</code><span class="sig-paren">(</span><em>attachment</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/instant_messaging/slack/querier_slack.html#SlackQuerier.get_attachament_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_attachament_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>gets the name of an attachment</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>attachment</strong> (<em>Object</em>) &#8211; the Object representing the attachment</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="importers.instant_messaging.slack.querier_slack.SlackQuerier.get_attachment_extension">
+<code class="descname">get_attachment_extension</code><span class="sig-paren">(</span><em>attachment</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/instant_messaging/slack/querier_slack.html#SlackQuerier.get_attachment_extension"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_attachment_extension" title="Permalink to this definition">¶</a></dt>
+<dd><p>gets the extension of an attachment</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>attachment</strong> (<em>Object</em>) &#8211; the Object representing the attachment</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="importers.instant_messaging.slack.querier_slack.SlackQuerier.get_attachment_id">
+<code class="descname">get_attachment_id</code><span class="sig-paren">(</span><em>attachment</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/instant_messaging/slack/querier_slack.html#SlackQuerier.get_attachment_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_attachment_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>gets the id of an attachment</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>attachment</strong> (<em>Object</em>) &#8211; the Object representing the attachment</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="importers.instant_messaging.slack.querier_slack.SlackQuerier.get_attachment_size">
+<code class="descname">get_attachment_size</code><span class="sig-paren">(</span><em>attachment</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/instant_messaging/slack/querier_slack.html#SlackQuerier.get_attachment_size"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_attachment_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>gets the size (in bytes) of an attachment</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>attachment</strong> (<em>Object</em>) &#8211; the Object representing the attachment</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="importers.instant_messaging.slack.querier_slack.SlackQuerier.get_attachment_url">
+<code class="descname">get_attachment_url</code><span class="sig-paren">(</span><em>attachment</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/instant_messaging/slack/querier_slack.html#SlackQuerier.get_attachment_url"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_attachment_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>gets the url of an attachment</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>attachment</strong> (<em>Object</em>) &#8211; the Object representing the attachment</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="importers.instant_messaging.slack.querier_slack.SlackQuerier.get_channel">
+<code class="descname">get_channel</code><span class="sig-paren">(</span><em>channel_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/instant_messaging/slack/querier_slack.html#SlackQuerier.get_channel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_channel" title="Permalink to this definition">¶</a></dt>
+<dd><p>gets the channel Object</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>channel_id</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; the data source channel id</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="importers.instant_messaging.slack.querier_slack.SlackQuerier.get_channel_description">
+<code class="descname">get_channel_description</code><span class="sig-paren">(</span><em>channel</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/instant_messaging/slack/querier_slack.html#SlackQuerier.get_channel_description"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_channel_description" title="Permalink to this definition">¶</a></dt>
+<dd><p>gets the channel description</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>channel</strong> (<em>Object</em>) &#8211; the Object representing the channel</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="importers.instant_messaging.slack.querier_slack.SlackQuerier.get_channel_ids">
+<code class="descname">get_channel_ids</code><span class="sig-paren">(</span><em>before_date</em>, <em>channels</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/instant_messaging/slack/querier_slack.html#SlackQuerier.get_channel_ids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_channel_ids" title="Permalink to this definition">¶</a></dt>
+<dd><p>gets the data source channel ids</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>before_date</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; selects channels with creation date before a given date (YYYY-mm-dd)</li>
+<li><strong>channels</strong> (<em>list str</em>) &#8211; list of channels to retrieve</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="importers.instant_messaging.slack.querier_slack.SlackQuerier.get_channel_last_change_at">
+<code class="descname">get_channel_last_change_at</code><span class="sig-paren">(</span><em>channel</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/instant_messaging/slack/querier_slack.html#SlackQuerier.get_channel_last_change_at"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_channel_last_change_at" title="Permalink to this definition">¶</a></dt>
+<dd><p>gets the last change date of a channel</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>channel</strong> (<em>Object</em>) &#8211; the Object representing the channel</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="importers.instant_messaging.slack.querier_slack.SlackQuerier.get_channel_messages">
+<code class="descname">get_channel_messages</code><span class="sig-paren">(</span><em>channel_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/instant_messaging/slack/querier_slack.html#SlackQuerier.get_channel_messages"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_channel_messages" title="Permalink to this definition">¶</a></dt>
+<dd><p>gets the messages of a channel</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>channel_id</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; the id of the channel</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="importers.instant_messaging.slack.querier_slack.SlackQuerier.get_comment_body">
+<code class="descname">get_comment_body</code><span class="sig-paren">(</span><em>comment</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/instant_messaging/slack/querier_slack.html#SlackQuerier.get_comment_body"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_comment_body" title="Permalink to this definition">¶</a></dt>
+<dd><p>gets the body of a comment</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>comment</strong> (<em>Object</em>) &#8211; the Object representing the comment</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="importers.instant_messaging.slack.querier_slack.SlackQuerier.get_comment_created_at">
+<code class="descname">get_comment_created_at</code><span class="sig-paren">(</span><em>comment</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/instant_messaging/slack/querier_slack.html#SlackQuerier.get_comment_created_at"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_comment_created_at" title="Permalink to this definition">¶</a></dt>
+<dd><p>gets the creation date of a comment</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>comment</strong> (<em>Object</em>) &#8211; the Object representing the comment</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="importers.instant_messaging.slack.querier_slack.SlackQuerier.get_comment_id">
+<code class="descname">get_comment_id</code><span class="sig-paren">(</span><em>comment</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/instant_messaging/slack/querier_slack.html#SlackQuerier.get_comment_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_comment_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>gets the id of a comment</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>comment</strong> (<em>Object</em>) &#8211; the Object representing the comment</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="importers.instant_messaging.slack.querier_slack.SlackQuerier.get_comment_message">
+<code class="descname">get_comment_message</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/instant_messaging/slack/querier_slack.html#SlackQuerier.get_comment_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_comment_message" title="Permalink to this definition">¶</a></dt>
+<dd><p>gets the comment of a message</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<em>Object</em>) &#8211; the Object representing the message</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="importers.instant_messaging.slack.querier_slack.SlackQuerier.get_file_attachment">
+<code class="descname">get_file_attachment</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/instant_messaging/slack/querier_slack.html#SlackQuerier.get_file_attachment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_file_attachment" title="Permalink to this definition">¶</a></dt>
+<dd><p>gets the attachment of a message</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<em>Object</em>) &#8211; the Object representing the message</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="importers.instant_messaging.slack.querier_slack.SlackQuerier.get_file_attachment_property">
+<code class="descname">get_file_attachment_property</code><span class="sig-paren">(</span><em>file</em>, <em>property</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/instant_messaging/slack/querier_slack.html#SlackQuerier.get_file_attachment_property"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_file_attachment_property" title="Permalink to this definition">¶</a></dt>
+<dd><p>gets a property of an attached file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>file</strong> (<em>Object</em>) &#8211; the Object representing the file</li>
+<li><strong>property</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the string representing the property</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="importers.instant_messaging.slack.querier_slack.SlackQuerier.get_message_attachments">
+<code class="descname">get_message_attachments</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/instant_messaging/slack/querier_slack.html#SlackQuerier.get_message_attachments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_message_attachments" title="Permalink to this definition">¶</a></dt>
+<dd><p>gets the attachments within a message</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<em>Object</em>) &#8211; the Object representing the message</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="importers.instant_messaging.slack.querier_slack.SlackQuerier.get_message_author_email">
+<code class="descname">get_message_author_email</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/instant_messaging/slack/querier_slack.html#SlackQuerier.get_message_author_email"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_message_author_email" title="Permalink to this definition">¶</a></dt>
+<dd><p>gets the author email of a message</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<em>message</em>) &#8211; the Object representing the message</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="importers.instant_messaging.slack.querier_slack.SlackQuerier.get_message_author_name">
+<code class="descname">get_message_author_name</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/instant_messaging/slack/querier_slack.html#SlackQuerier.get_message_author_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_message_author_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>gets the author of a message</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<em>message</em>) &#8211; the Object representing the message</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="importers.instant_messaging.slack.querier_slack.SlackQuerier.get_message_body">
+<code class="descname">get_message_body</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/instant_messaging/slack/querier_slack.html#SlackQuerier.get_message_body"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_message_body" title="Permalink to this definition">¶</a></dt>
+<dd><p>gets the body of a message</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<em>Object</em>) &#8211; the Object representing the message</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="importers.instant_messaging.slack.querier_slack.SlackQuerier.get_message_created_at">
+<code class="descname">get_message_created_at</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/instant_messaging/slack/querier_slack.html#SlackQuerier.get_message_created_at"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_message_created_at" title="Permalink to this definition">¶</a></dt>
+<dd><p>gets the creation date of a message</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<em>message</em>) &#8211; the Object representing the message</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="importers.instant_messaging.slack.querier_slack.SlackQuerier.get_message_own_id">
+<code class="descname">get_message_own_id</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/instant_messaging/slack/querier_slack.html#SlackQuerier.get_message_own_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_message_own_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>gets the data source id of a message</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<em>Object</em>) &#8211; the Object representing the message</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="importers.instant_messaging.slack.querier_slack.SlackQuerier.get_message_type">
+<code class="descname">get_message_type</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/instant_messaging/slack/querier_slack.html#SlackQuerier.get_message_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_message_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>gets the type of a message</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<em>Object</em>) &#8211; the Object representing the message</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="importers.instant_messaging.slack.querier_slack.SlackQuerier.get_url_attachment_extension">
+<code class="descname">get_url_attachment_extension</code><span class="sig-paren">(</span><em>link</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/instant_messaging/slack/querier_slack.html#SlackQuerier.get_url_attachment_extension"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_url_attachment_extension" title="Permalink to this definition">¶</a></dt>
+<dd><p>gets the extension of an attachment URL</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>link</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; attachment link</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="importers.instant_messaging.slack.querier_slack.SlackQuerier.get_url_attachment_name">
+<code class="descname">get_url_attachment_name</code><span class="sig-paren">(</span><em>link</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/instant_messaging/slack/querier_slack.html#SlackQuerier.get_url_attachment_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_url_attachment_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>gets the name of an attachment URL</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>link</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; attachment link</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="importers.instant_messaging.slack.querier_slack.SlackQuerier.get_url_attachments">
+<code class="descname">get_url_attachments</code><span class="sig-paren">(</span><em>body</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/instant_messaging/slack/querier_slack.html#SlackQuerier.get_url_attachments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_url_attachments" title="Permalink to this definition">¶</a></dt>
+<dd><p>gets the attachment URLs</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>body</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; content of a message</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="importers.instant_messaging.slack.querier_slack.SlackQuerier.is_bot_message">
+<code class="descname">is_bot_message</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/instant_messaging/slack/querier_slack.html#SlackQuerier.is_bot_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.instant_messaging.slack.querier_slack.SlackQuerier.is_bot_message" title="Permalink to this definition">¶</a></dt>
+<dd><p>checks that a message is auto-generated</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<em>Object</em>) &#8211; the Object representing the message</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="reference.html">Reference</a><ul>
+  <li><a href="importers.html">Importers</a><ul>
+      <li>Previous: <a href="stackoverflow.html" title="previous chapter">Stackoverflow</a></li>
+      <li>Next: <a href="exporters.html" title="next chapter">Exporters</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/slack.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Valerio Cosentino.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/slack.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,506 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>importers.instant_messaging.slack.slack_dao &#8212; Gitana 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for importers.instant_messaging.slack.slack_dao</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;valerio cosentino&#39;</span>
+
+<span class="kn">from</span> <span class="nn">util.db_util</span> <span class="k">import</span> <span class="n">DbUtil</span>
+
+
+<div class="viewcode-block" id="SlackDao"><a class="viewcode-back" href="../../../../slack.html#importers.instant_messaging.slack.slack_dao.SlackDao">[docs]</a><span class="k">class</span> <span class="nc">SlackDao</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class handles the persistence and retrieval of Slack data</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :type config: dict</span>
+<span class="sd">        :param config: the DB configuration file</span>
+
+<span class="sd">        :type logger: Object</span>
+<span class="sd">        :param logger: logger</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_config</span> <span class="o">=</span> <span class="n">config</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logger</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_db_util</span> <span class="o">=</span> <span class="n">DbUtil</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_util</span><span class="o">.</span><span class="n">get_connection</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;SlackDao init failed&quot;</span><span class="p">)</span>
+            <span class="k">raise</span>
+
+<div class="viewcode-block" id="SlackDao.close_connection"><a class="viewcode-back" href="../../../../slack.html#importers.instant_messaging.slack.slack_dao.SlackDao.close_connection">[docs]</a>    <span class="k">def</span> <span class="nf">close_connection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        closes DB connection</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_db_util</span><span class="o">.</span><span class="n">close_connection</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SlackDao.select_project_id"><a class="viewcode-back" href="../../../../slack.html#importers.instant_messaging.slack.slack_dao.SlackDao.select_project_id">[docs]</a>    <span class="k">def</span> <span class="nf">select_project_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">project_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the project id</span>
+
+<span class="sd">        :type project_name: str</span>
+<span class="sd">        :param project_name: the name of a project</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_util</span><span class="o">.</span><span class="n">select_project_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SlackDao.select_instant_messaging_id"><a class="viewcode-back" href="../../../../slack.html#importers.instant_messaging.slack.slack_dao.SlackDao.select_instant_messaging_id">[docs]</a>    <span class="k">def</span> <span class="nf">select_instant_messaging_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instant_messaging_name</span><span class="p">,</span> <span class="n">project_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets DB instant messaging id by its name</span>
+
+<span class="sd">        :type instant_messaging_name: str</span>
+<span class="sd">        :param instant_messaging_name: instant messaging name</span>
+
+<span class="sd">        :type project_id: int</span>
+<span class="sd">        :param project_id: project id</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;SELECT id &quot;</span> \
+                <span class="s2">&quot;FROM instant_messaging &quot;</span> \
+                <span class="s2">&quot;WHERE name = </span><span class="si">%s</span><span class="s2"> AND project_id = </span><span class="si">%s</span><span class="s2">&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">instant_messaging_name</span><span class="p">,</span> <span class="n">project_id</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;no instant messaging with this name &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">instant_messaging_name</span><span class="p">))</span>
+
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="SlackDao.get_message_type_id"><a class="viewcode-back" href="../../../../slack.html#importers.instant_messaging.slack.slack_dao.SlackDao.get_message_type_id">[docs]</a>    <span class="k">def</span> <span class="nf">get_message_type_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message_type</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the id associated to a given type of message</span>
+
+<span class="sd">        :type message_type: str</span>
+<span class="sd">        :param message_type: message type</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_util</span><span class="o">.</span><span class="n">get_message_type_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="p">,</span> <span class="n">message_type</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SlackDao.insert_url_attachment"><a class="viewcode-back" href="../../../../slack.html#importers.instant_messaging.slack.slack_dao.SlackDao.insert_url_attachment">[docs]</a>    <span class="k">def</span> <span class="nf">insert_url_attachment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">own_id</span><span class="p">,</span> <span class="n">message_id</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">extension</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        insert attachment URL</span>
+
+<span class="sd">        :type own_id: int</span>
+<span class="sd">        :param own_id: data source message id</span>
+
+<span class="sd">        :type message_id: int</span>
+<span class="sd">        :param message_id: DB message id</span>
+
+<span class="sd">        :type name: str</span>
+<span class="sd">        :param name: attachment name</span>
+
+<span class="sd">        :type extension: str</span>
+<span class="sd">        :param extension: attachment extension</span>
+
+<span class="sd">        :type url: str</span>
+<span class="sd">        :param url: attachment url</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;INSERT IGNORE INTO attachment &quot;</span> \
+                <span class="s2">&quot;VALUES (</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">)&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">own_id</span><span class="p">,</span> <span class="n">message_id</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">extension</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">url</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="SlackDao.insert_attachment"><a class="viewcode-back" href="../../../../slack.html#importers.instant_messaging.slack.slack_dao.SlackDao.insert_attachment">[docs]</a>    <span class="k">def</span> <span class="nf">insert_attachment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">own_id</span><span class="p">,</span> <span class="n">message_id</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">extension</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        insert attachment of a message</span>
+
+<span class="sd">        :type own_id: int</span>
+<span class="sd">        :param own_id: data source message id</span>
+
+<span class="sd">        :type message_id: int</span>
+<span class="sd">        :param message_id: DB message id</span>
+
+<span class="sd">        :type name: str</span>
+<span class="sd">        :param name: attachment name</span>
+
+<span class="sd">        :type extension: str</span>
+<span class="sd">        :param extension: attachment extension</span>
+
+<span class="sd">        :type bytes: int</span>
+<span class="sd">        :param bytes: attachment size in bytes</span>
+
+<span class="sd">        :type url: str</span>
+<span class="sd">        :param url: attachment url</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;INSERT IGNORE INTO attachment &quot;</span> \
+                <span class="s2">&quot;VALUES (</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">)&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">own_id</span><span class="p">,</span> <span class="n">message_id</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">extension</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">url</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="SlackDao.select_message_id"><a class="viewcode-back" href="../../../../slack.html#importers.instant_messaging.slack.slack_dao.SlackDao.select_message_id">[docs]</a>    <span class="k">def</span> <span class="nf">select_message_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">own_id</span><span class="p">,</span> <span class="n">channel_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets message id</span>
+
+<span class="sd">        :type own_id: int</span>
+<span class="sd">        :param own_id: data source message id</span>
+
+<span class="sd">        :type channel_id: int</span>
+<span class="sd">        :param channel_id: DB channel id</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;SELECT id FROM message WHERE own_id = </span><span class="si">%s</span><span class="s2"> AND channel_id = </span><span class="si">%s</span><span class="s2">&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">own_id</span><span class="p">,</span> <span class="n">channel_id</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+
+        <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="SlackDao.get_comments"><a class="viewcode-back" href="../../../../slack.html#importers.instant_messaging.slack.slack_dao.SlackDao.get_comments">[docs]</a>    <span class="k">def</span> <span class="nf">get_comments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets comments of a message</span>
+
+<span class="sd">        :type message_id: int</span>
+<span class="sd">        :param message_id: DB message id</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;SELECT COUNT(*) as count &quot;</span> \
+                <span class="s2">&quot;FROM message_dependency &quot;</span> \
+                <span class="s2">&quot;WHERE target_message_id = </span><span class="si">%s</span><span class="s2"> OR source_message_id = </span><span class="si">%s</span><span class="s2">&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">message_id</span><span class="p">,</span> <span class="n">message_id</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;no message dependency found for message id &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">message_id</span><span class="p">))</span>
+
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="SlackDao.insert_message_dependency"><a class="viewcode-back" href="../../../../slack.html#importers.instant_messaging.slack.slack_dao.SlackDao.insert_message_dependency">[docs]</a>    <span class="k">def</span> <span class="nf">insert_message_dependency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source_message_id</span><span class="p">,</span> <span class="n">target_message_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        inserts dependency between two messages</span>
+
+<span class="sd">        :type source_message_id: int</span>
+<span class="sd">        :param source_message_id: DB source message id</span>
+
+<span class="sd">        :type target_message_id: int</span>
+<span class="sd">        :param target_message_id: DB target message id</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;INSERT IGNORE INTO message_dependency &quot;</span> \
+                <span class="s2">&quot;VALUES (</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">)&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">source_message_id</span><span class="p">,</span> <span class="n">target_message_id</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="SlackDao.insert_message"><a class="viewcode-back" href="../../../../slack.html#importers.instant_messaging.slack.slack_dao.SlackDao.insert_message">[docs]</a>    <span class="k">def</span> <span class="nf">insert_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">own_id</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="n">channel_id</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">author_id</span><span class="p">,</span> <span class="n">created_at</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        inserts message to DB</span>
+
+<span class="sd">        :type own_id: int</span>
+<span class="sd">        :param own_id: data source message id</span>
+
+<span class="sd">        :type pos: int</span>
+<span class="sd">        :param pos: position of the message in the topic</span>
+
+<span class="sd">        :type type: str</span>
+<span class="sd">        :param type: type of the message (question, reply)</span>
+
+<span class="sd">        :type channel_id: int</span>
+<span class="sd">        :param channel_id: DB channel id</span>
+
+<span class="sd">        :type body: str</span>
+<span class="sd">        :param body: message body</span>
+
+<span class="sd">        :type author_id: int</span>
+<span class="sd">        :param author_id: id of the author</span>
+
+<span class="sd">        :type created_at: str</span>
+<span class="sd">        :param created_at: creation time of the message</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+            <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;INSERT IGNORE INTO message &quot;</span> \
+                    <span class="s2">&quot;VALUES (</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">)&quot;</span>
+            <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">own_id</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">channel_id</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">author_id</span><span class="p">,</span> <span class="n">created_at</span><span class="p">]</span>
+            <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;message &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">own_id</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;) for channel id: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">channel_id</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; not inserted&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SlackDao.get_user_id"><a class="viewcode-back" href="../../../../slack.html#importers.instant_messaging.slack.slack_dao.SlackDao.get_user_id">[docs]</a>    <span class="k">def</span> <span class="nf">get_user_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_email</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the id associated to a user name</span>
+
+<span class="sd">        :type user_name: str</span>
+<span class="sd">        :param user_name: user name</span>
+
+<span class="sd">        :type user_email: str</span>
+<span class="sd">        :param user_email: user email</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">user_email</span><span class="p">:</span>
+            <span class="n">user_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_util</span><span class="o">.</span><span class="n">select_user_id_by_email</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="p">,</span> <span class="n">user_email</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">user_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_util</span><span class="o">.</span><span class="n">select_user_id_by_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">user_id</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_db_util</span><span class="o">.</span><span class="n">insert_user</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_email</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">user_email</span><span class="p">:</span>
+                <span class="n">user_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_util</span><span class="o">.</span><span class="n">select_user_id_by_email</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="p">,</span> <span class="n">user_email</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">user_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_util</span><span class="o">.</span><span class="n">select_user_id_by_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">user_id</span></div>
+
+<div class="viewcode-block" id="SlackDao.select_channel_own_id"><a class="viewcode-back" href="../../../../slack.html#importers.instant_messaging.slack.slack_dao.SlackDao.select_channel_own_id">[docs]</a>    <span class="k">def</span> <span class="nf">select_channel_own_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channel_id</span><span class="p">,</span> <span class="n">instant_messaging_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets data source channel id</span>
+
+<span class="sd">        :type channel_id: int</span>
+<span class="sd">        :param channel_id: DB channel id</span>
+
+<span class="sd">        :type instant_messaging_id: int</span>
+<span class="sd">        :param instant_messaging_id: DB instant messaging id</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;SELECT own_id &quot;</span> \
+                <span class="s2">&quot;FROM channel &quot;</span> \
+                <span class="s2">&quot;WHERE id = </span><span class="si">%s</span><span class="s2"> AND instant_messaging_id = </span><span class="si">%s</span><span class="s2">&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">channel_id</span><span class="p">,</span> <span class="n">instant_messaging_id</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;no channel found for instant messaging &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">instant_messaging_id</span><span class="p">))</span>
+
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="SlackDao.insert_channel"><a class="viewcode-back" href="../../../../slack.html#importers.instant_messaging.slack.slack_dao.SlackDao.insert_channel">[docs]</a>    <span class="k">def</span> <span class="nf">insert_channel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">own_id</span><span class="p">,</span> <span class="n">instant_messaging_id</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">created_at</span><span class="p">,</span> <span class="n">last_change_at</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        inserts channel to DB</span>
+
+<span class="sd">        :type own_id: int</span>
+<span class="sd">        :param own_id: data source channel id</span>
+
+<span class="sd">        :type instant_messaging_id: int</span>
+<span class="sd">        :param instant_messaging_id: instant messaging id</span>
+
+<span class="sd">        :type name: str</span>
+<span class="sd">        :param name: title of the channel</span>
+
+<span class="sd">        :type description: str</span>
+<span class="sd">        :param description: channel description</span>
+
+<span class="sd">        :type created_at: str</span>
+<span class="sd">        :param created_at: creation date</span>
+
+<span class="sd">        :type last_change_at: str</span>
+<span class="sd">        :param last_change_at: last change date</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;INSERT IGNORE INTO channel &quot;</span> \
+                <span class="s2">&quot;VALUES (</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">)&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">own_id</span><span class="p">,</span> <span class="n">instant_messaging_id</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">created_at</span><span class="p">,</span> <span class="n">last_change_at</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;SELECT id &quot;</span> \
+                <span class="s2">&quot;FROM channel &quot;</span> \
+                <span class="s2">&quot;WHERE own_id = </span><span class="si">%s</span><span class="s2"> AND instant_messaging_id = </span><span class="si">%s</span><span class="s2">&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">own_id</span><span class="p">,</span> <span class="n">instant_messaging_id</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;no channel found for instant messaging &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">instant_messaging_id</span><span class="p">))</span>
+
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="SlackDao.insert_instant_messaging"><a class="viewcode-back" href="../../../../slack.html#importers.instant_messaging.slack.slack_dao.SlackDao.insert_instant_messaging">[docs]</a>    <span class="k">def</span> <span class="nf">insert_instant_messaging</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">project_id</span><span class="p">,</span> <span class="n">instant_messaging_name</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        inserts instant messaging to DB</span>
+
+<span class="sd">        :type project_id: int</span>
+<span class="sd">        :param project_id: project id</span>
+
+<span class="sd">        :type instant_messaging_name: str</span>
+<span class="sd">        :param instant_messaging_name: instant messaging name</span>
+
+<span class="sd">        :type type: str</span>
+<span class="sd">        :param type: instant messaging type (Slack, IRC)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;INSERT IGNORE INTO instant_messaging &quot;</span> \
+                <span class="s2">&quot;VALUES (</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">)&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">project_id</span><span class="p">,</span> <span class="n">instant_messaging_name</span><span class="p">,</span> <span class="nb">type</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;SELECT id &quot;</span> \
+                <span class="s2">&quot;FROM instant_messaging &quot;</span> \
+                <span class="s2">&quot;WHERE name = </span><span class="si">%s</span><span class="s2">&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">instant_messaging_name</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;no instant messaging with name &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">instant_messaging_name</span><span class="p">))</span>
+
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="SlackDao.get_channel_last_change_at"><a class="viewcode-back" href="../../../../slack.html#importers.instant_messaging.slack.slack_dao.SlackDao.get_channel_last_change_at">[docs]</a>    <span class="k">def</span> <span class="nf">get_channel_last_change_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">own_id</span><span class="p">,</span> <span class="n">instant_messaging_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets last change date of a channel</span>
+
+<span class="sd">        :type own_id: int</span>
+<span class="sd">        :param own_id: data source channel id</span>
+
+<span class="sd">        :type instant_messaging_id: int</span>
+<span class="sd">        :param instant_messaging_id: DB instant messaging id</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;SELECT last_change_at FROM channel WHERE own_id = </span><span class="si">%s</span><span class="s2"> AND instant_messaging_id = </span><span class="si">%s</span><span class="s2">&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">own_id</span><span class="p">,</span> <span class="n">instant_messaging_id</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+
+        <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="SlackDao.get_channel_ids"><a class="viewcode-back" href="../../../../slack.html#importers.instant_messaging.slack.slack_dao.SlackDao.get_channel_ids">[docs]</a>    <span class="k">def</span> <span class="nf">get_channel_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instant_messaging_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets list of channel ids in a given instant messaging</span>
+
+<span class="sd">        :type instant_messaging_id: int</span>
+<span class="sd">        :param instant_messaging_id: DB instant messaging id</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">channel_ids</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;SELECT id FROM channel WHERE instant_messaging_id = </span><span class="si">%s</span><span class="s2">&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">instant_messaging_id</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+
+        <span class="k">while</span> <span class="n">row</span><span class="p">:</span>
+            <span class="n">channel_id</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">channel_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">channel_id</span><span class="p">)</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">channel_ids</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Valerio Cosentino.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

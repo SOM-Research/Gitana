@@ -1,0 +1,514 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>importers.instant_messaging.slack.querier_slack &#8212; Gitana 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for importers.instant_messaging.slack.querier_slack</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;valerio cosentino&#39;</span>
+
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">slacker</span> <span class="k">import</span> <span class="n">Slacker</span>
+
+<span class="kn">from</span> <span class="nn">util.date_util</span> <span class="k">import</span> <span class="n">DateUtil</span>
+
+
+<div class="viewcode-block" id="SlackQuerier"><a class="viewcode-back" href="../../../../slack.html#importers.instant_messaging.slack.querier_slack.SlackQuerier">[docs]</a><span class="k">class</span> <span class="nc">SlackQuerier</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class collects the data available on the Eclipse forum viw Web scraping</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">token</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :type token: str</span>
+<span class="sd">        :param token: the token to access the Slack API</span>
+
+<span class="sd">        :type logger: Object</span>
+<span class="sd">        :param logger: logger</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_token</span> <span class="o">=</span> <span class="n">token</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logger</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_date_util</span> <span class="o">=</span> <span class="n">DateUtil</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_slack</span> <span class="o">=</span> <span class="n">Slacker</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_token</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;SlackQuerier init failed&quot;</span><span class="p">)</span>
+            <span class="k">raise</span>
+
+<div class="viewcode-block" id="SlackQuerier.get_channel_ids"><a class="viewcode-back" href="../../../../slack.html#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_channel_ids">[docs]</a>    <span class="k">def</span> <span class="nf">get_channel_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">before_date</span><span class="p">,</span> <span class="n">channels</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the data source channel ids</span>
+
+<span class="sd">        :type before_date: str</span>
+<span class="sd">        :param before_date: selects channels with creation date before a given date (YYYY-mm-dd)</span>
+
+<span class="sd">        :type channels: list str</span>
+<span class="sd">        :param channels: list of channels to retrieve</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">selected</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">channel</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slack</span><span class="o">.</span><span class="n">channels</span><span class="o">.</span><span class="n">list</span><span class="p">()</span><span class="o">.</span><span class="n">body</span><span class="p">[</span><span class="s1">&#39;channels&#39;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">channels</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_channel_name</span><span class="p">(</span><span class="n">channel</span><span class="p">)</span> <span class="ow">in</span> <span class="n">channels</span><span class="p">:</span>
+                    <span class="n">selected</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">channel</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">selected</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">channel</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">before_date</span><span class="p">:</span>
+            <span class="n">selected</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">selected</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_date_util</span><span class="o">.</span><span class="n">get_timestamp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_channel_created_at</span><span class="p">(</span><span class="n">c</span><span class="p">),</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_date_util</span><span class="o">.</span><span class="n">get_timestamp</span><span class="p">(</span><span class="n">before_date</span><span class="p">,</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)]</span>
+
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_channel_id</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">selected</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="SlackQuerier.get_channel"><a class="viewcode-back" href="../../../../slack.html#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_channel">[docs]</a>    <span class="k">def</span> <span class="nf">get_channel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channel_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the channel Object</span>
+
+<span class="sd">        :type channel_id: int</span>
+<span class="sd">        :param channel_id: the data source channel id</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">channel</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slack</span><span class="o">.</span><span class="n">channels</span><span class="o">.</span><span class="n">list</span><span class="p">()</span><span class="o">.</span><span class="n">body</span><span class="p">[</span><span class="s1">&#39;channels&#39;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_channel_id</span><span class="p">(</span><span class="n">channel</span><span class="p">)</span> <span class="o">==</span> <span class="n">channel_id</span><span class="p">:</span>
+                <span class="n">found</span> <span class="o">=</span> <span class="n">channel</span>
+
+        <span class="k">return</span> <span class="n">found</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_channel_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channel</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">channel</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_channel_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channel</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">channel</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+<div class="viewcode-block" id="SlackQuerier.get_channel_description"><a class="viewcode-back" href="../../../../slack.html#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_channel_description">[docs]</a>    <span class="k">def</span> <span class="nf">get_channel_description</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channel</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the channel description</span>
+
+<span class="sd">        :type channel: Object</span>
+<span class="sd">        :param channel: the Object representing the channel</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">description</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">channel</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;topic&#39;</span><span class="p">):</span>
+            <span class="n">topic</span> <span class="o">=</span> <span class="n">channel</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;topic&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;value&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">channel</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;purpose&#39;</span><span class="p">):</span>
+            <span class="n">purpose</span> <span class="o">=</span> <span class="n">channel</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;purpose&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;value&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">topic</span> <span class="ow">and</span> <span class="n">purpose</span><span class="p">:</span>
+            <span class="n">description</span> <span class="o">=</span> <span class="n">topic</span> <span class="o">+</span> <span class="s2">&quot; - &quot;</span> <span class="o">+</span> <span class="n">purpose</span>
+        <span class="k">elif</span> <span class="n">topic</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">purpose</span><span class="p">:</span>
+            <span class="n">description</span> <span class="o">=</span> <span class="n">topic</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">topic</span> <span class="ow">and</span> <span class="n">purpose</span><span class="p">:</span>
+            <span class="n">description</span> <span class="o">=</span> <span class="n">purpose</span>
+
+        <span class="k">return</span> <span class="n">description</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_channel_created_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channel</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_date_util</span><span class="o">.</span><span class="n">get_time_fromtimestamp</span><span class="p">(</span><span class="n">channel</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;created&#39;</span><span class="p">),</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SlackQuerier.get_channel_last_change_at"><a class="viewcode-back" href="../../../../slack.html#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_channel_last_change_at">[docs]</a>    <span class="k">def</span> <span class="nf">get_channel_last_change_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channel</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the last change date of a channel</span>
+
+<span class="sd">        :type channel: Object</span>
+<span class="sd">        :param channel: the Object representing the channel</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">last_message</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_channel_messages</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_channel_id</span><span class="p">(</span><span class="n">channel</span><span class="p">))[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_message_created_at</span><span class="p">(</span><span class="n">last_message</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SlackQuerier.get_message_type"><a class="viewcode-back" href="../../../../slack.html#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_message_type">[docs]</a>    <span class="k">def</span> <span class="nf">get_message_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the type of a message</span>
+
+<span class="sd">        :type message: Object</span>
+<span class="sd">        :param message: the Object representing the message</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">message</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;subtype&#39;</span><span class="p">):</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;subtype&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="SlackQuerier.get_url_attachments"><a class="viewcode-back" href="../../../../slack.html#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_url_attachments">[docs]</a>    <span class="k">def</span> <span class="nf">get_url_attachments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">body</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the attachment URLs</span>
+
+<span class="sd">        :type body: str</span>
+<span class="sd">        :param body: content of a message</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;&lt;http.*&gt;&quot;</span><span class="p">)</span>
+        <span class="n">matches</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
+
+        <span class="n">attachments</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">matches</span><span class="p">:</span>
+            <span class="n">attachments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;&lt;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;&gt;&#39;</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">attachments</span></div>
+
+<div class="viewcode-block" id="SlackQuerier.generate_url_attachment_id"><a class="viewcode-back" href="../../../../slack.html#importers.instant_messaging.slack.querier_slack.SlackQuerier.generate_url_attachment_id">[docs]</a>    <span class="k">def</span> <span class="nf">generate_url_attachment_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message_id</span><span class="p">,</span> <span class="n">pos</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        generates the id of an attachment URL</span>
+
+<span class="sd">        :type message_id: int</span>
+<span class="sd">        :param message_id: message id</span>
+
+<span class="sd">        :type pos: int</span>
+<span class="sd">        :param pos: message position</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">message_id</span><span class="p">)</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SlackQuerier.get_url_attachment_name"><a class="viewcode-back" href="../../../../slack.html#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_url_attachment_name">[docs]</a>    <span class="k">def</span> <span class="nf">get_url_attachment_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">link</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the name of an attachment URL</span>
+
+<span class="sd">        :type link: str</span>
+<span class="sd">        :param link: attachment link</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">link</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">):</span>
+            <span class="n">link</span> <span class="o">=</span> <span class="n">link</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">link</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="SlackQuerier.get_url_attachment_extension"><a class="viewcode-back" href="../../../../slack.html#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_url_attachment_extension">[docs]</a>    <span class="k">def</span> <span class="nf">get_url_attachment_extension</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">link</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the extension of an attachment URL</span>
+
+<span class="sd">        :type link: str</span>
+<span class="sd">        :param link: attachment link</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">candidate</span> <span class="o">=</span> <span class="n">link</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">found</span> <span class="o">=</span> <span class="s1">&#39;html&#39;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">candidate</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s1">&#39;^\w+$&#39;</span><span class="p">,</span> <span class="n">candidate</span><span class="p">):</span>
+                <span class="n">found</span> <span class="o">=</span> <span class="n">candidate</span>
+
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="SlackQuerier.get_message_attachments"><a class="viewcode-back" href="../../../../slack.html#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_message_attachments">[docs]</a>    <span class="k">def</span> <span class="nf">get_message_attachments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the attachments within a message</span>
+
+<span class="sd">        :type message: Object</span>
+<span class="sd">        :param message: the Object representing the message</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">attachments</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">message</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;attachments&#39;</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">attachment</span> <span class="ow">in</span> <span class="n">message</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;attachments&#39;</span><span class="p">):</span>
+                <span class="n">attachments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">attachment</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">attachments</span></div>
+
+    <span class="k">def</span> <span class="nf">_resolve_mentions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;&lt;@[A-Z0-9]+&gt;&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">hit</span> <span class="ow">in</span> <span class="n">p</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+            <span class="n">stripped</span> <span class="o">=</span> <span class="n">hit</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;&lt;@&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;&gt;&#39;</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slack</span><span class="o">.</span><span class="n">users</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">stripped</span><span class="p">)</span>
+                <span class="n">username</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;user&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">)</span>
+
+                <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">hit</span><span class="p">,</span> <span class="s1">&#39;@&#39;</span> <span class="o">+</span> <span class="n">username</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+        <span class="k">return</span> <span class="n">text</span>
+
+<div class="viewcode-block" id="SlackQuerier.get_message_body"><a class="viewcode-back" href="../../../../slack.html#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_message_body">[docs]</a>    <span class="k">def</span> <span class="nf">get_message_body</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the body of a message</span>
+
+<span class="sd">        :type message: Object</span>
+<span class="sd">        :param message: the Object representing the message</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;text&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">text</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;&lt;@&#39;</span><span class="p">):</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s1">&#39;@[A-Z0-9]+\|&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+
+        <span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_mentions</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">text</span></div>
+
+<div class="viewcode-block" id="SlackQuerier.is_bot_message"><a class="viewcode-back" href="../../../../slack.html#importers.instant_messaging.slack.querier_slack.SlackQuerier.is_bot_message">[docs]</a>    <span class="k">def</span> <span class="nf">is_bot_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        checks that a message is auto-generated</span>
+
+<span class="sd">        :type message: Object</span>
+<span class="sd">        :param message: the Object representing the message</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">bot_id</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;bot_id&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">bot_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="SlackQuerier.get_comment_message"><a class="viewcode-back" href="../../../../slack.html#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_comment_message">[docs]</a>    <span class="k">def</span> <span class="nf">get_comment_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the comment of a message</span>
+
+<span class="sd">        :type message: Object</span>
+<span class="sd">        :param message: the Object representing the message</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">message</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;comment&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SlackQuerier.get_comment_id"><a class="viewcode-back" href="../../../../slack.html#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_comment_id">[docs]</a>    <span class="k">def</span> <span class="nf">get_comment_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">comment</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the id of a comment</span>
+
+<span class="sd">        :type comment: Object</span>
+<span class="sd">        :param comment: the Object representing the comment</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">comment</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SlackQuerier.get_attachment_url"><a class="viewcode-back" href="../../../../slack.html#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_attachment_url">[docs]</a>    <span class="k">def</span> <span class="nf">get_attachment_url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attachment</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the url of an attachment</span>
+
+<span class="sd">        :type attachment: Object</span>
+<span class="sd">        :param attachment: the Object representing the attachment</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">attachment</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;from_url&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SlackQuerier.get_attachament_name"><a class="viewcode-back" href="../../../../slack.html#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_attachament_name">[docs]</a>    <span class="k">def</span> <span class="nf">get_attachament_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attachment</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the name of an attachment</span>
+
+<span class="sd">        :type attachment: Object</span>
+<span class="sd">        :param attachment: the Object representing the attachment</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="n">attachment</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;title&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="n">attachment</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;fallback&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="n">attachment</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;text&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="SlackQuerier.get_attachment_extension"><a class="viewcode-back" href="../../../../slack.html#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_attachment_extension">[docs]</a>    <span class="k">def</span> <span class="nf">get_attachment_extension</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attachment</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the extension of an attachment</span>
+
+<span class="sd">        :type attachment: Object</span>
+<span class="sd">        :param attachment: the Object representing the attachment</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_attachment_url</span><span class="p">(</span><span class="n">attachment</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_url_attachment_extension</span><span class="p">(</span><span class="n">url</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SlackQuerier.get_attachment_id"><a class="viewcode-back" href="../../../../slack.html#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_attachment_id">[docs]</a>    <span class="k">def</span> <span class="nf">get_attachment_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attachment</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the id of an attachment</span>
+
+<span class="sd">        :type attachment: Object</span>
+<span class="sd">        :param attachment: the Object representing the attachment</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">attachment</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SlackQuerier.get_attachment_size"><a class="viewcode-back" href="../../../../slack.html#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_attachment_size">[docs]</a>    <span class="k">def</span> <span class="nf">get_attachment_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attachment</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the size (in bytes) of an attachment</span>
+
+<span class="sd">        :type attachment: Object</span>
+<span class="sd">        :param attachment: the Object representing the attachment</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">attachment</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;image_bytes&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SlackQuerier.get_comment_body"><a class="viewcode-back" href="../../../../slack.html#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_comment_body">[docs]</a>    <span class="k">def</span> <span class="nf">get_comment_body</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">comment</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the body of a comment</span>
+
+<span class="sd">        :type comment: Object</span>
+<span class="sd">        :param comment: the Object representing the comment</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">comment</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;comment&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SlackQuerier.get_comment_created_at"><a class="viewcode-back" href="../../../../slack.html#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_comment_created_at">[docs]</a>    <span class="k">def</span> <span class="nf">get_comment_created_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">comment</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the creation date of a comment</span>
+
+<span class="sd">        :type comment: Object</span>
+<span class="sd">        :param comment: the Object representing the comment</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_date_util</span><span class="o">.</span><span class="n">get_time_fromtimestamp</span><span class="p">(</span><span class="n">comment</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;created&#39;</span><span class="p">),</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SlackQuerier.get_message_own_id"><a class="viewcode-back" href="../../../../slack.html#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_message_own_id">[docs]</a>    <span class="k">def</span> <span class="nf">get_message_own_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the data source id of a message</span>
+
+<span class="sd">        :type message: Object</span>
+<span class="sd">        :param message: the Object representing the message</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">message</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ts&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SlackQuerier.get_file_attachment"><a class="viewcode-back" href="../../../../slack.html#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_file_attachment">[docs]</a>    <span class="k">def</span> <span class="nf">get_file_attachment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the attachment of a message</span>
+
+<span class="sd">        :type message: Object</span>
+<span class="sd">        :param message: the Object representing the message</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">message</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;file&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SlackQuerier.get_file_attachment_property"><a class="viewcode-back" href="../../../../slack.html#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_file_attachment_property">[docs]</a>    <span class="k">def</span> <span class="nf">get_file_attachment_property</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="nb">property</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets a property of an attached file</span>
+
+<span class="sd">        :type file: Object</span>
+<span class="sd">        :param file: the Object representing the file</span>
+
+<span class="sd">        :type property: str</span>
+<span class="sd">        :param property: the string representing the property</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">file</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">property</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SlackQuerier.file_attachment_get_comment"><a class="viewcode-back" href="../../../../slack.html#importers.instant_messaging.slack.querier_slack.SlackQuerier.file_attachment_get_comment">[docs]</a>    <span class="k">def</span> <span class="nf">file_attachment_get_comment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the initial comment of an attached file</span>
+
+<span class="sd">        :type message: Object</span>
+<span class="sd">        :param message: the Object representing the message</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_file_attachment</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">file</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;initial_comment&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SlackQuerier.get_message_created_at"><a class="viewcode-back" href="../../../../slack.html#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_message_created_at">[docs]</a>    <span class="k">def</span> <span class="nf">get_message_created_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the creation date of a message</span>
+
+<span class="sd">        :type message: message</span>
+<span class="sd">        :param message: the Object representing the message</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_date_util</span><span class="o">.</span><span class="n">get_time_fromtimestamp</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ts&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]),</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SlackQuerier.get_message_author_name"><a class="viewcode-back" href="../../../../slack.html#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_message_author_name">[docs]</a>    <span class="k">def</span> <span class="nf">get_message_author_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the author of a message</span>
+
+<span class="sd">        :type message: message</span>
+<span class="sd">        :param message: the Object representing the message</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slack</span><span class="o">.</span><span class="n">users</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;user&#39;</span><span class="p">))</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;user&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="SlackQuerier.get_message_author_email"><a class="viewcode-back" href="../../../../slack.html#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_message_author_email">[docs]</a>    <span class="k">def</span> <span class="nf">get_message_author_email</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the author email of a message</span>
+
+<span class="sd">        :type message: message</span>
+<span class="sd">        :param message: the Object representing the message</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slack</span><span class="o">.</span><span class="n">users</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;user&#39;</span><span class="p">))</span>
+            <span class="n">user</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;user&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">user</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;profile&#39;</span><span class="p">):</span>
+                <span class="n">found</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;profile&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;email&#39;</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="SlackQuerier.get_channel_messages"><a class="viewcode-back" href="../../../../slack.html#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_channel_messages">[docs]</a>    <span class="k">def</span> <span class="nf">get_channel_messages</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channel_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the messages of a channel</span>
+
+<span class="sd">        :type channel_id: int</span>
+<span class="sd">        :param channel_id: the id of the channel</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">messages</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slack</span><span class="o">.</span><span class="n">channels</span><span class="o">.</span><span class="n">history</span><span class="p">(</span><span class="n">channel_id</span><span class="p">)</span><span class="o">.</span><span class="n">body</span><span class="p">[</span><span class="s1">&#39;messages&#39;</span><span class="p">]</span>
+        <span class="n">last_message</span> <span class="o">=</span> <span class="n">messages</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">previous_messages</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slack</span><span class="o">.</span><span class="n">channels</span><span class="o">.</span><span class="n">history</span><span class="p">(</span><span class="n">channel_id</span><span class="p">,</span> <span class="n">latest</span><span class="o">=</span><span class="n">last_message</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ts&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">body</span><span class="p">[</span><span class="s1">&#39;messages&#39;</span><span class="p">]</span>
+
+        <span class="k">while</span> <span class="ow">not</span> <span class="nb">set</span><span class="p">([</span><span class="n">m</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ts&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">previous_messages</span><span class="p">])</span><span class="o">.</span><span class="n">issubset</span><span class="p">([</span><span class="n">m</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ts&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">messages</span><span class="p">]):</span>
+            <span class="n">messages</span> <span class="o">=</span> <span class="n">messages</span> <span class="o">+</span> <span class="n">previous_messages</span>
+            <span class="n">last_message</span> <span class="o">=</span> <span class="n">previous_messages</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">previous_messages</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slack</span><span class="o">.</span><span class="n">channels</span><span class="o">.</span><span class="n">history</span><span class="p">(</span><span class="n">channel_id</span><span class="p">,</span> <span class="n">latest</span><span class="o">=</span><span class="n">last_message</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ts&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">body</span><span class="p">[</span><span class="s1">&#39;messages&#39;</span><span class="p">]</span>
+
+        <span class="n">messages</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">messages</span></div></div>
+
+
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Valerio Cosentino.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

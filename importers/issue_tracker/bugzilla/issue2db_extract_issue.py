@@ -14,10 +14,38 @@ from util.logging_util import LoggingUtil
 
 
 class BugzillaIssue2Db(object):
+    """
+    This class handles the import of Bugzilla issues
+    """
 
     def __init__(self, db_name,
                  repo_id, issue_tracker_id, url, product, interval,
                  config, log_root_path):
+        """
+        :type db_name: str
+        :param db_name: the name of an existing DB
+
+        :type repo_id: int
+        :param repo_id: the id of an existing repository in the DB
+
+        :type issue_tracker_id: int
+        :param issue_tracker_id: the id of an existing issue tracker in the DB
+
+        :type url: str
+        :param url: the URL of the bugzilla issue tracker
+
+        :type product: str
+        :param product: the name of the product in the bugzilla issue tracker
+
+        :type interval: list int
+        :param interval: a list of topic ids to import
+
+        :type config: dict
+        :param config: the DB configuration file
+
+        :type log_folder_path: str
+        :param log_folder_path: the log folder path
+        """
         self._log_root_path = log_root_path
         self._url = url
         self._product = product
@@ -51,9 +79,11 @@ class BugzillaIssue2Db(object):
                 self._dao.close_connection()
 
     def _is_email(self, str):
+        #checks that a string is an email
         return parseaddr(str)[1] != '' and '@' in str
 
     def _extract_attachment(self, issue_comment_id, attachment_id):
+        #inserts an attachment
         attachment_info = self._querier.get_attachment(attachment_id)
         if '.' in attachment_info.name:
             name = ('.').join(attachment_info.name.split('.')[:-1]).strip()
@@ -66,6 +96,7 @@ class BugzillaIssue2Db(object):
         self._dao.insert_attachment(attachment_id, issue_comment_id, name, extension, size, None)
 
     def _extract_issue_event(self, action, action_content, creator_id, created_at, issue_id, field_name):
+        #inserts an issue event
         event_type = action + '-' + field_name
         self._dao.insert_event_type(event_type)
         event_type_id = self._dao.select_event_type(event_type)
@@ -86,6 +117,7 @@ class BugzillaIssue2Db(object):
             self._dao.insert_issue_event(issue_id, event_type_id, action_content, creator_id, created_at, target_user_id)
 
     def _extract_history(self, issue_id, history):
+        #inserts the history of an issue
         for event in history:
             try:
                 created_at = self._date_util.get_timestamp(self._querier.get_event_property(event, 'when'), '%Y%m%dT%H:%M:%S')
@@ -108,6 +140,7 @@ class BugzillaIssue2Db(object):
                 self._logger.warning("event at (" + str(created_at) + ") not extracted for issue id: " + str(issue_id) + " - tracker id " + str(self._issue_tracker_id), exc_info=True)
 
     def _extract_subscribers(self, issue_id, subscribers):
+        #inserts subscribers of an issue
         for subscriber in subscribers:
             try:
                 subscriber_id = self._dao.get_user_id(self._querier.get_user_name(subscriber), subscriber)
@@ -116,6 +149,7 @@ class BugzillaIssue2Db(object):
                 self._logger.warning("subscriber (" + subscriber + ") not inserted for issue id: " + str(issue_id) + " - tracker id " + str(self._issue_tracker_id), exc_info=True)
 
     def _extract_assignee(self, issue_id, assignee):
+        #inserts the assignee of an issue
         try:
             assignee_id = self._dao.get_user_id(self._querier.get_user_name(assignee), assignee)
             self._dao.insert_assignee(issue_id, assignee_id)
@@ -123,6 +157,7 @@ class BugzillaIssue2Db(object):
             self._logger.warning("assignee (" + assignee + ") not inserted for issue id: " + str(issue_id) + " - tracker id " + str(self._issue_tracker_id), exc_info=True)
 
     def _extract_comments(self, issue_id, comments):
+        #inserts the comments of an issue
         for comment in comments:
             try:
                 own_id = self._querier.get_comment_property(comment, 'id')
@@ -142,6 +177,7 @@ class BugzillaIssue2Db(object):
                 continue
 
     def _extract_labels(self, issue_id, labels):
+        #inserts the labels of an issue
         for label in labels:
             try:
                 digested_label = re.sub("^\W+", "", re.sub("\W+$", "", label.lower()))
@@ -152,6 +188,7 @@ class BugzillaIssue2Db(object):
                 self._logger.warning("label (" + label + ") not extracted for issue id: " + str(issue_id) + " - tracker id " + str(self._issue_tracker_id), exc_info=True)
 
     def _extract_issue_commit_dependency(self, issue_id, commits):
+        #inserts the dependencies between an issue and commits
         flattened_list = [y for x in commits for y in x]
         for id in flattened_list:
             if "commit" in id:
@@ -169,6 +206,7 @@ class BugzillaIssue2Db(object):
         return flag
 
     def _get_issue_info(self, issue_own_id):
+        #processes each single issue
         flag_insert_issue_data = False
 
         issue = self._querier.get_issue(issue_own_id)
@@ -228,6 +266,7 @@ class BugzillaIssue2Db(object):
                 self._extract_issue_commit_dependency(issue_id, [self._querier.get_issue_see_also(issue)])
 
     def _get_issues(self):
+        #processes issues
         for issue_id in self._interval:
             try:
                 self._get_issue_info(issue_id)
@@ -235,6 +274,9 @@ class BugzillaIssue2Db(object):
                 self._logger.error("something went wrong for issue id: " + str(issue_id) + " - tracker id " + str(self._issue_tracker_id), exc_info=True)
 
     def extract(self):
+        """
+        extracts Bugzilla issue data and stores it in the DB
+        """
         try:
             self._logger.info("BugzillaIssue2Db started")
             start_time = datetime.now()

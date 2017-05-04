@@ -10,10 +10,38 @@ from util.logging_util import LoggingUtil
 
 
 class BugzillaIssueDependency2Db(object):
+    """
+    This class inserts the dependencies between Bugzilla issues
+    """
 
     def __init__(self, db_name,
                  repo_id, issue_tracker_id, url, product, interval,
                  config, log_root_path):
+        """
+        :type db_name: str
+        :param db_name: the name of an existing DB
+
+        :type repo_id: int
+        :param repo_id: the id of an existing repository in the DB
+
+        :type issue_tracker_id: int
+        :param issue_tracker_id: the id of an existing issue tracker in the DB
+
+        :type url: str
+        :param url: the URL of the bugzilla issue tracker
+
+        :type product: str
+        :param product: the name of the product in the bugzilla issue tracker
+
+        :type interval: list int
+        :param interval: a list of topic ids to import
+
+        :type config: dict
+        :param config: the DB configuration file
+
+        :type log_folder_path: str
+        :param log_folder_path: the log folder path
+        """
         self._log_root_path = log_root_path
         self._url = url
         self._product = product
@@ -44,6 +72,7 @@ class BugzillaIssueDependency2Db(object):
                 self._dao.close_connection()
 
     def _extract_single_issue_dependency(self, issue_id, data, type):
+        #inserts issue dependency
         extracted = None
         if isinstance(data, int):
             extracted = data
@@ -57,6 +86,7 @@ class BugzillaIssueDependency2Db(object):
                 self._dao.insert_issue_dependency(issue_id, dependent_issue, type)
 
     def _extract_issue_dependency(self, issue_id, obj, type):
+        #processes issue dependencies
         if isinstance(obj, list):
             for issue in obj:
                 self._extract_single_issue_dependency(issue_id, issue, type)
@@ -109,6 +139,9 @@ class BugzillaIssueDependency2Db(object):
         self._dao.close_cursor(cursor)
 
     def extract(self):
+        """
+        extracts Bugzilla issue dependency data and stores it in the DB
+        """
         try:
             self._logger.info("BugzillaIssueDependency2Db started")
             start_time = datetime.now()

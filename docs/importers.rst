@@ -5,3 +5,5 @@ Importers
    dbschema
    eclipseforum
    stackoverflow
+   slack
+   bugzilla

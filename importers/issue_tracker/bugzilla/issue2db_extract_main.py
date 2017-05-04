@@ -14,13 +14,49 @@ from util.logging_util import LoggingUtil
 
 
 class BugzillaIssue2DbMain():
+    """
+    This class handles the import of Bugzilla issue tracker data
+    """
 
     NUM_PROCESSES = 5
 
     def __init__(self, db_name, project_name,
                  repo_name, type, issue_tracker_name, url, product, before_date, num_processes,
                  config, log_root_path):
+        """
+        :type db_name: str
+        :param db_name: the name of an existing DB
 
+        :type project_name: str
+        :param project_name: the name of an existing project in the DB
+
+        :type repo_name: str
+        :param repo_name: the name of an existing repository in the DB
+
+        :type type: str
+        :param type: type of the issue tracker (Bugzilla, GitHub)
+
+        :type issue_tracker_name: str
+        :param issue_tracker_name: the name of the issue tracker to import
+
+        :type url: str
+        :param url: the URL of the issue tracker
+
+        :type product: str
+        :param product: the name of the product to import from the issue tracker
+
+        :type before_date: str
+        :param before_date: import data before date (YYYY-mm-dd)
+
+        :type num_processes: int
+        :param num_processes: number of processes to import the data (default 5)
+
+        :type config: dict
+        :param config: the DB configuration file
+
+        :type log_folder_path: str
+        :param log_folder_path: the log folder path
+        """
         self._log_path = log_root_path + "import-bugzilla-" + db_name + "-" + project_name + "-" + issue_tracker_name
         self._type = type
         self._url = url
@@ -50,6 +86,7 @@ class BugzillaIssue2DbMain():
         return '-'.join([str(e) for e in elements])
 
     def _insert_issue_data(self, repo_id, issue_tracker_id):
+        #processes issue tracker data
         imported = self._dao.get_already_imported_issue_ids(issue_tracker_id, repo_id)
         issues = list(set(self._querier.get_issue_ids(self._before_date)) - set(imported))
         issues.sort()
@@ -74,6 +111,7 @@ class BugzillaIssue2DbMain():
         queue_intervals.join()
 
     def _insert_issue_dependencies(self, repo_id, issue_tracker_id):
+        #processes issue dependency data
         issues = self._dao.get_already_imported_issue_ids(issue_tracker_id, repo_id)
         intervals = [i for i in multiprocessing_util.get_tasks_intervals(issues, self._num_processes) if len(i) > 0]
 
@@ -95,6 +133,7 @@ class BugzillaIssue2DbMain():
         queue_intervals.join()
 
     def _split_issue_extraction(self):
+        #splits the issues found according to the number of processes
         project_id = self._dao.select_project_id(self._project_name)
         repo_id = self._dao.select_repo_id(project_id, self._repo_name)
         issue_tracker_id = self._dao.insert_issue_tracker(repo_id, self._issue_tracker_name, self._type)
@@ -104,6 +143,9 @@ class BugzillaIssue2DbMain():
         self._insert_issue_dependencies(repo_id, issue_tracker_id)
 
     def extract(self):
+        """
+        extracts Bugzilla issue tracker data and stores it in the DB
+        """
         try:
             self._logger = self._logging_util.get_logger(self._log_path)
             self._fileHandler = self._logging_util.get_file_handler(self._logger, self._log_path, "info")

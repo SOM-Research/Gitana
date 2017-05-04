@@ -69,7 +69,7 @@
 <span class="kn">from</span> <span class="nn">importers.instant_messaging.slack.slack2db_update</span> <span class="k">import</span> <span class="n">Slack2DbUpdate</span>
 
 
-<div class="viewcode-block" id="Gitana"><a class="viewcode-back" href="../../reference.html#gitana.gitana.Gitana">[docs]</a><span class="k">class</span> <span class="nc">Gitana</span><span class="p">():</span>
+<div class="viewcode-block" id="Gitana"><a class="viewcode-back" href="../../gitana.html#gitana.gitana.Gitana">[docs]</a><span class="k">class</span> <span class="nc">Gitana</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This is the main class you instanciate to use Gitana functionalities</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -101,7 +101,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_log_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_folder_path</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">Gitana</span><span class="o">.</span><span class="n">LOG_NAME</span> <span class="o">+</span> <span class="s2">&quot;-&quot;</span>
 
-<div class="viewcode-block" id="Gitana.create_log_folder"><a class="viewcode-back" href="../../reference.html#gitana.gitana.Gitana.create_log_folder">[docs]</a>    <span class="k">def</span> <span class="nf">create_log_folder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+<div class="viewcode-block" id="Gitana.create_log_folder"><a class="viewcode-back" href="../../gitana.html#gitana.gitana.Gitana.create_log_folder">[docs]</a>    <span class="k">def</span> <span class="nf">create_log_folder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        creates the log folder</span>
 
@@ -111,7 +111,7 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
             <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Gitana.delete_previous_logs"><a class="viewcode-back" href="../../reference.html#gitana.gitana.Gitana.delete_previous_logs">[docs]</a>    <span class="k">def</span> <span class="nf">delete_previous_logs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Gitana.delete_previous_logs"><a class="viewcode-back" href="../../gitana.html#gitana.gitana.Gitana.delete_previous_logs">[docs]</a>    <span class="k">def</span> <span class="nf">delete_previous_logs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        deletes the content of the log folder</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -122,7 +122,7 @@
             <span class="k">except</span><span class="p">:</span>
                 <span class="k">continue</span></div>
 
-<div class="viewcode-block" id="Gitana.init_db"><a class="viewcode-back" href="../../reference.html#gitana.gitana.Gitana.init_db">[docs]</a>    <span class="k">def</span> <span class="nf">init_db</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="p">):</span>
+<div class="viewcode-block" id="Gitana.init_db"><a class="viewcode-back" href="../../gitana.html#gitana.gitana.Gitana.init_db">[docs]</a>    <span class="k">def</span> <span class="nf">init_db</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        initializes the Gitana DB schema</span>
 
@@ -132,7 +132,7 @@
         <span class="n">db</span> <span class="o">=</span> <span class="n">DbSchema</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_path</span><span class="p">)</span>
         <span class="n">db</span><span class="o">.</span><span class="n">init_database</span><span class="p">(</span><span class="n">db_name</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Gitana.create_project"><a class="viewcode-back" href="../../reference.html#gitana.gitana.Gitana.create_project">[docs]</a>    <span class="k">def</span> <span class="nf">create_project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">):</span>
+<div class="viewcode-block" id="Gitana.create_project"><a class="viewcode-back" href="../../gitana.html#gitana.gitana.Gitana.create_project">[docs]</a>    <span class="k">def</span> <span class="nf">create_project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        inserts a project in the DB</span>
 
@@ -145,7 +145,7 @@
         <span class="n">db</span> <span class="o">=</span> <span class="n">DbSchema</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_path</span><span class="p">)</span>
         <span class="n">db</span><span class="o">.</span><span class="n">create_project</span><span class="p">(</span><span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Gitana.list_projects"><a class="viewcode-back" href="../../reference.html#gitana.gitana.Gitana.list_projects">[docs]</a>    <span class="k">def</span> <span class="nf">list_projects</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="p">):</span>
+<div class="viewcode-block" id="Gitana.list_projects"><a class="viewcode-back" href="../../gitana.html#gitana.gitana.Gitana.list_projects">[docs]</a>    <span class="k">def</span> <span class="nf">list_projects</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        lists all projects contained in the DB</span>
 
@@ -157,7 +157,7 @@
         <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">projects</span><span class="p">:</span>
             <span class="nb">print</span> <span class="n">p</span></div>
 
-<div class="viewcode-block" id="Gitana.import_git_data"><a class="viewcode-back" href="../../reference.html#gitana.gitana.Gitana.import_git_data">[docs]</a>    <span class="k">def</span> <span class="nf">import_git_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">repo_name</span><span class="p">,</span> <span class="n">git_repo_path</span><span class="p">,</span> <span class="n">before_date</span><span class="p">,</span> <span class="n">import_type</span><span class="p">,</span> <span class="n">references</span><span class="p">,</span> <span class="n">processes</span><span class="p">):</span>
+<div class="viewcode-block" id="Gitana.import_git_data"><a class="viewcode-back" href="../../gitana.html#gitana.gitana.Gitana.import_git_data">[docs]</a>    <span class="k">def</span> <span class="nf">import_git_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">repo_name</span><span class="p">,</span> <span class="n">git_repo_path</span><span class="p">,</span> <span class="n">before_date</span><span class="p">,</span> <span class="n">import_type</span><span class="p">,</span> <span class="n">references</span><span class="p">,</span> <span class="n">processes</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        imports Git data to the DB</span>
 
@@ -190,7 +190,7 @@
                                    <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_path</span><span class="p">)</span>
         <span class="n">git2db</span><span class="o">.</span><span class="n">extract</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Gitana.update_git_data"><a class="viewcode-back" href="../../reference.html#gitana.gitana.Gitana.update_git_data">[docs]</a>    <span class="k">def</span> <span class="nf">update_git_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">repo_name</span><span class="p">,</span> <span class="n">git_repo_path</span><span class="p">,</span> <span class="n">before_date</span><span class="p">,</span> <span class="n">processes</span><span class="p">):</span>
+<div class="viewcode-block" id="Gitana.update_git_data"><a class="viewcode-back" href="../../gitana.html#gitana.gitana.Gitana.update_git_data">[docs]</a>    <span class="k">def</span> <span class="nf">update_git_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">repo_name</span><span class="p">,</span> <span class="n">git_repo_path</span><span class="p">,</span> <span class="n">before_date</span><span class="p">,</span> <span class="n">processes</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        updates the Git data stored in the DB</span>
 
@@ -217,7 +217,7 @@
                               <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_path</span><span class="p">)</span>
         <span class="n">git2db</span><span class="o">.</span><span class="n">update</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Gitana.import_bugzilla_tracker_data"><a class="viewcode-back" href="../../reference.html#gitana.gitana.Gitana.import_bugzilla_tracker_data">[docs]</a>    <span class="k">def</span> <span class="nf">import_bugzilla_tracker_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">repo_name</span><span class="p">,</span> <span class="n">issue_tracker_name</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">product</span><span class="p">,</span> <span class="n">before_date</span><span class="p">,</span> <span class="n">processes</span><span class="p">):</span>
+<div class="viewcode-block" id="Gitana.import_bugzilla_tracker_data"><a class="viewcode-back" href="../../gitana.html#gitana.gitana.Gitana.import_bugzilla_tracker_data">[docs]</a>    <span class="k">def</span> <span class="nf">import_bugzilla_tracker_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">repo_name</span><span class="p">,</span> <span class="n">issue_tracker_name</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">product</span><span class="p">,</span> <span class="n">before_date</span><span class="p">,</span> <span class="n">processes</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        imports Bugzilla issue tracker data to the DB</span>
 
@@ -250,7 +250,7 @@
                                 <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_path</span><span class="p">)</span>
         <span class="n">issue2db</span><span class="o">.</span><span class="n">extract</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Gitana.update_bugzilla_tracker_data"><a class="viewcode-back" href="../../reference.html#gitana.gitana.Gitana.update_bugzilla_tracker_data">[docs]</a>    <span class="k">def</span> <span class="nf">update_bugzilla_tracker_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">repo_name</span><span class="p">,</span> <span class="n">issue_tracker_name</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">product</span><span class="p">,</span> <span class="n">processes</span><span class="p">):</span>
+<div class="viewcode-block" id="Gitana.update_bugzilla_tracker_data"><a class="viewcode-back" href="../../gitana.html#gitana.gitana.Gitana.update_bugzilla_tracker_data">[docs]</a>    <span class="k">def</span> <span class="nf">update_bugzilla_tracker_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">repo_name</span><span class="p">,</span> <span class="n">issue_tracker_name</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">product</span><span class="p">,</span> <span class="n">processes</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        updates the Bugzilla issue tracker data stored in the DB</span>
 
@@ -280,7 +280,7 @@
                                   <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_path</span><span class="p">)</span>
         <span class="n">issue2db</span><span class="o">.</span><span class="n">update</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Gitana.import_eclipse_forum_data"><a class="viewcode-back" href="../../reference.html#gitana.gitana.Gitana.import_eclipse_forum_data">[docs]</a>    <span class="k">def</span> <span class="nf">import_eclipse_forum_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">forum_name</span><span class="p">,</span> <span class="n">eclipse_forum_url</span><span class="p">,</span> <span class="n">before_date</span><span class="p">,</span> <span class="n">processes</span><span class="p">):</span>
+<div class="viewcode-block" id="Gitana.import_eclipse_forum_data"><a class="viewcode-back" href="../../gitana.html#gitana.gitana.Gitana.import_eclipse_forum_data">[docs]</a>    <span class="k">def</span> <span class="nf">import_eclipse_forum_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">forum_name</span><span class="p">,</span> <span class="n">eclipse_forum_url</span><span class="p">,</span> <span class="n">before_date</span><span class="p">,</span> <span class="n">processes</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        imports Eclipse forum data to the DB</span>
 
@@ -307,7 +307,7 @@
                                 <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_path</span><span class="p">)</span>
         <span class="n">forum2db</span><span class="o">.</span><span class="n">extract</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Gitana.update_eclipse_forum_data"><a class="viewcode-back" href="../../reference.html#gitana.gitana.Gitana.update_eclipse_forum_data">[docs]</a>    <span class="k">def</span> <span class="nf">update_eclipse_forum_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">forum_name</span><span class="p">,</span> <span class="n">eclipse_forum_url</span><span class="p">,</span> <span class="n">processes</span><span class="p">):</span>
+<div class="viewcode-block" id="Gitana.update_eclipse_forum_data"><a class="viewcode-back" href="../../gitana.html#gitana.gitana.Gitana.update_eclipse_forum_data">[docs]</a>    <span class="k">def</span> <span class="nf">update_eclipse_forum_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">forum_name</span><span class="p">,</span> <span class="n">eclipse_forum_url</span><span class="p">,</span> <span class="n">processes</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        updates the Eclipse forum data stored in the DB</span>
 
@@ -330,7 +330,7 @@
                                   <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_path</span><span class="p">)</span>
         <span class="n">forum2db</span><span class="o">.</span><span class="n">update</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Gitana.import_stackoverflow_data"><a class="viewcode-back" href="../../reference.html#gitana.gitana.Gitana.import_stackoverflow_data">[docs]</a>    <span class="k">def</span> <span class="nf">import_stackoverflow_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">forum_name</span><span class="p">,</span> <span class="n">search_query</span><span class="p">,</span> <span class="n">before_date</span><span class="p">,</span> <span class="n">tokens</span><span class="p">):</span>
+<div class="viewcode-block" id="Gitana.import_stackoverflow_data"><a class="viewcode-back" href="../../gitana.html#gitana.gitana.Gitana.import_stackoverflow_data">[docs]</a>    <span class="k">def</span> <span class="nf">import_stackoverflow_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">forum_name</span><span class="p">,</span> <span class="n">search_query</span><span class="p">,</span> <span class="n">before_date</span><span class="p">,</span> <span class="n">tokens</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        imports Stackoverflow data to the DB</span>
 
@@ -357,7 +357,7 @@
                                                 <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_path</span><span class="p">)</span>
         <span class="n">stackoverflow2db</span><span class="o">.</span><span class="n">extract</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Gitana.update_stackoverflow_data"><a class="viewcode-back" href="../../reference.html#gitana.gitana.Gitana.update_stackoverflow_data">[docs]</a>    <span class="k">def</span> <span class="nf">update_stackoverflow_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">forum_name</span><span class="p">,</span> <span class="n">tokens</span><span class="p">):</span>
+<div class="viewcode-block" id="Gitana.update_stackoverflow_data"><a class="viewcode-back" href="../../gitana.html#gitana.gitana.Gitana.update_stackoverflow_data">[docs]</a>    <span class="k">def</span> <span class="nf">update_stackoverflow_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">forum_name</span><span class="p">,</span> <span class="n">tokens</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        updates Stackoverflow data stored in the DB</span>
 
@@ -377,7 +377,7 @@
                                                   <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_path</span><span class="p">)</span>
         <span class="n">stackoverflow2db</span><span class="o">.</span><span class="n">update</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Gitana.import_slack_data"><a class="viewcode-back" href="../../reference.html#gitana.gitana.Gitana.import_slack_data">[docs]</a>    <span class="k">def</span> <span class="nf">import_slack_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">instant_messaging_name</span><span class="p">,</span> <span class="n">before_date</span><span class="p">,</span> <span class="n">channels</span><span class="p">,</span> <span class="n">tokens</span><span class="p">):</span>
+<div class="viewcode-block" id="Gitana.import_slack_data"><a class="viewcode-back" href="../../gitana.html#gitana.gitana.Gitana.import_slack_data">[docs]</a>    <span class="k">def</span> <span class="nf">import_slack_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">instant_messaging_name</span><span class="p">,</span> <span class="n">before_date</span><span class="p">,</span> <span class="n">channels</span><span class="p">,</span> <span class="n">tokens</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        imports Slack data to the DB</span>
 
@@ -404,7 +404,7 @@
                                 <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_path</span><span class="p">)</span>
         <span class="n">slack2db</span><span class="o">.</span><span class="n">extract</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Gitana.update_slack_data"><a class="viewcode-back" href="../../reference.html#gitana.gitana.Gitana.update_slack_data">[docs]</a>    <span class="k">def</span> <span class="nf">update_slack_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">instant_messaging_name</span><span class="p">,</span> <span class="n">tokens</span><span class="p">):</span>
+<div class="viewcode-block" id="Gitana.update_slack_data"><a class="viewcode-back" href="../../gitana.html#gitana.gitana.Gitana.update_slack_data">[docs]</a>    <span class="k">def</span> <span class="nf">update_slack_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">instant_messaging_name</span><span class="p">,</span> <span class="n">tokens</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        updates Slack data stored in the DB</span>
 
@@ -424,7 +424,7 @@
                                   <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_path</span><span class="p">)</span>
         <span class="n">slack2db</span><span class="o">.</span><span class="n">update</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Gitana.import_github_tracker_data"><a class="viewcode-back" href="../../reference.html#gitana.gitana.Gitana.import_github_tracker_data">[docs]</a>    <span class="k">def</span> <span class="nf">import_github_tracker_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">repo_name</span><span class="p">,</span> <span class="n">issue_tracker_name</span><span class="p">,</span> <span class="n">github_repo_full_name</span><span class="p">,</span> <span class="n">before_date</span><span class="p">,</span> <span class="n">tokens</span><span class="p">):</span>
+<div class="viewcode-block" id="Gitana.import_github_tracker_data"><a class="viewcode-back" href="../../gitana.html#gitana.gitana.Gitana.import_github_tracker_data">[docs]</a>    <span class="k">def</span> <span class="nf">import_github_tracker_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">repo_name</span><span class="p">,</span> <span class="n">issue_tracker_name</span><span class="p">,</span> <span class="n">github_repo_full_name</span><span class="p">,</span> <span class="n">before_date</span><span class="p">,</span> <span class="n">tokens</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        imports GitHub issue tracker data to the DB</span>
 
@@ -453,7 +453,7 @@
                                        <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_path</span><span class="p">)</span>
         <span class="n">github2db</span><span class="o">.</span><span class="n">extract</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Gitana.update_github_tracker_data"><a class="viewcode-back" href="../../reference.html#gitana.gitana.Gitana.update_github_tracker_data">[docs]</a>    <span class="k">def</span> <span class="nf">update_github_tracker_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">repo_name</span><span class="p">,</span> <span class="n">issue_tracker_name</span><span class="p">,</span> <span class="n">github_repo_full_name</span><span class="p">,</span> <span class="n">tokens</span><span class="p">):</span>
+<div class="viewcode-block" id="Gitana.update_github_tracker_data"><a class="viewcode-back" href="../../gitana.html#gitana.gitana.Gitana.update_github_tracker_data">[docs]</a>    <span class="k">def</span> <span class="nf">update_github_tracker_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">repo_name</span><span class="p">,</span> <span class="n">issue_tracker_name</span><span class="p">,</span> <span class="n">github_repo_full_name</span><span class="p">,</span> <span class="n">tokens</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        updates GitHub issue tracker data stored in the DB</span>
 

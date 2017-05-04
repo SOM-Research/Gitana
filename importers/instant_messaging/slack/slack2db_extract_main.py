@@ -13,10 +13,41 @@ from util.logging_util import LoggingUtil
 
 
 class Slack2DbMain():
+    """
+    This class handles the import of Slack data
+    """
 
     def __init__(self, db_name, project_name,
                  type, instant_messaging_name, before_date, channels, tokens,
                  config, log_root_path):
+        """
+        :type db_name: str
+        :param db_name: the name of an existing DB
+
+        :type project_name: str
+        :param project_name: the name of an existing project in the DB
+
+        :type type: str
+        :param type: type of the instant messaging (Slack, IRC)
+
+        :type instant_messaging_name: str
+        :param instant_messaging_name: the name of the instant messaging to import
+
+        :type channels: list str
+        :param channels: list of channels to import
+
+        :type before_date: str
+        :param before_date: import data before date (YYYY-mm-dd)
+
+        :type tokens: list str
+        :param tokens: list of Slack tokens
+
+        :type config: dict
+        :param config: the DB configuration file
+
+        :type log_folder_path: str
+        :param log_folder_path: the log folder path
+        """
         self._log_path = log_root_path + "import-slack-" + db_name + "-" + project_name + "-" + instant_messaging_name
         self._type = type
         self._instant_messaging_name = instant_messaging_name
@@ -37,6 +68,7 @@ class Slack2DbMain():
         self._dao = None
 
     def _get_channel_ids(self, instant_messaging_id):
+        #get data source channel ids
         channel_ids = []
         channel_own_ids = self._querier.get_channel_ids(self._before_date, self._channels)
         for own_id in channel_own_ids:
@@ -54,6 +86,7 @@ class Slack2DbMain():
         return channel_ids
 
     def _get_channels(self, instant_messaging_id):
+        #processes Slack channels
         channel_ids = self._get_channel_ids(instant_messaging_id)
 
         intervals = [i for i in multiprocessing_util.get_tasks_intervals(channel_ids, len(self._tokens)) if len(i) > 0]
@@ -77,6 +110,9 @@ class Slack2DbMain():
         queue_extractors.join()
 
     def extract(self):
+        """
+        extracts Slack data and stores it in the DB
+        """
         try:
             self._logger = self._logging_util.get_logger(self._log_path)
             self._fileHandler = self._logging_util.get_file_handler(self._logger, self._log_path, "info")
