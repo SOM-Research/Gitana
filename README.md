@@ -8,11 +8,11 @@ database content with the latest project activities.
 
 ## Documentation
 
-More information can be found on the [GitHub documentation site.](http://gitanadocs.getforge.io/)
+More information can be found on the [Gitana documentation site.](http://gitanadocs.getforge.io/)
 
 ## Who is behind this project?
 
-* [Valerio Cosentino](http://github.com/valeriocos/ "Valerio Cosentino")
+* [Valerio Cosentino](http://valeriocos.github.io "Valerio Cosentino")
 * [Javier Canovas](http://github.com/jlcanovas/ "Javier Canovas")
 * [Jordi Cabot](http://github.com/jcabot/ "Jordi Cabot")
 
