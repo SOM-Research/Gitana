@@ -16,7 +16,9 @@ More information can be found on the [GitHub documentation site.](http://gitanad
 * [Javier Canovas](http://github.com/jlcanovas/ "Javier Canovas")
 * [Jordi Cabot](http://github.com/jcabot/ "Jordi Cabot")
 
-Valerio, Javier and Jordi are currently members of [SOM](http://som-research.uoc.edu), a research team of IN3-UOC.
+## Licensing
+
+Gitana is distributed under the MIT License (https://opensource.org/licenses/MIT)
 
 ## Technical details
 
@@ -26,16 +28,9 @@ Gitana is developed on Windows 7 and it relies on:
 
 ## Installation
 
-After installing MySQL Server and Python 2.7.6, follow the instructions below to download the packages used by Gitana:
-- set pip to be used from the command prompt (CMD)
-- in the CMD
- - cd to the directory where requirements.txt is located
- - run the following command:
-   ```
-   pip install -r requirements.txt
-   ```   
+After installing MySQL Server and Python 2.7.6, execute the setup.py script
    
-## How to use Gitana (master version)
+## How to use Gitana
 
 ### import Gitana
 ```python
@@ -148,52 +143,67 @@ g.update_eclipse_forum_data("DB-NAME", "PROJECT-NAME", "FORUM-NAME", "NUM-OF-PRO
 
 ### import Stackoverflow data
 ```python
-g.import_stackoverflow_data("DB-NAME", "PROJECT-NAME", "FORUM-NAME", "QUERY-STRING", "BEFORE-DATE", "TOKENS")
+g.import_stackoverflow_data("DB-NAME", "PROJECT-NAME", "FORUM-NAME", "QUERY-STRING", "BEFORE-DATE", "LIST-OF-TOKENS")
 
 # DB-NAME, PROJECT-NAME should point to a DB and project already existing in Gitana
 # FORUM-NAME cannot be null. It is the name used to identify the forum in the DB
 # QUERY-STRING cannot be null. It is used to retrieved the Questions in Stackoverflow labelled with "QUERY-STRING"
 # BEFORE-DATE can be None or "%Y-%m-%d". It allows to import topics created before a given date
-# TOKENS cannot be null. Each token is passed to a process to speed up the collection of StackOverflow information.
+# "LIST-OF-TOKENS" cannot be null. Each token is passed to a process to speed up the collection of StackOverflow information.
 ```
 
 ### update Stackoverflow data
 ```python
-g.update_stackoverflow_data("DB-NAME", "PROJECT-NAME", "FORUM-NAME", "TOKENS")
+g.update_stackoverflow_data("DB-NAME", "PROJECT-NAME", "FORUM-NAME", ""LIST-OF-TOKENS"")
 
 # DB-NAME, PROJECT-NAME should point to a DB and project already existing in Gitana
 # FORUM-NAME cannot be null. It is the name used to identify the forum in the DB
 # QUERY-STRING cannot be null. It is used to retrieved the Questions in Stackoverflow labelled with "QUERY-STRING"
-# TOKENS cannot be null. Each token is passed to a process to speed up the collection of StackOverflow information.
+# "LIST-OF-TOKENS" cannot be null. Each token is passed to a process to speed up the collection of StackOverflow information.
 ```
 
 ### import Slack data
 ```python
-g.import_slack_data("DB-NAME", "PROJECT-NAME", "INSTANT-MESSAGING-NAME", "BEFORE-DATE", "LIST-OF-CHANNELS", "TOKENS")
+g.import_slack_data("DB-NAME", "PROJECT-NAME", "INSTANT-MESSAGING-NAME", "BEFORE-DATE", "LIST-OF-CHANNELS", ""LIST-OF-TOKENS"")
 
 # DB-NAME, PROJECT-NAME should point to a DB and project already existing in Gitana
 # INSTANT-MESSAGING-NAME cannot be null. It is the name used to identify the instant messaging service in the DB
 # BEFORE-DATE can be None or "%Y-%m-%d". It allows to import channels created before a given date
 # LIST-OF-CHANNELS. can be None or ["channel-name-1", .., "channel-name-n"]. It allows to import the data of a set of channels
-# TOKENS cannot be null. Each token is passed to a process to speed up the collection of Slack information.
+# "LIST-OF-TOKENS" cannot be null. Each token is passed to a process to speed up the collection of Slack information.
 ```
 
 ### update Slack data
 ```python
-g.update_slack_data("DB-NAME", "PROJECT-NAME", "INSTANT-MESSAGING-NAME", "TOKENS")
+g.update_slack_data("DB-NAME", "PROJECT-NAME", "INSTANT-MESSAGING-NAME", ""LIST-OF-TOKENS"")
 # DB-NAME, PROJECT-NAME should point to a DB and project already existing in Gitana
 # INSTANT-MESSAGING-NAME cannot be null. It is the name used to identify the instant messaging service in the DB
-# TOKENS cannot be null. Each token is passed to a process to speed up the collection of Slack information.
+# "LIST-OF-TOKENS" cannot be null. Each token is passed to a process to speed up the collection of Slack information.
 ```
 
 ### import GitHub-Issue-Tracker data
 ```python
-...coming soon
+g.import_github_tracker_data("DB-NAME", "PROJECT-NAME", "GIT-REPO-NAME",
+                             "ISSUE-TRACKER-NAME", "GITHUB-REPO-FULLNAME",
+                             "BEFORE-DATE", ""LIST-OF-TOKENS"")
+  
+# DB-NAME, PROJECT-NAME, GIT-REPO-NAME should point to a DB, project and repo already existing in Gitana
+# ISSUE-TRACKER-NAME cannot be null. It is the name used to identify the issue tracker in the DB
+# GITHUB-REPO-FULLNAME cannot be null. It points to the GitHub repository to import
+# BEFORE-DATE can be None or "%Y-%m-%d". It allows to import issues created before a given date
+# "LIST-OF-TOKENS" cannot be null. Each token is passed to a process to speed up the collection of GitHub information.
 ```
 
 ### update GitHub-Issue-Tracker data
 ```python
-...coming soon
+g.update_github_tracker_data("DB-NAME", "PROJECT-NAME", "GIT-REPO-NAME",
+                             "ISSUE-TRACKER-NAME", "GITHUB-REPO-FULLNAME",
+							 ""LIST-OF-TOKENS"")
+  
+# DB-NAME, PROJECT-NAME, GIT-REPO-NAME should point to a DB, project and repo already existing in Gitana
+# ISSUE-TRACKER-NAME cannot be null. It is the name used to identify the issue tracker in the DB
+# GITHUB-REPO-FULLNAME cannot be null. It points to the GitHub repository to import
+# "LIST-OF-TOKENS" cannot be null. Each token is passed to a process to speed up the collection of GitHub information.
 ```
 
 ### Example(s)

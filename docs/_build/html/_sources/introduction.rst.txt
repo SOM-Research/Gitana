@@ -5,15 +5,82 @@ Software development projects are notoriously complex and difficult to deal with
 trackers, instant messaging services and Version Control Systems (VCSs) have been introduced in the past decades
 to ease development activities. While such tools efficiently track the evolution of a given aspect of the project (e.g., bug
 reports), they provide just a partial view of the project and lack of advanced querying support and data integration
-mechanisms between them to enable a complete project analysis. In this paper, we propose a conceptual schema
+mechanisms between them to enable a complete project analysis. Gitana provides a conceptual schema
 (CS) to model the activity around a software project and an approach that, given a set of heterogeneous data sources
-(e.g., VCSs, issue trackers and forums), export their data to a relational database derived from the CS in order to (1)
-promote a shared place to perform cross-cutting analysis on the project data, (2) enable users to write ad-hoc queries
-using standard SQL syntax, and (3) support diverse kinds of data analysis. To ensure efficiency, our approach comes
-with an incremental propagation mechanism that refreshes the database content with the latest modifications available
-on the data sources.
+(e.g., VCSs, issue trackers and forums), export their data to a relational database derived from the CS in order to:
 
+(1) promote a shared place to perform cross-cutting analysis on the project data,
+
+(2) enable users to write ad-hoc queries using standard SQL syntax, and
+
+(3) support diverse kinds of data analysis.
+
+To ensure efficiency, our approach comes with an incremental propagation mechanism that refreshes the database content
+with the latest modifications available on the data sources.
+
+Requirements
+------------
+Gitana is developed on Windows 7 and it relies on:
+
+    Python 2.7.6
+
+    MySQL Server 5.6 (http://dev.mysql.com/downloads/installer/)
 
 Download and install
 --------------------
 After installing MySQL Server and Python 2.7.6, execute the setup.py script
+
+Licensing
+--------------------
+Gitana is distributed under the MIT License (https://opensource.org/licenses/MIT)
+
+Example of import
+-----------------
+.. code-block:: python
+
+   from gitana import Gitana
+
+   CONFIG = {
+				'user': 'root',
+				'password': 'root',
+				'host': 'localhost',
+				'port': '3306',
+				'raise_on_warnings': False,
+				'buffered': True
+			}
+
+   def main():
+        g = Gitana(CONFIG, None)
+        g.init_db("papyrus_db")
+
+        g.create_project("papyrus_db", "papyrus")
+
+        g.import_git_data("papyrus_db", "papyrus", "papyrus_repo", "...\\Desktop\\org.eclipse.papyrus", None, 1, None, 10)
+        g.import_bugzilla_tracker_data("papyrus_db", "papyrus", "papyrus_repo", "papyrus-bugzilla", "https://bugs.eclipse.org/bugs/xmlrpc.cgi", "papyrus", None, 5)
+        g.import_eclipse_forum_data("papyrus_db", "papyrus", "papyrus-forum", "https://www.eclipse.org/forums/index.php/f/121/", None, False, 5)
+        g.import_stackoverflow_data("papyrus_db", "papyrus", "papyrus-so", "papyrus", None, ['YOUR-TOKEN-1', 'YOUR-TOKEN-2', ...])
+
+   if __name__ == "__main__":
+        main()
+	
+Example of export
+-----------------
+.. code-block:: python
+
+   from exporter.gexf_exporter import GexfExporter
+
+   CONFIG = {
+				'user': 'root',
+				'password': 'root',
+				'host': 'localhost',
+				'port': '3306',
+				'raise_on_warnings': False,
+				'buffered': True
+			}
+
+   def main():
+        gexf = GexfExporter(CONFIG, "papyrus_db", None)
+        gexf.export("./export.gexf", "undirected", "dynamic", "users-on-issues")
+
+   if __name__ == "__main__":
+        main()

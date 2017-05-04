@@ -10,6 +10,7 @@ Welcome to Gitana's documentation!
    :maxdepth: 1
 
    introduction
+   conceptual
    reference
 
 
