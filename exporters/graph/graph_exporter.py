@@ -17,11 +17,24 @@ from exporters.graph.gexf_generator import GexfGenerator
 
 
 class GraphExporter():
+    """
+    This class exports the Gitana data to a graph representation
+    """
 
     LOG_FOLDER_PATH = "logs"
     INPUT_PATH = os.path.dirname(resources.__file__) + "\queries.json"
 
     def __init__(self, config, db_name, log_folder_path):
+        """
+        :type config: dict
+        :param config: the DB configuration file
+
+        :type db_name: str
+        :param config: name of an existing DB
+
+        :type log_folder_path: str
+        :param log_folder_path: the log folder path
+        """
         if log_folder_path:
             self._create_log_folder(log_folder_path)
             self._log_folder_path = log_folder_path
@@ -45,10 +58,12 @@ class GraphExporter():
         self._db_util.set_settings(self._cnx)
 
     def _create_log_folder(self, name):
+        #creates the log folder
         if not os.path.exists(name):
             os.makedirs(name)
 
     def _create_output_file(self, filename):
+        #creates the output folder
         if not os.path.exists(os.path.dirname(filename)):
             try:
                 os.makedirs(os.path.dirname(filename))
@@ -57,12 +72,14 @@ class GraphExporter():
                     raise
 
     def _load_graph_exporter_json(self, json_path):
+        #load the JSON that drives the graph exporter process
         with open(json_path) as json_data:
             data = json.load(json_data)
 
         return data.get('graph')
 
     def _get_parameter(self, key, parameters):
+        #get JSON parameters
         found = None
         if key in ["EDGECOLOR", "NODECOLOR"]:
             found = parameters.get(key.lower())
@@ -77,6 +94,7 @@ class GraphExporter():
         return found
 
     def _load_query_json(self, metric_name, parameters):
+        #loads the query stored in the JSON file
         with open(GraphExporter.INPUT_PATH) as json_data:
             data = json.load(json_data)
 
@@ -99,9 +117,19 @@ class GraphExporter():
         except:
             self._logger.error("GraphExporter: metric " + str(metric_name) + " not found!")
 
-    # gtype -> graph type = "undirected", "directed", if null "undirected"
-    # gmode -> graph mode = "dynamic", "static", if null "dynamic"
     def export(self, file_path, json_path):
+        """
+        exports the Gitana data to a graph
+
+        :type file_path: str
+        :param file_path: the path where to export the graph
+
+        :type json_path: str
+        :param json_path: the path of the JSON that drives the export process
+        """
+
+        # gtype -> graph type = "undirected", "directed", if null "undirected"
+        # gmode -> graph mode = "dynamic", "static", if null "dynamic"
         try:
             self._logger.info("GraphExporter started")
             start_time = datetime.now()

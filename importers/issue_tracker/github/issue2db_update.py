@@ -14,16 +14,43 @@ from util.logging_util import LoggingUtil
 
 
 class GitHubIssue2DbUpdate():
+    """
+    This class handles the update of GitHub issue tracker data
+    """
 
     NUM_PROCESSES = 5
 
     def __init__(self, db_name, project_name,
-                 repo_name, issue_tracker_name, url, product, num_processes,
+                 repo_name, issue_tracker_name, url, num_processes,
                  config, log_root_path):
+        """
+        :type db_name: str
+        :param db_name: the name of an existing DB
+
+        :type project_name: str
+        :param project_name: the name of an existing project in the DB
+
+        :type repo_name: str
+        :param repo_name: the name of an existing repository in the DB
+
+        :type issue_tracker_name: str
+        :param issue_tracker_name: the name of the issue tracker to import
+
+        :type url: str
+        :param url: full name of the GitHub repository
+
+        :type num_processes: int
+        :param num_processes: number of processes to import the data (default 5)
+
+        :type config: dict
+        :param config: the DB configuration file
+
+        :type log_folder_path: str
+        :param log_folder_path: the log folder path
+        """
         self._log_path = log_root_path + "import-github-" + db_name + "-" + project_name + "-" + issue_tracker_name
         self._issue_tracker_name = issue_tracker_name
         self._url = url
-        self._product = product
         self._project_name = project_name
         self._db_name = db_name
         self._repo_name = repo_name
@@ -42,7 +69,8 @@ class GitHubIssue2DbUpdate():
         self._fileHandler = None
         self._dao = None
 
-    def update_issue_content(self, repo_id, issue_tracker_id, intervals, url):
+    def _update_issue_content(self, repo_id, issue_tracker_id, intervals, url):
+        #updates issues already stored in the DB
         queue_intervals = multiprocessing.JoinableQueue()
         results = multiprocessing.Queue()
 
@@ -60,7 +88,8 @@ class GitHubIssue2DbUpdate():
         # Wait for all of the tasks to finish
         queue_intervals.join()
 
-    def update_issue_dependency(self, repo_id, issue_tracker_id, intervals, url):
+    def _update_issue_dependency(self, repo_id, issue_tracker_id, intervals, url):
+        #updates issue dependencies already stored in the DB
         queue_intervals = multiprocessing.JoinableQueue()
         results = multiprocessing.Queue()
 
@@ -79,6 +108,7 @@ class GitHubIssue2DbUpdate():
         queue_intervals.join()
 
     def _update_issues(self):
+        #updates issues
         project_id = self._dao.select_project_id(self._project_name)
         repo_id = self._dao.select_repo_id(project_id, self._repo_name)
         issue_tracker_id = self._dao.select_issue_tracker_id(repo_id, self._issue_tracker_name)
@@ -104,10 +134,13 @@ class GitHubIssue2DbUpdate():
             if issues:
                 intervals = [i for i in multiprocessing_util.get_tasks_intervals(issues, self._num_processes) if len(i) > 0]
 
-                self.update_issue_content(repo_id, issue_tracker_id, intervals, issue_tracker_url)
-                self.update_issue_dependency(repo_id, issue_tracker_id, intervals, issue_tracker_url)
+                self._update_issue_content(repo_id, issue_tracker_id, intervals, issue_tracker_url)
+                self._update_issue_dependency(repo_id, issue_tracker_id, intervals, issue_tracker_url)
 
     def update(self):
+        """
+        updates the GitHub issue tracker data stored in the DB
+        """
         try:
             self._logger = self._logging_util.get_logger(self._log_path)
             self._fileHandler = self._logging_util.get_file_handler(self._logger, self._log_path, "info")

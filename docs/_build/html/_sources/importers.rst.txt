@@ -7,3 +7,5 @@ Importers
    stackoverflow
    slack
    bugzilla
+   github
+   git

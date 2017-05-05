@@ -11,6 +11,9 @@ from util.logging_util import LoggingUtil
 
 
 class Git2DbReference(object):
+    """
+    This class handles the import of Git references
+    """
 
     #do not import patches
     LIGHT_IMPORT_TYPE = 1
@@ -22,6 +25,34 @@ class Git2DbReference(object):
     def __init__(self, db_name,
                  repo_id, git_repo_path, before_date, import_type, ref_name, from_sha,
                  config, log_root_path):
+        """
+        :type db_name: str
+        :param db_name: the name of an existing DB
+
+        :type repo_id: int
+        :param repo_id: the id of an existing repository in the DB
+
+        :type git_repo_path: str
+        :param git_repo_path: local path of the Git repository
+
+        :type before_date: str
+        :param before_date: import data before date (YYYY-mm-dd)
+
+        :type import_type: int
+        :param import_type: 1 does not import patches, 2 imports patches but not at line level, 3 imports patches with line detail
+
+        :type ref_name: str
+        :param ref_name: the name of the reference to import
+
+        :type from_sha: str
+        :param from_sha: the SHA of the commit from where to start the import
+
+        :type config: dict
+        :param config: the DB configuration file
+
+        :type log_folder_path: str
+        :param log_folder_path: the log folder path
+        """
         self._log_root_path = log_root_path
         self._git_repo_path = git_repo_path
         self._repo_id = repo_id
@@ -53,22 +84,25 @@ class Git2DbReference(object):
                 self._dao.close_connection()
 
     def _make_it_printable(self, str):
+        #converts string to UTF-8 and removes empty and non-alphanumeric characters
         u = str.decode('utf-8', 'ignore').lower()
         return re.sub(r'(\W|\s)+', '-', u)
 
     def _get_ext(self, str):
+        #gets the extension of the file
         file_name = str.split('/')[-1]
         ext = file_name.split('.')[-1]
         return ext
 
-    #not used, future extension
     def _get_type(self, str):
+        #not used, future extension
         type = "text"
         if str.startswith('Binary files'):
             type = "binary"
         return type
 
     def _get_info_contribution_in_reference(self, reference_name, repo_id, from_sha):
+        #processes Git reference data
         for reference in self._querier.get_references():
             if reference[0] == reference_name:
                 ref_name = reference[0]
@@ -93,9 +127,11 @@ class Git2DbReference(object):
                 break
 
     def _analyse_reference(self, ref_name, ref_type, repo_id):
+        #inserts reference to DB
         self._dao.insert_reference(repo_id, ref_name, ref_type)
 
     def _get_diffs_from_commit(self, commit, files_in_commit):
+        #calculates diffs within files in a commit
         if self._import_type > Git2DbReference.LIGHT_IMPORT_TYPE:
             diffs = self._querier.get_diffs(commit, files_in_commit, True)
         else:
@@ -104,6 +140,7 @@ class Git2DbReference(object):
         return diffs
 
     def _analyse_commit(self, commit, repo_id, ref_id):
+        #analyses a commit
         try:
             message = self._querier.get_commit_property(commit, "message")
             author_name = self._querier.get_commit_property(commit, "author.name")
@@ -227,6 +264,7 @@ class Git2DbReference(object):
             self._logger.error("Git2Db failed on commit " + str(sha), exc_info=True)
 
     def _analyse_commits(self, commits, ref, repo_id):
+        #analyses commits in references
         ref_id = self._dao.select_reference_id(repo_id, ref)
         commits_in_reference = []
         for c in commits:
@@ -240,6 +278,9 @@ class Git2DbReference(object):
         #self._dao.insert_commits_in_reference(commits_in_reference)
 
     def extract(self):
+        """
+        extracts Git data and stores it in the DB
+        """
         try:
             self._logger.info("Git2DbReference started")
             start_time = datetime.now()

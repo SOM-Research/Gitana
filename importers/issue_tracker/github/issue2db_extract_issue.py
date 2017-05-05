@@ -12,9 +12,38 @@ from util.logging_util import LoggingUtil
 
 
 class GitHubIssue2Db(object):
+    """
+    This class handles the import of GitHub issues
+    """
+
     def __init__(self, db_name,
                  repo_id, issue_tracker_id, url, interval, token,
                  config, log_root_path):
+        """
+        :type db_name: str
+        :param db_name: the name of an existing DB
+
+        :type repo_id: int
+        :param repo_id: the id of an existing repository in the DB
+
+        :type issue_tracker_id: int
+        :param issue_tracker_id: the id of an existing issue tracker in the DB
+
+        :type url: str
+        :param url: full name of the GitHub repository
+
+        :type interval: list int
+        :param interval: a list of issue ids to import
+
+        :type token: str
+        :param token: a GitHub token
+
+        :type config: dict
+        :param config: the DB configuration file
+
+        :type log_folder_path: str
+        :param log_folder_path: the log folder path
+        """
         self._log_root_path = log_root_path
         self._url = url
         self._db_name = db_name
@@ -48,6 +77,7 @@ class GitHubIssue2Db(object):
                 self._dao.close_connection()
 
     def _insert_attachments(self, attachments, message_id):
+        #inserts attachments
         pos = 0
         for attachment in attachments:
             attachment_name = self._querier.get_attachment_name(attachment)
@@ -57,6 +87,7 @@ class GitHubIssue2Db(object):
             pos += 1
 
     def _find_mentioner_user(self, issue_id, created_at):
+        #finds the mentioner user
         creator = None
         issue = self._querier.get_issue(issue_id)
         found = [c for c in self._querier.get_issue_comments(issue) if c.created_at == created_at]
@@ -69,6 +100,7 @@ class GitHubIssue2Db(object):
         return creator
 
     def _extract_history(self, issue_id, history):
+        #inserts the history of an issue
         for event in history:
             try:
                 created_at = self._querier.get_event_creation_time(event)
@@ -119,6 +151,7 @@ class GitHubIssue2Db(object):
                 self._logger.warning("event at (" + str(created_at) + ") not extracted for issue id: " + str(issue_id) + " - tracker id " + str(self._issue_tracker_id), exc_info=True)
 
     def _extract_subscribers(self, issue_id, subscribers):
+        #inserts subscribers of an issue
         for subscriber in subscribers:
             try:
                 subscriber_id = self._dao.get_user_id(self._querier.get_user_name(subscriber), self._querier.get_user_email(subscriber))
@@ -127,6 +160,7 @@ class GitHubIssue2Db(object):
                 self._logger.warning("subscriber (" + subscriber.login + ") not inserted for issue id: " + str(issue_id) + " - tracker id " + str(self._issue_tracker_id), exc_info=True)
 
     def _extract_assignees(self, issue_id, assignees):
+        #inserts the assignee of an issue
         for assignee in assignees:
             try:
                 assignee_login = assignee.get('login')
@@ -142,6 +176,7 @@ class GitHubIssue2Db(object):
                 self._logger.warning("assignee (" + assignee.login + ") not inserted for issue id: " + str(issue_id) + " - tracker id " + str(self._issue_tracker_id), exc_info=True)
 
     def _extract_first_comment(self, issue_id):
+        #inserts first issue comment
         issue = self._querier.get_issue(issue_id)
         created_at = self._querier.get_issue_creation_time(issue)
         author = self._querier.get_issue_creator(issue)
@@ -150,6 +185,7 @@ class GitHubIssue2Db(object):
         self._dao.insert_issue_comment(0, 0, self._dao.get_message_type_id("comment"), issue_id, body, None, author_id, created_at)
 
     def _extract_comments(self, issue_id, comments):
+        #inserts the comments of an issue
         self._extract_first_comment(issue_id)
         pos = 1
         for comment in comments:
@@ -172,6 +208,7 @@ class GitHubIssue2Db(object):
             pos += 1
 
     def _extract_labels(self, issue_id, labels):
+        #inserts the labels of an issue
         for label in labels:
             try:
                 digested_label = re.sub("^\W+", "", re.sub("\W+$", "", label.lower()))
@@ -182,12 +219,14 @@ class GitHubIssue2Db(object):
                 self._logger.warning("label (" + label + ") not extracted for issue id: " + str(issue_id) + " - tracker id " + str(self._issue_tracker_id), exc_info=True)
 
     def _extract_issue_commit_dependency(self, issue_id, commits):
+        #inserts the dependencies between an issue and commits
         for id in commits:
             commit_id = self._dao.select_commit(id, self._repo_id)
             if commit_id:
                 self._dao.insert_issue_commit_dependency(issue_id, commit_id)
 
     def _get_issue_info(self, issue_own_id):
+        #processes each single issue
         flag_insert_issue_data = False
 
         issue = self._querier.get_issue(issue_own_id)
@@ -236,6 +275,7 @@ class GitHubIssue2Db(object):
                 self._logger.error("GitHubError when extracting history for issue id: " + str(issue_id) + " - tracker id " + str(self._issue_tracker_id), exc_info=True)
 
     def _get_issues(self):
+        #processes issues
         for issue_id in self._interval:
             try:
                 self._get_issue_info(issue_id)
@@ -243,6 +283,9 @@ class GitHubIssue2Db(object):
                 self._logger.error("something went wrong for issue id: " + str(issue_id) + " - tracker id " + str(self._issue_tracker_id), exc_info=True)
 
     def extract(self):
+        """
+        extracts GitHub issue data and stores it in the DB
+        """
         try:
             self._logger.info("GitHubIssue2Db started")
             start_time = datetime.now()

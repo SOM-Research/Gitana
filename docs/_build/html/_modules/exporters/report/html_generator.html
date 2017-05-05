@@ -1,0 +1,283 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>exporters.report.html_generator &#8212; Gitana 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for exporters.report.html_generator</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;valerio cosentino&#39;</span>
+
+<span class="kn">from</span> <span class="nn">exporters</span> <span class="k">import</span> <span class="n">resources</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+
+<div class="viewcode-block" id="HtmlGenerator"><a class="viewcode-back" href="../../../reportexporter.html#exporters.report.html_generator.HtmlGenerator">[docs]</a><span class="k">class</span> <span class="nc">HtmlGenerator</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class handles the generation of an HTML page embedding charts</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">BOOTSTRAP_COLUMNS</span> <span class="o">=</span> <span class="mi">12</span>
+    <span class="n">CHARTS_PER_LINE</span> <span class="o">=</span> <span class="mi">2</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :type logger: Object</span>
+<span class="sd">        :param logger: logger</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logger</span>
+
+    <span class="k">def</span> <span class="nf">_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lst</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="n">grouped</span> <span class="o">=</span> <span class="p">[</span><span class="n">lst</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="n">n</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">lst</span><span class="p">),</span> <span class="n">n</span><span class="p">)]</span>
+        <span class="n">last_group</span> <span class="o">=</span> <span class="n">grouped</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">last_group</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">:</span>
+            <span class="n">last_group</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">grouped</span>
+
+    <span class="k">def</span> <span class="nf">_add_head</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">html_string</span><span class="p">):</span>
+        <span class="c1">#adds the HTML header</span>
+        <span class="n">html_string</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;&lt;head&gt;</span>
+<span class="s2">                    &lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot; /&gt;</span>
+<span class="s2">                    &lt;link rel=&quot;stylesheet&quot; href=&quot;https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css&quot;&gt;</span>
+<span class="s2">                    &lt;link rel=&quot;stylesheet&quot; href=&quot;https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css&quot;&gt;</span>
+<span class="s2">                    &lt;title&gt;Activity Report - &quot;&quot;&quot;</span> <span class="o">+</span> <span class="n">project_name</span> <span class="o">+</span> <span class="s2">&quot;&quot;&quot;&lt;/title&gt;</span>
+<span class="s2">            &lt;/head&gt;&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">html_string</span>
+
+    <span class="k">def</span> <span class="nf">_add_css</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">html_string</span><span class="p">):</span>
+        <span class="c1">#adds CSS information</span>
+        <span class="n">html_string</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;&lt;style&gt;</span>
+<span class="s2">                .jumbotron {</span>
+<span class="s2">                    position: relative;</span>
+<span class="s2">                    background: #000 url(</span><span class="se">\&#39;</span><span class="s2">&quot;&quot;&quot;</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">resources</span><span class="o">.</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;/&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;/jumbotron.png&quot;</span> <span class="o">+</span> <span class="s2">&quot;&quot;&quot;</span><span class="se">\&#39;</span><span class="s2">) center center;</span>
+<span class="s2">                    width: 100%;</span>
+<span class="s2">                    height: 100%;</span>
+<span class="s2">                    background-size: cover;</span>
+<span class="s2">                    overflow: hidden;</span>
+<span class="s2">                    color: white;</span>
+<span class="s2">                }</span>
+<span class="s2">                footer {</span>
+<span class="s2">                    margin-top: 30px;</span>
+<span class="s2">                    padding-top: 30px;</span>
+<span class="s2">                    bottom: 0;</span>
+<span class="s2">                    padding-bottom: 30px;</span>
+<span class="s2">                    background-color: #337180;</span>
+<span class="s2">                    width: 100%;</span>
+<span class="s2">                    height: 146px;</span>
+<span class="s2">                    color: white;</span>
+<span class="s2">                }</span>
+<span class="s2">                a:link {</span>
+<span class="s2">                    color: white;</span>
+<span class="s2">                    text-decoration: underline;</span>
+<span class="s2">                }</span>
+<span class="s2">                a:visited {</span>
+<span class="s2">                    color: white;</span>
+<span class="s2">                    text-decoration: underline;</span>
+<span class="s2">                }</span>
+<span class="s2">                a:hover {</span>
+<span class="s2">                    color: white;</span>
+<span class="s2">                    text-decoration: underline;</span>
+<span class="s2">                }</span>
+<span class="s2">                a:active {</span>
+<span class="s2">                    color: white;</span>
+<span class="s2">                    text-decoration: underline;</span>
+<span class="s2">                }</span>
+<span class="s2">                .activity {</span>
+<span class="s2">                    color: white;</span>
+<span class="s2">                    background-color: #a8a8a8;</span>
+<span class="s2">                    max-height: 85px;</span>
+<span class="s2">                }</span>
+<span class="s2">                .activity h2 {</span>
+<span class="s2">                    vertical-align:middle;</span>
+<span class="s2">                    margin-top:7px;</span>
+<span class="s2">                    margin-bottom:15px;</span>
+<span class="s2">                }</span>
+
+<span class="s2">            &lt;/style&gt;</span>
+<span class="s2">            &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">html_string</span>
+
+    <span class="k">def</span> <span class="nf">_add_jumbotron</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">html_string</span><span class="p">):</span>
+        <span class="c1">#adds the jumbotron</span>
+        <span class="n">html_string</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                &lt;div class=&quot;jumbotron&quot;&gt;</span>
+<span class="s2">                  &lt;div class=&quot;container&quot;&gt;</span>
+<span class="s2">                    &lt;h1&gt;&quot;&quot;&quot;</span> <span class="o">+</span> <span class="n">project_name</span> <span class="o">+</span> <span class="s2">&quot;&quot;&quot;&lt;/h1&gt;</span>
+<span class="s2">                  &lt;/div&gt;</span>
+<span class="s2">                &lt;/div&gt;</span>
+<span class="s2">                &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">html_string</span>
+
+    <span class="k">def</span> <span class="nf">_add_footer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">html_string</span><span class="p">):</span>
+        <span class="c1">#adds the footer</span>
+        <span class="n">html_string</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                        &lt;footer&gt;</span>
+<span class="s2">                          &lt;div class=&quot;row&quot;&gt;</span>
+<span class="s2">                            &lt;div class=&quot;col-md-12&quot;&gt;</span>
+<span class="s2">                              &lt;p class=&quot;text-center&quot;&gt;&lt;small&gt;Report generated with &lt;a href=&quot;https://github.com/SOM-Research/Gitana&quot;&gt;Gitana&lt;/a&gt;.&lt;/small&gt;&lt;/p&gt;</span>
+<span class="s2">                            &lt;/div&gt;</span>
+<span class="s2">                          &lt;/div&gt;</span>
+<span class="s2">                        &lt;/footer&gt;</span>
+<span class="s2">                        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">html_string</span>
+
+    <span class="k">def</span> <span class="nf">_add_activity_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">activity_name</span><span class="p">,</span> <span class="n">html_string</span><span class="p">):</span>
+        <span class="c1">#adds the name of the activity</span>
+        <span class="n">html_string</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;&lt;div class=&quot;col-sm-12 img-rounded activity&quot;&gt;</span>
+<span class="s2">                                &lt;h2&gt;&lt;span class=&quot;label label-warning&quot;&gt;&quot;&quot;&quot;</span> <span class="o">+</span> <span class="n">activity_name</span> <span class="o">+</span> <span class="s2">&quot;&quot;&quot;&lt;/span&gt;&lt;/h2&gt;</span>
+<span class="s2">                          &lt;/div&gt;</span>
+<span class="s2">                        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">html_string</span>
+
+    <span class="k">def</span> <span class="nf">_add_tool_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tool_name</span><span class="p">,</span> <span class="n">html_string</span><span class="p">):</span>
+        <span class="c1">#adds the name of the tool (git, issue tracker, etc.)</span>
+        <span class="n">html_string</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;&lt;div class=&quot;col-sm-12&quot;&gt;</span>
+<span class="s2">                                &lt;h3&gt;&lt;span class=&quot;label label-warning&quot;&gt;&quot;&quot;&quot;</span> <span class="o">+</span> <span class="n">tool_name</span> <span class="o">+</span> <span class="s2">&quot;&quot;&quot;&lt;/span&gt;&lt;/h3&gt;</span>
+<span class="s2">                          &lt;/div&gt;</span>
+<span class="s2">                        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">html_string</span>
+
+<div class="viewcode-block" id="HtmlGenerator.create"><a class="viewcode-back" href="../../../reportexporter.html#exporters.report.html_generator.HtmlGenerator.create">[docs]</a>    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">activity2charts</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        creates the HTML page</span>
+
+<span class="sd">        :type project_name: str</span>
+<span class="sd">        :param project_name: name of the project</span>
+
+<span class="sd">        :type activity2charts: dict</span>
+<span class="sd">        :param activity2charts: map of the activities and corresponding charts</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">html_string</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;&lt;!DOCTYPE html&gt;&lt;html&gt;&quot;&quot;&quot;</span>
+        <span class="n">html_string</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_head</span><span class="p">(</span><span class="n">project_name</span><span class="p">,</span> <span class="n">html_string</span><span class="p">)</span>
+        <span class="n">html_string</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_css</span><span class="p">(</span><span class="n">html_string</span><span class="p">)</span>
+        <span class="n">html_string</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;&lt;body&gt;&quot;&quot;&quot;</span>
+        <span class="n">html_string</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_jumbotron</span><span class="p">(</span><span class="n">project_name</span><span class="p">,</span> <span class="n">html_string</span><span class="p">)</span>
+        <span class="n">html_string</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;&lt;div class=&quot;container&quot;&gt;</span>
+<span class="s2">                        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">activity2charts</span><span class="p">:</span>
+            <span class="n">html_string</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;&lt;div class=&quot;row&quot;&gt;</span>
+<span class="s2">                            &quot;&quot;&quot;</span>
+            <span class="n">html_string</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_activity_name</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">title</span><span class="p">(),</span> <span class="n">html_string</span><span class="p">)</span>
+            <span class="n">tool2charts</span> <span class="o">=</span> <span class="n">activity2charts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+            <span class="n">tool_names</span> <span class="o">=</span> <span class="n">tool2charts</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+
+            <span class="k">for</span> <span class="n">tool_name</span> <span class="ow">in</span> <span class="n">tool_names</span><span class="p">:</span>
+                <span class="n">html_string</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;&lt;div class=&quot;row&quot;&gt;</span>
+<span class="s2">                                &quot;&quot;&quot;</span>
+                <span class="n">html_string</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_tool_name</span><span class="p">(</span><span class="n">tool_name</span><span class="p">,</span> <span class="n">html_string</span><span class="p">)</span>
+                <span class="n">html_string</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;&lt;div class=&quot;container box-charts&quot;&gt;</span>
+<span class="s2">                            &quot;&quot;&quot;</span>
+                <span class="n">grouped_charts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_group</span><span class="p">(</span><span class="n">tool2charts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">tool_name</span><span class="p">),</span> <span class="n">HtmlGenerator</span><span class="o">.</span><span class="n">CHARTS_PER_LINE</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">grouped_chart</span> <span class="ow">in</span> <span class="n">grouped_charts</span><span class="p">:</span>
+                    <span class="n">html_string</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;&lt;div class=&quot;container&quot;&gt;</span>
+<span class="s2">                                    &quot;&quot;&quot;</span>
+
+                    <span class="k">for</span> <span class="n">chart</span> <span class="ow">in</span> <span class="n">grouped_chart</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="n">chart</span><span class="p">:</span>
+                            <span class="n">html_string</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;&lt;div class=&quot;col-sm-&quot;&quot;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">HtmlGenerator</span><span class="o">.</span><span class="n">BOOTSTRAP_COLUMNS</span><span class="o">/</span><span class="n">HtmlGenerator</span><span class="o">.</span><span class="n">CHARTS_PER_LINE</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;&quot;&quot;</span><span class="se">\&quot;</span><span class="s2">&gt;&lt;/div&gt;&quot;&quot;&quot;</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">html_string</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;&lt;div class=&quot;col-sm-&quot;&quot;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">HtmlGenerator</span><span class="o">.</span><span class="n">BOOTSTRAP_COLUMNS</span><span class="o">/</span><span class="n">HtmlGenerator</span><span class="o">.</span><span class="n">CHARTS_PER_LINE</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;&quot;&quot;</span><span class="se">\&quot;</span><span class="s2">&gt;</span>
+<span class="s2">                                                &lt;div&gt;&quot;&quot;&quot;</span> <span class="o">+</span> <span class="n">chart</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;&quot;&quot;&lt;/div&gt;</span>
+<span class="s2">                                              &lt;/div&gt;&quot;&quot;&quot;</span>
+
+                    <span class="n">html_string</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;&lt;/div&gt;</span>
+<span class="s2">                                    &quot;&quot;&quot;</span>
+
+                <span class="n">html_string</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;&lt;/div&gt;</span>
+<span class="s2">                                &lt;/div&gt;</span>
+<span class="s2">                                &quot;&quot;&quot;</span>
+            <span class="n">html_string</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;&lt;/div&gt;</span>
+<span class="s2">                            &quot;&quot;&quot;</span>
+        <span class="n">html_string</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;&lt;/div&gt;</span>
+<span class="s2">                            &quot;&quot;&quot;</span>
+        <span class="n">html_string</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_footer</span><span class="p">(</span><span class="n">html_string</span><span class="p">)</span>
+        <span class="n">html_string</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;&lt;/body&gt;</span>
+<span class="s2">                            &lt;/html&gt;&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">html_string</span></div></div>
+
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Valerio Cosentino.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

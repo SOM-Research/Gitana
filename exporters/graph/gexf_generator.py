@@ -7,6 +7,9 @@ import os
 
 
 class GexfGenerator():
+    """
+    This class handles the generation of graphs in Gexf format
+    """
 
     DEFAULT_GRAPH_MODE = "dynamic"
     EXT = ".gexf"
@@ -28,10 +31,18 @@ class GexfGenerator():
     }
 
     def __init__(self, cnx, logger):
+        """
+        :type cnx: Object
+        :param cnx: DB connection
+
+        :type logger: Object
+        :param logger: logger
+        """
         self._cnx = cnx
         self._logger = logger
 
     def _create_output_file(self, filename):
+        #creates the output file where to store the Gexf
         if not os.path.exists(os.path.dirname(filename)):
             try:
                 os.makedirs(os.path.dirname(filename))
@@ -40,9 +51,11 @@ class GexfGenerator():
                     raise
 
     def _get_color(self, color_name):
+        #gets the color by its name
         return GexfGenerator.COLORS.get(color_name)
 
     def _add_nodes(self, graph, nodes_query):
+        #adds nodes to the graph
         cursor = self._cnx.cursor()
         cursor.execute(nodes_query)
 
@@ -74,6 +87,7 @@ class GexfGenerator():
         cursor.close()
 
     def _add_edges(self, graph, edges_query):
+        #adds edges to the graph
         cursor = self._cnx.cursor()
         cursor.execute(edges_query)
 
@@ -98,6 +112,21 @@ class GexfGenerator():
         cursor.close()
 
     def create(self, nodes_query, edges_query, type, file_path):
+        """
+        creates the Gexf file
+
+        :type nodes_query: str
+        :param nodes_query: SQL query of the nodes
+
+        :type edges_query: str
+        :param edges_query: SQL query of the edges
+
+        :type type: str
+        :param type: type of the graph (directed, undirected)
+
+        :type file_path: str
+        :param file_path: file path where to store the output
+        """
         if type == "directed":
             graph = nx.DiGraph(mode=GexfGenerator.DEFAULT_GRAPH_MODE)
         else:

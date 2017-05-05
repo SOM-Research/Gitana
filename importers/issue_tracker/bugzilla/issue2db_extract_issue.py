@@ -38,7 +38,7 @@ class BugzillaIssue2Db(object):
         :param product: the name of the product in the bugzilla issue tracker
 
         :type interval: list int
-        :param interval: a list of topic ids to import
+        :param interval: a list of issue ids to import
 
         :type config: dict
         :param config: the DB configuration file

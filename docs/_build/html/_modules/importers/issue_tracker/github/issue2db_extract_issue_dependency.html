@@ -1,0 +1,211 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>importers.issue_tracker.github.issue2db_extract_issue_dependency &#8212; Gitana 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for importers.issue_tracker.github.issue2db_extract_issue_dependency</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;valerio cosentino&#39;</span>
+
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span>
+
+<span class="kn">from</span> <span class="nn">querier_github</span> <span class="k">import</span> <span class="n">GitHubQuerier</span>
+<span class="kn">from</span> <span class="nn">github_dao</span> <span class="k">import</span> <span class="n">GitHubDao</span>
+<span class="kn">from</span> <span class="nn">util.logging_util</span> <span class="k">import</span> <span class="n">LoggingUtil</span>
+
+
+<div class="viewcode-block" id="GitHubIssueDependency2Db"><a class="viewcode-back" href="../../../../github.html#importers.issue_tracker.github.issue2db_extract_issue_dependency.GitHubIssueDependency2Db">[docs]</a><span class="k">class</span> <span class="nc">GitHubIssueDependency2Db</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class inserts the dependencies between GitHub issues</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span>
+                 <span class="n">repo_id</span><span class="p">,</span> <span class="n">issue_tracker_id</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">interval</span><span class="p">,</span> <span class="n">token</span><span class="p">,</span>
+                 <span class="n">config</span><span class="p">,</span> <span class="n">log_root_path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :type db_name: str</span>
+<span class="sd">        :param db_name: the name of an existing DB</span>
+
+<span class="sd">        :type repo_id: int</span>
+<span class="sd">        :param repo_id: the id of an existing repository in the DB</span>
+
+<span class="sd">        :type issue_tracker_id: int</span>
+<span class="sd">        :param issue_tracker_id: the id of an existing issue tracker in the DB</span>
+
+<span class="sd">        :type url: str</span>
+<span class="sd">        :param url: full name of the GitHub repository</span>
+
+<span class="sd">        :type interval: list int</span>
+<span class="sd">        :param interval: a list of issue ids to import</span>
+
+<span class="sd">        :type token: str</span>
+<span class="sd">        :param token: a GitHub token</span>
+
+<span class="sd">        :type config: dict</span>
+<span class="sd">        :param config: the DB configuration file</span>
+
+<span class="sd">        :type log_folder_path: str</span>
+<span class="sd">        :param log_folder_path: the log folder path</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_root_path</span> <span class="o">=</span> <span class="n">log_root_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_url</span> <span class="o">=</span> <span class="n">url</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_db_name</span> <span class="o">=</span> <span class="n">db_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_repo_id</span> <span class="o">=</span> <span class="n">repo_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_issue_tracker_id</span> <span class="o">=</span> <span class="n">issue_tracker_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_interval</span> <span class="o">=</span> <span class="n">interval</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_token</span> <span class="o">=</span> <span class="n">token</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_config</span> <span class="o">=</span> <span class="n">config</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logging_util</span> <span class="o">=</span> <span class="n">LoggingUtil</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fileHandler</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">log_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_root_path</span> <span class="o">+</span> <span class="s2">&quot;-issue2db-dependency&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_interval</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;-&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_interval</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logging_util</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="n">log_path</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_fileHandler</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logging_util</span><span class="o">.</span><span class="n">get_file_handler</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">,</span> <span class="n">log_path</span><span class="p">,</span> <span class="s2">&quot;info&quot;</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span> <span class="o">=</span> <span class="n">GitHubQuerier</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_url</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_token</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span> <span class="o">=</span> <span class="n">GitHubDao</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">extract</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;GitHubIssueDependency2Db failed&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_extract_issue_dependencies</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1">#inserts issue dependency</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">get_cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;SELECT i.id FROM issue i &quot;</span> \
+                <span class="s2">&quot;JOIN issue_tracker it ON i.issue_tracker_id = it.id &quot;</span> \
+                <span class="s2">&quot;WHERE i.id &gt;= </span><span class="si">%s</span><span class="s2"> AND i.id &lt;= </span><span class="si">%s</span><span class="s2"> AND issue_tracker_id = </span><span class="si">%s</span><span class="s2"> AND repo_id = </span><span class="si">%s</span><span class="s2">&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_interval</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interval</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_issue_tracker_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_repo_id</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">cursor</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+
+        <span class="n">row</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">fetchone</span><span class="p">(</span><span class="n">cursor</span><span class="p">)</span>
+
+        <span class="k">while</span> <span class="n">row</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">issue_id</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">issue_own_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">select_issue_own_id</span><span class="p">(</span><span class="n">issue_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_issue_tracker_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_repo_id</span><span class="p">)</span>
+                <span class="n">issue</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_issue</span><span class="p">(</span><span class="n">issue_own_id</span><span class="p">)</span>
+
+                <span class="n">comments</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_issue_body</span><span class="p">(</span><span class="n">issue</span><span class="p">)]</span> <span class="o">+</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_issue_comment_body</span><span class="p">(</span><span class="n">comment</span><span class="p">)</span> <span class="k">for</span> <span class="n">comment</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_issue_comments</span><span class="p">(</span><span class="n">issue</span><span class="p">)]</span>
+
+                <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">comments</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">c</span><span class="p">:</span>
+                        <span class="n">referenced_issues</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_referenced_issues</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+                        <span class="k">for</span> <span class="n">ri</span> <span class="ow">in</span> <span class="n">referenced_issues</span><span class="p">:</span>
+                            <span class="n">referenced_issue_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">select_issue_id</span><span class="p">(</span><span class="n">ri</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_issue_tracker_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_repo_id</span><span class="p">)</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">insert_issue_dependency</span><span class="p">(</span><span class="n">referenced_issue_id</span><span class="p">,</span> <span class="n">issue_own_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">get_issue_dependency_type_id</span><span class="p">(</span><span class="s2">&quot;related&quot;</span><span class="p">))</span>
+
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;something went wrong with the following issue id: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">issue_id</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; - tracker id &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_issue_tracker_id</span><span class="p">),</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="n">row</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">fetchone</span><span class="p">(</span><span class="n">cursor</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">close_cursor</span><span class="p">(</span><span class="n">cursor</span><span class="p">)</span>
+
+<div class="viewcode-block" id="GitHubIssueDependency2Db.extract"><a class="viewcode-back" href="../../../../github.html#importers.issue_tracker.github.issue2db_extract_issue_dependency.GitHubIssueDependency2Db.extract">[docs]</a>    <span class="k">def</span> <span class="nf">extract</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        extracts GitHub issue dependency data and stores it in the DB</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;GitHubIssueDependency2Db started&quot;</span><span class="p">)</span>
+            <span class="n">start_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_extract_issue_dependencies</span><span class="p">()</span>
+
+            <span class="n">end_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+            <span class="n">minutes_and_seconds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logging_util</span><span class="o">.</span><span class="n">calculate_execution_time</span><span class="p">(</span><span class="n">end_time</span><span class="p">,</span> <span class="n">start_time</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;GitHubIssueDependency2Db finished after &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">minutes_and_seconds</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                           <span class="o">+</span> <span class="s2">&quot; minutes and &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">minutes_and_seconds</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot; secs&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logging_util</span><span class="o">.</span><span class="n">remove_file_handler_logger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fileHandler</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;GitHubIssueDependency2Db failed&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">close_connection</span><span class="p">()</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Valerio Cosentino.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

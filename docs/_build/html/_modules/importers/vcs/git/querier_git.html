@@ -1,0 +1,936 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>importers.vcs.git.querier_git &#8212; Gitana 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for importers.vcs.git.querier_git</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;valerio cosentino&#39;</span>
+
+<span class="kn">from</span> <span class="nn">git</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span>
+<span class="kn">import</span> <span class="nn">string</span>
+<span class="kn">from</span> <span class="nn">util.date_util</span> <span class="k">import</span> <span class="n">DateUtil</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+
+<div class="viewcode-block" id="GitQuerier"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.querier_git.GitQuerier">[docs]</a><span class="k">class</span> <span class="nc">GitQuerier</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class collects the data available on Git by using Git python library</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1">#python, java, html, xml, sql, javascript, c, c++, scala, php, ruby, matlab</span>
+    <span class="n">ALLOWED_EXTENSION</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;py&#39;</span><span class="p">,</span> <span class="s1">&#39;java&#39;</span><span class="p">,</span> <span class="s1">&#39;html&#39;</span><span class="p">,</span> <span class="s1">&#39;xml&#39;</span><span class="p">,</span> <span class="s1">&#39;sql&#39;</span><span class="p">,</span> <span class="s1">&#39;js&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">,</span> <span class="s1">&#39;cpp&#39;</span><span class="p">,</span> <span class="s1">&#39;cc&#39;</span><span class="p">,</span> <span class="s1">&#39;scala&#39;</span><span class="p">,</span> <span class="s1">&#39;php&#39;</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">,</span> <span class="s1">&#39;m&#39;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">git_repo_path</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :type git_repo_path: str</span>
+<span class="sd">        :param git_repo_path: local path of the Git repository</span>
+
+<span class="sd">        :type logger: Object</span>
+<span class="sd">        :param logger: logger</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logger</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_repo</span> <span class="o">=</span> <span class="n">Repo</span><span class="p">(</span><span class="n">git_repo_path</span><span class="p">,</span> <span class="n">odbt</span><span class="o">=</span><span class="n">GitCmdObjectDB</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_gitt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_repo</span><span class="o">.</span><span class="n">git</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_date_util</span> <span class="o">=</span> <span class="n">DateUtil</span><span class="p">()</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;GitQuerier init failed&quot;</span><span class="p">)</span>
+            <span class="k">raise</span>
+
+    <span class="k">def</span> <span class="nf">_get_diffs_manually</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">commit</span><span class="p">,</span> <span class="n">retrieve_patch</span><span class="p">):</span>
+        <span class="c1">#gets diffs using the Git command</span>
+        <span class="n">diffs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_repo</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">execute</span><span class="p">([</span><span class="s2">&quot;git&quot;</span><span class="p">,</span> <span class="s2">&quot;show&quot;</span><span class="p">,</span> <span class="n">commit</span><span class="o">.</span><span class="n">hexsha</span><span class="p">])</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">content</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">flag</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">flag</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;similarity&quot;</span><span class="p">):</span>
+                    <span class="n">diff</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;rename_from&quot;</span><span class="p">:</span> <span class="n">file_a</span><span class="p">,</span> <span class="s2">&quot;rename_to&quot;</span><span class="p">:</span> <span class="n">file_b</span><span class="p">,</span> <span class="s2">&quot;renamed&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+                    <span class="n">diffs</span> <span class="o">=</span> <span class="n">diffs</span> <span class="o">+</span> <span class="p">[</span><span class="n">diff</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">retrieve_patch</span><span class="p">:</span>
+                            <span class="n">diff</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">commit</span><span class="p">,</span> <span class="n">paths</span><span class="o">=</span><span class="n">file_a</span><span class="p">,</span> <span class="n">create_patch</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">diff</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">commit</span><span class="p">,</span> <span class="n">paths</span><span class="o">=</span><span class="n">file_a</span><span class="p">,</span> <span class="n">create_patch</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;diff not retrieved &quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                        <span class="n">diff</span> <span class="o">=</span> <span class="p">[]</span>
+
+                    <span class="n">diffs</span> <span class="o">=</span> <span class="n">diffs</span> <span class="o">+</span> <span class="n">diff</span>
+
+                <span class="n">flag</span> <span class="o">=</span> <span class="kc">False</span>
+
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">diff</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;GitQuerier: diff empty for commit: &quot;</span> <span class="o">+</span> <span class="n">commit</span><span class="o">.</span><span class="n">hexsha</span> <span class="o">+</span> <span class="s2">&quot; file_a: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">file_a</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; file_b: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">file_b</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^diff \-\-git&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">line_content</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;^diff \-\-git &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                    <span class="n">file_a</span> <span class="o">=</span> <span class="n">line_content</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;a/&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; b/&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                    <span class="n">file_b</span> <span class="o">=</span> <span class="n">line_content</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; b/&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+                    <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Error when parsing diff git &quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">diffs</span>
+
+<div class="viewcode-block" id="GitQuerier.get_diffs"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.querier_git.GitQuerier.get_diffs">[docs]</a>    <span class="k">def</span> <span class="nf">get_diffs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">commit</span><span class="p">,</span> <span class="n">files_in_commit</span><span class="p">,</span> <span class="n">retrieve_patch</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the diffs of a commit</span>
+
+<span class="sd">        :type commit: Object</span>
+<span class="sd">        :param commit: the Object representing the commit</span>
+
+<span class="sd">        :type retrieve_patch: bool</span>
+<span class="sd">        :param retrieve_patch: retrieve patch content</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">parent</span> <span class="o">=</span> <span class="n">commit</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># a limitation in the gitpython api when working on windows causes</span>
+        <span class="c1"># the diff method to stop working for diffs containing more than 7000 files</span>
+        <span class="c1"># if len(files_in_commit) &lt; 7000:</span>
+        <span class="c1">#     if retrieve_patch:</span>
+        <span class="c1">#         diffs = parent.diff(commit, create_patch=True)</span>
+        <span class="c1">#     else:</span>
+        <span class="c1">#         diffs = parent.diff(commit, create_patch=False)</span>
+        <span class="c1"># else:</span>
+        <span class="n">diffs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_diffs_manually</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">commit</span><span class="p">,</span> <span class="n">retrieve_patch</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">diffs</span></div>
+
+<div class="viewcode-block" id="GitQuerier.commit_has_no_parents"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.querier_git.GitQuerier.commit_has_no_parents">[docs]</a>    <span class="k">def</span> <span class="nf">commit_has_no_parents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">commit</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        checks a commit has no parents</span>
+
+<span class="sd">        :type commit: Object</span>
+<span class="sd">        :param commit: the Object representing the commit</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">flag</span> <span class="o">=</span> <span class="kc">False</span><span class="p">;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">commit</span><span class="o">.</span><span class="n">parents</span><span class="p">:</span>
+            <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">return</span> <span class="n">flag</span></div>
+
+<div class="viewcode-block" id="GitQuerier.get_commit_time"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.querier_git.GitQuerier.get_commit_time">[docs]</a>    <span class="k">def</span> <span class="nf">get_commit_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">string_time</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets commit time from timestamp</span>
+
+<span class="sd">        :type string_time: str</span>
+<span class="sd">        :param string_time: timestamp</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_date_util</span><span class="o">.</span><span class="n">get_time_fromtimestamp</span><span class="p">(</span><span class="n">string_time</span><span class="p">,</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">get_files_in_ref</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref</span><span class="p">):</span>
+        <span class="c1">#not used, retrieve all the files currently present in a given branch</span>
+        <span class="n">files</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">git</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_repo</span><span class="o">.</span><span class="n">git</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="n">git</span><span class="o">.</span><span class="n">execute</span><span class="p">([</span><span class="s2">&quot;git&quot;</span><span class="p">,</span> <span class="s2">&quot;rev-list&quot;</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">content</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">):</span>
+            <span class="n">files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">files</span>
+
+<div class="viewcode-block" id="GitQuerier.get_diffs_no_parent_commit"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.querier_git.GitQuerier.get_diffs_no_parent_commit">[docs]</a>    <span class="k">def</span> <span class="nf">get_diffs_no_parent_commit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">commit</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets diff of a commit without parent</span>
+
+<span class="sd">        :type commit: Object</span>
+<span class="sd">        :param commit: the Object representing the commit</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">diffs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_repo</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">execute</span><span class="p">([</span><span class="s2">&quot;git&quot;</span><span class="p">,</span> <span class="s2">&quot;show&quot;</span><span class="p">,</span> <span class="n">commit</span><span class="o">.</span><span class="n">hexsha</span><span class="p">])</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">content</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">flag</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">file_a</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^diff \-\-git&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">line_content</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;^diff \-\-git &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+                <span class="c1">#if in the first commit there are more than one files, the calculated diff is added to the diffs list,</span>
+                <span class="c1">#and the process can start analysing the next diffs</span>
+                <span class="k">if</span> <span class="n">file_a</span><span class="p">:</span>
+                    <span class="n">diffs</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">file_a</span><span class="p">,</span> <span class="n">content</span><span class="p">))</span>
+                    <span class="n">flag</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">file_a</span> <span class="o">=</span> <span class="n">line_content</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;a/&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^@@&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">flag</span><span class="p">:</span>
+                    <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">content</span> <span class="o">=</span> <span class="n">line</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">diffs</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">file_a</span><span class="p">,</span> <span class="n">content</span><span class="p">))</span>
+                    <span class="n">content</span> <span class="o">=</span> <span class="n">line</span>
+            <span class="k">elif</span> <span class="n">flag</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">line</span> <span class="o">!=</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1"> No newline at end of file&#39;</span><span class="p">:</span>
+                    <span class="n">content</span> <span class="o">=</span> <span class="n">content</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="n">line</span>
+
+        <span class="k">if</span> <span class="n">file_a</span><span class="p">:</span>
+            <span class="n">diffs</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">file_a</span><span class="p">,</span> <span class="n">content</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;GitQuerier: diff with first commit not found&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">diffs</span></div>
+
+<div class="viewcode-block" id="GitQuerier.get_file_path"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.querier_git.GitQuerier.get_file_path">[docs]</a>    <span class="k">def</span> <span class="nf">get_file_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">diff</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the file path from a diff</span>
+
+<span class="sd">        :type diff: Object</span>
+<span class="sd">        :param diff: the Object representing the diff</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1">#if it is a modification of an existing file</span>
+        <span class="k">if</span> <span class="n">diff</span><span class="o">.</span><span class="n">a_blob</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">diff</span><span class="o">.</span><span class="n">a_blob</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
+                <span class="n">file_path</span> <span class="o">=</span> <span class="n">diff</span><span class="o">.</span><span class="n">a_blob</span><span class="o">.</span><span class="n">path</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">file_path</span> <span class="o">=</span> <span class="n">diff</span><span class="o">.</span><span class="n">a_path</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1">#if it is a new file</span>
+            <span class="k">if</span> <span class="n">diff</span><span class="o">.</span><span class="n">b_blob</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
+                <span class="n">file_path</span> <span class="o">=</span> <span class="n">diff</span><span class="o">.</span><span class="n">b_blob</span><span class="o">.</span><span class="n">path</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">file_path</span> <span class="o">=</span> <span class="n">diff</span><span class="o">.</span><span class="n">b_path</span>
+
+        <span class="k">return</span> <span class="n">file_path</span></div>
+
+<div class="viewcode-block" id="GitQuerier.get_file_current"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.querier_git.GitQuerier.get_file_current">[docs]</a>    <span class="k">def</span> <span class="nf">get_file_current</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">diff</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the file name after renaming from a diff</span>
+
+<span class="sd">        :type diff: Object</span>
+<span class="sd">        :param diff: the Object representing the diff</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">diff</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">file_current</span> <span class="o">=</span> <span class="n">diff</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;rename_to&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">diff</span><span class="o">.</span><span class="n">rename_to</span><span class="p">:</span>
+                <span class="n">file_current</span> <span class="o">=</span> <span class="n">diff</span><span class="o">.</span><span class="n">rename_to</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">file_current</span> <span class="o">=</span> <span class="n">diff</span><span class="o">.</span><span class="n">diff</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;rename to &#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">file_current</span></div>
+
+<div class="viewcode-block" id="GitQuerier.get_status_with_diff"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.querier_git.GitQuerier.get_status_with_diff">[docs]</a>    <span class="k">def</span> <span class="nf">get_status_with_diff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stats</span><span class="p">,</span> <span class="n">diff</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the status from a diff</span>
+
+<span class="sd">        :type diff: Object</span>
+<span class="sd">        :param diff: the Object representing the diff</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">additions</span> <span class="o">=</span> <span class="n">stats</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">deletions</span> <span class="o">=</span> <span class="n">stats</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">additions</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">deletions</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;added&quot;</span>
+        <span class="k">elif</span> <span class="n">additions</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">deletions</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;deleted&quot;</span>
+        <span class="k">elif</span> <span class="n">additions</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">deletions</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;modified&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">diff</span><span class="o">.</span><span class="n">new_file</span><span class="p">:</span>
+                    <span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;added&quot;</span>
+                <span class="k">elif</span> <span class="n">diff</span><span class="o">.</span><span class="n">deleted_file</span><span class="p">:</span>
+                    <span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;deleted&quot;</span>
+                <span class="k">elif</span> <span class="n">additions</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">deletions</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;added&quot;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;modified&quot;</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;modified&quot;</span>
+
+        <span class="k">return</span> <span class="n">status</span></div>
+
+<div class="viewcode-block" id="GitQuerier.is_renamed"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.querier_git.GitQuerier.is_renamed">[docs]</a>    <span class="k">def</span> <span class="nf">is_renamed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">diff</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        checks a diff is about renaming</span>
+
+<span class="sd">        :type diff: Object</span>
+<span class="sd">        :param diff: the Object representing the diff</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">flag</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">diff</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">flag</span> <span class="o">=</span> <span class="n">diff</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;renamed&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">diff</span><span class="o">.</span><span class="n">renamed</span><span class="p">:</span>
+                    <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="kc">False</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">flag</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="c1">#sometimes the library does not set the renamed value to True even if the file is actually renamed</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">diff</span><span class="o">.</span><span class="n">a_blob</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">diff</span><span class="o">.</span><span class="n">b_blob</span><span class="p">):</span>
+                        <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(.*)\nrename from(.*)\nrename to(.*)$&quot;</span><span class="p">,</span> <span class="n">diff</span><span class="o">.</span><span class="n">diff</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">M</span><span class="p">):</span>
+                           <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="n">flag</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="n">flag</span></div>
+
+<div class="viewcode-block" id="GitQuerier.get_stats_for_file"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.querier_git.GitQuerier.get_stats_for_file">[docs]</a>    <span class="k">def</span> <span class="nf">get_stats_for_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">commit_stats_files</span><span class="p">,</span> <span class="n">file_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets stats of a file</span>
+
+<span class="sd">        :type commit_stats_files: Object</span>
+<span class="sd">        :param commit_stats_files: the Object representing the commit stats</span>
+
+<span class="sd">        :type file_name: str</span>
+<span class="sd">        :param file_name: name of a file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">stats_for_file</span> <span class="o">=</span> <span class="p">()</span>
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">commit_stats_files</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">f</span> <span class="o">==</span> <span class="n">file_name</span><span class="p">:</span>
+                <span class="n">stats</span> <span class="o">=</span> <span class="n">commit_stats_files</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+                <span class="n">stats_for_file</span> <span class="o">=</span> <span class="p">(</span><span class="n">stats</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;insertions&#39;</span><span class="p">),</span> <span class="n">stats</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;deletions&#39;</span><span class="p">),</span> <span class="n">stats</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;lines&#39;</span><span class="p">))</span>
+                <span class="k">break</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">stats_for_file</span><span class="p">:</span>
+            <span class="n">stats_for_file</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;GitQuerier: stats for file &quot;</span> <span class="o">+</span> <span class="n">file_name</span> <span class="o">+</span> <span class="s2">&quot; not found!&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">stats_for_file</span></div>
+
+<div class="viewcode-block" id="GitQuerier.get_references"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.querier_git.GitQuerier.get_references">[docs]</a>    <span class="k">def</span> <span class="nf">get_references</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets references</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">references</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">ref</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_repo</span><span class="o">.</span><span class="n">references</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">c</span> <span class="ow">in</span> <span class="n">string</span><span class="o">.</span><span class="n">printable</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">ref</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
+                <span class="n">ref_name</span> <span class="o">=</span> <span class="n">ref</span><span class="o">.</span><span class="n">name</span>
+
+                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span> <span class="o">==</span> <span class="n">RemoteReference</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">ref_name</span> <span class="o">!=</span> <span class="s2">&quot;origin/HEAD&quot;</span><span class="p">:</span>
+                        <span class="n">references</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">ref_name</span><span class="p">,</span> <span class="s1">&#39;branch&#39;</span><span class="p">))</span>
+                <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span> <span class="o">==</span> <span class="n">TagReference</span><span class="p">:</span>
+                    <span class="n">references</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">ref_name</span><span class="p">,</span> <span class="s1">&#39;tag&#39;</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Git2Db: reference: &quot;</span> <span class="o">+</span> <span class="n">ref</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot; contains unprintable chars and won&#39;t be processed!&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">references</span></div>
+
+<div class="viewcode-block" id="GitQuerier.get_commit_property"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.querier_git.GitQuerier.get_commit_property">[docs]</a>    <span class="k">def</span> <span class="nf">get_commit_property</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">commit</span><span class="p">,</span> <span class="n">prop</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets a commit property</span>
+
+<span class="sd">        :type commit: Object</span>
+<span class="sd">        :param commit: the Object representing the commit</span>
+
+<span class="sd">        :type prop: str</span>
+<span class="sd">        :param prop: the name of a property</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">prop</span> <span class="o">==</span> <span class="s2">&quot;message&quot;</span><span class="p">:</span>
+                <span class="n">found</span> <span class="o">=</span> <span class="n">commit</span><span class="o">.</span><span class="n">message</span>
+            <span class="k">elif</span> <span class="n">prop</span> <span class="o">==</span> <span class="s2">&quot;author.name&quot;</span><span class="p">:</span>
+                <span class="n">found</span> <span class="o">=</span> <span class="n">commit</span><span class="o">.</span><span class="n">author</span><span class="o">.</span><span class="n">name</span>
+            <span class="k">elif</span> <span class="n">prop</span> <span class="o">==</span> <span class="s2">&quot;author.email&quot;</span><span class="p">:</span>
+                <span class="n">found</span> <span class="o">=</span> <span class="n">commit</span><span class="o">.</span><span class="n">author</span><span class="o">.</span><span class="n">email</span>
+            <span class="k">elif</span> <span class="n">prop</span> <span class="o">==</span> <span class="s2">&quot;committer.name&quot;</span><span class="p">:</span>
+                <span class="n">found</span> <span class="o">=</span> <span class="n">commit</span><span class="o">.</span><span class="n">committer</span><span class="o">.</span><span class="n">name</span>
+            <span class="k">elif</span> <span class="n">prop</span> <span class="o">==</span> <span class="s2">&quot;committer.email&quot;</span><span class="p">:</span>
+                <span class="n">found</span> <span class="o">=</span> <span class="n">commit</span><span class="o">.</span><span class="n">committer</span><span class="o">.</span><span class="n">email</span>
+            <span class="k">elif</span> <span class="n">prop</span> <span class="o">==</span> <span class="s2">&quot;size&quot;</span><span class="p">:</span>
+                <span class="n">found</span> <span class="o">=</span> <span class="n">commit</span><span class="o">.</span><span class="n">size</span>
+            <span class="k">elif</span> <span class="n">prop</span> <span class="o">==</span> <span class="s2">&quot;hexsha&quot;</span><span class="p">:</span>
+                <span class="n">found</span> <span class="o">=</span> <span class="n">commit</span><span class="o">.</span><span class="n">hexsha</span>
+            <span class="k">elif</span> <span class="n">prop</span> <span class="o">==</span> <span class="s2">&quot;authored_date&quot;</span><span class="p">:</span>
+                <span class="n">found</span> <span class="o">=</span> <span class="n">commit</span><span class="o">.</span><span class="n">authored_date</span>
+            <span class="k">elif</span> <span class="n">prop</span> <span class="o">==</span> <span class="s2">&quot;committed_date&quot;</span><span class="p">:</span>
+                <span class="n">found</span> <span class="o">=</span> <span class="n">commit</span><span class="o">.</span><span class="n">committed_date</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="c1">#ugly but effective. GitPython may fail in retrieving properties with large content. Waiting some seconds seems to fix the problem</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+                <span class="n">found</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_commit_property</span><span class="p">(</span><span class="n">commit</span><span class="p">,</span> <span class="n">prop</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;GitQuerier: something went wrong when trying to retrieve the attribute &quot;</span> <span class="o">+</span> <span class="n">prop</span> <span class="o">+</span> <span class="s2">&quot; from the commit &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">commit</span><span class="o">.</span><span class="n">hexsha</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="GitQuerier.get_patch_content"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.querier_git.GitQuerier.get_patch_content">[docs]</a>    <span class="k">def</span> <span class="nf">get_patch_content</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">diff</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets patch content from a diff</span>
+
+<span class="sd">        :type diff: Object</span>
+<span class="sd">        :param diff: the Object representing the diff</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1">#x = re.sub(r&#39;^(\w|\W)*\n@@&#39;, &#39;@@&#39;, diff.diff)</span>
+        <span class="k">return</span> <span class="n">diff</span><span class="o">.</span><span class="n">diff</span></div>
+
+<div class="viewcode-block" id="GitQuerier.is_new_file"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.querier_git.GitQuerier.is_new_file">[docs]</a>    <span class="k">def</span> <span class="nf">is_new_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">diff</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        checks the a diff contains a new file</span>
+
+<span class="sd">        :type diff: Object</span>
+<span class="sd">        :param diff: the Object representing the diff</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">diff</span><span class="o">.</span><span class="n">new_file</span></div>
+
+<div class="viewcode-block" id="GitQuerier.get_rename_from"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.querier_git.GitQuerier.get_rename_from">[docs]</a>    <span class="k">def</span> <span class="nf">get_rename_from</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">diff</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets rename from file from a diff</span>
+
+<span class="sd">        :type diff: Object</span>
+<span class="sd">        :param diff: the Object representing the diff</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">diff</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">file_previous</span> <span class="o">=</span> <span class="n">diff</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;rename_from&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">diff</span><span class="o">.</span><span class="n">rename_from</span><span class="p">:</span>
+                <span class="n">file_previous</span> <span class="o">=</span> <span class="n">diff</span><span class="o">.</span><span class="n">rename_from</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">file_previous</span> <span class="o">=</span> <span class="n">diff</span><span class="o">.</span><span class="n">diff</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;rename from &#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">file_previous</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_commits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref_name</span><span class="p">):</span>
+        <span class="c1">#gets commits from a reference</span>
+        <span class="n">commits</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">commit</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_repo</span><span class="o">.</span><span class="n">iter_commits</span><span class="p">(</span><span class="n">rev</span><span class="o">=</span><span class="n">ref_name</span><span class="p">):</span>
+            <span class="n">commits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">commit</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">commits</span>
+
+    <span class="k">def</span> <span class="nf">_get_commits_before_date</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">commits</span><span class="p">,</span> <span class="n">date</span><span class="p">):</span>
+        <span class="c1">#gets commits before a given date</span>
+        <span class="n">before_date_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_date_util</span><span class="o">.</span><span class="n">get_timestamp</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">selected_commits</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">commit</span> <span class="ow">in</span> <span class="n">commits</span><span class="p">:</span>
+            <span class="n">committed_date_object</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">commit</span><span class="o">.</span><span class="n">committed_date</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">committed_date_object</span> <span class="o">&lt;=</span> <span class="n">before_date_object</span><span class="p">:</span>
+                <span class="n">selected_commits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">commit</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">selected_commits</span>
+
+    <span class="k">def</span> <span class="nf">_get_commits_after_sha</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">commits</span><span class="p">,</span> <span class="n">sha</span><span class="p">):</span>
+        <span class="c1">#gets commits after a commit with a given SHA</span>
+        <span class="n">selected_commits</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">commit</span> <span class="ow">in</span> <span class="n">commits</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">commit</span><span class="o">.</span><span class="n">hexsha</span> <span class="o">==</span> <span class="n">sha</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">selected_commits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">commit</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">selected_commits</span>
+
+    <span class="k">def</span> <span class="nf">_order_chronologically_commits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">commits</span><span class="p">):</span>
+        <span class="c1">#order commits in chronological order</span>
+        <span class="n">commits</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">commits</span>
+
+<div class="viewcode-block" id="GitQuerier.collect_all_commits"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.querier_git.GitQuerier.collect_all_commits">[docs]</a>    <span class="k">def</span> <span class="nf">collect_all_commits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets all commits from a reference</span>
+
+<span class="sd">        :type ref_name: str</span>
+<span class="sd">        :param ref_name: name of the reference</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">commits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_commits</span><span class="p">(</span><span class="n">ref_name</span><span class="p">)</span>
+        <span class="n">ordered</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_order_chronologically_commits</span><span class="p">(</span><span class="n">commits</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ordered</span></div>
+
+<div class="viewcode-block" id="GitQuerier.collect_all_commits_before_date"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.querier_git.GitQuerier.collect_all_commits_before_date">[docs]</a>    <span class="k">def</span> <span class="nf">collect_all_commits_before_date</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref_name</span><span class="p">,</span> <span class="n">date</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets all commits from a reference before a given date</span>
+
+<span class="sd">        :type ref_name: str</span>
+<span class="sd">        :param ref_name: name of the reference</span>
+
+<span class="sd">        :type date: str</span>
+<span class="sd">        :param date: a string representing a date YYYY-mm-dd</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">commits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_commits</span><span class="p">(</span><span class="n">ref_name</span><span class="p">)</span>
+        <span class="n">selected_commits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_commits_before_date</span><span class="p">(</span><span class="n">commits</span><span class="p">,</span> <span class="n">date</span><span class="p">)</span>
+        <span class="n">ordered</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_order_chronologically_commits</span><span class="p">(</span><span class="n">selected_commits</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ordered</span></div>
+
+<div class="viewcode-block" id="GitQuerier.collect_all_commits_after_sha"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.querier_git.GitQuerier.collect_all_commits_after_sha">[docs]</a>    <span class="k">def</span> <span class="nf">collect_all_commits_after_sha</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref_name</span><span class="p">,</span> <span class="n">sha</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets all commits from a reference after a given SHA</span>
+
+<span class="sd">        :type ref_name: str</span>
+<span class="sd">        :param ref_name: name of the reference</span>
+
+<span class="sd">        :type sha: str</span>
+<span class="sd">        :param sha: the SHA of a commit</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">commits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_commits</span><span class="p">(</span><span class="n">ref_name</span><span class="p">)</span>
+        <span class="n">selected_commits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_commits_after_sha</span><span class="p">(</span><span class="n">commits</span><span class="p">,</span> <span class="n">sha</span><span class="p">)</span>
+        <span class="n">ordered</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_order_chronologically_commits</span><span class="p">(</span><span class="n">selected_commits</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ordered</span></div>
+
+<div class="viewcode-block" id="GitQuerier.collect_all_commits_after_sha_before_date"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.querier_git.GitQuerier.collect_all_commits_after_sha_before_date">[docs]</a>    <span class="k">def</span> <span class="nf">collect_all_commits_after_sha_before_date</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref_name</span><span class="p">,</span> <span class="n">sha</span><span class="p">,</span> <span class="n">before_date</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets all commits from a reference after a given SHA and before a given date</span>
+
+<span class="sd">        :type ref_name: str</span>
+<span class="sd">        :param ref_name: name of the reference</span>
+
+<span class="sd">        :type sha: str</span>
+<span class="sd">        :param sha: the SHA of a commit</span>
+
+<span class="sd">        :type before_date: str</span>
+<span class="sd">        :param before_date: import data before date (YYYY-mm-dd)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">commits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_commits</span><span class="p">(</span><span class="n">ref_name</span><span class="p">)</span>
+        <span class="n">selected_commits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_commits_after_sha</span><span class="p">(</span><span class="n">commits</span><span class="p">,</span> <span class="n">sha</span><span class="p">)</span>
+        <span class="n">selected_commits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_commits_before_date</span><span class="p">(</span><span class="n">selected_commits</span><span class="p">,</span> <span class="n">before_date</span><span class="p">)</span>
+        <span class="n">ordered</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_order_chronologically_commits</span><span class="p">(</span><span class="n">selected_commits</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ordered</span></div>
+
+<div class="viewcode-block" id="GitQuerier.get_line_details"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.querier_git.GitQuerier.get_line_details">[docs]</a>    <span class="k">def</span> <span class="nf">get_line_details</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">patch_content</span><span class="p">,</span> <span class="n">file_extension</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets line details from a patch</span>
+
+<span class="sd">        :type patch_content: str</span>
+<span class="sd">        :param patch_content: content of a patch</span>
+
+<span class="sd">        :type file_extension: str</span>
+<span class="sd">        :param file_extension: extension of the file used to identify comments within the patch</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">details</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">block_comment</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">previous_block_comment</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">patch_content</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">previous_original_line</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">previous_new_line</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">original_line</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">new_line</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+            <span class="n">is_commented</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">is_partially_commented</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">is_empty</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">is_documentation</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="c1">#if the line contains diff info</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^@@(\s|\+|\-|\d|,)+@@&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">M</span><span class="p">):</span>
+                <span class="c1">#re-init parameters</span>
+                <span class="n">begin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_file_modification_begin</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                <span class="n">original_line</span> <span class="o">=</span> <span class="n">begin</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">new_line</span> <span class="o">=</span> <span class="n">begin</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+                <span class="k">if</span> <span class="n">block_comment</span><span class="p">:</span>
+                    <span class="n">previous_block_comment</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">previous_block_comment</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">block_comment</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="c1">#if the line does not contain diff info</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1">#collect content of the line</span>
+                <span class="c1">#check if the line concerns an addition</span>
+                <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^\+.*&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">M</span><span class="p">):</span>
+
+                    <span class="c1">#check if the line is empty</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_line_is_empty</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_add_to_details</span><span class="p">(</span><span class="n">details</span><span class="p">,</span> <span class="s2">&quot;addition&quot;</span><span class="p">,</span> <span class="n">new_line</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">file_extension</span> <span class="ow">in</span> <span class="n">GitQuerier</span><span class="o">.</span><span class="n">ALLOWED_EXTENSION</span><span class="p">:</span>
+                            <span class="c1">#calculate if the line is commented</span>
+                            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_line_is_commented</span><span class="p">(</span><span class="s2">&quot;addition&quot;</span><span class="p">,</span> <span class="n">previous_block_comment</span><span class="p">,</span> <span class="n">previous_new_line</span><span class="p">,</span> <span class="n">new_line</span><span class="p">,</span> <span class="n">block_comment</span><span class="p">,</span> <span class="n">details</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">file_extension</span><span class="p">)</span>
+                            <span class="n">details</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                            <span class="n">previous_block_comment</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                            <span class="n">block_comment</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+                            <span class="n">is_commented</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+                            <span class="n">is_partially_commented</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_add_to_details</span><span class="p">(</span><span class="n">details</span><span class="p">,</span> <span class="s2">&quot;addition&quot;</span><span class="p">,</span> <span class="n">new_line</span><span class="p">,</span> <span class="n">is_commented</span><span class="p">,</span> <span class="n">is_partially_commented</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+
+                    <span class="n">previous_new_line</span> <span class="o">=</span> <span class="n">new_line</span>
+                    <span class="n">new_line</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="c1">#check if the line concerns a deletion</span>
+                <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^\-.*&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">M</span><span class="p">):</span>
+                    <span class="c1">#check if the line is empty</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_line_is_empty</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_add_to_details</span><span class="p">(</span><span class="n">details</span><span class="p">,</span> <span class="s2">&quot;deletion&quot;</span><span class="p">,</span> <span class="n">original_line</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">file_extension</span> <span class="ow">in</span> <span class="n">GitQuerier</span><span class="o">.</span><span class="n">ALLOWED_EXTENSION</span><span class="p">:</span>
+                            <span class="c1">#calculate if the line is commented</span>
+                            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_line_is_commented</span><span class="p">(</span><span class="s2">&quot;deletion&quot;</span><span class="p">,</span> <span class="n">previous_block_comment</span><span class="p">,</span> <span class="n">previous_original_line</span><span class="p">,</span> <span class="n">original_line</span><span class="p">,</span> <span class="n">block_comment</span><span class="p">,</span> <span class="n">details</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">file_extension</span><span class="p">)</span>
+                            <span class="n">details</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                            <span class="n">previous_block_comment</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                            <span class="n">block_comment</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+                            <span class="n">is_commented</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+                            <span class="n">is_partially_commented</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_add_to_details</span><span class="p">(</span><span class="n">details</span><span class="p">,</span> <span class="s2">&quot;deletion&quot;</span><span class="p">,</span> <span class="n">original_line</span><span class="p">,</span> <span class="n">is_commented</span><span class="p">,</span> <span class="n">is_partially_commented</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+
+                    <span class="n">previous_original_line</span> <span class="o">=</span> <span class="n">original_line</span>
+                    <span class="n">original_line</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">line</span> <span class="o">!=</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1"> No newline at end of file&#39;</span> <span class="ow">and</span> <span class="n">line</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                        <span class="n">original_line</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="n">new_line</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">return</span> <span class="n">details</span></div>
+
+    <span class="k">def</span> <span class="nf">_line_is_commented</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_change</span><span class="p">,</span> <span class="n">previous_block_comment</span><span class="p">,</span> <span class="n">previous_line_number</span><span class="p">,</span> <span class="n">current_line_number</span><span class="p">,</span> <span class="n">block_comment</span><span class="p">,</span> <span class="n">details</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">file_extension</span><span class="p">):</span>
+        <span class="c1">#checks a line is commented</span>
+        <span class="n">is_commented</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">is_partially_commented</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="c1">#if a comment has been added in the previous block, all the lines between the previous block and the current block are marked as commented</span>
+        <span class="c1">#Note that, it is not possible to check whether the lines between two blocks are empty or not. By default, all these lines are set as not empty</span>
+        <span class="k">if</span> <span class="n">previous_block_comment</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">previous_line_number</span><span class="p">,</span> <span class="n">current_line_number</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_add_to_details</span><span class="p">(</span><span class="n">details</span><span class="p">,</span> <span class="n">type_change</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">previous_block_comment</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="n">block_comment</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_line_is_in_block_comment</span><span class="p">(</span><span class="n">block_comment</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">file_extension</span><span class="p">)</span>
+
+        <span class="c1">#check if the line is commented or it is inside a block comment</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_line_is_fully_commented</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">file_extension</span><span class="p">)</span> <span class="ow">or</span> \
+                <span class="n">block_comment</span> <span class="ow">or</span> <span class="n">previous_block_comment</span> <span class="ow">or</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">_line_contains_only_close_block_comment</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">file_extension</span><span class="p">)</span> <span class="ow">or</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">_line_ends_with_close_block_comment</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">file_extension</span><span class="p">):</span>
+            <span class="n">is_commented</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_line_is_partially_commented</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">file_extension</span><span class="p">)</span> <span class="ow">or</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">_line_contains_open_block_comment</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">file_extension</span><span class="p">)</span> <span class="ow">or</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">_line_contains_close_block_comment</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">file_extension</span><span class="p">):</span>
+            <span class="n">is_partially_commented</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="n">block_comment</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_line_is_partially_in_block_comment</span><span class="p">(</span><span class="n">block_comment</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">file_extension</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">details</span><span class="p">,</span> <span class="n">previous_block_comment</span><span class="p">,</span> <span class="n">block_comment</span><span class="p">,</span> <span class="n">is_commented</span><span class="p">,</span> <span class="n">is_partially_commented</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_file_modification_begin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+        <span class="c1">#gets the beginning of a file modification</span>
+        <span class="n">modified_lines</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;@@&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+        <span class="n">original_starting</span> <span class="o">=</span> <span class="n">modified_lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">original_line</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">original_starting</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">))</span>
+        <span class="n">new_starting</span> <span class="o">=</span> <span class="n">modified_lines</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">new_line</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">new_starting</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">original_line</span><span class="p">,</span> <span class="n">new_line</span>
+
+    <span class="k">def</span> <span class="nf">_add_to_details</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">details</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">is_commented</span><span class="p">,</span> <span class="n">is_partially_commented</span><span class="p">,</span> <span class="n">is_empty</span><span class="p">,</span> <span class="n">line_content</span><span class="p">):</span>
+        <span class="c1">#stores line details</span>
+        <span class="n">details</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="nb">type</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">is_commented</span><span class="p">,</span> <span class="n">is_partially_commented</span><span class="p">,</span> <span class="n">is_empty</span><span class="p">,</span> <span class="n">line_content</span><span class="p">))</span>
+        <span class="k">return</span>
+
+    <span class="k">def</span> <span class="nf">_line_is_empty</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+        <span class="c1">#checks that a line is empty</span>
+        <span class="n">flag</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(\+|\-)(\s*)$&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">M</span><span class="p">):</span>
+            <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="n">flag</span>
+
+    <span class="k">def</span> <span class="nf">_line_starts_with_open_block_comment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">ext</span><span class="p">):</span>
+        <span class="c1">#checks that a line starts with a open block comment</span>
+        <span class="n">flag</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;java&quot;</span><span class="p">,</span> <span class="s2">&quot;js&quot;</span><span class="p">,</span> <span class="s2">&quot;sql&quot;</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="s2">&quot;cpp&quot;</span><span class="p">,</span> <span class="s2">&quot;cc&quot;</span><span class="p">,</span> <span class="s2">&quot;scala&quot;</span><span class="p">,</span> <span class="s2">&quot;php&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(\+|\-)(\s*)/\*&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(\+|\-)(\s*)/\*(.*)(\*/)&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;py&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^(\+|\-)(\s*)&quot;&quot;&quot;&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^(\+|\-)(\s*)&quot;&quot;&quot;(.*)(&quot;&quot;&quot;)&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;xml&quot;</span><span class="p">,</span> <span class="s2">&quot;html&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^(\+|\-)(\s*)(&lt;\!\-\-)&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(\+|\-)(\s*)(&lt;\!\-\-)(.*)(\-\-&gt;)&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;rb&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^(\+|\-)(\s*)(\=begin)&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(\+|\-)(\s*)(\=begin)(.*)(\=end)&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;m&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^(\+|\-)(\s*)(%\{)&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(\+|\-)(\s*)(%\{)(.*)(%\})&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">return</span> <span class="n">flag</span>
+
+    <span class="k">def</span> <span class="nf">_line_contains_only_open_block_comment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">ext</span><span class="p">):</span>
+        <span class="c1">#checks that a line contains only a open block comment</span>
+        <span class="n">flag</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;java&quot;</span><span class="p">,</span> <span class="s2">&quot;js&quot;</span><span class="p">,</span> <span class="s2">&quot;sql&quot;</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="s2">&quot;cpp&quot;</span><span class="p">,</span> <span class="s2">&quot;cc&quot;</span><span class="p">,</span> <span class="s2">&quot;scala&quot;</span><span class="p">,</span> <span class="s2">&quot;php&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(\+|\-)(\s*)(/\*)(\s*)$&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;py&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^(\+|\-)(\s*)(&quot;&quot;&quot;)(\s*)$&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;xml&quot;</span><span class="p">,</span> <span class="s2">&quot;html&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(\+|\-)(\s*)(&lt;\!\-\-)(\s*)$&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;rb&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(\+|\-)(\s*)(\=begin)(\s*)$&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;m&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(\+|\-)(\s*)(%\{)(\s*)$&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">return</span> <span class="n">flag</span>
+
+    <span class="k">def</span> <span class="nf">_line_contains_open_block_comment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">ext</span><span class="p">):</span>
+        <span class="c1">#checks that a line contains a open block comment</span>
+        <span class="n">flag</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;java&quot;</span><span class="p">,</span> <span class="s2">&quot;js&quot;</span><span class="p">,</span> <span class="s2">&quot;sql&quot;</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="s2">&quot;cpp&quot;</span><span class="p">,</span> <span class="s2">&quot;cc&quot;</span><span class="p">,</span> <span class="s2">&quot;scala&quot;</span><span class="p">,</span> <span class="s2">&quot;php&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(\+|\-)(.*)/\*&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(\+|\-)(.*)/\*(.*)(\*/)&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;py&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^(\+|\-)(.*)&quot;&quot;&quot;&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^(\+|\-)(.*)&quot;&quot;&quot;(.*)(&quot;&quot;&quot;)&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;xml&quot;</span><span class="p">,</span> <span class="s2">&quot;html&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^(\+|\-)(.*)(&lt;\!\-\-)&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(\+|\-)(.*)(&lt;\!\-\-)(.*)(\-\-&gt;)&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;rb&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^(\+|\-)(.*)(\=begin)&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(\+|\-)(.*)(\=begin)(.*)(\=end)&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;m&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^(\+|\-)(.*)(%\{)&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(\+|\-)(.*)(%\{)(.*)(%\})&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">return</span> <span class="n">flag</span>
+
+    <span class="k">def</span> <span class="nf">_line_ends_with_close_block_comment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">ext</span><span class="p">):</span>
+        <span class="c1">#checks that a line ends with a close block comment</span>
+        <span class="n">flag</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;java&quot;</span><span class="p">,</span> <span class="s2">&quot;js&quot;</span><span class="p">,</span> <span class="s2">&quot;sql&quot;</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="s2">&quot;cpp&quot;</span><span class="p">,</span> <span class="s2">&quot;cc&quot;</span><span class="p">,</span> <span class="s2">&quot;scala&quot;</span><span class="p">,</span> <span class="s2">&quot;php&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(\+|\-)(.*)\*/(\s*)$&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(\+|\-)(\s*)(/\*)(.*)\*/(\s*)$&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;py&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^(\+|\-)(.*)&quot;&quot;&quot;(\s*)$&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^(\+|\-)(\s*)(&quot;&quot;&quot;)(.*)&quot;&quot;&quot;(\s*)$&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;xml&quot;</span><span class="p">,</span> <span class="s2">&quot;html&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(\+|\-)(.*)(\-\-&gt;(\s*)$)&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(\+|\-)(\s*)(&lt;\!\-\-)(.*)(\-\-&gt;)(\s*)$&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;rb&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^(\+|\-)(.*)(\=end)(\s*)$&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(\+|\-)(\s*)(\=begin)(.*)(\=end)(\s*)$&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;m&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^(\+|\-)(.*)(%\})(\s*)$&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(\+|\-)(\s*)(%\{)(.*)(%\})(\s*)$&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">return</span> <span class="n">flag</span>
+
+    <span class="k">def</span> <span class="nf">_line_starts_with_close_block_comment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">ext</span><span class="p">):</span>
+        <span class="c1">#checks that a line starts with a close block comment</span>
+        <span class="n">flag</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;java&quot;</span><span class="p">,</span> <span class="s2">&quot;js&quot;</span><span class="p">,</span> <span class="s2">&quot;sql&quot;</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="s2">&quot;cpp&quot;</span><span class="p">,</span> <span class="s2">&quot;cc&quot;</span><span class="p">,</span> <span class="s2">&quot;scala&quot;</span><span class="p">,</span> <span class="s2">&quot;php&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(\+|\-)(\s*)\*/&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;py&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^(\+|\-)(\s*)&quot;&quot;&quot;&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^(\+|\-)(\s*)&quot;&quot;&quot;(.*)(&quot;&quot;&quot;)&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;xml&quot;</span><span class="p">,</span> <span class="s2">&quot;html&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^(\+|\-)(\s*)(\-\-&gt;)&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;rb&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^(\+|\-)(\s*)(\=end)&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;m&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^(\+|\-)(\s*)(%\})&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">return</span> <span class="n">flag</span>
+
+    <span class="k">def</span> <span class="nf">_line_contains_only_close_block_comment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">ext</span><span class="p">):</span>
+        <span class="c1">#checks that a line contains only a close block comment</span>
+        <span class="n">flag</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;java&quot;</span><span class="p">,</span> <span class="s2">&quot;js&quot;</span><span class="p">,</span> <span class="s2">&quot;sql&quot;</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="s2">&quot;cpp&quot;</span><span class="p">,</span> <span class="s2">&quot;cc&quot;</span><span class="p">,</span> <span class="s2">&quot;scala&quot;</span><span class="p">,</span> <span class="s2">&quot;php&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(\+|\-)(\s*)\*/(\s*)$&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;py&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^(\+|\-)(\s*)&quot;&quot;&quot;(\s*)$&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^(\+|\-)(\s*)(&quot;&quot;&quot;)(.*)&quot;&quot;&quot;(\s*)$&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;xml&quot;</span><span class="p">,</span> <span class="s2">&quot;html&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(\+|\-)(\s*)(\-\-&gt;)(\s*)$&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;rb&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^(\+|\-)(\s*)(.*)(\=end)(\s*)$&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;m&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^(\+|\-)(\s*)(.*)(%\})(\s*)$&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">return</span> <span class="n">flag</span>
+
+    <span class="k">def</span> <span class="nf">_line_contains_close_block_comment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">ext</span><span class="p">):</span>
+        <span class="c1">#checks that a line contains a close block comment</span>
+        <span class="n">flag</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;java&quot;</span><span class="p">,</span> <span class="s2">&quot;js&quot;</span><span class="p">,</span> <span class="s2">&quot;sql&quot;</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="s2">&quot;cpp&quot;</span><span class="p">,</span> <span class="s2">&quot;cc&quot;</span><span class="p">,</span> <span class="s2">&quot;scala&quot;</span><span class="p">,</span> <span class="s2">&quot;php&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(\+|\-)(.*)\*/&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(\+|\-)(.*)/\*(.*)(\*/)&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;py&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^(\+|\-)(.*)&quot;&quot;&quot;&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^(\+|\-)(.*)&quot;&quot;&quot;(.*)(&quot;&quot;&quot;)&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;xml&quot;</span><span class="p">,</span> <span class="s2">&quot;html&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^(\+|\-)(.*)(\-\-&gt;)&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(\+|\-)(.*)(&lt;\!\-\-)(.*)(\-\-&gt;)&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;rb&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^(\+|\-)(.*)(\=end)&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(\+|\-)(.*)(\=begin)(.*)(\=end)&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;m&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^(\+|\-)(.*)(%\})&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(\+|\-)(.*)(%\{)(.*)(%\})&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">return</span> <span class="n">flag</span>
+
+    <span class="k">def</span> <span class="nf">_line_is_partially_commented</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">ext</span><span class="p">):</span>
+        <span class="c1">#checks that a line is partially commented</span>
+        <span class="n">flag</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;java&quot;</span><span class="p">,</span> <span class="s2">&quot;js&quot;</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="s2">&quot;cpp&quot;</span><span class="p">,</span> <span class="s2">&quot;cc&quot;</span><span class="p">,</span> <span class="s2">&quot;scala&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(\+|\-)(.*)(/\*)(.*)\*/&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span> <span class="ow">or</span> \
+                    <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(\+|\-)(.*)//&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;py&quot;</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(\+|\-)(.*)\#&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;xml&quot;</span><span class="p">,</span> <span class="s2">&quot;html&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(\+|\-)(.*)(&lt;\!\-\-)(.*)(\-\-&gt;)&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;sql&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(\+|\-)(.*)(/\*)(.*)(\*/)&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span> <span class="ow">or</span> \
+                    <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(\+|\-)(.*)(\-\-\s)&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;php&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(\+|\-)(.*)(/\*)(.*)\*/&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span> <span class="ow">or</span> \
+                    <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(\+|\-)(.*)//&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span> <span class="ow">or</span> \
+                    <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(\+|\-)(.*)\#&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;m&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^(\+|\-)(.*)(%)&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span> <span class="ow">or</span> \
+                    <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(\+|\-)(.*)(%\{)(.*)(%\})&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;GitQuerier: impossible to identify comments for extension: &quot;</span> <span class="o">+</span> <span class="n">ext</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">flag</span>
+
+    <span class="k">def</span> <span class="nf">_line_is_fully_commented</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">ext</span><span class="p">):</span>
+        <span class="c1">#checks that a line is fully commented</span>
+        <span class="n">flag</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;java&quot;</span><span class="p">,</span> <span class="s2">&quot;js&quot;</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="s2">&quot;cpp&quot;</span><span class="p">,</span> <span class="s2">&quot;cc&quot;</span><span class="p">,</span> <span class="s2">&quot;scala&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(\+|\-)(\s*)(/\*)(.*)\*/(\s*)$&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span> <span class="ow">or</span> \
+                    <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(\+|\-)(\s*)//&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;py&quot;</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(\+|\-)(\s*)\#&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;xml&quot;</span><span class="p">,</span> <span class="s2">&quot;html&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(\+|\-)(\s*)(&lt;\!\-\-)(.*)(\-\-&gt;)(\s*)$&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;sql&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(\+|\-)(\s*)(/\*)(.*)(\*/)(\s*)$&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span> <span class="ow">or</span> \
+                    <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(\+|\-)(\s*)(\-\-\s)&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;php&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(\+|\-)(\s*)(/\*)(.*)\*/(\s*)$&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span> <span class="ow">or</span> \
+                    <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(\+|\-)(\s*)//&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span> <span class="ow">or</span> \
+                    <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(\+|\-)(\s*)\#&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;m&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^(\+|\-)(\s*)(%)&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span> <span class="ow">or</span> \
+                    <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(\+|\-)(\s*)(%\{)(.*)(%\})(\s*)$&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;GitQuerier: impossible to identify comments for extension: &quot;</span> <span class="o">+</span> <span class="n">ext</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">flag</span>
+
+    <span class="k">def</span> <span class="nf">_line_is_in_block_comment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block_comment</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">ext</span><span class="p">):</span>
+        <span class="c1">#checks that a line is within a block comment</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">block_comment</span><span class="p">:</span>
+            <span class="c1">#check if the line starts with a block comment</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_line_starts_with_open_block_comment</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">ext</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_line_contains_only_open_block_comment</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">ext</span><span class="p">):</span>
+                <span class="n">block_comment</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1">#check if the line ends with a block comment</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_line_ends_with_close_block_comment</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">ext</span><span class="p">)</span> <span class="ow">or</span> \
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_line_contains_only_close_block_comment</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">ext</span><span class="p">)</span> <span class="ow">or</span> \
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_line_starts_with_close_block_comment</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">ext</span><span class="p">):</span>
+                <span class="n">block_comment</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">return</span> <span class="n">block_comment</span>
+
+    <span class="k">def</span> <span class="nf">_line_is_partially_in_block_comment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block_comment</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">ext</span><span class="p">):</span>
+        <span class="c1">#checks that a line is partially in a block comment</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">block_comment</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_line_contains_open_block_comment</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">ext</span><span class="p">):</span>
+                <span class="n">block_comment</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_line_contains_close_block_comment</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">ext</span><span class="p">):</span>
+                <span class="n">block_comment</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">return</span> <span class="n">block_comment</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Valerio Cosentino.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

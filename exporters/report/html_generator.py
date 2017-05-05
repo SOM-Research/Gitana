@@ -7,11 +7,18 @@ import os
 
 
 class HtmlGenerator():
+    """
+    This class handles the generation of an HTML page embedding charts
+    """
 
     BOOTSTRAP_COLUMNS = 12
     CHARTS_PER_LINE = 2
 
     def __init__(self, logger):
+        """
+        :type logger: Object
+        :param logger: logger
+        """
         self._logger = logger
 
     def _group(self, lst, n):
@@ -24,6 +31,7 @@ class HtmlGenerator():
         return grouped
 
     def _add_head(self, project_name, html_string):
+        #adds the HTML header
         html_string += """<head>
                     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
                     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
@@ -33,6 +41,7 @@ class HtmlGenerator():
         return html_string
 
     def _add_css(self, html_string):
+        #adds CSS information
         html_string += """<style>
                 .jumbotron {
                     position: relative;
@@ -86,6 +95,7 @@ class HtmlGenerator():
         return html_string
 
     def _add_jumbotron(self, project_name, html_string):
+        #adds the jumbotron
         html_string += """
                 <div class="jumbotron">
                   <div class="container">
@@ -97,6 +107,7 @@ class HtmlGenerator():
         return html_string
 
     def _add_footer(self, html_string):
+        #adds the footer
         html_string += """
                         <footer>
                           <div class="row">
@@ -110,6 +121,7 @@ class HtmlGenerator():
         return html_string
 
     def _add_activity_name(self, activity_name, html_string):
+        #adds the name of the activity
         html_string += """<div class="col-sm-12 img-rounded activity">
                                 <h2><span class="label label-warning">""" + activity_name + """</span></h2>
                           </div>
@@ -117,6 +129,7 @@ class HtmlGenerator():
         return html_string
 
     def _add_tool_name(self, tool_name, html_string):
+        #adds the name of the tool (git, issue tracker, etc.)
         html_string += """<div class="col-sm-12">
                                 <h3><span class="label label-warning">""" + tool_name + """</span></h3>
                           </div>
@@ -124,6 +137,15 @@ class HtmlGenerator():
         return html_string
 
     def create(self, project_name, activity2charts):
+        """
+        creates the HTML page
+
+        :type project_name: str
+        :param project_name: name of the project
+
+        :type activity2charts: dict
+        :param activity2charts: map of the activities and corresponding charts
+        """
         html_string = """<!DOCTYPE html><html>"""
         html_string = self._add_head(project_name, html_string)
         html_string = self._add_css(html_string)

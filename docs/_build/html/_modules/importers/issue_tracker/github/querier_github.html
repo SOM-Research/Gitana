@@ -1,0 +1,484 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>importers.issue_tracker.github.querier_github &#8212; Gitana 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for importers.issue_tracker.github.querier_github</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;valerio cosentino&#39;</span>
+
+<span class="kn">from</span> <span class="nn">github</span> <span class="k">import</span> <span class="n">Github</span>
+<span class="kn">from</span> <span class="nn">util.date_util</span> <span class="k">import</span> <span class="n">DateUtil</span>
+<span class="kn">from</span> <span class="nn">util.token_util</span> <span class="k">import</span> <span class="n">TokenUtil</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+
+<div class="viewcode-block" id="GitHubQuerier"><a class="viewcode-back" href="../../../../github.html#importers.issue_tracker.github.querier_github.GitHubQuerier">[docs]</a><span class="k">class</span> <span class="nc">GitHubQuerier</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class collects the data available on the GitHub issue tracker via its API</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">token</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :type url: str</span>
+<span class="sd">        :param url: full name of the GitHub repository</span>
+
+<span class="sd">        :type token: str</span>
+<span class="sd">        :param token: a GitHub token</span>
+
+<span class="sd">        :type logger: Object</span>
+<span class="sd">        :param logger: logger</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logger</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_url</span> <span class="o">=</span> <span class="n">url</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_token</span> <span class="o">=</span> <span class="n">token</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_github</span> <span class="o">=</span> <span class="n">Github</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_repo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_repo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_url</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_token_util</span> <span class="o">=</span> <span class="n">TokenUtil</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">,</span> <span class="s2">&quot;github&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_date_util</span> <span class="o">=</span> <span class="n">DateUtil</span><span class="p">()</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;GitHubQuerier init failed&quot;</span><span class="p">)</span>
+            <span class="k">raise</span>
+
+    <span class="k">def</span> <span class="nf">_load_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
+        <span class="c1">#connect to the GitHub API</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">repo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_github</span><span class="o">.</span><span class="n">get_repo</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">repo</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;GitHubQuerier error loading repository &quot;</span> <span class="o">+</span> <span class="n">url</span> <span class="o">+</span> <span class="s2">&quot;- &quot;</span> <span class="o">+</span> <span class="n">e</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
+            <span class="k">raise</span>
+
+<div class="viewcode-block" id="GitHubQuerier.get_issue_ids"><a class="viewcode-back" href="../../../../github.html#importers.issue_tracker.github.querier_github.GitHubQuerier.get_issue_ids">[docs]</a>    <span class="k">def</span> <span class="nf">get_issue_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">before_date</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets data source issue ids</span>
+
+<span class="sd">        :type before_date: str</span>
+<span class="sd">        :param before_date: selects issues with creation date before a given date (YYYY-mm-dd)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">issue_ids</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">page_count</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">last_page</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_repo</span><span class="o">.</span><span class="n">get_issues</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="s2">&quot;asc&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">_getLastPageUrl</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;page=&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="k">while</span> <span class="n">page_count</span> <span class="o">!=</span> <span class="n">last_page</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_token_util</span><span class="o">.</span><span class="n">wait_is_usable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_github</span><span class="p">)</span>
+            <span class="n">issues</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_repo</span><span class="o">.</span><span class="n">get_issues</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">get_page</span><span class="p">(</span><span class="n">page_count</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">issues</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">before_date</span><span class="p">:</span>
+                   <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">created_at</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_date_util</span><span class="o">.</span><span class="n">get_timestamp</span><span class="p">(</span><span class="n">before_date</span><span class="p">,</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">):</span>
+                       <span class="n">issue_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">number</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">issue_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">number</span><span class="p">)</span>
+
+            <span class="n">page_count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="n">issue_ids</span><span class="p">:</span>
+            <span class="n">issue_ids</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">issue_ids</span></div>
+
+<div class="viewcode-block" id="GitHubQuerier.get_issue"><a class="viewcode-back" href="../../../../github.html#importers.issue_tracker.github.querier_github.GitHubQuerier.get_issue">[docs]</a>    <span class="k">def</span> <span class="nf">get_issue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">issue_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets issue</span>
+
+<span class="sd">        :type issue_id: int</span>
+<span class="sd">        :param issue_id: data source issue id</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_token_util</span><span class="o">.</span><span class="n">wait_is_usable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_github</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_repo</span><span class="o">.</span><span class="n">get_issue</span><span class="p">(</span><span class="n">issue_id</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GitHubQuerier.get_issue_summary"><a class="viewcode-back" href="../../../../github.html#importers.issue_tracker.github.querier_github.GitHubQuerier.get_issue_summary">[docs]</a>    <span class="k">def</span> <span class="nf">get_issue_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">issue</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets summary of the issue</span>
+
+<span class="sd">        :type issue: Object</span>
+<span class="sd">        :param issue: the Object representing the issue</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">issue</span><span class="o">.</span><span class="n">title</span></div>
+
+<div class="viewcode-block" id="GitHubQuerier.get_issue_body"><a class="viewcode-back" href="../../../../github.html#importers.issue_tracker.github.querier_github.GitHubQuerier.get_issue_body">[docs]</a>    <span class="k">def</span> <span class="nf">get_issue_body</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">issue</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets body of the issue</span>
+
+<span class="sd">        :type issue: Object</span>
+<span class="sd">        :param issue: the Object representing the issue</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">issue</span><span class="o">.</span><span class="n">body</span></div>
+
+<div class="viewcode-block" id="GitHubQuerier.get_issue_version"><a class="viewcode-back" href="../../../../github.html#importers.issue_tracker.github.querier_github.GitHubQuerier.get_issue_version">[docs]</a>    <span class="k">def</span> <span class="nf">get_issue_version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">issue</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets version of the issue</span>
+
+<span class="sd">        :type issue: Object</span>
+<span class="sd">        :param issue: the Object representing the issue</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">version</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">issue</span><span class="o">.</span><span class="n">milestone</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">version</span> <span class="o">=</span> <span class="n">issue</span><span class="o">.</span><span class="n">milestone</span><span class="o">.</span><span class="n">number</span>
+        <span class="k">return</span> <span class="n">version</span></div>
+
+<div class="viewcode-block" id="GitHubQuerier.get_issue_creation_time"><a class="viewcode-back" href="../../../../github.html#importers.issue_tracker.github.querier_github.GitHubQuerier.get_issue_creation_time">[docs]</a>    <span class="k">def</span> <span class="nf">get_issue_creation_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">issue</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets creation time of the issue</span>
+
+<span class="sd">        :type issue: Object</span>
+<span class="sd">        :param issue: the Object representing the issue</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">issue</span><span class="o">.</span><span class="n">created_at</span></div>
+
+<div class="viewcode-block" id="GitHubQuerier.get_issue_last_change_time"><a class="viewcode-back" href="../../../../github.html#importers.issue_tracker.github.querier_github.GitHubQuerier.get_issue_last_change_time">[docs]</a>    <span class="k">def</span> <span class="nf">get_issue_last_change_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">issue</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets last change date of the issue</span>
+
+<span class="sd">        :type issue: Object</span>
+<span class="sd">        :param issue: the Object representing the issue</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">issue</span><span class="o">.</span><span class="n">updated_at</span></div>
+
+<div class="viewcode-block" id="GitHubQuerier.get_issue_creator"><a class="viewcode-back" href="../../../../github.html#importers.issue_tracker.github.querier_github.GitHubQuerier.get_issue_creator">[docs]</a>    <span class="k">def</span> <span class="nf">get_issue_creator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">issue</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets creator of the issue</span>
+
+<span class="sd">        :type issue: Object</span>
+<span class="sd">        :param issue: the Object representing the issue</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="n">issue</span><span class="o">.</span><span class="n">user</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="GitHubQuerier.get_user_email"><a class="viewcode-back" href="../../../../github.html#importers.issue_tracker.github.querier_github.GitHubQuerier.get_user_email">[docs]</a>    <span class="k">def</span> <span class="nf">get_user_email</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the email of the issue creator</span>
+
+<span class="sd">        :type user: Object</span>
+<span class="sd">        :param user: the Object representing the user</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">email</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="GitHubQuerier.get_user_name"><a class="viewcode-back" href="../../../../github.html#importers.issue_tracker.github.querier_github.GitHubQuerier.get_user_name">[docs]</a>    <span class="k">def</span> <span class="nf">get_user_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the user name of the issue creator</span>
+
+<span class="sd">        :type user: Object</span>
+<span class="sd">        :param user: the Object representing the user</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">login</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="GitHubQuerier.get_issue_tags"><a class="viewcode-back" href="../../../../github.html#importers.issue_tracker.github.querier_github.GitHubQuerier.get_issue_tags">[docs]</a>    <span class="k">def</span> <span class="nf">get_issue_tags</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">issue</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets labels of the issue</span>
+
+<span class="sd">        :type issue: Object</span>
+<span class="sd">        :param issue: the Object representing the issue</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">issue</span><span class="o">.</span><span class="n">get_labels</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_token_util</span><span class="o">.</span><span class="n">wait_is_usable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_github</span><span class="p">)</span>
+            <span class="n">labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">label</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">labels</span></div>
+
+<div class="viewcode-block" id="GitHubQuerier.get_issue_comments"><a class="viewcode-back" href="../../../../github.html#importers.issue_tracker.github.querier_github.GitHubQuerier.get_issue_comments">[docs]</a>    <span class="k">def</span> <span class="nf">get_issue_comments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">issue</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the comments of the issue</span>
+
+<span class="sd">        :type issue: Object</span>
+<span class="sd">        :param issue: the Object representing the issue</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">comments</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">comment</span> <span class="ow">in</span> <span class="n">issue</span><span class="o">.</span><span class="n">get_comments</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_token_util</span><span class="o">.</span><span class="n">wait_is_usable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_github</span><span class="p">)</span>
+            <span class="n">comments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">comment</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">comments</span></div>
+
+<div class="viewcode-block" id="GitHubQuerier.get_issue_comment_id"><a class="viewcode-back" href="../../../../github.html#importers.issue_tracker.github.querier_github.GitHubQuerier.get_issue_comment_id">[docs]</a>    <span class="k">def</span> <span class="nf">get_issue_comment_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">issue_comment</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the id of the issue comment</span>
+
+<span class="sd">        :type issue_comment: Object</span>
+<span class="sd">        :param issue_comment: the Object representing the issue comment</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">issue_comment</span><span class="o">.</span><span class="n">id</span></div>
+
+<div class="viewcode-block" id="GitHubQuerier.get_issue_comment_body"><a class="viewcode-back" href="../../../../github.html#importers.issue_tracker.github.querier_github.GitHubQuerier.get_issue_comment_body">[docs]</a>    <span class="k">def</span> <span class="nf">get_issue_comment_body</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">issue_comment</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the body of the issue comment</span>
+
+<span class="sd">        :type issue_comment: Object</span>
+<span class="sd">        :param issue_comment: the Object representing the issue comment</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">issue_comment</span><span class="o">.</span><span class="n">body</span></div>
+
+<div class="viewcode-block" id="GitHubQuerier.get_issue_comment_author"><a class="viewcode-back" href="../../../../github.html#importers.issue_tracker.github.querier_github.GitHubQuerier.get_issue_comment_author">[docs]</a>    <span class="k">def</span> <span class="nf">get_issue_comment_author</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">issue_comment</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the author of the issue comment</span>
+
+<span class="sd">        :type issue_comment: Object</span>
+<span class="sd">        :param issue_comment: the Object representing the issue comment</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">issue_comment</span><span class="o">.</span><span class="n">user</span></div>
+
+<div class="viewcode-block" id="GitHubQuerier.get_issue_comment_creation_time"><a class="viewcode-back" href="../../../../github.html#importers.issue_tracker.github.querier_github.GitHubQuerier.get_issue_comment_creation_time">[docs]</a>    <span class="k">def</span> <span class="nf">get_issue_comment_creation_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">issue_comment</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the creation time of the issue comment</span>
+
+<span class="sd">        :type issue_comment: Object</span>
+<span class="sd">        :param issue_comment: the Object representing the issue comment</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">issue_comment</span><span class="o">.</span><span class="n">created_at</span></div>
+
+<div class="viewcode-block" id="GitHubQuerier.generate_attachment_id"><a class="viewcode-back" href="../../../../github.html#importers.issue_tracker.github.querier_github.GitHubQuerier.generate_attachment_id">[docs]</a>    <span class="k">def</span> <span class="nf">generate_attachment_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message_id</span><span class="p">,</span> <span class="n">pos</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        creates the attachment id</span>
+
+<span class="sd">        :type message_id: int</span>
+<span class="sd">        :param message_id: the data source message id</span>
+
+<span class="sd">        :type pos: int</span>
+<span class="sd">        :param pos: position of the message</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">message_id</span><span class="p">)</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GitHubQuerier.get_attachments"><a class="viewcode-back" href="../../../../github.html#importers.issue_tracker.github.querier_github.GitHubQuerier.get_attachments">[docs]</a>    <span class="k">def</span> <span class="nf">get_attachments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">comment</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the attachements within a comment</span>
+
+<span class="sd">        :type comment: str</span>
+<span class="sd">        :param comment: content of the comment</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;\[.*\]\(http.*\)&quot;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span><span class="p">)</span>
+        <span class="n">matches</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">comment</span><span class="p">)</span>
+
+        <span class="n">attachments</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">matches</span><span class="p">:</span>
+            <span class="n">attachments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">attachments</span></div>
+
+<div class="viewcode-block" id="GitHubQuerier.get_attachment_name"><a class="viewcode-back" href="../../../../github.html#importers.issue_tracker.github.querier_github.GitHubQuerier.get_attachment_name">[docs]</a>    <span class="k">def</span> <span class="nf">get_attachment_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the name of the attachement</span>
+
+<span class="sd">        :type text: str</span>
+<span class="sd">        :param text: content of the comment</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">parts</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;](&#39;</span><span class="p">)</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;[&#39;</span><span class="p">)</span>
+
+        <span class="n">found</span> <span class="o">=</span> <span class="n">name</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="GitHubQuerier.get_attachment_url"><a class="viewcode-back" href="../../../../github.html#importers.issue_tracker.github.querier_github.GitHubQuerier.get_attachment_url">[docs]</a>    <span class="k">def</span> <span class="nf">get_attachment_url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the URL of the attachement</span>
+
+<span class="sd">        :type text: str</span>
+<span class="sd">        :param text: content of the comment</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">parts</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;](&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;)&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GitHubQuerier.get_referenced_issues"><a class="viewcode-back" href="../../../../github.html#importers.issue_tracker.github.querier_github.GitHubQuerier.get_referenced_issues">[docs]</a>    <span class="k">def</span> <span class="nf">get_referenced_issues</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">comment</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the referenced issues within a comment</span>
+
+<span class="sd">        :type comment: str</span>
+<span class="sd">        :param comment: content of the comment</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">&#39;#\d+&#39;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span><span class="p">)</span>
+
+        <span class="n">matches</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">comment</span><span class="p">)</span>
+
+        <span class="n">referenced_issues</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">matches</span><span class="p">:</span>
+            <span class="n">referenced_issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;#&#39;</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">referenced_issues</span></div>
+
+<div class="viewcode-block" id="GitHubQuerier.get_event_creation_time"><a class="viewcode-back" href="../../../../github.html#importers.issue_tracker.github.querier_github.GitHubQuerier.get_event_creation_time">[docs]</a>    <span class="k">def</span> <span class="nf">get_event_creation_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the creation time of an event</span>
+
+<span class="sd">        :type event: Object</span>
+<span class="sd">        :param event: the Object representing the event</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">event</span><span class="o">.</span><span class="n">created_at</span></div>
+
+<div class="viewcode-block" id="GitHubQuerier.get_event_actor"><a class="viewcode-back" href="../../../../github.html#importers.issue_tracker.github.querier_github.GitHubQuerier.get_event_actor">[docs]</a>    <span class="k">def</span> <span class="nf">get_event_actor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the actor of an event</span>
+
+<span class="sd">        :type event: Object</span>
+<span class="sd">        :param event: the Object representing the event</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">event</span><span class="o">.</span><span class="n">actor</span></div>
+
+<div class="viewcode-block" id="GitHubQuerier.get_issue_history"><a class="viewcode-back" href="../../../../github.html#importers.issue_tracker.github.querier_github.GitHubQuerier.get_issue_history">[docs]</a>    <span class="k">def</span> <span class="nf">get_issue_history</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">issue</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets the event history of an issue</span>
+
+<span class="sd">        :type issue: Object</span>
+<span class="sd">        :param issue: the Object representing the issue</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">events</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">issue</span><span class="o">.</span><span class="n">get_events</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_token_util</span><span class="o">.</span><span class="n">wait_is_usable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_github</span><span class="p">)</span>
+            <span class="n">events</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">events</span></div>
+
+<div class="viewcode-block" id="GitHubQuerier.find_user"><a class="viewcode-back" href="../../../../github.html#importers.issue_tracker.github.querier_github.GitHubQuerier.find_user">[docs]</a>    <span class="k">def</span> <span class="nf">find_user</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">login</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        finds GitHub user</span>
+
+<span class="sd">        :type login: str</span>
+<span class="sd">        :param login: GitHub username</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">users</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_github</span><span class="o">.</span><span class="n">search_users</span><span class="p">(</span><span class="n">login</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;in&quot;</span><span class="p">:</span> <span class="s2">&quot;login&quot;</span><span class="p">})</span>
+        <span class="k">for</span> <span class="n">user</span> <span class="ow">in</span> <span class="n">users</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="n">user</span>
+            <span class="k">break</span>
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="GitHubQuerier.get_issue_subscribers"><a class="viewcode-back" href="../../../../github.html#importers.issue_tracker.github.querier_github.GitHubQuerier.get_issue_subscribers">[docs]</a>    <span class="k">def</span> <span class="nf">get_issue_subscribers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">history</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets subscribers of an issue</span>
+
+<span class="sd">        :type history: Object</span>
+<span class="sd">        :param history: the Object representing the events of an issue</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">subscribers</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">history</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">event</span> <span class="o">==</span> <span class="s2">&quot;subscribed&quot;</span><span class="p">:</span>
+                <span class="n">subscribers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">actor</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">subscribers</span></div>
+
+<div class="viewcode-block" id="GitHubQuerier.get_issue_assignees"><a class="viewcode-back" href="../../../../github.html#importers.issue_tracker.github.querier_github.GitHubQuerier.get_issue_assignees">[docs]</a>    <span class="k">def</span> <span class="nf">get_issue_assignees</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">history</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets assignees of an issue</span>
+
+<span class="sd">        :type history: Object</span>
+<span class="sd">        :param history: the Object representing the events of an issue</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">assignees</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">history</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">event</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;assigned&quot;</span><span class="p">,</span> <span class="s2">&quot;unassigned&quot;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">event</span> <span class="o">==</span> <span class="s2">&quot;assigned&quot;</span><span class="p">:</span>
+                    <span class="n">assignees</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">_rawData</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;assignee&#39;</span><span class="p">))</span>
+                <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">event</span> <span class="o">==</span> <span class="s2">&quot;unassigned&quot;</span><span class="p">:</span>
+                    <span class="n">assignees</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">_rawData</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;assignee&#39;</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">assignees</span></div>
+
+<div class="viewcode-block" id="GitHubQuerier.get_commit_dependencies"><a class="viewcode-back" href="../../../../github.html#importers.issue_tracker.github.querier_github.GitHubQuerier.get_commit_dependencies">[docs]</a>    <span class="k">def</span> <span class="nf">get_commit_dependencies</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">history</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets dependencies between an issue and commits</span>
+
+<span class="sd">        :type history: Object</span>
+<span class="sd">        :param history: the Object representing the events of an issue</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">commit_dependencies</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">history</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">event</span> <span class="o">==</span> <span class="s2">&quot;referenced&quot;</span><span class="p">:</span>
+                <span class="n">commit_dependencies</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">commit_id</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">commit_dependencies</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Valerio Cosentino.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

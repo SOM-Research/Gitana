@@ -18,11 +18,24 @@ from exporters import resources
 
 
 class ReportExporter():
+    """
+    This class handles the generation of reports
+    """
 
     LOG_FOLDER_PATH = "logs"
     INPUT_PATH = os.path.dirname(resources.__file__) + "\queries.json"
 
     def __init__(self, config, db_name, log_folder_path):
+        """
+        :type config: dict
+        :param config: the DB configuration file
+
+        :type db_name: str
+        :param config: name of an existing DB
+
+        :type log_folder_path: str
+        :param log_folder_path: the log folder path
+        """
         if log_folder_path:
             self._create_log_folder(log_folder_path)
             self._log_folder_path = log_folder_path
@@ -49,10 +62,12 @@ class ReportExporter():
         self._html_generator = HtmlGenerator(self._logger)
 
     def _create_log_folder(self, name):
+        #creates the log folder
         if not os.path.exists(name):
             os.makedirs(name)
 
     def _create_output_file(self, filename):
+        #creates the output folder
         if not os.path.exists(os.path.dirname(filename)):
             try:
                 os.makedirs(os.path.dirname(filename))
@@ -61,12 +76,14 @@ class ReportExporter():
                     raise
 
     def _load_report_exporter_json(self, json_path):
+        #loads the JSON that drives the report export process
         with open(json_path) as json_data:
             data = json.load(json_data)
 
         return data.get('report')
 
     def _find_entity_id(self, type, name):
+        #finds the id of the tools stored in the DB
         found = None
 
         if type == "project":
@@ -86,6 +103,7 @@ class ReportExporter():
         return found
 
     def _get_parameter(self, key, parameters):
+        #gets parameters of the JSON
         found = None
         if key in ["AFTERDATE", "INTERVAL"]:
             found = parameters.get(key.lower())
@@ -98,6 +116,7 @@ class ReportExporter():
         return found
 
     def _load_query_json(self, metric_name, parameters):
+        #loads the queries in the JSON configuration file
         with open(ReportExporter.INPUT_PATH) as json_data:
             data = json.load(json_data)
 
@@ -119,12 +138,15 @@ class ReportExporter():
             self._logger.error("ReportExporter: metric " + str(metric_name) + " not found!")
 
     def _get_activity_name(self, activity):
+        #gets the name of the activity
         return activity.replace("_", " ")
 
     def _get_activity_type(self, activity):
+        #gets the type of the activity
         return activity.replace("_activity", "").replace("_", "")
 
     def _generate_charts(self, activity, activity_data, project_id, time_span):
+        #generates charts
         entity2charts = {}
         after_date, interval = self._calculate_time_information(time_span)
         activity_type = self._get_activity_type(activity)
@@ -143,6 +165,7 @@ class ReportExporter():
         return entity2charts
 
     def _calculate_time_information(self, time_span):
+        #calculates the time span information
         start = None
         interval = None
         current_time = datetime.now() #test datetime.strptime("2015-10-10", "%Y-%m-%d")
@@ -161,6 +184,15 @@ class ReportExporter():
         return start, interval
 
     def export(self, file_path, json_path):
+        """
+        exports the Gitana data to a report
+
+        :type file_path: str
+        :param file_path: the path where to export the report
+
+        :type json_path: str
+        :param json_path: the path of the JSON that drives the export process
+        """
         try:
             self._logger.info("ReportExporter started")
             start_time = datetime.now()

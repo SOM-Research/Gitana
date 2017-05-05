@@ -39,13 +39,26 @@ def get_tasks_intervals(elements, num_processes):
 
 
 class Consumer(multiprocessing.Process):
+    """
+    This class provides multiprocessing utilities
+    """
 
     def __init__(self, task_queue, result_queue):
+        """
+        :type task_queue: Object
+        :param task_queue: the queue of the tasks
+
+        :type result_queue: Object
+        :param result_queue: the queue of the results
+        """
         multiprocessing.Process.__init__(self)
         self.task_queue = task_queue
         self.result_queue = result_queue
 
     def run(self):
+        """
+        runs the consumer's task
+        """
         while True:
             next_task = self.task_queue.get()
             if next_task is None:

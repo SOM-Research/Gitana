@@ -13,12 +13,40 @@ from util.logging_util import LoggingUtil
 
 
 class Git2DbUpdate():
+    """
+    This class handles the update of Git data
+    """
 
     NUM_PROCESSES = 10
 
     def __init__(self, db_name, project_name,
                  repo_name, git_repo_path, before_date,
                  num_processes, config, log_root_path):
+        """
+        :type db_name: str
+        :param db_name: the name of an existing DB
+
+        :type project_name: str
+        :param project_name: the name of an existing project in the DB
+
+        :type repo_name: str
+        :param repo_name: the name of the Git repository to import
+
+        :type git_repo_path: str
+        :param git_repo_path: the local path of the Git repository
+
+        :type before_date: str
+        :param before_date: import data before date (YYYY-mm-dd)
+
+        :type num_processes: int
+        :param num_processes: number of processes to import the data (default 10)
+
+        :type config: dict
+        :param config: the DB configuration file
+
+        :type log_folder_path: str
+        :param log_folder_path: the log folder path
+        """
         self._log_path = log_root_path + "import-git-" + db_name + "-" + project_name + "-" + repo_name
         self._git_repo_path = git_repo_path
         self._project_name = project_name
@@ -43,6 +71,7 @@ class Git2DbUpdate():
         self._dao = None
 
     def _update_existing_references(self, repo_id, import_type):
+        #updates existing references in the DB
         cursor = self._dao.get_cursor()
         query = "SELECT c.sha, lc.ref_id " \
                 "FROM commit c " \
@@ -86,14 +115,19 @@ class Git2DbUpdate():
         queue_references.join()
 
     def _update_repo(self, repo_id, import_type):
+        #updates Git data
         self._update_existing_references(repo_id, import_type)
 
     def _get_import_type(self, repo_id):
+        #gets import type
         import_type = 1
         import_type += self._dao.line_detail_table_is_empty(repo_id) + self._dao.file_modification_patch_is_empty(repo_id)
         return import_type
 
     def update(self):
+        """
+        updates the Git data stored in the DB
+        """
         try:
             self._logger = self._logging_util.get_logger(self._log_path)
             self._fileHandler = self._logging_util.get_file_handler(self._logger, self._log_path, "info")
@@ -101,7 +135,7 @@ class Git2DbUpdate():
             self._logger.info("Git2DbUpdate started")
             start_time = datetime.now()
 
-            self._querier = GitQuerier(self.git_repo_path, self._logger)
+            self._querier = GitQuerier(self._git_repo_path, self._logger)
             self._dao = GitDao(self._config, self._logger)
 
             project_id = self._dao.select_project_id(self._project_name)

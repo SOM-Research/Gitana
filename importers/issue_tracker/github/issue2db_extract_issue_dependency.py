@@ -10,10 +10,38 @@ from util.logging_util import LoggingUtil
 
 
 class GitHubIssueDependency2Db(object):
+    """
+    This class inserts the dependencies between GitHub issues
+    """
 
     def __init__(self, db_name,
                  repo_id, issue_tracker_id, url, interval, token,
                  config, log_root_path):
+        """
+        :type db_name: str
+        :param db_name: the name of an existing DB
+
+        :type repo_id: int
+        :param repo_id: the id of an existing repository in the DB
+
+        :type issue_tracker_id: int
+        :param issue_tracker_id: the id of an existing issue tracker in the DB
+
+        :type url: str
+        :param url: full name of the GitHub repository
+
+        :type interval: list int
+        :param interval: a list of issue ids to import
+
+        :type token: str
+        :param token: a GitHub token
+
+        :type config: dict
+        :param config: the DB configuration file
+
+        :type log_folder_path: str
+        :param log_folder_path: the log folder path
+        """
         self._log_root_path = log_root_path
         self._url = url
         self._db_name = db_name
@@ -42,6 +70,7 @@ class GitHubIssueDependency2Db(object):
             self._logger.error("GitHubIssueDependency2Db failed", exc_info=True)
 
     def _extract_issue_dependencies(self):
+        #inserts issue dependency
         cursor = self._dao.get_cursor()
         query = "SELECT i.id FROM issue i " \
                 "JOIN issue_tracker it ON i.issue_tracker_id = it.id " \
@@ -74,6 +103,9 @@ class GitHubIssueDependency2Db(object):
         self._dao.close_cursor(cursor)
 
     def extract(self):
+        """
+        extracts GitHub issue dependency data and stores it in the DB
+        """
         try:
             self._logger.info("GitHubIssueDependency2Db started")
             start_time = datetime.now()

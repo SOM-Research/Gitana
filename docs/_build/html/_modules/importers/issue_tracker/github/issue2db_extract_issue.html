@@ -1,0 +1,390 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>importers.issue_tracker.github.issue2db_extract_issue &#8212; Gitana 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for importers.issue_tracker.github.issue2db_extract_issue</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;valerio cosentino&#39;</span>
+
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="kn">from</span> <span class="nn">querier_github</span> <span class="k">import</span> <span class="n">GitHubQuerier</span>
+<span class="kn">from</span> <span class="nn">util.date_util</span> <span class="k">import</span> <span class="n">DateUtil</span>
+<span class="kn">from</span> <span class="nn">github_dao</span> <span class="k">import</span> <span class="n">GitHubDao</span>
+<span class="kn">from</span> <span class="nn">util.logging_util</span> <span class="k">import</span> <span class="n">LoggingUtil</span>
+
+
+<div class="viewcode-block" id="GitHubIssue2Db"><a class="viewcode-back" href="../../../../github.html#importers.issue_tracker.github.issue2db_extract_issue.GitHubIssue2Db">[docs]</a><span class="k">class</span> <span class="nc">GitHubIssue2Db</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class handles the import of GitHub issues</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span>
+                 <span class="n">repo_id</span><span class="p">,</span> <span class="n">issue_tracker_id</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">interval</span><span class="p">,</span> <span class="n">token</span><span class="p">,</span>
+                 <span class="n">config</span><span class="p">,</span> <span class="n">log_root_path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :type db_name: str</span>
+<span class="sd">        :param db_name: the name of an existing DB</span>
+
+<span class="sd">        :type repo_id: int</span>
+<span class="sd">        :param repo_id: the id of an existing repository in the DB</span>
+
+<span class="sd">        :type issue_tracker_id: int</span>
+<span class="sd">        :param issue_tracker_id: the id of an existing issue tracker in the DB</span>
+
+<span class="sd">        :type url: str</span>
+<span class="sd">        :param url: full name of the GitHub repository</span>
+
+<span class="sd">        :type interval: list int</span>
+<span class="sd">        :param interval: a list of issue ids to import</span>
+
+<span class="sd">        :type token: str</span>
+<span class="sd">        :param token: a GitHub token</span>
+
+<span class="sd">        :type config: dict</span>
+<span class="sd">        :param config: the DB configuration file</span>
+
+<span class="sd">        :type log_folder_path: str</span>
+<span class="sd">        :param log_folder_path: the log folder path</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_root_path</span> <span class="o">=</span> <span class="n">log_root_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_url</span> <span class="o">=</span> <span class="n">url</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_db_name</span> <span class="o">=</span> <span class="n">db_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_repo_id</span> <span class="o">=</span> <span class="n">repo_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_issue_tracker_id</span> <span class="o">=</span> <span class="n">issue_tracker_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_interval</span> <span class="o">=</span> <span class="n">interval</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_token</span> <span class="o">=</span> <span class="n">token</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_config</span> <span class="o">=</span> <span class="n">config</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logging_util</span> <span class="o">=</span> <span class="n">LoggingUtil</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_date_util</span> <span class="o">=</span> <span class="n">DateUtil</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fileHandler</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">log_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_root_path</span> <span class="o">+</span> <span class="s2">&quot;-issue2db-&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_interval</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;-&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_interval</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logging_util</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="n">log_path</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_fileHandler</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logging_util</span><span class="o">.</span><span class="n">get_file_handler</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">,</span> <span class="n">log_path</span><span class="p">,</span> <span class="s2">&quot;info&quot;</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span> <span class="o">=</span> <span class="n">GitHubQuerier</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_url</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_token</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span> <span class="o">=</span> <span class="n">GitHubDao</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">extract</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;GitHubIssue2Db failed&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">close_connection</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_insert_attachments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attachments</span><span class="p">,</span> <span class="n">message_id</span><span class="p">):</span>
+        <span class="c1">#inserts attachments</span>
+        <span class="n">pos</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">attachment</span> <span class="ow">in</span> <span class="n">attachments</span><span class="p">:</span>
+            <span class="n">attachment_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_attachment_name</span><span class="p">(</span><span class="n">attachment</span><span class="p">)</span>
+            <span class="n">attachment_own_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">generate_attachment_id</span><span class="p">(</span><span class="n">message_id</span><span class="p">,</span> <span class="n">pos</span><span class="p">)</span>
+            <span class="n">attachment_url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_attachment_url</span><span class="p">(</span><span class="n">attachment</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">insert_attachment</span><span class="p">(</span><span class="n">attachment_own_id</span><span class="p">,</span> <span class="n">message_id</span><span class="p">,</span> <span class="n">attachment_name</span><span class="p">,</span> <span class="n">attachment_url</span><span class="p">)</span>
+            <span class="n">pos</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">def</span> <span class="nf">_find_mentioner_user</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">issue_id</span><span class="p">,</span> <span class="n">created_at</span><span class="p">):</span>
+        <span class="c1">#finds the mentioner user</span>
+        <span class="n">creator</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">issue</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_issue</span><span class="p">(</span><span class="n">issue_id</span><span class="p">)</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_issue_comments</span><span class="p">(</span><span class="n">issue</span><span class="p">)</span> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">created_at</span> <span class="o">==</span> <span class="n">created_at</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">found</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">creator</span> <span class="o">=</span> <span class="n">found</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">user</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;multiple mentioner users&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">creator</span>
+
+    <span class="k">def</span> <span class="nf">_extract_history</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">issue_id</span><span class="p">,</span> <span class="n">history</span><span class="p">):</span>
+        <span class="c1">#inserts the history of an issue</span>
+        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">history</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">created_at</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_event_creation_time</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+                <span class="n">actor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_event_actor</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+                <span class="n">actor_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">get_user_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_user_name</span><span class="p">(</span><span class="n">actor</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_user_email</span><span class="p">(</span><span class="n">actor</span><span class="p">))</span>
+                <span class="n">action</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">event</span>
+
+                <span class="k">if</span> <span class="n">action</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;opened&quot;</span><span class="p">,</span> <span class="s2">&quot;edited&quot;</span><span class="p">,</span> <span class="s2">&quot;closed&quot;</span><span class="p">,</span> <span class="s2">&quot;reopened&quot;</span><span class="p">]:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">insert_event_type</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+                    <span class="n">event_type_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">select_event_type</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">insert_issue_event</span><span class="p">(</span><span class="n">issue_id</span><span class="p">,</span> <span class="n">event_type_id</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">actor_id</span><span class="p">,</span> <span class="n">created_at</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">action</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;labeled&quot;</span><span class="p">,</span> <span class="s2">&quot;unlabeled&quot;</span><span class="p">]:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">insert_event_type</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+                    <span class="n">event_type_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">select_event_type</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">insert_issue_event</span><span class="p">(</span><span class="n">issue_id</span><span class="p">,</span> <span class="n">event_type_id</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">_rawData</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;label&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">actor_id</span><span class="p">,</span> <span class="n">created_at</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">action</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;mentioned&quot;</span><span class="p">]:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">insert_event_type</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+                    <span class="n">event_type_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">select_event_type</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+                    <span class="n">user_mentioner</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_mentioner_user</span><span class="p">(</span><span class="n">issue_id</span><span class="p">,</span> <span class="n">created_at</span><span class="p">)</span>
+                    <span class="n">user_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">get_user_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_user_name</span><span class="p">(</span><span class="n">user_mentioner</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_user_email</span><span class="p">(</span><span class="n">user_mentioner</span><span class="p">))</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">insert_issue_event</span><span class="p">(</span><span class="n">issue_id</span><span class="p">,</span> <span class="n">event_type_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_user_name</span><span class="p">(</span><span class="n">user_mentioner</span><span class="p">),</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">created_at</span><span class="p">,</span> <span class="n">actor_id</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">action</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;subscribed&quot;</span><span class="p">]:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">insert_event_type</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+                    <span class="n">event_type_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">select_event_type</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">insert_issue_event</span><span class="p">(</span><span class="n">issue_id</span><span class="p">,</span> <span class="n">event_type_id</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">actor_id</span><span class="p">,</span> <span class="n">created_at</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">action</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;assigned&quot;</span><span class="p">,</span> <span class="s2">&quot;unassigned&quot;</span><span class="p">]:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">insert_event_type</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+                    <span class="n">event_type_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">select_event_type</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+
+                    <span class="n">assignee_login</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">_rawData</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;assignee&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;login&#39;</span><span class="p">)</span>
+                    <span class="n">assignee</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">find_user</span><span class="p">(</span><span class="n">assignee_login</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">assignee</span><span class="p">:</span>
+                        <span class="n">assignee_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">get_user_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_user_name</span><span class="p">(</span><span class="n">assignee</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_user_email</span><span class="p">(</span><span class="n">assignee</span><span class="p">))</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">assignee_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">get_user_id</span><span class="p">(</span><span class="n">assignee_login</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+                    <span class="n">assigner_login</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">_rawData</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;assigner&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;login&#39;</span><span class="p">)</span>
+                    <span class="n">assigner</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">find_user</span><span class="p">(</span><span class="n">assigner_login</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">assigner</span><span class="p">:</span>
+                        <span class="n">assigner_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">get_user_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_user_name</span><span class="p">(</span><span class="n">assigner</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_user_email</span><span class="p">(</span><span class="n">assigner</span><span class="p">))</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">assignee_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">get_user_id</span><span class="p">(</span><span class="n">assigner_login</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">insert_issue_event</span><span class="p">(</span><span class="n">issue_id</span><span class="p">,</span> <span class="n">event_type_id</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">assigner_id</span><span class="p">,</span> <span class="n">created_at</span><span class="p">,</span> <span class="n">assignee_id</span><span class="p">)</span>
+
+
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;event at (&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">created_at</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;) not extracted for issue id: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">issue_id</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; - tracker id &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_issue_tracker_id</span><span class="p">),</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_extract_subscribers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">issue_id</span><span class="p">,</span> <span class="n">subscribers</span><span class="p">):</span>
+        <span class="c1">#inserts subscribers of an issue</span>
+        <span class="k">for</span> <span class="n">subscriber</span> <span class="ow">in</span> <span class="n">subscribers</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">subscriber_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">get_user_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_user_name</span><span class="p">(</span><span class="n">subscriber</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_user_email</span><span class="p">(</span><span class="n">subscriber</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">insert_subscriber</span><span class="p">(</span><span class="n">issue_id</span><span class="p">,</span> <span class="n">subscriber_id</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;subscriber (&quot;</span> <span class="o">+</span> <span class="n">subscriber</span><span class="o">.</span><span class="n">login</span> <span class="o">+</span> <span class="s2">&quot;) not inserted for issue id: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">issue_id</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; - tracker id &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_issue_tracker_id</span><span class="p">),</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_extract_assignees</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">issue_id</span><span class="p">,</span> <span class="n">assignees</span><span class="p">):</span>
+        <span class="c1">#inserts the assignee of an issue</span>
+        <span class="k">for</span> <span class="n">assignee</span> <span class="ow">in</span> <span class="n">assignees</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">assignee_login</span> <span class="o">=</span> <span class="n">assignee</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;login&#39;</span><span class="p">)</span>
+                <span class="n">assignee</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">find_user</span><span class="p">(</span><span class="n">assignee_login</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">assignee</span><span class="p">:</span>
+                    <span class="n">assignee_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">get_user_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_user_name</span><span class="p">(</span><span class="n">assignee</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_user_email</span><span class="p">(</span><span class="n">assignee</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">assignee_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">get_user_id</span><span class="p">(</span><span class="n">assignee_login</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">insert_assignee</span><span class="p">(</span><span class="n">issue_id</span><span class="p">,</span> <span class="n">assignee_id</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;assignee (&quot;</span> <span class="o">+</span> <span class="n">assignee</span><span class="o">.</span><span class="n">login</span> <span class="o">+</span> <span class="s2">&quot;) not inserted for issue id: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">issue_id</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; - tracker id &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_issue_tracker_id</span><span class="p">),</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_extract_first_comment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">issue_id</span><span class="p">):</span>
+        <span class="c1">#inserts first issue comment</span>
+        <span class="n">issue</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_issue</span><span class="p">(</span><span class="n">issue_id</span><span class="p">)</span>
+        <span class="n">created_at</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_issue_creation_time</span><span class="p">(</span><span class="n">issue</span><span class="p">)</span>
+        <span class="n">author</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_issue_creator</span><span class="p">(</span><span class="n">issue</span><span class="p">)</span>
+        <span class="n">author_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">get_user_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_user_name</span><span class="p">(</span><span class="n">author</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_user_email</span><span class="p">(</span><span class="n">author</span><span class="p">))</span>
+        <span class="n">body</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_issue_body</span><span class="p">(</span><span class="n">issue</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">insert_issue_comment</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">get_message_type_id</span><span class="p">(</span><span class="s2">&quot;comment&quot;</span><span class="p">),</span> <span class="n">issue_id</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">author_id</span><span class="p">,</span> <span class="n">created_at</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_extract_comments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">issue_id</span><span class="p">,</span> <span class="n">comments</span><span class="p">):</span>
+        <span class="c1">#inserts the comments of an issue</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_extract_first_comment</span><span class="p">(</span><span class="n">issue_id</span><span class="p">)</span>
+        <span class="n">pos</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">for</span> <span class="n">comment</span> <span class="ow">in</span> <span class="n">comments</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">own_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_issue_comment_id</span><span class="p">(</span><span class="n">comment</span><span class="p">)</span>
+                <span class="n">body</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_issue_comment_body</span><span class="p">(</span><span class="n">comment</span><span class="p">)</span>
+                <span class="n">author</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_issue_comment_author</span><span class="p">(</span><span class="n">comment</span><span class="p">)</span>
+                <span class="n">author_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">get_user_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_user_name</span><span class="p">(</span><span class="n">author</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_user_email</span><span class="p">(</span><span class="n">author</span><span class="p">))</span>
+                <span class="n">created_at</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_issue_comment_creation_time</span><span class="p">(</span><span class="n">comment</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">insert_issue_comment</span><span class="p">(</span><span class="n">own_id</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">get_message_type_id</span><span class="p">(</span><span class="s2">&quot;comment&quot;</span><span class="p">),</span> <span class="n">issue_id</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">author_id</span><span class="p">,</span> <span class="n">created_at</span><span class="p">)</span>
+
+                <span class="n">attachments</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_attachments</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">attachments</span><span class="p">:</span>
+                    <span class="n">issue_comment_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">select_issue_comment_id</span><span class="p">(</span><span class="n">own_id</span><span class="p">,</span> <span class="n">issue_id</span><span class="p">,</span> <span class="n">created_at</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_insert_attachments</span><span class="p">(</span><span class="n">attachments</span><span class="p">,</span> <span class="n">issue_comment_id</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;comment(&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;) not extracted for issue id: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">issue_id</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; - tracker id &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_issue_tracker_id</span><span class="p">),</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="k">continue</span>
+
+            <span class="n">pos</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">def</span> <span class="nf">_extract_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">issue_id</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
+        <span class="c1">#inserts the labels of an issue</span>
+        <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">digested_label</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;^\W+&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;\W+$&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">.</span><span class="n">lower</span><span class="p">()))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">insert_label</span><span class="p">(</span><span class="n">digested_label</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+                <span class="n">label_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">select_label_id</span><span class="p">(</span><span class="n">digested_label</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">assign_label_to_issue</span><span class="p">(</span><span class="n">issue_id</span><span class="p">,</span> <span class="n">label_id</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;label (&quot;</span> <span class="o">+</span> <span class="n">label</span> <span class="o">+</span> <span class="s2">&quot;) not extracted for issue id: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">issue_id</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; - tracker id &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_issue_tracker_id</span><span class="p">),</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_extract_issue_commit_dependency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">issue_id</span><span class="p">,</span> <span class="n">commits</span><span class="p">):</span>
+        <span class="c1">#inserts the dependencies between an issue and commits</span>
+        <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">commits</span><span class="p">:</span>
+            <span class="n">commit_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">select_commit</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_repo_id</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">commit_id</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">insert_issue_commit_dependency</span><span class="p">(</span><span class="n">issue_id</span><span class="p">,</span> <span class="n">commit_id</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_issue_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">issue_own_id</span><span class="p">):</span>
+        <span class="c1">#processes each single issue</span>
+        <span class="n">flag_insert_issue_data</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="n">issue</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_issue</span><span class="p">(</span><span class="n">issue_own_id</span><span class="p">)</span>
+        <span class="n">summary</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_issue_summary</span><span class="p">(</span><span class="n">issue</span><span class="p">)</span>
+        <span class="n">component</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">version</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_issue_version</span><span class="p">(</span><span class="n">issue</span><span class="p">)</span>
+        <span class="n">hardware</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">priority</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">severity</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">created_at</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_issue_creation_time</span><span class="p">(</span><span class="n">issue</span><span class="p">)</span>
+        <span class="n">last_change_at</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_issue_last_change_time</span><span class="p">(</span><span class="n">issue</span><span class="p">)</span>
+
+        <span class="n">reference_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">find_reference_id</span><span class="p">(</span><span class="n">version</span><span class="p">,</span> <span class="n">issue_own_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_repo_id</span><span class="p">)</span>
+        <span class="n">user</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_issue_creator</span><span class="p">(</span><span class="n">issue</span><span class="p">)</span>
+        <span class="n">user_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">get_user_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_user_name</span><span class="p">(</span><span class="n">user</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_user_email</span><span class="p">(</span><span class="n">user</span><span class="p">))</span>
+
+        <span class="n">stored_issue_last_change</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">select_last_change_issue</span><span class="p">(</span><span class="n">issue_own_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_issue_tracker_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_repo_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">stored_issue_last_change</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">last_change_at</span> <span class="o">!=</span> <span class="n">stored_issue_last_change</span><span class="p">:</span>
+                <span class="n">flag_insert_issue_data</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">update_issue</span><span class="p">(</span><span class="n">issue_own_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_issue_tracker_id</span><span class="p">,</span> <span class="n">summary</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">version</span><span class="p">,</span> <span class="n">hardware</span><span class="p">,</span> <span class="n">priority</span><span class="p">,</span> <span class="n">severity</span><span class="p">,</span> <span class="n">reference_id</span><span class="p">,</span> <span class="n">last_change_at</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">flag_insert_issue_data</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">insert_issue</span><span class="p">(</span><span class="n">issue_own_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_issue_tracker_id</span><span class="p">,</span> <span class="n">summary</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">version</span><span class="p">,</span> <span class="n">hardware</span><span class="p">,</span> <span class="n">priority</span><span class="p">,</span> <span class="n">severity</span><span class="p">,</span> <span class="n">reference_id</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">created_at</span><span class="p">,</span> <span class="n">last_change_at</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">flag_insert_issue_data</span><span class="p">:</span>
+            <span class="n">issue_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">select_issue_id</span><span class="p">(</span><span class="n">issue_own_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_issue_tracker_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_repo_id</span><span class="p">)</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_extract_labels</span><span class="p">(</span><span class="n">issue_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_issue_tags</span><span class="p">(</span><span class="n">issue</span><span class="p">))</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;GitHubError when extracting tags for issue id: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">issue_id</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; - tracker id &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_issue_tracker_id</span><span class="p">),</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_extract_comments</span><span class="p">(</span><span class="n">issue_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_issue_comments</span><span class="p">(</span><span class="n">issue</span><span class="p">))</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;GitHubError when extracting comments for issue id: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">issue_id</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; - tracker id &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_issue_tracker_id</span><span class="p">),</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">issue_history</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_issue_history</span><span class="p">(</span><span class="n">issue</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_extract_history</span><span class="p">(</span><span class="n">issue_id</span><span class="p">,</span> <span class="n">issue_history</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_extract_subscribers</span><span class="p">(</span><span class="n">issue_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_issue_subscribers</span><span class="p">(</span><span class="n">issue_history</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_extract_assignees</span><span class="p">(</span><span class="n">issue_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_issue_assignees</span><span class="p">(</span><span class="n">issue_history</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_extract_issue_commit_dependency</span><span class="p">(</span><span class="n">issue_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_commit_dependencies</span><span class="p">(</span><span class="n">issue_history</span><span class="p">))</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;GitHubError when extracting history for issue id: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">issue_id</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; - tracker id &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_issue_tracker_id</span><span class="p">),</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_issues</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1">#processes issues</span>
+        <span class="k">for</span> <span class="n">issue_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interval</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_get_issue_info</span><span class="p">(</span><span class="n">issue_id</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;something went wrong for issue id: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">issue_id</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; - tracker id &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_issue_tracker_id</span><span class="p">),</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<div class="viewcode-block" id="GitHubIssue2Db.extract"><a class="viewcode-back" href="../../../../github.html#importers.issue_tracker.github.issue2db_extract_issue.GitHubIssue2Db.extract">[docs]</a>    <span class="k">def</span> <span class="nf">extract</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        extracts GitHub issue data and stores it in the DB</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;GitHubIssue2Db started&quot;</span><span class="p">)</span>
+            <span class="n">start_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_issues</span><span class="p">()</span>
+
+            <span class="n">end_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+            <span class="n">minutes_and_seconds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logging_util</span><span class="o">.</span><span class="n">calculate_execution_time</span><span class="p">(</span><span class="n">end_time</span><span class="p">,</span> <span class="n">start_time</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;GitHubIssue2Db finished after &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">minutes_and_seconds</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                           <span class="o">+</span> <span class="s2">&quot; minutes and &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">minutes_and_seconds</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot; secs&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logging_util</span><span class="o">.</span><span class="n">remove_file_handler_logger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fileHandler</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;GitHubIssue2Db failed&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">close_connection</span><span class="p">()</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Valerio Cosentino.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

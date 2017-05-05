@@ -1,0 +1,685 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>importers.vcs.git.git_dao &#8212; Gitana 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for importers.vcs.git.git_dao</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;valerio cosentino&#39;</span>
+
+<span class="kn">from</span> <span class="nn">util.db_util</span> <span class="k">import</span> <span class="n">DbUtil</span>
+
+
+<div class="viewcode-block" id="GitDao"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.git_dao.GitDao">[docs]</a><span class="k">class</span> <span class="nc">GitDao</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class handles the persistence and retrieval of Git data</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :type config: dict</span>
+<span class="sd">        :param config: the DB configuration file</span>
+
+<span class="sd">        :type logger: Object</span>
+<span class="sd">        :param logger: logger</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_config</span> <span class="o">=</span> <span class="n">config</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logger</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_db_util</span> <span class="o">=</span> <span class="n">DbUtil</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_util</span><span class="o">.</span><span class="n">get_connection</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;GitDao init failed&quot;</span><span class="p">)</span>
+            <span class="k">raise</span>
+
+    <span class="k">def</span> <span class="nf">check_connection_alive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+            <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;SELECT VERSION()&quot;</span><span class="p">)</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+            <span class="n">ver</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">ver</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_util</span><span class="o">.</span><span class="n">restart_connection</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_util</span><span class="o">.</span><span class="n">restart_connection</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">close_connection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_db_util</span><span class="o">.</span><span class="n">close_connection</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">restart_connection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_util</span><span class="o">.</span><span class="n">restart_connection</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_connection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span>
+
+    <span class="k">def</span> <span class="nf">get_cursor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">close_cursor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cursor</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">fetchone</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cursor</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cursor</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">):</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">array2string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">array</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">array</span><span class="p">)</span>
+
+<div class="viewcode-block" id="GitDao.line_detail_table_is_empty"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.git_dao.GitDao.line_detail_table_is_empty">[docs]</a>    <span class="k">def</span> <span class="nf">line_detail_table_is_empty</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        checks line detail table is empty</span>
+
+<span class="sd">        :type repo_id: int</span>
+<span class="sd">        :param repo_id: id of an existing repository in the DB</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;SELECT COUNT(*) &quot;</span> \
+                <span class="s2">&quot;FROM commit c &quot;</span> \
+                <span class="s2">&quot;JOIN file_modification fm ON c.id = fm.commit_id &quot;</span> \
+                <span class="s2">&quot;JOIN line_detail l ON fm.id = l.file_modification_id &quot;</span> \
+                <span class="s2">&quot;WHERE l.content IS NOT NULL AND repo_id = </span><span class="si">%s</span><span class="s2">&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">repo_id</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
+            <span class="n">count</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">count</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GitDao.file_modification_patch_is_empty"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.git_dao.GitDao.file_modification_patch_is_empty">[docs]</a>    <span class="k">def</span> <span class="nf">file_modification_patch_is_empty</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        checks patch column in file modification table is empty</span>
+
+<span class="sd">        :type repo_id: int</span>
+<span class="sd">        :param repo_id: id of an existing repository in the DB</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;SELECT COUNT(*) &quot;</span> \
+                <span class="s2">&quot;FROM commit c &quot;</span> \
+                <span class="s2">&quot;JOIN file_modification fm ON c.id = fm.commit_id &quot;</span> \
+                <span class="s2">&quot;WHERE patch IS NOT NULL and repo_id = </span><span class="si">%s</span><span class="s2">&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">repo_id</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
+            <span class="n">count</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">count</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GitDao.get_last_commit_id"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.git_dao.GitDao.get_last_commit_id">[docs]</a>    <span class="k">def</span> <span class="nf">get_last_commit_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets last commit id</span>
+
+<span class="sd">        :type repo_id: int</span>
+<span class="sd">        :param repo_id: id of an existing repository in the DB</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;SELECT MAX(id) as last_commit_id &quot;</span> \
+                <span class="s2">&quot;FROM commit c &quot;</span> \
+                <span class="s2">&quot;WHERE repo_id = </span><span class="si">%s</span><span class="s2">&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">repo_id</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="GitDao.select_repo_id"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.git_dao.GitDao.select_repo_id">[docs]</a>    <span class="k">def</span> <span class="nf">select_repo_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        selects id of a repository by its name</span>
+
+<span class="sd">        :type repo_name: str</span>
+<span class="sd">        :param repo_name: name of an existing repository in the DB</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_util</span><span class="o">.</span><span class="n">select_repo_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="p">,</span> <span class="n">repo_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GitDao.insert_repo"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.git_dao.GitDao.insert_repo">[docs]</a>    <span class="k">def</span> <span class="nf">insert_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">project_id</span><span class="p">,</span> <span class="n">repo_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        inserts repository to DB</span>
+
+<span class="sd">        :type project_id: int</span>
+<span class="sd">        :param project_id: id of an existing project in the DB</span>
+
+<span class="sd">        :type repo_name: str</span>
+<span class="sd">        :param repo_name: name of a repository to insert</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_util</span><span class="o">.</span><span class="n">insert_repo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="p">,</span> <span class="n">project_id</span><span class="p">,</span> <span class="n">repo_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GitDao.select_project_id"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.git_dao.GitDao.select_project_id">[docs]</a>    <span class="k">def</span> <span class="nf">select_project_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">project_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        selects id of a project by its name</span>
+
+<span class="sd">        :type project_name: str</span>
+<span class="sd">        :param project_name: name of an existing project in the DB</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_util</span><span class="o">.</span><span class="n">select_project_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GitDao.get_user_id"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.git_dao.GitDao.get_user_id">[docs]</a>    <span class="k">def</span> <span class="nf">get_user_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_email</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets id of a user</span>
+
+<span class="sd">        :type user_name: str</span>
+<span class="sd">        :param user_name: name of the user</span>
+
+<span class="sd">        :type user_name: str</span>
+<span class="sd">        :param user_name: email of the user</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">user_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_util</span><span class="o">.</span><span class="n">select_user_id_by_email</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="p">,</span> <span class="n">user_email</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">user_id</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_db_util</span><span class="o">.</span><span class="n">insert_user</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_email</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">)</span>
+            <span class="n">user_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_util</span><span class="o">.</span><span class="n">select_user_id_by_email</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="p">,</span> <span class="n">user_email</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">user_id</span></div>
+
+<div class="viewcode-block" id="GitDao.insert_commit_parents"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.git_dao.GitDao.insert_commit_parents">[docs]</a>    <span class="k">def</span> <span class="nf">insert_commit_parents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parents</span><span class="p">,</span> <span class="n">commit_id</span><span class="p">,</span> <span class="n">sha</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        inserts commit parents to DB, one by one</span>
+
+<span class="sd">        :type parents: list of Object</span>
+<span class="sd">        :param parents: parents of a commit</span>
+
+<span class="sd">        :type commit_id: int</span>
+<span class="sd">        :param commit_id: id of the commit</span>
+
+<span class="sd">        :type sha: str</span>
+<span class="sd">        :param sha: SHA of the commit</span>
+
+<span class="sd">        :type repo_id: int</span>
+<span class="sd">        :param repo_id: id of the repository</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">parent</span> <span class="ow">in</span> <span class="n">parents</span><span class="p">:</span>
+            <span class="n">parent_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">select_commit_id</span><span class="p">(</span><span class="n">parent</span><span class="o">.</span><span class="n">hexsha</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">parent_id</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;parent commit id not found! SHA parent &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">parent</span><span class="o">.</span><span class="n">hexsha</span><span class="p">))</span>
+
+            <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;INSERT IGNORE INTO commit_parent &quot;</span> \
+                    <span class="s2">&quot;VALUES (</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">)&quot;</span>
+
+            <span class="k">if</span> <span class="n">parent_id</span><span class="p">:</span>
+                <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">repo_id</span><span class="p">,</span> <span class="n">commit_id</span><span class="p">,</span> <span class="n">sha</span><span class="p">,</span> <span class="n">parent_id</span><span class="p">,</span> <span class="n">parent</span><span class="o">.</span><span class="n">hexsha</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">repo_id</span><span class="p">,</span> <span class="n">commit_id</span><span class="p">,</span> <span class="n">sha</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">parent</span><span class="o">.</span><span class="n">hexsha</span><span class="p">]</span>
+
+            <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="GitDao.insert_all_commit_parents"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.git_dao.GitDao.insert_all_commit_parents">[docs]</a>    <span class="k">def</span> <span class="nf">insert_all_commit_parents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parents</span><span class="p">,</span> <span class="n">commit_id</span><span class="p">,</span> <span class="n">sha</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        inserts commit parents to DB all together</span>
+
+<span class="sd">        :type parents: list of Object</span>
+<span class="sd">        :param parents: parents of a commit</span>
+
+<span class="sd">        :type commit_id: int</span>
+<span class="sd">        :param commit_id: id of the commit</span>
+
+<span class="sd">        :type sha: str</span>
+<span class="sd">        :param sha: SHA of the commit</span>
+
+<span class="sd">        :type repo_id: int</span>
+<span class="sd">        :param repo_id: id of the repository</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">to_insert</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">parent</span> <span class="ow">in</span> <span class="n">parents</span><span class="p">:</span>
+            <span class="n">parent_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">select_commit_id</span><span class="p">(</span><span class="n">parent</span><span class="o">.</span><span class="n">hexsha</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">parent_id</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;parent commit id not found! SHA parent &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">parent</span><span class="o">.</span><span class="n">hexsha</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="n">parent_id</span><span class="p">:</span>
+                <span class="n">to_insert</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">repo_id</span><span class="p">,</span> <span class="n">commit_id</span><span class="p">,</span> <span class="n">sha</span><span class="p">,</span> <span class="n">parent_id</span><span class="p">,</span> <span class="n">parent</span><span class="o">.</span><span class="n">hexsha</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">to_insert</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">repo_id</span><span class="p">,</span> <span class="n">commit_id</span><span class="p">,</span> <span class="n">sha</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">parent</span><span class="o">.</span><span class="n">hexsha</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">to_insert</span><span class="p">:</span>
+            <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+            <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;INSERT IGNORE INTO commit_parent(repo_id, commit_id, commit_sha, parent_id, parent_sha) VALUES (</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">)&quot;</span>
+            <span class="n">cursor</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">to_insert</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+            <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="GitDao.insert_commits_in_reference"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.git_dao.GitDao.insert_commits_in_reference">[docs]</a>    <span class="k">def</span> <span class="nf">insert_commits_in_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">commits_data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        inserts commits to DB all together</span>
+
+<span class="sd">        :type commits_data: list of Object</span>
+<span class="sd">        :param commits_data: commit data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">commits_data</span><span class="p">:</span>
+            <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+            <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;INSERT IGNORE INTO commit_in_reference(repo_id, commit_id, ref_id) VALUES (</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">)&quot;</span>
+            <span class="n">cursor</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">commits_data</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+            <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="GitDao.insert_commit_in_reference"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.git_dao.GitDao.insert_commit_in_reference">[docs]</a>    <span class="k">def</span> <span class="nf">insert_commit_in_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">,</span> <span class="n">commit_id</span><span class="p">,</span> <span class="n">ref_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        inserts commit to DB</span>
+
+<span class="sd">        :type repo_id: int</span>
+<span class="sd">        :param repo_id: id of the repository</span>
+
+<span class="sd">        :type commit_id: int</span>
+<span class="sd">        :param commit_id: id of the commit</span>
+
+<span class="sd">        :type ref_id: int</span>
+<span class="sd">        :param ref_id: id of the reference</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;INSERT IGNORE INTO commit_in_reference &quot;</span> \
+                <span class="s2">&quot;VALUES (</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">)&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">repo_id</span><span class="p">,</span> <span class="n">commit_id</span><span class="p">,</span> <span class="n">ref_id</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="GitDao.insert_line_details"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.git_dao.GitDao.insert_line_details">[docs]</a>    <span class="k">def</span> <span class="nf">insert_line_details</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_modification_id</span><span class="p">,</span> <span class="n">detail</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        inserts line details to DB</span>
+
+<span class="sd">        :type file_modification_id: int</span>
+<span class="sd">        :param file_modification_id: id of the file modification</span>
+
+<span class="sd">        :type detail: str</span>
+<span class="sd">        :param detail: line content</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;INSERT IGNORE INTO line_detail &quot;</span> \
+                <span class="s2">&quot;VALUES (</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">)&quot;</span>
+
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">file_modification_id</span><span class="p">,</span> <span class="n">detail</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">detail</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">detail</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">detail</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">detail</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">detail</span><span class="p">[</span><span class="mi">5</span><span class="p">]]</span>
+
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="GitDao.select_file_modification_id"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.git_dao.GitDao.select_file_modification_id">[docs]</a>    <span class="k">def</span> <span class="nf">select_file_modification_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">commit_id</span><span class="p">,</span> <span class="n">file_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        selects file modification id</span>
+
+<span class="sd">        :type commit_id: int</span>
+<span class="sd">        :param commit_id: id of the commit</span>
+
+<span class="sd">        :type file_id: int</span>
+<span class="sd">        :param file_id: id of the file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;SELECT id &quot;</span> \
+                <span class="s2">&quot;FROM file_modification &quot;</span> \
+                <span class="s2">&quot;WHERE commit_id = </span><span class="si">%s</span><span class="s2"> AND file_id = </span><span class="si">%s</span><span class="s2">&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">commit_id</span><span class="p">,</span> <span class="n">file_id</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="GitDao.insert_file_modification"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.git_dao.GitDao.insert_file_modification">[docs]</a>    <span class="k">def</span> <span class="nf">insert_file_modification</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">commit_id</span><span class="p">,</span> <span class="n">file_id</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">additions</span><span class="p">,</span> <span class="n">deletions</span><span class="p">,</span> <span class="n">changes</span><span class="p">,</span> <span class="n">patch_content</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        inserts file modification to DB</span>
+
+<span class="sd">        :type commit_id: int</span>
+<span class="sd">        :param commit_id: id of the commit</span>
+
+<span class="sd">        :type file_id: int</span>
+<span class="sd">        :param file_id: id of the file</span>
+
+<span class="sd">        :type status: str</span>
+<span class="sd">        :param status: type of the modification</span>
+
+<span class="sd">        :type additions: int</span>
+<span class="sd">        :param additions: number of additions</span>
+
+<span class="sd">        :type deletions: int</span>
+<span class="sd">        :param deletions: number of deletions</span>
+
+<span class="sd">        :type changes: int</span>
+<span class="sd">        :param changes: number of changes</span>
+
+<span class="sd">        :type patch_content: str</span>
+<span class="sd">        :param patch_content: content of the patch</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;INSERT IGNORE INTO file_modification &quot;</span> \
+                <span class="s2">&quot;VALUES (NULL, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">)&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">commit_id</span><span class="p">,</span> <span class="n">file_id</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">additions</span><span class="p">,</span> <span class="n">deletions</span><span class="p">,</span> <span class="n">changes</span><span class="p">,</span> <span class="n">patch_content</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="GitDao.insert_file_renamed"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.git_dao.GitDao.insert_file_renamed">[docs]</a>    <span class="k">def</span> <span class="nf">insert_file_renamed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">,</span> <span class="n">current_file_id</span><span class="p">,</span> <span class="n">previous_file_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        inserts file renamed information</span>
+
+<span class="sd">        :type repo_id: int</span>
+<span class="sd">        :param repo_id: id of the repository</span>
+
+<span class="sd">        :type current_file_id: int</span>
+<span class="sd">        :param current_file_id: id of the renamed file</span>
+
+<span class="sd">        :type previous_file_id: int</span>
+<span class="sd">        :param previous_file_id: id of the file before renaming</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;INSERT IGNORE INTO file_renamed &quot;</span> \
+                <span class="s2">&quot;VALUES (</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">)&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">repo_id</span><span class="p">,</span> <span class="n">current_file_id</span><span class="p">,</span> <span class="n">previous_file_id</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="GitDao.insert_file"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.git_dao.GitDao.insert_file">[docs]</a>    <span class="k">def</span> <span class="nf">insert_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">ext</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        inserts file</span>
+
+<span class="sd">        :type repo_id: int</span>
+<span class="sd">        :param repo_id: id of the repository</span>
+
+<span class="sd">        :type name: str</span>
+<span class="sd">        :param name: name of the file (full path)</span>
+
+<span class="sd">        :type ext: str</span>
+<span class="sd">        :param ext: extension of the file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;INSERT IGNORE INTO file &quot;</span> \
+                <span class="s2">&quot;VALUES (</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">)&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">ext</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="GitDao.select_file_id"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.git_dao.GitDao.select_file_id">[docs]</a>    <span class="k">def</span> <span class="nf">select_file_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        selects id of the file</span>
+
+<span class="sd">        :type repo_id: int</span>
+<span class="sd">        :param repo_id: id of the repository</span>
+
+<span class="sd">        :type name: str</span>
+<span class="sd">        :param name: name of the file (full path)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;SELECT id &quot;</span> \
+                <span class="s2">&quot;FROM file &quot;</span> \
+                <span class="s2">&quot;WHERE name = </span><span class="si">%s</span><span class="s2"> AND repo_id = </span><span class="si">%s</span><span class="s2">&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="nb">id</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="nb">id</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="nb">id</span></div>
+
+<div class="viewcode-block" id="GitDao.insert_reference"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.git_dao.GitDao.insert_reference">[docs]</a>    <span class="k">def</span> <span class="nf">insert_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">,</span> <span class="n">ref_name</span><span class="p">,</span> <span class="n">ref_type</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        inserts reference</span>
+
+<span class="sd">        :type repo_id: int</span>
+<span class="sd">        :param repo_id: id of the repository</span>
+
+<span class="sd">        :type ref_name: str</span>
+<span class="sd">        :param ref_name: name of the reference</span>
+
+<span class="sd">        :type ref_name: str</span>
+<span class="sd">        :param ref_name: type of the reference (branch or tag)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;INSERT IGNORE INTO reference &quot;</span> \
+                <span class="s2">&quot;VALUES (</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">)&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">,</span> <span class="n">ref_name</span><span class="p">,</span> <span class="n">ref_type</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="GitDao.select_reference_name"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.git_dao.GitDao.select_reference_name">[docs]</a>    <span class="k">def</span> <span class="nf">select_reference_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">,</span> <span class="n">ref_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        selects reference name by its id</span>
+
+<span class="sd">        :type repo_id: int</span>
+<span class="sd">        :param repo_id: id of the repository</span>
+
+<span class="sd">        :type ref_id: int</span>
+<span class="sd">        :param ref_id: id of the reference</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;SELECT name &quot;</span> \
+                <span class="s2">&quot;FROM reference &quot;</span> \
+                <span class="s2">&quot;WHERE id = </span><span class="si">%s</span><span class="s2"> and repo_id = </span><span class="si">%s</span><span class="s2">&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">ref_id</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">name</span></div>
+
+<div class="viewcode-block" id="GitDao.select_reference_id"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.git_dao.GitDao.select_reference_id">[docs]</a>    <span class="k">def</span> <span class="nf">select_reference_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">,</span> <span class="n">ref_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        selects reference id by its name</span>
+
+<span class="sd">        :type repo_id: int</span>
+<span class="sd">        :param repo_id: id of the repository</span>
+
+<span class="sd">        :type ref_name: str</span>
+<span class="sd">        :param ref_name: name of the reference</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;SELECT id &quot;</span> \
+                <span class="s2">&quot;FROM reference &quot;</span> \
+                <span class="s2">&quot;WHERE name = </span><span class="si">%s</span><span class="s2"> and repo_id = </span><span class="si">%s</span><span class="s2">&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">ref_name</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+        <span class="nb">id</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="nb">id</span></div>
+
+<div class="viewcode-block" id="GitDao.insert_commit"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.git_dao.GitDao.insert_commit">[docs]</a>    <span class="k">def</span> <span class="nf">insert_commit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">,</span> <span class="n">sha</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">author_id</span><span class="p">,</span> <span class="n">committer_id</span><span class="p">,</span> <span class="n">authored_date</span><span class="p">,</span> <span class="n">committed_date</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        inserts commit to DB</span>
+
+<span class="sd">        :type repo_id: int</span>
+<span class="sd">        :param repo_id: id of the repository</span>
+
+<span class="sd">        :type sha: str</span>
+<span class="sd">        :param sha: SHA of the commit</span>
+
+<span class="sd">        :type message: str</span>
+<span class="sd">        :param message: message of the commit</span>
+
+<span class="sd">        :type author_id: int</span>
+<span class="sd">        :param author_id: author id of the commit</span>
+
+<span class="sd">        :type committer_id: int</span>
+<span class="sd">        :param committer_id: committer id of the commit</span>
+
+<span class="sd">        :type authored_date: str</span>
+<span class="sd">        :param authored_date: authored date of the commit</span>
+
+<span class="sd">        :type committed_date: str</span>
+<span class="sd">        :param committed_date: committed date of the commit</span>
+
+<span class="sd">        :type size: int</span>
+<span class="sd">        :param size: size of the commit</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;INSERT IGNORE INTO commit &quot;</span> \
+                <span class="s2">&quot;VALUES (</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">)&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">,</span> <span class="n">sha</span><span class="p">,</span> <span class="n">message</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="n">author_id</span><span class="p">,</span> <span class="n">committer_id</span><span class="p">,</span> <span class="n">authored_date</span><span class="p">,</span> <span class="n">committed_date</span><span class="p">,</span> <span class="n">size</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="GitDao.update_commit_parent"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.git_dao.GitDao.update_commit_parent">[docs]</a>    <span class="k">def</span> <span class="nf">update_commit_parent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent_id</span><span class="p">,</span> <span class="n">parent_sha</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        inserts commit parent to DB</span>
+
+<span class="sd">        :type parent_id: int</span>
+<span class="sd">        :param parent_id: id of the commit parent</span>
+
+<span class="sd">        :type parent_sha: str</span>
+<span class="sd">        :param parent_sha: SHA of the commit parent</span>
+
+<span class="sd">        :type repo_id: int</span>
+<span class="sd">        :param repo_id: id of the repository</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query_update</span> <span class="o">=</span> <span class="s2">&quot;UPDATE commit_parent &quot;</span> \
+                       <span class="s2">&quot;SET parent_id = </span><span class="si">%s</span><span class="s2"> &quot;</span> \
+                       <span class="s2">&quot;WHERE parent_id IS NULL AND parent_sha = </span><span class="si">%s</span><span class="s2"> AND repo_id = </span><span class="si">%s</span><span class="s2"> &quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">parent_id</span><span class="p">,</span> <span class="n">parent_sha</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query_update</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="GitDao.fix_commit_parent_table"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.git_dao.GitDao.fix_commit_parent_table">[docs]</a>    <span class="k">def</span> <span class="nf">fix_commit_parent_table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        checks for missing commit parent information and fixes it</span>
+
+<span class="sd">        :type repo_id: int</span>
+<span class="sd">        :param repo_id: id of the repository</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query_select</span> <span class="o">=</span> <span class="s2">&quot;SELECT parent_sha &quot;</span> \
+                       <span class="s2">&quot;FROM commit_parent &quot;</span> \
+                       <span class="s2">&quot;WHERE parent_id IS NULL AND repo_id = </span><span class="si">%s</span><span class="s2">&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">repo_id</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query_select</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+        <span class="k">while</span> <span class="n">row</span><span class="p">:</span>
+            <span class="n">parent_sha</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">parent_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">select_commit_id</span><span class="p">(</span><span class="n">parent_sha</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_commit_parent</span><span class="p">(</span><span class="n">parent_id</span><span class="p">,</span> <span class="n">parent_sha</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">)</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="GitDao.select_commit_id"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.git_dao.GitDao.select_commit_id">[docs]</a>    <span class="k">def</span> <span class="nf">select_commit_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sha</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        selects id of a commit by its SHA</span>
+
+<span class="sd">        :type sha: str</span>
+<span class="sd">        :param sha: SHA of the commit</span>
+
+<span class="sd">        :type repo_id: int</span>
+<span class="sd">        :param repo_id: id of the repository</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;SELECT id &quot;</span> \
+                <span class="s2">&quot;FROM commit &quot;</span> \
+                <span class="s2">&quot;WHERE sha = </span><span class="si">%s</span><span class="s2"> AND repo_id = </span><span class="si">%s</span><span class="s2">&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">sha</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">found</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Valerio Cosentino.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

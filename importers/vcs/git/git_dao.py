@@ -6,8 +6,19 @@ from util.db_util import DbUtil
 
 
 class GitDao():
+    """
+    This class handles the persistence and retrieval of Git data
+    """
+
 
     def __init__(self, config, logger):
+        """
+        :type config: dict
+        :param config: the DB configuration file
+
+        :type logger: Object
+        :param logger: logger
+        """
         try:
             self._config = config
             self._logger = logger
@@ -54,6 +65,12 @@ class GitDao():
         return ','.join(str(x) for x in array)
 
     def line_detail_table_is_empty(self, repo_id):
+        """
+        checks line detail table is empty
+
+        :type repo_id: int
+        :param repo_id: id of an existing repository in the DB
+        """
         cursor = self._cnx.cursor()
         query = "SELECT COUNT(*) " \
                 "FROM commit c " \
@@ -73,6 +90,12 @@ class GitDao():
         return int(count > 0)
 
     def file_modification_patch_is_empty(self, repo_id):
+        """
+        checks patch column in file modification table is empty
+
+        :type repo_id: int
+        :param repo_id: id of an existing repository in the DB
+        """
         cursor = self._cnx.cursor()
         query = "SELECT COUNT(*) " \
                 "FROM commit c " \
@@ -91,6 +114,12 @@ class GitDao():
         return int(count > 0)
 
     def get_last_commit_id(self, repo_id):
+        """
+        gets last commit id
+
+        :type repo_id: int
+        :param repo_id: id of an existing repository in the DB
+        """
         found = None
         cursor = self._cnx.cursor()
         query = "SELECT MAX(id) as last_commit_id " \
@@ -107,15 +136,45 @@ class GitDao():
         return found
 
     def select_repo_id(self, repo_name):
+        """
+        selects id of a repository by its name
+
+        :type repo_name: str
+        :param repo_name: name of an existing repository in the DB
+        """
         return self._db_util.select_repo_id(self._cnx, repo_name, self._logger)
 
     def insert_repo(self, project_id, repo_name):
+        """
+        inserts repository to DB
+
+        :type project_id: int
+        :param project_id: id of an existing project in the DB
+
+        :type repo_name: str
+        :param repo_name: name of a repository to insert
+        """
         return self._db_util.insert_repo(self._cnx, project_id, repo_name, self._logger)
 
     def select_project_id(self, project_name):
+        """
+        selects id of a project by its name
+
+        :type project_name: str
+        :param project_name: name of an existing project in the DB
+        """
         return self._db_util.select_project_id(self._cnx, project_name, self._logger)
 
     def get_user_id(self, user_name, user_email):
+        """
+        gets id of a user
+
+        :type user_name: str
+        :param user_name: name of the user
+
+        :type user_name: str
+        :param user_name: email of the user
+        """
         user_id = self._db_util.select_user_id_by_email(self._cnx, user_email, self._logger)
         if not user_id:
             self._db_util.insert_user(self._cnx, user_name, user_email, self._logger)
@@ -124,6 +183,21 @@ class GitDao():
         return user_id
 
     def insert_commit_parents(self, parents, commit_id, sha, repo_id):
+        """
+        inserts commit parents to DB, one by one
+
+        :type parents: list of Object
+        :param parents: parents of a commit
+
+        :type commit_id: int
+        :param commit_id: id of the commit
+
+        :type sha: str
+        :param sha: SHA of the commit
+
+        :type repo_id: int
+        :param repo_id: id of the repository
+        """
         cursor = self._cnx.cursor()
         for parent in parents:
             parent_id = self.select_commit_id(parent.hexsha, repo_id)
@@ -145,6 +219,21 @@ class GitDao():
         cursor.close()
 
     def insert_all_commit_parents(self, parents, commit_id, sha, repo_id):
+        """
+        inserts commit parents to DB all together
+
+        :type parents: list of Object
+        :param parents: parents of a commit
+
+        :type commit_id: int
+        :param commit_id: id of the commit
+
+        :type sha: str
+        :param sha: SHA of the commit
+
+        :type repo_id: int
+        :param repo_id: id of the repository
+        """
         to_insert = []
         for parent in parents:
             parent_id = self.select_commit_id(parent.hexsha, repo_id)
@@ -165,6 +254,12 @@ class GitDao():
             cursor.close()
 
     def insert_commits_in_reference(self, commits_data):
+        """
+        inserts commits to DB all together
+
+        :type commits_data: list of Object
+        :param commits_data: commit data
+        """
         if commits_data:
             cursor = self._cnx.cursor()
             query = "INSERT IGNORE INTO commit_in_reference(repo_id, commit_id, ref_id) VALUES (%s, %s, %s)"
@@ -173,6 +268,18 @@ class GitDao():
             cursor.close()
 
     def insert_commit_in_reference(self, repo_id, commit_id, ref_id):
+        """
+        inserts commit to DB
+
+        :type repo_id: int
+        :param repo_id: id of the repository
+
+        :type commit_id: int
+        :param commit_id: id of the commit
+
+        :type ref_id: int
+        :param ref_id: id of the reference
+        """
         cursor = self._cnx.cursor()
         query = "INSERT IGNORE INTO commit_in_reference " \
                 "VALUES (%s, %s, %s)"
@@ -182,6 +289,15 @@ class GitDao():
         cursor.close()
 
     def insert_line_details(self, file_modification_id, detail):
+        """
+        inserts line details to DB
+
+        :type file_modification_id: int
+        :param file_modification_id: id of the file modification
+
+        :type detail: str
+        :param detail: line content
+        """
         cursor = self._cnx.cursor()
         query = "INSERT IGNORE INTO line_detail " \
                 "VALUES (%s, %s, %s, %s, %s, %s, %s)"
@@ -193,6 +309,15 @@ class GitDao():
         cursor.close()
 
     def select_file_modification_id(self, commit_id, file_id):
+        """
+        selects file modification id
+
+        :type commit_id: int
+        :param commit_id: id of the commit
+
+        :type file_id: int
+        :param file_id: id of the file
+        """
         cursor = self._cnx.cursor()
         query = "SELECT id " \
                 "FROM file_modification " \
@@ -209,6 +334,30 @@ class GitDao():
         return found
 
     def insert_file_modification(self, commit_id, file_id, status, additions, deletions, changes, patch_content):
+        """
+        inserts file modification to DB
+
+        :type commit_id: int
+        :param commit_id: id of the commit
+
+        :type file_id: int
+        :param file_id: id of the file
+
+        :type status: str
+        :param status: type of the modification
+
+        :type additions: int
+        :param additions: number of additions
+
+        :type deletions: int
+        :param deletions: number of deletions
+
+        :type changes: int
+        :param changes: number of changes
+
+        :type patch_content: str
+        :param patch_content: content of the patch
+        """
         cursor = self._cnx.cursor()
         query = "INSERT IGNORE INTO file_modification " \
                 "VALUES (NULL, %s, %s, %s, %s, %s, %s, %s)"
@@ -218,6 +367,18 @@ class GitDao():
         cursor.close()
 
     def insert_file_renamed(self, repo_id, current_file_id, previous_file_id):
+        """
+        inserts file renamed information
+
+        :type repo_id: int
+        :param repo_id: id of the repository
+
+        :type current_file_id: int
+        :param current_file_id: id of the renamed file
+
+        :type previous_file_id: int
+        :param previous_file_id: id of the file before renaming
+        """
         cursor = self._cnx.cursor()
 
         query = "INSERT IGNORE INTO file_renamed " \
@@ -228,6 +389,18 @@ class GitDao():
         cursor.close()
 
     def insert_file(self, repo_id, name, ext):
+        """
+        inserts file
+
+        :type repo_id: int
+        :param repo_id: id of the repository
+
+        :type name: str
+        :param name: name of the file (full path)
+
+        :type ext: str
+        :param ext: extension of the file
+        """
         cursor = self._cnx.cursor()
         query = "INSERT IGNORE INTO file " \
                 "VALUES (%s, %s, %s, %s)"
@@ -237,6 +410,15 @@ class GitDao():
         cursor.close()
 
     def select_file_id(self, repo_id, name):
+        """
+        selects id of the file
+
+        :type repo_id: int
+        :param repo_id: id of the repository
+
+        :type name: str
+        :param name: name of the file (full path)
+        """
         cursor = self._cnx.cursor()
         query = "SELECT id " \
                 "FROM file " \
@@ -251,6 +433,18 @@ class GitDao():
         return id
 
     def insert_reference(self, repo_id, ref_name, ref_type):
+        """
+        inserts reference
+
+        :type repo_id: int
+        :param repo_id: id of the repository
+
+        :type ref_name: str
+        :param ref_name: name of the reference
+
+        :type ref_name: str
+        :param ref_name: type of the reference (branch or tag)
+        """
         cursor = self._cnx.cursor()
         query = "INSERT IGNORE INTO reference " \
                 "VALUES (%s, %s, %s, %s)"
@@ -260,6 +454,15 @@ class GitDao():
         cursor.close()
 
     def select_reference_name(self, repo_id, ref_id):
+        """
+        selects reference name by its id
+
+        :type repo_id: int
+        :param repo_id: id of the repository
+
+        :type ref_id: int
+        :param ref_id: id of the reference
+        """
         cursor = self._cnx.cursor()
         query = "SELECT name " \
                 "FROM reference " \
@@ -271,6 +474,15 @@ class GitDao():
         return name
 
     def select_reference_id(self, repo_id, ref_name):
+        """
+        selects reference id by its name
+
+        :type repo_id: int
+        :param repo_id: id of the repository
+
+        :type ref_name: str
+        :param ref_name: name of the reference
+        """
         cursor = self._cnx.cursor()
         query = "SELECT id " \
                 "FROM reference " \
@@ -282,6 +494,33 @@ class GitDao():
         return id
 
     def insert_commit(self, repo_id, sha, message, author_id, committer_id, authored_date, committed_date, size):
+        """
+        inserts commit to DB
+
+        :type repo_id: int
+        :param repo_id: id of the repository
+
+        :type sha: str
+        :param sha: SHA of the commit
+
+        :type message: str
+        :param message: message of the commit
+
+        :type author_id: int
+        :param author_id: author id of the commit
+
+        :type committer_id: int
+        :param committer_id: committer id of the commit
+
+        :type authored_date: str
+        :param authored_date: authored date of the commit
+
+        :type committed_date: str
+        :param committed_date: committed date of the commit
+
+        :type size: int
+        :param size: size of the commit
+        """
         cursor = self._cnx.cursor()
         query = "INSERT IGNORE INTO commit " \
                 "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
@@ -291,6 +530,18 @@ class GitDao():
         cursor.close()
 
     def update_commit_parent(self, parent_id, parent_sha, repo_id):
+        """
+        inserts commit parent to DB
+
+        :type parent_id: int
+        :param parent_id: id of the commit parent
+
+        :type parent_sha: str
+        :param parent_sha: SHA of the commit parent
+
+        :type repo_id: int
+        :param repo_id: id of the repository
+        """
         cursor = self._cnx.cursor()
         query_update = "UPDATE commit_parent " \
                        "SET parent_id = %s " \
@@ -301,6 +552,12 @@ class GitDao():
         cursor.close()
 
     def fix_commit_parent_table(self, repo_id):
+        """
+        checks for missing commit parent information and fixes it
+
+        :type repo_id: int
+        :param repo_id: id of the repository
+        """
         cursor = self._cnx.cursor()
         query_select = "SELECT parent_sha " \
                        "FROM commit_parent " \
@@ -316,6 +573,15 @@ class GitDao():
         cursor.close()
 
     def select_commit_id(self, sha, repo_id):
+        """
+        selects id of a commit by its SHA
+
+        :type sha: str
+        :param sha: SHA of the commit
+
+        :type repo_id: int
+        :param repo_id: id of the repository
+        """
         found = None
         cursor = self._cnx.cursor()
         query = "SELECT id " \

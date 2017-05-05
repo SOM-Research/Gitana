@@ -1,0 +1,530 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>util.db_util &#8212; Gitana 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for util.db_util</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;valerio cosentino&#39;</span>
+
+<span class="kn">import</span> <span class="nn">mysql.connector</span>
+<span class="kn">from</span> <span class="nn">mysql.connector</span> <span class="k">import</span> <span class="n">errorcode</span>
+
+
+<div class="viewcode-block" id="DbUtil"><a class="viewcode-back" href="../../util_db.html#util.db_util.DbUtil">[docs]</a><span class="k">class</span> <span class="nc">DbUtil</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class provides database utilities</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="DbUtil.get_connection"><a class="viewcode-back" href="../../util_db.html#util.db_util.DbUtil.get_connection">[docs]</a>    <span class="k">def</span> <span class="nf">get_connection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets DB connection</span>
+
+<span class="sd">        :type config: dict</span>
+<span class="sd">        :param config: the DB configuration file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">mysql</span><span class="o">.</span><span class="n">connector</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="o">**</span><span class="n">config</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DbUtil.close_connection"><a class="viewcode-back" href="../../util_db.html#util.db_util.DbUtil.close_connection">[docs]</a>    <span class="k">def</span> <span class="nf">close_connection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cnx</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        closes DB connection</span>
+
+<span class="sd">        :type cnx: Object</span>
+<span class="sd">        :param cnx: DB connection to close</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cnx</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="DbUtil.lowercase"><a class="viewcode-back" href="../../util_db.html#util.db_util.DbUtil.lowercase">[docs]</a>    <span class="k">def</span> <span class="nf">lowercase</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        conver str to lowercase</span>
+
+<span class="sd">        :type str: str</span>
+<span class="sd">        :param str: str to convert</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="nb">str</span> <span class="o">=</span> <span class="nb">str</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="nb">str</span></div>
+
+<div class="viewcode-block" id="DbUtil.select_project_id"><a class="viewcode-back" href="../../util_db.html#util.db_util.DbUtil.select_project_id">[docs]</a>    <span class="k">def</span> <span class="nf">select_project_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cnx</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gets project id</span>
+
+<span class="sd">        :type cnx: Object</span>
+<span class="sd">        :param cnx: DB connection</span>
+
+<span class="sd">        :type project_name: str</span>
+<span class="sd">        :param project_name: name of the project</span>
+
+<span class="sd">        :type logger: Object</span>
+<span class="sd">        :param logger: logger</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="n">cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;SELECT p.id &quot;</span> \
+                <span class="s2">&quot;FROM project p &quot;</span> \
+                <span class="s2">&quot;WHERE p.name = </span><span class="si">%s</span><span class="s2">&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">project_name</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;the project &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">project_name</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; does not exist&quot;</span><span class="p">)</span>
+
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="DbUtil.insert_repo"><a class="viewcode-back" href="../../util_db.html#util.db_util.DbUtil.insert_repo">[docs]</a>    <span class="k">def</span> <span class="nf">insert_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cnx</span><span class="p">,</span> <span class="n">project_id</span><span class="p">,</span> <span class="n">repo_name</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        inserts repository</span>
+
+<span class="sd">        :type cnx: Object</span>
+<span class="sd">        :param cnx: DB connection</span>
+
+<span class="sd">        :type project_id: int</span>
+<span class="sd">        :param project_id: id of the project</span>
+
+<span class="sd">        :type repo_name: str</span>
+<span class="sd">        :param repo_name: name of the repository</span>
+
+<span class="sd">        :type logger: Object</span>
+<span class="sd">        :param logger: logger</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="n">cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;INSERT IGNORE INTO repository &quot;</span> \
+                <span class="s2">&quot;VALUES (</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">)&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">project_id</span><span class="p">,</span> <span class="n">repo_name</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+        <span class="n">cnx</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="DbUtil.insert_issue_tracker"><a class="viewcode-back" href="../../util_db.html#util.db_util.DbUtil.insert_issue_tracker">[docs]</a>    <span class="k">def</span> <span class="nf">insert_issue_tracker</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cnx</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">,</span> <span class="n">issue_tracker_name</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        inserts issue tracker</span>
+
+<span class="sd">        :type cnx: Object</span>
+<span class="sd">        :param cnx: DB connection</span>
+
+<span class="sd">        :type repo_id: int</span>
+<span class="sd">        :param repo_id: id of the repository</span>
+
+<span class="sd">        :type issue_tracker_name: str</span>
+<span class="sd">        :param issue_tracker_name: name of the issue tracker</span>
+
+<span class="sd">        :type type: str</span>
+<span class="sd">        :param type: type of the issue tracker</span>
+
+<span class="sd">        :type logger: Object</span>
+<span class="sd">        :param logger: logger</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="n">cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;INSERT IGNORE INTO issue_tracker &quot;</span> \
+                <span class="s2">&quot;VALUES (</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">)&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">,</span> <span class="n">issue_tracker_name</span><span class="p">,</span> <span class="nb">type</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+        <span class="n">cnx</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;SELECT id &quot;</span> \
+                <span class="s2">&quot;FROM issue_tracker &quot;</span> \
+                <span class="s2">&quot;WHERE name = </span><span class="si">%s</span><span class="s2">&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">issue_tracker_name</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;no issue with name &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">issue_tracker_name</span><span class="p">))</span>
+
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="DbUtil.select_repo_id"><a class="viewcode-back" href="../../util_db.html#util.db_util.DbUtil.select_repo_id">[docs]</a>    <span class="k">def</span> <span class="nf">select_repo_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cnx</span><span class="p">,</span> <span class="n">repo_name</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        selects repository id</span>
+
+<span class="sd">        :type cnx: Object</span>
+<span class="sd">        :param cnx: DB connection</span>
+
+<span class="sd">        :type repo_name: str</span>
+<span class="sd">        :param repo_name: name of the repository</span>
+
+<span class="sd">        :type logger: Object</span>
+<span class="sd">        :param logger: logger</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="n">cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;SELECT id &quot;</span> \
+                <span class="s2">&quot;FROM repository &quot;</span> \
+                <span class="s2">&quot;WHERE name = </span><span class="si">%s</span><span class="s2">&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">repo_name</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;the repository &quot;</span> <span class="o">+</span> <span class="n">repo_name</span> <span class="o">+</span> <span class="s2">&quot; does not exist&quot;</span><span class="p">)</span>
+
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="DbUtil.select_instant_messaging_id"><a class="viewcode-back" href="../../util_db.html#util.db_util.DbUtil.select_instant_messaging_id">[docs]</a>    <span class="k">def</span> <span class="nf">select_instant_messaging_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cnx</span><span class="p">,</span> <span class="n">im_name</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        selects instant messaging id</span>
+
+<span class="sd">        :type cnx: Object</span>
+<span class="sd">        :param cnx: DB connection</span>
+
+<span class="sd">        :type im_name: str</span>
+<span class="sd">        :param im_name: name of the instant messaging</span>
+
+<span class="sd">        :type logger: Object</span>
+<span class="sd">        :param logger: logger</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="n">cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;SELECT id &quot;</span> \
+                <span class="s2">&quot;FROM instant_messaging &quot;</span> \
+                <span class="s2">&quot;WHERE name = </span><span class="si">%s</span><span class="s2">&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">im_name</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;the instant messaging &quot;</span> <span class="o">+</span> <span class="n">im_name</span> <span class="o">+</span> <span class="s2">&quot; does not exist&quot;</span><span class="p">)</span>
+
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="DbUtil.insert_user"><a class="viewcode-back" href="../../util_db.html#util.db_util.DbUtil.insert_user">[docs]</a>    <span class="k">def</span> <span class="nf">insert_user</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cnx</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">email</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        inserts user</span>
+
+<span class="sd">        :type cnx: Object</span>
+<span class="sd">        :param cnx: DB connection</span>
+
+<span class="sd">        :type name: str</span>
+<span class="sd">        :param name: name of the user</span>
+
+<span class="sd">        :type email: str</span>
+<span class="sd">        :param email: email of the user</span>
+
+<span class="sd">        :type logger: Object</span>
+<span class="sd">        :param logger: logger</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="n">cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;INSERT IGNORE INTO user &quot;</span> \
+                <span class="s2">&quot;VALUES (</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">)&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">email</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+        <span class="n">cnx</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="DbUtil.select_user_id_by_email"><a class="viewcode-back" href="../../util_db.html#util.db_util.DbUtil.select_user_id_by_email">[docs]</a>    <span class="k">def</span> <span class="nf">select_user_id_by_email</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cnx</span><span class="p">,</span> <span class="n">email</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        selects user id by email</span>
+
+<span class="sd">        :type cnx: Object</span>
+<span class="sd">        :param cnx: DB connection</span>
+
+<span class="sd">        :type email: str</span>
+<span class="sd">        :param email: email of the user</span>
+
+<span class="sd">        :type logger: Object</span>
+<span class="sd">        :param logger: logger</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">email</span><span class="p">:</span>
+            <span class="n">cursor</span> <span class="o">=</span> <span class="n">cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+            <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;SELECT id &quot;</span> \
+                    <span class="s2">&quot;FROM user &quot;</span> \
+                    <span class="s2">&quot;WHERE email = </span><span class="si">%s</span><span class="s2">&quot;</span>
+            <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">email</span><span class="p">]</span>
+            <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+
+            <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
+                <span class="n">found</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;there is not user with this email &quot;</span> <span class="o">+</span> <span class="n">email</span><span class="p">)</span>
+
+            <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="DbUtil.select_user_id_by_name"><a class="viewcode-back" href="../../util_db.html#util.db_util.DbUtil.select_user_id_by_name">[docs]</a>    <span class="k">def</span> <span class="nf">select_user_id_by_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cnx</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        selects user id by name</span>
+
+<span class="sd">        :type cnx: Object</span>
+<span class="sd">        :param cnx: DB connection</span>
+
+<span class="sd">        :type name: str</span>
+<span class="sd">        :param name: name of the user</span>
+
+<span class="sd">        :type logger: Object</span>
+<span class="sd">        :param logger: logger</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">name</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">cursor</span> <span class="o">=</span> <span class="n">cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+            <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;SELECT id &quot;</span> \
+                    <span class="s2">&quot;FROM user &quot;</span> \
+                    <span class="s2">&quot;WHERE name = </span><span class="si">%s</span><span class="s2">&quot;</span>
+            <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span><span class="p">]</span>
+            <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+
+            <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
+                <span class="n">found</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;there is not user with this name &quot;</span> <span class="o">+</span> <span class="n">name</span><span class="p">)</span>
+
+            <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="DbUtil.select_forum_id"><a class="viewcode-back" href="../../util_db.html#util.db_util.DbUtil.select_forum_id">[docs]</a>    <span class="k">def</span> <span class="nf">select_forum_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cnx</span><span class="p">,</span> <span class="n">forum_name</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        selects forum id</span>
+
+<span class="sd">        :type cnx: Object</span>
+<span class="sd">        :param cnx: DB connection</span>
+
+<span class="sd">        :type forum_name: str</span>
+<span class="sd">        :param forum_name: name of the forum</span>
+
+<span class="sd">        :type logger: Object</span>
+<span class="sd">        :param logger: logger</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="n">cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;SELECT id &quot;</span> \
+                <span class="s2">&quot;FROM forum &quot;</span> \
+                <span class="s2">&quot;WHERE name = </span><span class="si">%s</span><span class="s2">&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">forum_name</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;the forum &quot;</span> <span class="o">+</span> <span class="n">forum_name</span> <span class="o">+</span> <span class="s2">&quot; does not exist&quot;</span><span class="p">)</span>
+
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="DbUtil.select_issue_tracker_id"><a class="viewcode-back" href="../../util_db.html#util.db_util.DbUtil.select_issue_tracker_id">[docs]</a>    <span class="k">def</span> <span class="nf">select_issue_tracker_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cnx</span><span class="p">,</span> <span class="n">issue_tracker_name</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        selects issue tracker id</span>
+
+<span class="sd">        :type cnx: Object</span>
+<span class="sd">        :param cnx: DB connection</span>
+
+<span class="sd">        :type issue_tracker_name: str</span>
+<span class="sd">        :param issue_tracker_name: name of the issue tracker</span>
+
+<span class="sd">        :type logger: Object</span>
+<span class="sd">        :param logger: logger</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="n">cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;SELECT id &quot;</span> \
+                <span class="s2">&quot;FROM issue_tracker &quot;</span> \
+                <span class="s2">&quot;WHERE name = </span><span class="si">%s</span><span class="s2">&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">issue_tracker_name</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;the issue tracker &quot;</span> <span class="o">+</span> <span class="n">issue_tracker_name</span> <span class="o">+</span> <span class="s2">&quot; does not exist&quot;</span><span class="p">)</span>
+
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="DbUtil.get_issue_dependency_type_id"><a class="viewcode-back" href="../../util_db.html#util.db_util.DbUtil.get_issue_dependency_type_id">[docs]</a>    <span class="k">def</span> <span class="nf">get_issue_dependency_type_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cnx</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        selects issue dependency type id</span>
+
+<span class="sd">        :type cnx: Object</span>
+<span class="sd">        :param cnx: DB connection</span>
+
+<span class="sd">        :type name: str</span>
+<span class="sd">        :param name: dependency type name</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="n">cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;SELECT id FROM issue_dependency_type WHERE name = </span><span class="si">%s</span><span class="s2">&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="DbUtil.get_message_type_id"><a class="viewcode-back" href="../../util_db.html#util.db_util.DbUtil.get_message_type_id">[docs]</a>    <span class="k">def</span> <span class="nf">get_message_type_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cnx</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        selects message type id</span>
+
+<span class="sd">        :type cnx: Object</span>
+<span class="sd">        :param cnx: DB connection</span>
+
+<span class="sd">        :type name: str</span>
+<span class="sd">        :param name: message type name</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="n">cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;SELECT id FROM message_type WHERE name = </span><span class="si">%s</span><span class="s2">&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="DbUtil.set_database"><a class="viewcode-back" href="../../util_db.html#util.db_util.DbUtil.set_database">[docs]</a>    <span class="k">def</span> <span class="nf">set_database</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cnx</span><span class="p">,</span> <span class="n">db_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        set database</span>
+
+<span class="sd">        :type cnx: Object</span>
+<span class="sd">        :param cnx: DB connection</span>
+
+<span class="sd">        :type db_name: str</span>
+<span class="sd">        :param db_name: name of the database</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="n">cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">use_database</span> <span class="o">=</span> <span class="s2">&quot;USE &quot;</span> <span class="o">+</span> <span class="n">db_name</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">use_database</span><span class="p">)</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="DbUtil.set_settings"><a class="viewcode-back" href="../../util_db.html#util.db_util.DbUtil.set_settings">[docs]</a>    <span class="k">def</span> <span class="nf">set_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cnx</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        set database settings</span>
+
+<span class="sd">        :type cnx: Object</span>
+<span class="sd">        :param cnx: DB connection</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="n">cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;set global innodb_file_format = BARRACUDA&quot;</span><span class="p">)</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;set global innodb_file_format_max = BARRACUDA&quot;</span><span class="p">)</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;set global innodb_large_prefix = ON&quot;</span><span class="p">)</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;set global character_set_server = utf8&quot;</span><span class="p">)</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;set global max_connections = 500&quot;</span><span class="p">)</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="DbUtil.restart_connection"><a class="viewcode-back" href="../../util_db.html#util.db_util.DbUtil.restart_connection">[docs]</a>    <span class="k">def</span> <span class="nf">restart_connection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        restart DB connection</span>
+
+<span class="sd">        :type config: dict</span>
+<span class="sd">        :param config: the DB configuration file</span>
+
+<span class="sd">        :type logger: Object</span>
+<span class="sd">        :param logger: logger</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;restarting connection...&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">mysql</span><span class="o">.</span><span class="n">connector</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="o">**</span><span class="n">config</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Valerio Cosentino.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

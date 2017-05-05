@@ -8,13 +8,24 @@ from util.date_util import DateUtil
 
 
 class ChartGenerator():
+    """
+    This class handles the generation of charts
+    """
 
     def __init__(self, cnx, logger):
+        """
+        :type cnx: Object
+        :param cnx: DB connection
+
+        :type logger: Object
+        :param logger: logger
+        """
         self._cnx = cnx
         self._logger = logger
         self._date_util = DateUtil()
 
     def _get_db_data(self, query):
+        #queries the database
         cursor = self._cnx.cursor()
         cursor.execute(query)
 
@@ -33,6 +44,21 @@ class ChartGenerator():
         return results_x, results_y
 
     def create(self, query, x_label, y_label, time_dimension):
+        """
+        creates the charts
+
+        :type query: str
+        :param query: SQL query
+
+        :type x_label: str
+        :param x_label: name of the x label
+
+        :type y_label: str
+        :param y_label: name of the y label
+
+        :type time_dimension: str
+        :param time_dimension: time dimension (week, month, year)
+        """
         intervals, counters = self._get_db_data(query)
 
         if "year" in time_dimension:
