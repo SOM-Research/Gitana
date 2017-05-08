@@ -59,20 +59,20 @@ the data returned by each query is used to generate charts, which are embedded i
 <img alt="_images/report-exporter-2.svg" src="_images/report-exporter-2.svg" /><div class="section" id="the-dsl">
 <h2>The DSL<a class="headerlink" href="#the-dsl" title="Permalink to this headline">¶</a></h2>
 <p>The DSL is defined using the JSON format. Below, the DSL instance template with the current exportable measures is shown.</p>
-<div class="highlight-json"><div class="highlight"><pre><span></span>{&quot;report&quot;:
-        {&quot;project&quot;: &quot;NAME-OF-THE-PROJECT&quot;,
-         &quot;time_span&quot;: &quot;this_week|this_month|this_year&quot;,
-         &quot;repo_activity&quot;:
-                                        {&quot;names&quot;: [&quot;NAME-OF-THE-REPO-1&quot;, &quot;NAME-OF-THE-REPO-2&quot;, ...],
-                                         &quot;measures&quot;: [&quot;#commits&quot;, &quot;#repo-users&quot;, ...]},
-         &quot;issue_tracker_activity&quot;:
-                                        {&quot;names&quot;: [&quot;NAME-OF-THE-ISSUE-TRACKER-1&quot;, &quot;NAME-OF-THE-ISSUE-TRACKER-2&quot;, ...],
-                                         &quot;measures&quot;: [&quot;#issues-open&quot;, &quot;#issues-closed&quot;, &quot;#issue-tracker-users&quot;]},
-         &quot;forum_activity&quot;:
-                                        {&quot;names&quot;: [&quot;NAME-OF-THE-FORUM-1&quot;, &quot;NAME-OF-THE-FORUM-2&quot;, ...],
-                                        &quot;measures&quot;: [&quot;#messages&quot;, &quot;#forum-users&quot;, &quot;#new-topics&quot;, &quot;#active-topics&quot;]}
-        }
-}
+<div class="highlight-json"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;report&quot;</span><span class="p">:</span>
+        <span class="p">{</span><span class="nt">&quot;project&quot;</span><span class="p">:</span> <span class="s2">&quot;NAME-OF-THE-PROJECT&quot;</span><span class="p">,</span>
+         <span class="nt">&quot;time_span&quot;</span><span class="p">:</span> <span class="s2">&quot;this_week|this_month|this_year&quot;</span><span class="p">,</span>
+         <span class="nt">&quot;repo_activity&quot;</span><span class="p">:</span>
+                                        <span class="p">{</span><span class="nt">&quot;names&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;NAME-OF-THE-REPO-1&quot;</span><span class="p">,</span> <span class="s2">&quot;NAME-OF-THE-REPO-2&quot;</span><span class="p">,</span> <span class="s2">&quot;...&quot;</span><span class="p">],</span>
+                                         <span class="nt">&quot;measures&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;#commits&quot;</span><span class="p">,</span> <span class="s2">&quot;#repo-users&quot;</span><span class="p">]},</span>
+         <span class="nt">&quot;issue_tracker_activity&quot;</span><span class="p">:</span>
+                                        <span class="p">{</span><span class="nt">&quot;names&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;NAME-OF-THE-ISSUE-TRACKER-1&quot;</span><span class="p">,</span> <span class="s2">&quot;NAME-OF-THE-ISSUE-TRACKER-2&quot;</span><span class="p">,</span> <span class="s2">&quot;...&quot;</span><span class="p">],</span>
+                                         <span class="nt">&quot;measures&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;#issues-open&quot;</span><span class="p">,</span> <span class="s2">&quot;#issues-closed&quot;</span><span class="p">,</span> <span class="s2">&quot;#issue-tracker-users&quot;</span><span class="p">]},</span>
+         <span class="nt">&quot;forum_activity&quot;</span><span class="p">:</span>
+                                        <span class="p">{</span><span class="nt">&quot;names&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;NAME-OF-THE-FORUM-1&quot;</span><span class="p">,</span> <span class="s2">&quot;NAME-OF-THE-FORUM-2&quot;</span><span class="p">,</span> <span class="s2">&quot;...&quot;</span><span class="p">],</span>
+                                        <span class="nt">&quot;measures&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;#messages&quot;</span><span class="p">,</span> <span class="s2">&quot;#forum-users&quot;</span><span class="p">,</span> <span class="s2">&quot;#new-topics&quot;</span><span class="p">,</span> <span class="s2">&quot;#active-topics&quot;</span><span class="p">]}</span>
+        <span class="p">}</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 </div>

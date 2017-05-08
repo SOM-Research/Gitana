@@ -27,13 +27,13 @@ The DSL is defined using the JSON format. Below, the DSL instance template with 
 		{"project": "NAME-OF-THE-PROJECT",
 		 "time_span": "this_week|this_month|this_year",
 		 "repo_activity": 
-						{"names": ["NAME-OF-THE-REPO-1", "NAME-OF-THE-REPO-2", ...],
-						 "measures": ["#commits", "#repo-users", ...]},
+						{"names": ["NAME-OF-THE-REPO-1", "NAME-OF-THE-REPO-2", "..."],
+						 "measures": ["#commits", "#repo-users"]},
 		 "issue_tracker_activity": 
-						{"names": ["NAME-OF-THE-ISSUE-TRACKER-1", "NAME-OF-THE-ISSUE-TRACKER-2", ...],
+						{"names": ["NAME-OF-THE-ISSUE-TRACKER-1", "NAME-OF-THE-ISSUE-TRACKER-2", "..."],
 						 "measures": ["#issues-open", "#issues-closed", "#issue-tracker-users"]},
 		 "forum_activity": 
-						{"names": ["NAME-OF-THE-FORUM-1", "NAME-OF-THE-FORUM-2", ...],
+						{"names": ["NAME-OF-THE-FORUM-1", "NAME-OF-THE-FORUM-2", "..."],
 						"measures": ["#messages", "#forum-users", "#new-topics", "#active-topics"]}
 		}
 	}

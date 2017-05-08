@@ -211,18 +211,20 @@ g.update_github_tracker_data("DB-NAME", "PROJECT-NAME", "GIT-REPO-NAME",
 g.export_to_graph("DB-NAME", "GRAPH-EXPORTER-PATH", "OUTPUT-PATH")
   
 # DB-NAME should point to a DB already existing in Gitana
-# GRAPH-EXPORTER-PATH cannot be null. It points to the Graph Exporter DSL instance. Further information about the Graph Exporter DSL can be found in the [documentation](http://gitanadocs.getforge.io/graphdsl.html)
+# GRAPH-EXPORTER-PATH cannot be null. It points to the Graph Exporter DSL instance.
 # OUTPUT-PATH cannot be null. It points to the path of the GEXF output file 
 ```
+Further information about the Graph Exporter DSL can be found in the [documentation](http://gitanadocs.getforge.io/graphdsl.html)
 
 ### export Gitana data to HTML report
 ```python
 g.export_to_report("DB-NAME", "REPORT-EXPORTER-PATH", "OUTPUT-PATH")
   
 # DB-NAME should point to a DB already existing in Gitana
-# REPORT-EXPORTER-PATH cannot be null. It points to the Report Exporter DSL instance. Further information about the Report Exporter DSL can be found in the [documentation](http://gitanadocs.getforge.io/reportdsl.html)
+# REPORT-EXPORTER-PATH cannot be null. It points to the Report Exporter DSL instance.
 # OUTPUT-PATH cannot be null. It points to the path of the HTML output file 
 ```
+Further information about the Report Exporter DSL can be found in the [documentation](http://gitanadocs.getforge.io/reportdsl.html)
 
 ### Simple Demo
 
