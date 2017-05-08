@@ -47,7 +47,7 @@
 <span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;valerio cosentino&#39;</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Gitana exports and digests the data of a Git repository, issue trackers and Q&amp;A web-sites to a relational database</span>
+<span class="sd">Gitana imports and digests the data of a Git repository, issue trackers and Q&amp;A web-sites to a relational database</span>
 <span class="sd">in order to ease browsing and querying activities with standard SQL syntax and tools.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
@@ -67,6 +67,8 @@
 <span class="kn">from</span> <span class="nn">importers.forum.stackoverflow.stackoverflow2db_update</span> <span class="k">import</span> <span class="n">StackOverflow2DbUpdate</span>
 <span class="kn">from</span> <span class="nn">importers.instant_messaging.slack.slack2db_extract_main</span> <span class="k">import</span> <span class="n">Slack2DbMain</span>
 <span class="kn">from</span> <span class="nn">importers.instant_messaging.slack.slack2db_update</span> <span class="k">import</span> <span class="n">Slack2DbUpdate</span>
+<span class="kn">from</span> <span class="nn">exporters.report.report_exporter</span> <span class="k">import</span> <span class="n">ReportExporter</span>
+<span class="kn">from</span> <span class="nn">exporters.graph.graph_exporter</span> <span class="k">import</span> <span class="n">GraphExporter</span>
 
 
 <div class="viewcode-block" id="Gitana"><a class="viewcode-back" href="../../gitana.html#gitana.gitana.Gitana">[docs]</a><span class="k">class</span> <span class="nc">Gitana</span><span class="p">():</span>
@@ -127,7 +129,9 @@
 <span class="sd">        initializes the Gitana DB schema</span>
 
 <span class="sd">        :type db_name: str</span>
-<span class="sd">        :param db_name: the name of the DB to initialize</span>
+<span class="sd">        :param db_name: the name of the DB to initialize, cannot be null and must follow the format</span>
+<span class="sd">        allowed in MySQL (http://dev.mysql.com/doc/refman/5.7/en/identifiers.html).</span>
+<span class="sd">        If a DB having a name equal already exists in Gitana, the existing DB will be dropped and a new one will be created</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">db</span> <span class="o">=</span> <span class="n">DbSchema</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_path</span><span class="p">)</span>
         <span class="n">db</span><span class="o">.</span><span class="n">init_database</span><span class="p">(</span><span class="n">db_name</span><span class="p">)</span></div>
@@ -140,7 +144,7 @@
 <span class="sd">        :param db_name: the name of an existing DB</span>
 
 <span class="sd">        :type project_name: str</span>
-<span class="sd">        :param project_name: the name of the project to create</span>
+<span class="sd">        :param project_name: the name of the project to create. It cannot be null</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">db</span> <span class="o">=</span> <span class="n">DbSchema</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_path</span><span class="p">)</span>
         <span class="n">db</span><span class="o">.</span><span class="n">create_project</span><span class="p">(</span><span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">)</span></div>
@@ -168,22 +172,22 @@
 <span class="sd">        :param project_name: the name of an existing project in the DB</span>
 
 <span class="sd">        :type repo_name: str</span>
-<span class="sd">        :param repo_name: the name of the repository to import</span>
+<span class="sd">        :param repo_name: the name of the repository to import. It cannot be null</span>
 
 <span class="sd">        :type git_repo_path: str</span>
-<span class="sd">        :param git_repo_path: the path of the repository</span>
+<span class="sd">        :param git_repo_path: the local path of the repository. It cannot be null</span>
 
 <span class="sd">        :type before_date: str</span>
-<span class="sd">        :param before_date: import data before date (YYYY-mm-dd)</span>
+<span class="sd">        :param before_date: import data before date (YYYY-mm-dd). It can be null</span>
 
 <span class="sd">        :type import_type: int</span>
 <span class="sd">        :param import_type: 1 = do not import patch content, 2 = import patch content but not at line level, 3 = import patch content at line level</span>
 
 <span class="sd">        :type references: list str</span>
-<span class="sd">        :param references: list of references (branches and tags) to import</span>
+<span class="sd">        :param references: list of references (branches and tags) to import. It can be null or [&quot;ref-name-1&quot;, .., &quot;ref-name-n&quot;]</span>
 
 <span class="sd">        :type processes: int</span>
-<span class="sd">        :param processes: number of processes to import the data (default 10)</span>
+<span class="sd">        :param processes: number of processes to import the data. If null, the default number of processes is used (10)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">git2db</span> <span class="o">=</span> <span class="n">Git2DbMain</span><span class="p">(</span><span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span>
                                    <span class="n">repo_name</span><span class="p">,</span> <span class="n">git_repo_path</span><span class="p">,</span> <span class="n">before_date</span><span class="p">,</span> <span class="n">import_type</span><span class="p">,</span> <span class="n">references</span><span class="p">,</span> <span class="n">processes</span><span class="p">,</span>
@@ -204,13 +208,13 @@
 <span class="sd">        :param repo_name: the name of an existing repository in the DB to update</span>
 
 <span class="sd">        :type git_repo_path: str</span>
-<span class="sd">        :param git_repo_path: the path of the repository</span>
+<span class="sd">        :param git_repo_path: the path of the repository. It cannot be null</span>
 
 <span class="sd">        :type before_date: str</span>
-<span class="sd">        :param before_date: import data before date (YYYY-mm-dd)</span>
+<span class="sd">        :param before_date: import data before date (YYYY-mm-dd). It can be null</span>
 
 <span class="sd">        :type processes: int</span>
-<span class="sd">        :param processes: number of processes to import the data (default 10)</span>
+<span class="sd">        :param processes: number of processes to import the data. If null, the default number of processes is used (10)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">git2db</span> <span class="o">=</span> <span class="n">Git2DbUpdate</span><span class="p">(</span><span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span>
                               <span class="n">repo_name</span><span class="p">,</span> <span class="n">git_repo_path</span><span class="p">,</span> <span class="n">before_date</span><span class="p">,</span> <span class="n">processes</span><span class="p">,</span>
@@ -231,19 +235,19 @@
 <span class="sd">        :param repo_name: the name of an existing repository in the DB</span>
 
 <span class="sd">        :type issue_tracker_name: str</span>
-<span class="sd">        :param issue_tracker_name: the name of the issue tracker to import</span>
+<span class="sd">        :param issue_tracker_name: the name of the issue tracker to import. It cannot be null</span>
 
 <span class="sd">        :type url: str</span>
-<span class="sd">        :param url: the URL of the issue tracker</span>
+<span class="sd">        :param url: the URL of the issue tracker. It cannot be null</span>
 
 <span class="sd">        :type product: str</span>
-<span class="sd">        :param product: the name of the product used in the issue tracker</span>
+<span class="sd">        :param product: the name of the product used in the issue tracker. It cannot be null</span>
 
 <span class="sd">        :type before_date: str</span>
-<span class="sd">        :param before_date: import data before date (YYYY-mm-dd)</span>
+<span class="sd">        :param before_date: import data before date (YYYY-mm-dd). It can be null</span>
 
 <span class="sd">        :type processes: int</span>
-<span class="sd">        :param processes: number of processes to import the data (default 5)</span>
+<span class="sd">        :param processes: number of processes to import the data. If null, the default number of processes is used (5)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">issue2db</span> <span class="o">=</span> <span class="n">BugzillaIssue2DbMain</span><span class="p">(</span><span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span>
                                 <span class="n">repo_name</span><span class="p">,</span> <span class="n">Gitana</span><span class="o">.</span><span class="n">BUGZILLA_TYPE</span><span class="p">,</span> <span class="n">issue_tracker_name</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">product</span><span class="p">,</span> <span class="n">before_date</span><span class="p">,</span> <span class="n">processes</span><span class="p">,</span>
@@ -267,13 +271,13 @@
 <span class="sd">        :param issue_tracker_name: the name of an existing issue tracker in the DB to update</span>
 
 <span class="sd">        :type url: str</span>
-<span class="sd">        :param url: the URL of the issue tracker</span>
+<span class="sd">        :param url: the URL of the issue tracker. It cannot be null</span>
 
 <span class="sd">        :type product: str</span>
-<span class="sd">        :param product: the name of the product used in the issue tracker</span>
+<span class="sd">        :param product: the name of the product used in the issue tracker. It cannot be null</span>
 
 <span class="sd">        :type processes: int</span>
-<span class="sd">        :param processes: number of processes to import the data (default 5)</span>
+<span class="sd">        :param processes: number of processes to import the data. If null, the default number of processes is used (5)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">issue2db</span> <span class="o">=</span> <span class="n">BugzillaIssue2DbUpdate</span><span class="p">(</span><span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span>
                                   <span class="n">repo_name</span><span class="p">,</span> <span class="n">issue_tracker_name</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">product</span><span class="p">,</span> <span class="n">processes</span><span class="p">,</span>
@@ -291,16 +295,16 @@
 <span class="sd">        :param project_name: the name of an existing project in the DB</span>
 
 <span class="sd">        :type forum_name: str</span>
-<span class="sd">        :param forum_name: the name of the forum to import</span>
+<span class="sd">        :param forum_name: the name of the forum to import. It cannot be null</span>
 
 <span class="sd">        :type eclipse_forum_url: str</span>
-<span class="sd">        :param eclipse_forum_url: the URL of the forum</span>
+<span class="sd">        :param eclipse_forum_url: the URL of the forum. It cannot be null</span>
 
 <span class="sd">        :type before_date: str</span>
-<span class="sd">        :param before_date: import data before date (YYYY-mm-dd)</span>
+<span class="sd">        :param before_date: import data before date (YYYY-mm-dd). It can be null</span>
 
 <span class="sd">        :type processes: int</span>
-<span class="sd">        :param processes: number of processes to import the data (default 2)</span>
+<span class="sd">        :param processes: number of processes to import the data. If null, the default number of processes is used (2)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">forum2db</span> <span class="o">=</span> <span class="n">EclipseForum2DbMain</span><span class="p">(</span><span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span>
                                 <span class="n">Gitana</span><span class="o">.</span><span class="n">ECLIPSE_FORUM_TYPE</span><span class="p">,</span> <span class="n">forum_name</span><span class="p">,</span> <span class="n">eclipse_forum_url</span><span class="p">,</span> <span class="n">before_date</span><span class="p">,</span> <span class="n">processes</span><span class="p">,</span>
@@ -321,10 +325,10 @@
 <span class="sd">        :param forum_name: the name of an existing forum in the DB to update</span>
 
 <span class="sd">        :type eclipse_forum_url: str</span>
-<span class="sd">        :param eclipse_forum_url: the URL of the forum</span>
+<span class="sd">        :param eclipse_forum_url: the URL of the forum. It cannot be null</span>
 
 <span class="sd">        :type processes: int</span>
-<span class="sd">        :param processes: number of processes to import the data (default 2)</span>
+<span class="sd">        :param processes: number of processes to import the data. If null, the default number of processes is used (2)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">forum2db</span> <span class="o">=</span> <span class="n">EclipseForum2DbUpdate</span><span class="p">(</span><span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">forum_name</span><span class="p">,</span> <span class="n">eclipse_forum_url</span><span class="p">,</span> <span class="n">processes</span><span class="p">,</span>
                                   <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_path</span><span class="p">)</span>
@@ -341,16 +345,16 @@
 <span class="sd">        :param project_name: the name of an existing project in the DB</span>
 
 <span class="sd">        :type forum_name: str</span>
-<span class="sd">        :param forum_name: the name of the forum to import</span>
+<span class="sd">        :param forum_name: the name of the forum to import. It cannot be null</span>
 
 <span class="sd">        :type search_query: str</span>
-<span class="sd">        :param search_query: retrieves Stackoverflow questions labeled with a given string</span>
+<span class="sd">        :param search_query: retrieves Stackoverflow questions labeled with a given string. It cannot be null</span>
 
 <span class="sd">        :type before_date: str</span>
-<span class="sd">        :param before_date: import data before date (YYYY-mm-dd)</span>
+<span class="sd">        :param before_date: import data before date (YYYY-mm-dd). It can be null</span>
 
 <span class="sd">        :type tokens: list str</span>
-<span class="sd">        :param tokens: list of Stackoverflow tokens</span>
+<span class="sd">        :param tokens: list of Stackoverflow tokens. It cannot be null</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">stackoverflow2db</span> <span class="o">=</span> <span class="n">StackOverflow2DbMain</span><span class="p">(</span><span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span>
                                                 <span class="n">Gitana</span><span class="o">.</span><span class="n">STACKOVERFLOW_TYPE</span><span class="p">,</span> <span class="n">forum_name</span><span class="p">,</span> <span class="n">search_query</span><span class="p">,</span> <span class="n">before_date</span><span class="p">,</span> <span class="n">tokens</span><span class="p">,</span>
@@ -371,7 +375,7 @@
 <span class="sd">        :param forum_name: the name of an existing forum in the DB to update</span>
 
 <span class="sd">        :type tokens: list str</span>
-<span class="sd">        :param tokens: list of Stackoverflow tokens</span>
+<span class="sd">        :param tokens: list of Stackoverflow tokens. It cannot be null</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">stackoverflow2db</span> <span class="o">=</span> <span class="n">StackOverflow2DbUpdate</span><span class="p">(</span><span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">forum_name</span><span class="p">,</span> <span class="n">tokens</span><span class="p">,</span>
                                                   <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_path</span><span class="p">)</span>
@@ -388,16 +392,16 @@
 <span class="sd">        :param project_name: the name of an existing project in the DB</span>
 
 <span class="sd">        :type instant_messaging_name: str</span>
-<span class="sd">        :param instant_messaging_name: the name of the instant messaging to import</span>
+<span class="sd">        :param instant_messaging_name: the name of the instant messaging to import. It cannot be null</span>
 
 <span class="sd">        :type before_date: str</span>
-<span class="sd">        :param before_date: import data before date (YYYY-mm-dd)</span>
+<span class="sd">        :param before_date: import data before date (YYYY-mm-dd). It can be null</span>
 
 <span class="sd">        :type channels: list str</span>
-<span class="sd">        :param channels: list of channels to import</span>
+<span class="sd">        :param channels: list of channels to import. It can be null or [&quot;channel-name-1&quot;, .., &quot;channel-name-n&quot;]</span>
 
 <span class="sd">        :type tokens: list str</span>
-<span class="sd">        :param tokens: list of Slack tokens</span>
+<span class="sd">        :param tokens: list of Slack tokens. It cannot be null</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">slack2db</span> <span class="o">=</span> <span class="n">Slack2DbMain</span><span class="p">(</span><span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span>
                                 <span class="n">Gitana</span><span class="o">.</span><span class="n">SLACK_TYPE</span><span class="p">,</span> <span class="n">instant_messaging_name</span><span class="p">,</span> <span class="n">before_date</span><span class="p">,</span> <span class="n">channels</span><span class="p">,</span> <span class="n">tokens</span><span class="p">,</span>
@@ -418,7 +422,7 @@
 <span class="sd">        :param instant_messaging_name: the name of an existing instant messaging in the DB to update</span>
 
 <span class="sd">        :type tokens: list str</span>
-<span class="sd">        :param tokens: list of Slack tokens</span>
+<span class="sd">        :param tokens: list of Slack tokens. It cannot be null</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">slack2db</span> <span class="o">=</span> <span class="n">Slack2DbUpdate</span><span class="p">(</span><span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">instant_messaging_name</span><span class="p">,</span> <span class="n">tokens</span><span class="p">,</span>
                                   <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_path</span><span class="p">)</span>
@@ -438,16 +442,16 @@
 <span class="sd">        :param repo_name: the name of an existing repository in the DB</span>
 
 <span class="sd">        :type issue_tracker_name: str</span>
-<span class="sd">        :param issue_tracker_name: the name of the issue tracker to import</span>
+<span class="sd">        :param issue_tracker_name: the name of the issue tracker to import. It cannot be null</span>
 
 <span class="sd">        :type github_repo_full_name: str</span>
-<span class="sd">        :param github_repo_full_name: full name of the GitHub repository</span>
+<span class="sd">        :param github_repo_full_name: full name of the GitHub repository. It cannot be null</span>
 
 <span class="sd">        :type before_date: str</span>
-<span class="sd">        :param before_date: import data before date (YYYY-mm-dd)</span>
+<span class="sd">        :param before_date: import data before date (YYYY-mm-dd). It can be null</span>
 
 <span class="sd">        :type tokens: list str</span>
-<span class="sd">        :param tokens: list of GitHub tokens</span>
+<span class="sd">        :param tokens: list of GitHub tokens. It cannot be null</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">github2db</span> <span class="o">=</span> <span class="n">GitHubIssue2DbMain</span><span class="p">(</span><span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">repo_name</span><span class="p">,</span> <span class="n">Gitana</span><span class="o">.</span><span class="n">GITHUB_TYPE</span><span class="p">,</span> <span class="n">issue_tracker_name</span><span class="p">,</span> <span class="n">github_repo_full_name</span><span class="p">,</span> <span class="n">before_date</span><span class="p">,</span> <span class="n">tokens</span><span class="p">,</span>
                                        <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_path</span><span class="p">)</span>
@@ -470,14 +474,46 @@
 <span class="sd">        :param issue_tracker_name: the name of an existing issue tracker to update</span>
 
 <span class="sd">        :type github_repo_full_name: str</span>
-<span class="sd">        :param github_repo_full_name: full name of the GitHub repository</span>
+<span class="sd">        :param github_repo_full_name: full name of the GitHub repository. It cannot be null</span>
 
 <span class="sd">        :type tokens: list str</span>
-<span class="sd">        :param tokens: list of GitHub tokens</span>
+<span class="sd">        :param tokens: list of GitHub tokens. It cannot be null</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">github2db</span> <span class="o">=</span> <span class="n">GitHubIssue2DbUpdate</span><span class="p">(</span><span class="n">db_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">repo_name</span><span class="p">,</span> <span class="n">issue_tracker_name</span><span class="p">,</span> <span class="n">github_repo_full_name</span><span class="p">,</span> <span class="n">tokens</span><span class="p">,</span>
                                          <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_path</span><span class="p">)</span>
-        <span class="n">github2db</span><span class="o">.</span><span class="n">update</span><span class="p">()</span></div></div>
+        <span class="n">github2db</span><span class="o">.</span><span class="n">update</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Gitana.export_to_graph"><a class="viewcode-back" href="../../gitana.html#gitana.gitana.Gitana.export_to_graph">[docs]</a>    <span class="k">def</span> <span class="nf">export_to_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">graph_json_path</span><span class="p">,</span> <span class="n">output_path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        exports the data stored in the Gitana DB to a graph (gexf format)</span>
+
+<span class="sd">        :type db_name: str</span>
+<span class="sd">        :param db_name: the name of an existing DB</span>
+
+<span class="sd">        :type graph_json_path: str</span>
+<span class="sd">        :param graph_json_path: the path of the JSON that drives the export process</span>
+
+<span class="sd">        :type output_path: str</span>
+<span class="sd">        :param output_path: the path where to export the graph</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">exporter</span> <span class="o">=</span> <span class="n">GraphExporter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_path</span><span class="p">)</span>
+        <span class="n">exporter</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="n">graph_json_path</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Gitana.export_to_report"><a class="viewcode-back" href="../../gitana.html#gitana.gitana.Gitana.export_to_report">[docs]</a>    <span class="k">def</span> <span class="nf">export_to_report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">report_json_path</span><span class="p">,</span> <span class="n">output_path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        exports the data stored in the Gitana DB to an HTML report</span>
+
+<span class="sd">        :type db_name: str</span>
+<span class="sd">        :param db_name: the name of an existing DB</span>
+
+<span class="sd">        :type report_json_path: str</span>
+<span class="sd">        :param report_json_path: the path of the JSON that drives the export process</span>
+
+<span class="sd">        :type output_path: str</span>
+<span class="sd">        :param output_path: the path where to export the report</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">exporter</span> <span class="o">=</span> <span class="n">ReportExporter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_path</span><span class="p">)</span>
+        <span class="n">exporter</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="n">report_json_path</span><span class="p">)</span></div></div>
 </pre></div>
 
           </div>

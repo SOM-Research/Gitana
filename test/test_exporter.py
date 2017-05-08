@@ -1,7 +1,6 @@
 __author__ = 'valerio cosentino'
 
-from exporters.report.report_exporter import ReportExporter
-from exporters.graph.graph_exporter import GraphExporter
+from gitana.gitana import Gitana
 
 CONFIG = {
             'user': 'root',
@@ -13,19 +12,10 @@ CONFIG = {
         }
 
 
-def test_graph_exporter():
-    exporter = GraphExporter(CONFIG, "papyrus_db_test", None)
-    exporter.export("./export.gexf", "./graph.json")
-
-
-def test_report_exporter():
-    exporter = ReportExporter(CONFIG, "papyrus_db_test", None)
-    exporter.export("./report.html", "./report.json")
-
-
 def main():
-    #test_graph_exporter()
-    test_report_exporter()
+    g = Gitana(CONFIG, None)
+    g.export_to_graph("_papyrus_db", "./graph.json", "./graph.gexf")
+    g.export_to_report("_papyrus_db", "./report.json", "./report.html")
 
 if __name__ == "__main__":
     main()

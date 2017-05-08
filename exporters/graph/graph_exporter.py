@@ -24,7 +24,7 @@ class GraphExporter():
     LOG_FOLDER_PATH = "logs"
     INPUT_PATH = os.path.dirname(resources.__file__) + "\queries.json"
 
-    def __init__(self, config, db_name, log_folder_path):
+    def __init__(self, config, db_name, log_root_path):
         """
         :type config: dict
         :param config: the DB configuration file
@@ -32,20 +32,13 @@ class GraphExporter():
         :type db_name: str
         :param config: name of an existing DB
 
-        :type log_folder_path: str
-        :param log_folder_path: the log folder path
+        :type log_root_path: str
+        :param log_root_path: the log path
         """
-        if log_folder_path:
-            self._create_log_folder(log_folder_path)
-            self._log_folder_path = log_folder_path
-        else:
-            self._create_log_folder(GraphExporter.LOG_FOLDER_PATH)
-            self._log_folder_path = GraphExporter.LOG_FOLDER_PATH
-
         self._db_util = DbUtil()
         self._dsl_util = DslUtil()
         self._logging_util = LoggingUtil()
-        self._log_path = self._log_folder_path + "/" + "gitana-graph-exporter-" + db_name + ".log"
+        self._log_path = log_root_path + "export-graph-" + db_name + ".log"
         self._logger = self._logging_util.get_logger(self._log_path)
         self._fileHandler = self._logging_util.get_file_handler(self._logger, self._log_path, "info")
 

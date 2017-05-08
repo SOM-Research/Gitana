@@ -1,0 +1,214 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Examples &#8212; Gitana 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Token Util" href="util_token.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="examples">
+<h1>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h1>
+<p>Below you can find some examples to import and export data using Gitana. Additional examples can be found in the <a class="reference external" href="https://github.com/SOM-Research/Gitana/tree/master/test">test</a>  folder</p>
+<div class="section" id="importer">
+<h2>Importer<a class="headerlink" href="#importer" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">gitana.gitana</span> <span class="kn">import</span> <span class="n">Gitana</span>
+
+<span class="n">CONFIG</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;user&#39;</span><span class="p">:</span> <span class="s1">&#39;root&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;password&#39;</span><span class="p">:</span> <span class="s1">&#39;root&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;host&#39;</span><span class="p">:</span> <span class="s1">&#39;localhost&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;port&#39;</span><span class="p">:</span> <span class="s1">&#39;3306&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;raise_on_warnings&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
+    <span class="s1">&#39;buffered&#39;</span><span class="p">:</span> <span class="bp">True</span>
+<span class="p">}</span>
+
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="n">Gitana</span><span class="p">(</span><span class="n">CONFIG</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="n">g</span><span class="o">.</span><span class="n">delete_previous_logs</span><span class="p">()</span>
+        <span class="n">g</span><span class="o">.</span><span class="n">init_db</span><span class="p">(</span><span class="s2">&quot;_papyrus_db&quot;</span><span class="p">)</span>
+        <span class="n">g</span><span class="o">.</span><span class="n">create_project</span><span class="p">(</span><span class="s2">&quot;_papyrus_db&quot;</span><span class="p">,</span> <span class="s2">&quot;papyrus&quot;</span><span class="p">)</span>
+        <span class="k">print</span> <span class="s2">&quot;import git data&quot;</span>
+        <span class="n">g</span><span class="o">.</span><span class="n">import_git_data</span><span class="p">(</span><span class="s2">&quot;_papyrus_db&quot;</span><span class="p">,</span> <span class="s2">&quot;papyrus&quot;</span><span class="p">,</span> <span class="s2">&quot;papyrus_repo&quot;</span><span class="p">,</span> <span class="s2">&quot;C:</span><span class="se">\\</span><span class="s2">Users</span><span class="se">\\</span><span class="s2">atlanmod</span><span class="se">\\</span><span class="s2">Desktop</span><span class="se">\\</span><span class="s2">eclipse-git-projects</span><span class="se">\\</span><span class="s2">papyrus&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;0.7.0&quot;</span><span class="p">],</span> <span class="mi">10</span><span class="p">)</span>
+        <span class="k">print</span> <span class="s2">&quot;import bugzilla data&quot;</span>
+        <span class="n">g</span><span class="o">.</span><span class="n">import_bugzilla_tracker_data</span><span class="p">(</span><span class="s2">&quot;_papyrus_db&quot;</span><span class="p">,</span> <span class="s2">&quot;papyrus&quot;</span><span class="p">,</span> <span class="s2">&quot;papyrus_repo&quot;</span><span class="p">,</span> <span class="s2">&quot;bugzilla-papyrus&quot;</span><span class="p">,</span> <span class="s2">&quot;https://bugs.eclipse.org/bugs/xmlrpc.cgi&quot;</span><span class="p">,</span> <span class="s2">&quot;papyrus&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+        <span class="k">print</span> <span class="s2">&quot;import eclipse forum data&quot;</span>
+        <span class="n">g</span><span class="o">.</span><span class="n">import_eclipse_forum_data</span><span class="p">(</span><span class="s2">&quot;_papyrus_db&quot;</span><span class="p">,</span> <span class="s2">&quot;papyrus&quot;</span><span class="p">,</span> <span class="s2">&quot;papyrus-eclipse&quot;</span><span class="p">,</span> <span class="s2">&quot;https://www.eclipse.org/forums/index.php/f/121/&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+        <span class="k">print</span> <span class="s2">&quot;import stackoverflow data&quot;</span>
+        <span class="n">g</span><span class="o">.</span><span class="n">import_stackoverflow_data</span><span class="p">(</span><span class="s2">&quot;_papyrus_db&quot;</span><span class="p">,</span> <span class="s2">&quot;papyrus&quot;</span><span class="p">,</span> <span class="s2">&quot;papyrus-stackoverflow&quot;</span><span class="p">,</span> <span class="s2">&quot;papyrus&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;YOUR-STACKOVERFLOW-TOKEN&#39;</span><span class="p">])</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+        <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="graph-exporter">
+<h2>Graph Exporter<a class="headerlink" href="#graph-exporter" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-json"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;graph&quot;</span><span class="p">:</span>
+        <span class="p">{</span><span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;users-on-issues&quot;</span><span class="p">,</span>
+         <span class="nt">&quot;params&quot;</span><span class="p">:</span> <span class="p">{</span><span class="nt">&quot;project&quot;</span><span class="p">:</span> <span class="s2">&quot;papyrus&quot;</span><span class="p">,</span>
+                                <span class="nt">&quot;repo&quot;</span><span class="p">:</span> <span class="s2">&quot;papyrus_repo&quot;</span><span class="p">,</span>
+                                <span class="nt">&quot;issuetracker&quot;</span><span class="p">:</span> <span class="s2">&quot;bugzilla-papyrus&quot;</span><span class="p">,</span>
+                                <span class="nt">&quot;nodecolor&quot;</span><span class="p">:</span> <span class="s2">&quot;random&quot;</span><span class="p">,</span>
+                                <span class="nt">&quot;edgecolor&quot;</span><span class="p">:</span> <span class="s2">&quot;black&quot;</span><span class="p">,</span>
+                                <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;undirected&quot;</span><span class="p">}</span>
+         <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">gitana.gitana</span> <span class="kn">import</span> <span class="n">Gitana</span>
+
+<span class="n">CONFIG</span> <span class="o">=</span> <span class="p">{</span>
+                        <span class="s1">&#39;user&#39;</span><span class="p">:</span> <span class="s1">&#39;root&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;password&#39;</span><span class="p">:</span> <span class="s1">&#39;root&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;host&#39;</span><span class="p">:</span> <span class="s1">&#39;localhost&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;port&#39;</span><span class="p">:</span> <span class="s1">&#39;3306&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;raise_on_warnings&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
+                        <span class="s1">&#39;buffered&#39;</span><span class="p">:</span> <span class="bp">True</span>
+                <span class="p">}</span>
+
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="n">Gitana</span><span class="p">(</span><span class="n">CONFIG</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="n">g</span><span class="o">.</span><span class="n">export_to_graph</span><span class="p">(</span><span class="s2">&quot;_papyrus_db&quot;</span><span class="p">,</span> <span class="s2">&quot;./graph.json&quot;</span><span class="p">,</span> <span class="s2">&quot;./graph.gexf&quot;</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+        <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="report-exporter">
+<h2>Report Exporter<a class="headerlink" href="#report-exporter" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-json"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;report&quot;</span><span class="p">:</span>
+        <span class="p">{</span><span class="nt">&quot;project&quot;</span><span class="p">:</span> <span class="s2">&quot;papyrus&quot;</span><span class="p">,</span>
+         <span class="nt">&quot;time_span&quot;</span><span class="p">:</span> <span class="s2">&quot;this_year&quot;</span><span class="p">,</span>
+         <span class="nt">&quot;repo_activity&quot;</span><span class="p">:</span> <span class="p">{</span><span class="nt">&quot;names&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;papyrus_repo&quot;</span><span class="p">],</span>
+                                           <span class="nt">&quot;measures&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;#commits&quot;</span><span class="p">,</span> <span class="s2">&quot;#repo-users&quot;</span><span class="p">]},</span>
+         <span class="nt">&quot;issue_tracker_activity&quot;</span><span class="p">:</span> <span class="p">{</span><span class="nt">&quot;names&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;bugzilla-papyrus&quot;</span><span class="p">],</span>
+                                                                <span class="nt">&quot;measures&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;#issues-open&quot;</span><span class="p">,</span> <span class="s2">&quot;#issues-closed&quot;</span><span class="p">,</span> <span class="s2">&quot;#issue-tracker-users&quot;</span><span class="p">]},</span>
+         <span class="nt">&quot;forum_activity&quot;</span><span class="p">:</span> <span class="p">{</span><span class="nt">&quot;names&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;papyrus-eclipse&quot;</span><span class="p">,</span> <span class="s2">&quot;papyrus-stackoverflow&quot;</span><span class="p">],</span>
+                                                <span class="nt">&quot;measures&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;#messages&quot;</span><span class="p">,</span> <span class="s2">&quot;#forum-users&quot;</span><span class="p">,</span> <span class="s2">&quot;#new-topics&quot;</span><span class="p">,</span> <span class="s2">&quot;#active-topics&quot;</span><span class="p">]}</span>
+         <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">gitana.gitana</span> <span class="kn">import</span> <span class="n">Gitana</span>
+
+<span class="n">CONFIG</span> <span class="o">=</span> <span class="p">{</span>
+                        <span class="s1">&#39;user&#39;</span><span class="p">:</span> <span class="s1">&#39;root&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;password&#39;</span><span class="p">:</span> <span class="s1">&#39;root&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;host&#39;</span><span class="p">:</span> <span class="s1">&#39;localhost&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;port&#39;</span><span class="p">:</span> <span class="s1">&#39;3306&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;raise_on_warnings&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
+                        <span class="s1">&#39;buffered&#39;</span><span class="p">:</span> <span class="bp">True</span>
+                <span class="p">}</span>
+
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="n">Gitana</span><span class="p">(</span><span class="n">CONFIG</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="n">g</span><span class="o">.</span><span class="n">export_to_report</span><span class="p">(</span><span class="s2">&quot;_papyrus_db&quot;</span><span class="p">,</span> <span class="s2">&quot;./report.json&quot;</span><span class="p">,</span> <span class="s2">&quot;./report.html&quot;</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+        <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Examples</a><ul>
+<li><a class="reference internal" href="#importer">Importer</a></li>
+<li><a class="reference internal" href="#graph-exporter">Graph Exporter</a></li>
+<li><a class="reference internal" href="#report-exporter">Report Exporter</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="util_token.html" title="previous chapter">Token Util</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/examples.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Valerio Cosentino.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/examples.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

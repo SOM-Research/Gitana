@@ -3,8 +3,9 @@
 __author__ = 'valerio cosentino'
 
 """
-Gitana exports and digests the data of a Git repository, issue trackers and Q&A web-sites to a relational database
-in order to ease browsing and querying activities with standard SQL syntax and tools.
+Gitana imports and digests the data of Git repositories, issue trackers, Q&A web-sites and Instant messaging services to a relational database
+in order to ease browsing and querying activities with standard SQL syntax and tools. It also provides support
+to generate project activity reports and perform complex network analysis.
 """
 
 import os
@@ -23,6 +24,8 @@ from importers.forum.stackoverflow.stackoverflow2db_extract_main import StackOve
 from importers.forum.stackoverflow.stackoverflow2db_update import StackOverflow2DbUpdate
 from importers.instant_messaging.slack.slack2db_extract_main import Slack2DbMain
 from importers.instant_messaging.slack.slack2db_update import Slack2DbUpdate
+from exporters.report.report_exporter import ReportExporter
+from exporters.graph.graph_exporter import GraphExporter
 
 
 class Gitana():
@@ -83,7 +86,9 @@ class Gitana():
         initializes the Gitana DB schema
 
         :type db_name: str
-        :param db_name: the name of the DB to initialize
+        :param db_name: the name of the DB to initialize, cannot be null and must follow the format
+        allowed in MySQL (http://dev.mysql.com/doc/refman/5.7/en/identifiers.html).
+        If a DB having a name equal already exists in Gitana, the existing DB will be dropped and a new one will be created
         """
         db = DbSchema(self._config, self._log_path)
         db.init_database(db_name)
@@ -96,7 +101,7 @@ class Gitana():
         :param db_name: the name of an existing DB
 
         :type project_name: str
-        :param project_name: the name of the project to create
+        :param project_name: the name of the project to create. It cannot be null
         """
         db = DbSchema(self._config, self._log_path)
         db.create_project(db_name, project_name)
@@ -124,22 +129,22 @@ class Gitana():
         :param project_name: the name of an existing project in the DB
 
         :type repo_name: str
-        :param repo_name: the name of the repository to import
+        :param repo_name: the name of the repository to import. It cannot be null
 
         :type git_repo_path: str
-        :param git_repo_path: the path of the repository
+        :param git_repo_path: the local path of the repository. It cannot be null
 
         :type before_date: str
-        :param before_date: import data before date (YYYY-mm-dd)
+        :param before_date: import data before date (YYYY-mm-dd). It can be null
 
         :type import_type: int
         :param import_type: 1 = do not import patch content, 2 = import patch content but not at line level, 3 = import patch content at line level
 
         :type references: list str
-        :param references: list of references (branches and tags) to import
+        :param references: list of references (branches and tags) to import. It can be null or ["ref-name-1", .., "ref-name-n"]
 
         :type processes: int
-        :param processes: number of processes to import the data (default 10)
+        :param processes: number of processes to import the data. If null, the default number of processes is used (10)
         """
         git2db = Git2DbMain(db_name, project_name,
                                    repo_name, git_repo_path, before_date, import_type, references, processes,
@@ -160,13 +165,13 @@ class Gitana():
         :param repo_name: the name of an existing repository in the DB to update
 
         :type git_repo_path: str
-        :param git_repo_path: the path of the repository
+        :param git_repo_path: the path of the repository. It cannot be null
 
         :type before_date: str
-        :param before_date: import data before date (YYYY-mm-dd)
+        :param before_date: import data before date (YYYY-mm-dd). It can be null
 
         :type processes: int
-        :param processes: number of processes to import the data (default 10)
+        :param processes: number of processes to import the data. If null, the default number of processes is used (10)
         """
         git2db = Git2DbUpdate(db_name, project_name,
                               repo_name, git_repo_path, before_date, processes,
@@ -187,19 +192,19 @@ class Gitana():
         :param repo_name: the name of an existing repository in the DB
 
         :type issue_tracker_name: str
-        :param issue_tracker_name: the name of the issue tracker to import
+        :param issue_tracker_name: the name of the issue tracker to import. It cannot be null
 
         :type url: str
-        :param url: the URL of the issue tracker
+        :param url: the URL of the issue tracker. It cannot be null
 
         :type product: str
-        :param product: the name of the product used in the issue tracker
+        :param product: the name of the product used in the issue tracker. It cannot be null
 
         :type before_date: str
-        :param before_date: import data before date (YYYY-mm-dd)
+        :param before_date: import data before date (YYYY-mm-dd). It can be null
 
         :type processes: int
-        :param processes: number of processes to import the data (default 5)
+        :param processes: number of processes to import the data. If null, the default number of processes is used (5)
         """
         issue2db = BugzillaIssue2DbMain(db_name, project_name,
                                 repo_name, Gitana.BUGZILLA_TYPE, issue_tracker_name, url, product, before_date, processes,
@@ -223,13 +228,13 @@ class Gitana():
         :param issue_tracker_name: the name of an existing issue tracker in the DB to update
 
         :type url: str
-        :param url: the URL of the issue tracker
+        :param url: the URL of the issue tracker. It cannot be null
 
         :type product: str
-        :param product: the name of the product used in the issue tracker
+        :param product: the name of the product used in the issue tracker. It cannot be null
 
         :type processes: int
-        :param processes: number of processes to import the data (default 5)
+        :param processes: number of processes to import the data. If null, the default number of processes is used (5)
         """
         issue2db = BugzillaIssue2DbUpdate(db_name, project_name,
                                   repo_name, issue_tracker_name, url, product, processes,
@@ -247,16 +252,16 @@ class Gitana():
         :param project_name: the name of an existing project in the DB
 
         :type forum_name: str
-        :param forum_name: the name of the forum to import
+        :param forum_name: the name of the forum to import. It cannot be null
 
         :type eclipse_forum_url: str
-        :param eclipse_forum_url: the URL of the forum
+        :param eclipse_forum_url: the URL of the forum. It cannot be null
 
         :type before_date: str
-        :param before_date: import data before date (YYYY-mm-dd)
+        :param before_date: import data before date (YYYY-mm-dd). It can be null
 
         :type processes: int
-        :param processes: number of processes to import the data (default 2)
+        :param processes: number of processes to import the data. If null, the default number of processes is used (2)
         """
         forum2db = EclipseForum2DbMain(db_name, project_name,
                                 Gitana.ECLIPSE_FORUM_TYPE, forum_name, eclipse_forum_url, before_date, processes,
@@ -277,10 +282,10 @@ class Gitana():
         :param forum_name: the name of an existing forum in the DB to update
 
         :type eclipse_forum_url: str
-        :param eclipse_forum_url: the URL of the forum
+        :param eclipse_forum_url: the URL of the forum. It cannot be null
 
         :type processes: int
-        :param processes: number of processes to import the data (default 2)
+        :param processes: number of processes to import the data. If null, the default number of processes is used (2)
         """
         forum2db = EclipseForum2DbUpdate(db_name, project_name, forum_name, eclipse_forum_url, processes,
                                   self._config, self._log_path)
@@ -297,16 +302,16 @@ class Gitana():
         :param project_name: the name of an existing project in the DB
 
         :type forum_name: str
-        :param forum_name: the name of the forum to import
+        :param forum_name: the name of the forum to import. It cannot be null
 
         :type search_query: str
-        :param search_query: retrieves Stackoverflow questions labeled with a given string
+        :param search_query: retrieves Stackoverflow questions labeled with a given string. It cannot be null
 
         :type before_date: str
-        :param before_date: import data before date (YYYY-mm-dd)
+        :param before_date: import data before date (YYYY-mm-dd). It can be null
 
         :type tokens: list str
-        :param tokens: list of Stackoverflow tokens
+        :param tokens: list of Stackoverflow tokens. It cannot be null
         """
         stackoverflow2db = StackOverflow2DbMain(db_name, project_name,
                                                 Gitana.STACKOVERFLOW_TYPE, forum_name, search_query, before_date, tokens,
@@ -327,7 +332,7 @@ class Gitana():
         :param forum_name: the name of an existing forum in the DB to update
 
         :type tokens: list str
-        :param tokens: list of Stackoverflow tokens
+        :param tokens: list of Stackoverflow tokens. It cannot be null
         """
         stackoverflow2db = StackOverflow2DbUpdate(db_name, project_name, forum_name, tokens,
                                                   self._config, self._log_path)
@@ -344,16 +349,16 @@ class Gitana():
         :param project_name: the name of an existing project in the DB
 
         :type instant_messaging_name: str
-        :param instant_messaging_name: the name of the instant messaging to import
+        :param instant_messaging_name: the name of the instant messaging to import. It cannot be null
 
         :type before_date: str
-        :param before_date: import data before date (YYYY-mm-dd)
+        :param before_date: import data before date (YYYY-mm-dd). It can be null
 
         :type channels: list str
-        :param channels: list of channels to import
+        :param channels: list of channels to import. It can be null or ["channel-name-1", .., "channel-name-n"]
 
         :type tokens: list str
-        :param tokens: list of Slack tokens
+        :param tokens: list of Slack tokens. It cannot be null
         """
         slack2db = Slack2DbMain(db_name, project_name,
                                 Gitana.SLACK_TYPE, instant_messaging_name, before_date, channels, tokens,
@@ -374,7 +379,7 @@ class Gitana():
         :param instant_messaging_name: the name of an existing instant messaging in the DB to update
 
         :type tokens: list str
-        :param tokens: list of Slack tokens
+        :param tokens: list of Slack tokens. It cannot be null
         """
         slack2db = Slack2DbUpdate(db_name, project_name, instant_messaging_name, tokens,
                                   self._config, self._log_path)
@@ -394,16 +399,16 @@ class Gitana():
         :param repo_name: the name of an existing repository in the DB
 
         :type issue_tracker_name: str
-        :param issue_tracker_name: the name of the issue tracker to import
+        :param issue_tracker_name: the name of the issue tracker to import. It cannot be null
 
         :type github_repo_full_name: str
-        :param github_repo_full_name: full name of the GitHub repository
+        :param github_repo_full_name: full name of the GitHub repository. It cannot be null
 
         :type before_date: str
-        :param before_date: import data before date (YYYY-mm-dd)
+        :param before_date: import data before date (YYYY-mm-dd). It can be null
 
         :type tokens: list str
-        :param tokens: list of GitHub tokens
+        :param tokens: list of GitHub tokens. It cannot be null
         """
         github2db = GitHubIssue2DbMain(db_name, project_name, repo_name, Gitana.GITHUB_TYPE, issue_tracker_name, github_repo_full_name, before_date, tokens,
                                        self._config, self._log_path)
@@ -426,11 +431,43 @@ class Gitana():
         :param issue_tracker_name: the name of an existing issue tracker to update
 
         :type github_repo_full_name: str
-        :param github_repo_full_name: full name of the GitHub repository
+        :param github_repo_full_name: full name of the GitHub repository. It cannot be null
 
         :type tokens: list str
-        :param tokens: list of GitHub tokens
+        :param tokens: list of GitHub tokens. It cannot be null
         """
         github2db = GitHubIssue2DbUpdate(db_name, project_name, repo_name, issue_tracker_name, github_repo_full_name, tokens,
                                          self._config, self._log_path)
         github2db.update()
+
+    def export_to_graph(self, db_name, graph_json_path, output_path):
+        """
+        exports the data stored in the Gitana DB to a graph (gexf format)
+
+        :type db_name: str
+        :param db_name: the name of an existing DB
+
+        :type graph_json_path: str
+        :param graph_json_path: the path of the JSON that drives the export process
+
+        :type output_path: str
+        :param output_path: the path where to export the graph
+        """
+        exporter = GraphExporter(self._config, db_name, self._log_path)
+        exporter.export(output_path, graph_json_path)
+
+    def export_to_report(self, db_name, report_json_path, output_path):
+        """
+        exports the data stored in the Gitana DB to an HTML report
+
+        :type db_name: str
+        :param db_name: the name of an existing DB
+
+        :type report_json_path: str
+        :param report_json_path: the path of the JSON that drives the export process
+
+        :type output_path: str
+        :param output_path: the path where to export the report
+        """
+        exporter = ReportExporter(self._config, db_name, self._log_path)
+        exporter.export(output_path, report_json_path)

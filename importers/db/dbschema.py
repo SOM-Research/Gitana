@@ -18,7 +18,7 @@ class DbSchema():
         :param config: the DB configuration file
 
         :type log_root_path: str
-        :param log_root_path: the log folder path
+        :param log_root_path: the log path
         """
         self._config = config
         self._log_root_path = log_root_path

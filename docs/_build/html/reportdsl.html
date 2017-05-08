@@ -1,0 +1,140 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Report Exporter &#8212; Gitana 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Reference" href="reference.html" />
+    <link rel="prev" title="Graph Exporter" href="graphdsl.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="report-exporter">
+<h1>Report Exporter<a class="headerlink" href="#report-exporter" title="Permalink to this headline">¶</a></h1>
+<p>The information stored in the Gitana database can be used to create activity reports.
+The export process is driven by a Domain Specific Language (DSL), which relies on a set of parameterizable SQL <a class="reference external" href="https://github.com/SOM-Research/Gitana/blob/master/exporters/resources/queries.json">queries</a>
+(as similarly done for the graph exporter) and allows to generate tunable HTML reports. Depending on the user’s needs, the report can focus on the project activity over different tools (e.g., repository and issue trackers) according
+to a given time dimension such as the current week, month or year.</p>
+<p>A Report Exporter DSL instance requires the name of the project, a time span as well as the names of the tools and the related list of measures to be included in the activity report.
+This information is then used to generate a set of SQL queries, one for each measure, based on the predefined query templates available in Gitana.</p>
+<p>The figure below shows an example of report exporter. As can be seen, the name of each measure is used to identify the predefined query to be parameterized (see
+#messages measure). Then, the project name, time span and names of the tools (see forums attribute) are processed to derive the corresponding identifiers and
+time information (see after date, and interval), which are then set in the SQL query as similarly presented for the Graph exporter. It is worth noting
+how the time dimension (e.g., current year) for a specific measure in the report is automatically calculated by relying on where and group by conditions. Finally,
+the data returned by each query is used to generate charts, which are embedded in the HTML report.</p>
+<img alt="_images/report-exporter-2.svg" src="_images/report-exporter-2.svg" /><div class="section" id="the-dsl">
+<h2>The DSL<a class="headerlink" href="#the-dsl" title="Permalink to this headline">¶</a></h2>
+<p>The DSL is defined using the JSON format. Below, the DSL instance template with the current exportable measures is shown.</p>
+<div class="highlight-json"><div class="highlight"><pre><span></span>{&quot;report&quot;:
+        {&quot;project&quot;: &quot;NAME-OF-THE-PROJECT&quot;,
+         &quot;time_span&quot;: &quot;this_week|this_month|this_year&quot;,
+         &quot;repo_activity&quot;:
+                                        {&quot;names&quot;: [&quot;NAME-OF-THE-REPO-1&quot;, &quot;NAME-OF-THE-REPO-2&quot;, ...],
+                                         &quot;measures&quot;: [&quot;#commits&quot;, &quot;#repo-users&quot;, ...]},
+         &quot;issue_tracker_activity&quot;:
+                                        {&quot;names&quot;: [&quot;NAME-OF-THE-ISSUE-TRACKER-1&quot;, &quot;NAME-OF-THE-ISSUE-TRACKER-2&quot;, ...],
+                                         &quot;measures&quot;: [&quot;#issues-open&quot;, &quot;#issues-closed&quot;, &quot;#issue-tracker-users&quot;]},
+         &quot;forum_activity&quot;:
+                                        {&quot;names&quot;: [&quot;NAME-OF-THE-FORUM-1&quot;, &quot;NAME-OF-THE-FORUM-2&quot;, ...],
+                                        &quot;measures&quot;: [&quot;#messages&quot;, &quot;#forum-users&quot;, &quot;#new-topics&quot;, &quot;#active-topics&quot;]}
+        }
+}
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Report Exporter</a><ul>
+<li><a class="reference internal" href="#the-dsl">The DSL</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="graphdsl.html" title="previous chapter">Graph Exporter</a></li>
+      <li>Next: <a href="reference.html" title="next chapter">Reference</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/reportdsl.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Valerio Cosentino.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/reportdsl.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

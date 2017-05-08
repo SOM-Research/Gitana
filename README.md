@@ -1,10 +1,10 @@
 # Gitana: a SQL-based Project Activity Inspector
  
-Gitana exports and digests the data of a Git repository, issue trackers and Q&A web-sites to a relational database 
-in order to ease browsing and querying activities with standard SQL syntax and tools.
-
-To ensure efficiency, an incremental propagation mechanism refreshes the
+Gitana imports and digests the data of Git repositories, issue trackers, Q&A web-sites and Instant messaging services to a relational database
+in order to ease browsing and querying activities with standard SQL syntax and tools. To ensure efficiency, an incremental propagation mechanism refreshes the
 database content with the latest project activities.
+
+Gitana also provides support to generate project activity reports and perform complex network analysis.
 
 ## Documentation
 
@@ -28,7 +28,7 @@ Gitana is developed on Windows 7 and it relies on:
 
 ## Installation
 
-After installing MySQL Server and Python 2.7.6, execute the setup.py script
+After installing MySQL Server and Python 2.7.6, execute the [setup script](https://github.com/SOM-Research/Gitana/blob/master/setup.py)
    
 ## How to use Gitana
 
@@ -206,7 +206,25 @@ g.update_github_tracker_data("DB-NAME", "PROJECT-NAME", "GIT-REPO-NAME",
 # "LIST-OF-TOKENS" cannot be null. Each token is passed to a process to speed up the collection of GitHub information.
 ```
 
-### Example(s)
+### export Gitana data to GEXF graph
+```python
+g.export_to_graph("DB-NAME", "GRAPH-EXPORTER-PATH", "OUTPUT-PATH")
+  
+# DB-NAME should point to a DB already existing in Gitana
+# GRAPH-EXPORTER-PATH cannot be null. It points to the Graph Exporter DSL instance. Further information about the Graph Exporter DSL can be found in the [documentation](http://gitanadocs.getforge.io/graphdsl.html)
+# OUTPUT-PATH cannot be null. It points to the path of the GEXF output file 
+```
+
+### export Gitana data to HTML report
+```python
+g.export_to_report("DB-NAME", "REPORT-EXPORTER-PATH", "OUTPUT-PATH")
+  
+# DB-NAME should point to a DB already existing in Gitana
+# REPORT-EXPORTER-PATH cannot be null. It points to the Report Exporter DSL instance. Further information about the Report Exporter DSL can be found in the [documentation](http://gitanadocs.getforge.io/reportdsl.html)
+# OUTPUT-PATH cannot be null. It points to the path of the HTML output file 
+```
+
+### Simple Demo
 
 ```python 
 from gitana import Gitana
@@ -229,91 +247,10 @@ def main():
     g.import_bugzilla_tracker_data("papyrus_db", "papyrus", "papyrus_repo", "papyrus-bugzilla", "https://bugs.eclipse.org/bugs/xmlrpc.cgi", "papyrus", None, False, 20)
     g.import_eclipse_forum_data("papyrus_db", "papyrus", "papyrus-forum", "https://www.eclipse.org/forums/index.php/f/121/", None, False, 5)
     g.import_stackoverflow_data("papyrus_db", "papyrus", "papyrus-so", None, False, ['YOUR-TOKEN-1', 'YOUR-TOKEN-2', ...])
-
-if __name__ == "__main__":
-    main()
-```
-
-## How to use the Gitana Exporter (master version)
-
-Gitana provides also a gexf exporter with predefined metrics to analyse data using graph analysis tools (e.g., Gephi). The metrics are stored in a JSON file (https://github.com/SOM-Research/Gitana/blob/master/exporter/resources/queries.json) and must be parameterized by the users. Currently, the metrics available are:
-
-- **users-on-issues**. It generates a graph where each node is a user and its size is proportional to the number of issues the user commented. There exists an edge between two users if they have commented on the same issue (thickness proportional to the number of issues both have contributed to).
-
-- **users-on-files**. It generates a graph where each node is a user and its size is proportional to the number of files the user contributed to. There exists an edge between two users if they have worked on the same file (thickness proportional to the number of files both have contributed to).
-
-- **users-on-files-for-references**. This metric is similar to the previous one, but can defined for a sub-set of references (branches or tags)
-
-### JSON structure
-
-Each metric in the JSON file contains a fixed part (lowercase attributes) and a variable part (uppercase attributes), that must be tuned by the user. For instance, in the example below, the user should modify the values of the attributes PROJECTID, REPOID, NODECOLOR, EDGECOLOR. Such values will be then used to build the SQL queries to retrieve nodes and edges from the Gitana DB.
-
-```json
-{"name": "users-on-files",
- "PROJECTID": "1",
- "REPOID": "1",
- "NODECOLOR": "blue",
- "EDGECOLOR": "gray",
- "nodes": "sql-query-for-nodes",
- "edges": "sql-query-for-edges"
- }
- ```
-Currently the available colors are the following: 
- ```
- "white", "gray", "black", "blue", "cyan", "green", "yellow", "red", "brown", "orange", "pink", "purple", "violet" 
- ```
-
-### import Gitana Exporter
-```python 
-from exporter.gexf_exporter import GexfExporter
-```
-
-### instantiate Gitana Exporter
-```python
-CONFIG = {
-            'user': 'root',
-            'password': 'root',
-            'host': 'localhost',
-            'port': '3306',
-            'raise_on_warnings': False,
-            'buffered': True
-        }
-
-gexf = GexfExporter(CONFIG, "NAME-OF-YOUR-DB", "LOGS-PATH")
-# NAME-OF-YOUR-DB should point to a DB already existing in Gitana 
-# if LOGS-PATH is None, a log folder will be created in the same directory where Gitana Exporter is executed
-```
-
-### export Gitana data
-```python
-gexf.export("OUTPUT-FILE-PATH", "GRAPH-TYPE", "GRAPH-MODE", "METRIC-NAME")
-                  
-# OUTPUT-FILE-PATH point to a location where to store the gexf output file
-# GRAPH-TYPE can be "undirected" or "directed". If None, the default type is "undirected"
-# GRAPH-MODE can be "static" or "dynamic". If None, the default mode is "dynamic"
-# METRIC-NAME is the name of the metric to execute. It can be: "users-on-issues", "users-on-files", "users-on-files-for-references"
-```
-
-### Example(s)
-
-```python 
-from exporter.gexf_exporter import GexfExporter
-
-CONFIG = {
-            'user': 'root',
-            'password': 'root',
-            'host': 'localhost',
-            'port': '3306',
-            'raise_on_warnings': False,
-            'buffered': True
-        }
-
-
-def main():
-    gexf = GexfExporter(CONFIG, "papyrus_db", None)
-    gexf.export("./export.gexf", "undirected", "dynamic", "users-on-issues")
-
-
+	
+	g.export_to_graph("_papyrus_db", "./graph.json", "./graph.gexf")
+    g.export_to_report("_papyrus_db", "./report.json", "./report.html")
+	
 if __name__ == "__main__":
     main()
 ```

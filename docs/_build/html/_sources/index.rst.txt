@@ -11,7 +11,10 @@ Welcome to Gitana's documentation!
 
    introduction
    conceptual
+   graphdsl
+   reportdsl
    reference
+   examples
 
 
 Indices and tables

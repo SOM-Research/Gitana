@@ -41,8 +41,8 @@ class EclipseForum2DbUpdate():
         :type config: dict
         :param config: the DB configuration file
 
-        :type log_folder_path: str
-        :param log_folder_path: the log folder path
+        :type log_root_path: str
+        :param log_root_path: the log path
         """
         self._log_path = log_root_path + "update-eclipse-forum-" + db_name + "-" + project_name + "-" + forum_name
         self._project_name = project_name

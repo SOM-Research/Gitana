@@ -606,7 +606,7 @@ class BugzillaDao():
                     found = row[0]
                 else:
                     #sometimes the version is followed by extra information such as alpha, beta, RC, M.
-                    query = "SELECT id FROM reference WHERE name LIKE '" + version + "%' AND repo_id = " + str(repo_id)
+                    query = "SELECT id FROM reference WHERE name LIKE '" + str(version) + "%' AND repo_id = " + str(repo_id)
                     cursor.execute(query)
                     row = cursor.fetchone()
 
@@ -615,7 +615,7 @@ class BugzillaDao():
 
                 cursor.close()
             except Exception, e:
-                self._logger.warning("version (" + version + ") not inserted for issue id: " + str(issue_id), exc_info=True)
+                self._logger.warning("version (" + str(version) + ") not inserted for issue id: " + str(issue_id), exc_info=True)
 
         return found
 

@@ -76,4 +76,4 @@ class TokenUtil():
             if self._is_usuable(token) > 0:
                 break
             time.sleep(5)
-            self._logger.warning("Token expired, standy for " + str(TokenUtil.WAITING_TIME) + " seconds")
+            self._logger.warning("Token expired, stand by for " + str(TokenUtil.WAITING_TIME) + " seconds")

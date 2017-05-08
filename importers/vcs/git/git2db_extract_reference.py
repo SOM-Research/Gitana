@@ -50,8 +50,8 @@ class Git2DbReference(object):
         :type config: dict
         :param config: the DB configuration file
 
-        :type log_folder_path: str
-        :param log_folder_path: the log folder path
+        :type log_root_path: str
+        :param log_root_path: the log path
         """
         self._log_root_path = log_root_path
         self._git_repo_path = git_repo_path

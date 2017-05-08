@@ -80,8 +80,9 @@
 <span class="sd">        starts the browser used to crawl</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_driver</span><span class="p">:</span>
-            <span class="c1">#self._driver = webdriver.PhantomJS(executable_path=WEB_DRIVER_PATH)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_driver</span> <span class="o">=</span> <span class="n">webdriver</span><span class="o">.</span><span class="n">PhantomJS</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_driver</span> <span class="o">=</span> <span class="n">webdriver</span><span class="o">.</span><span class="n">PhantomJS</span><span class="p">(</span><span class="n">executable_path</span><span class="o">=</span><span class="n">WEB_DRIVER_PATH</span><span class="p">)</span>
+            <span class="c1">## uncomment the line below for linux systems</span>
+            <span class="c1">#self._driver = webdriver.PhantomJS()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_driver</span><span class="o">.</span><span class="n">maximize_window</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_driver</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_url</span><span class="p">)</span></div>
 

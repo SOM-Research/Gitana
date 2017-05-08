@@ -67,7 +67,7 @@ Example of export
 -----------------
 .. code-block:: python
 
-   from exporter.gexf_exporter import GexfExporter
+   from gitana.gitana import Gitana
 
    CONFIG = {
 				'user': 'root',
@@ -79,8 +79,9 @@ Example of export
 			}
 
    def main():
-        gexf = GexfExporter(CONFIG, "papyrus_db", None)
-        gexf.export("./export.gexf", "undirected", "dynamic", "users-on-issues")
+        g = Gitana(CONFIG, None)
+        g.export_to_graph("_papyrus_db", "./graph.json", "./graph.gexf")
+        g.export_to_report("_papyrus_db", "./report.json", "./report.html")
 
    if __name__ == "__main__":
         main()

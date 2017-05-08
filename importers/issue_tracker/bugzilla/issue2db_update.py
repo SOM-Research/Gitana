@@ -48,8 +48,8 @@ class BugzillaIssue2DbUpdate():
         :type config: dict
         :param config: the DB configuration file
 
-        :type log_folder_path: str
-        :param log_folder_path: the log folder path
+        :type log_root_path: str
+        :param log_root_path: the log path
         """
         self._log_path = log_root_path + "update-bugzilla-" + db_name + "-" + project_name + "-" + issue_tracker_name
         self._issue_tracker_name = issue_tracker_name

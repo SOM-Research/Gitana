@@ -73,7 +73,7 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>db_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of an existing DB</li>
-<li><strong>project_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of the project to create</li>
+<li><strong>project_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of the project to create. It cannot be null</li>
 </ul>
 </td>
 </tr>
@@ -88,6 +88,44 @@
 </dd></dl>
 
 <dl class="method">
+<dt id="gitana.gitana.Gitana.export_to_graph">
+<code class="descname">export_to_graph</code><span class="sig-paren">(</span><em>db_name</em>, <em>graph_json_path</em>, <em>output_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gitana/gitana.html#Gitana.export_to_graph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gitana.gitana.Gitana.export_to_graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>exports the data stored in the Gitana DB to a graph (gexf format)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>db_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of an existing DB</li>
+<li><strong>graph_json_path</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the path of the JSON that drives the export process</li>
+<li><strong>output_path</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the path where to export the graph</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gitana.gitana.Gitana.export_to_report">
+<code class="descname">export_to_report</code><span class="sig-paren">(</span><em>db_name</em>, <em>report_json_path</em>, <em>output_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gitana/gitana.html#Gitana.export_to_report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gitana.gitana.Gitana.export_to_report" title="Permalink to this definition">¶</a></dt>
+<dd><p>exports the data stored in the Gitana DB to an HTML report</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>db_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of an existing DB</li>
+<li><strong>report_json_path</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the path of the JSON that drives the export process</li>
+<li><strong>output_path</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the path where to export the report</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="gitana.gitana.Gitana.import_bugzilla_tracker_data">
 <code class="descname">import_bugzilla_tracker_data</code><span class="sig-paren">(</span><em>db_name</em>, <em>project_name</em>, <em>repo_name</em>, <em>issue_tracker_name</em>, <em>url</em>, <em>product</em>, <em>before_date</em>, <em>processes</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gitana/gitana.html#Gitana.import_bugzilla_tracker_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gitana.gitana.Gitana.import_bugzilla_tracker_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>imports Bugzilla issue tracker data to the DB</p>
@@ -99,11 +137,11 @@
 <li><strong>db_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of an existing DB</li>
 <li><strong>project_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of an existing project in the DB</li>
 <li><strong>repo_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of an existing repository in the DB</li>
-<li><strong>issue_tracker_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of the issue tracker to import</li>
-<li><strong>url</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the URL of the issue tracker</li>
-<li><strong>product</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of the product used in the issue tracker</li>
-<li><strong>before_date</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; import data before date (YYYY-mm-dd)</li>
-<li><strong>processes</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; number of processes to import the data (default 5)</li>
+<li><strong>issue_tracker_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of the issue tracker to import. It cannot be null</li>
+<li><strong>url</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the URL of the issue tracker. It cannot be null</li>
+<li><strong>product</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of the product used in the issue tracker. It cannot be null</li>
+<li><strong>before_date</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; import data before date (YYYY-mm-dd). It can be null</li>
+<li><strong>processes</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; number of processes to import the data. If null, the default number of processes is used (5)</li>
 </ul>
 </td>
 </tr>
@@ -122,10 +160,10 @@
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>db_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of an existing DB</li>
 <li><strong>project_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of an existing project in the DB</li>
-<li><strong>forum_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of the forum to import</li>
-<li><strong>eclipse_forum_url</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the URL of the forum</li>
-<li><strong>before_date</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; import data before date (YYYY-mm-dd)</li>
-<li><strong>processes</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; number of processes to import the data (default 2)</li>
+<li><strong>forum_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of the forum to import. It cannot be null</li>
+<li><strong>eclipse_forum_url</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the URL of the forum. It cannot be null</li>
+<li><strong>before_date</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; import data before date (YYYY-mm-dd). It can be null</li>
+<li><strong>processes</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; number of processes to import the data. If null, the default number of processes is used (2)</li>
 </ul>
 </td>
 </tr>
@@ -144,12 +182,12 @@
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>db_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of an existing DB</li>
 <li><strong>project_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of an existing project in the DB</li>
-<li><strong>repo_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of the repository to import</li>
-<li><strong>git_repo_path</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the path of the repository</li>
-<li><strong>before_date</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; import data before date (YYYY-mm-dd)</li>
+<li><strong>repo_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of the repository to import. It cannot be null</li>
+<li><strong>git_repo_path</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the local path of the repository. It cannot be null</li>
+<li><strong>before_date</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; import data before date (YYYY-mm-dd). It can be null</li>
 <li><strong>import_type</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; 1 = do not import patch content, 2 = import patch content but not at line level, 3 = import patch content at line level</li>
-<li><strong>references</strong> (<em>list str</em>) &#8211; list of references (branches and tags) to import</li>
-<li><strong>processes</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; number of processes to import the data (default 10)</li>
+<li><strong>references</strong> (<em>list str</em>) &#8211; list of references (branches and tags) to import. It can be null or [&#8220;ref-name-1&#8221;, .., &#8220;ref-name-n&#8221;]</li>
+<li><strong>processes</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; number of processes to import the data. If null, the default number of processes is used (10)</li>
 </ul>
 </td>
 </tr>
@@ -169,10 +207,10 @@
 <li><strong>db_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of an existing DB</li>
 <li><strong>project_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of an existing project in the DB</li>
 <li><strong>repo_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of an existing repository in the DB</li>
-<li><strong>issue_tracker_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of the issue tracker to import</li>
-<li><strong>github_repo_full_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; full name of the GitHub repository</li>
-<li><strong>before_date</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; import data before date (YYYY-mm-dd)</li>
-<li><strong>tokens</strong> (<em>list str</em>) &#8211; list of GitHub tokens</li>
+<li><strong>issue_tracker_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of the issue tracker to import. It cannot be null</li>
+<li><strong>github_repo_full_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; full name of the GitHub repository. It cannot be null</li>
+<li><strong>before_date</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; import data before date (YYYY-mm-dd). It can be null</li>
+<li><strong>tokens</strong> (<em>list str</em>) &#8211; list of GitHub tokens. It cannot be null</li>
 </ul>
 </td>
 </tr>
@@ -191,10 +229,10 @@
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>db_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of an existing DB</li>
 <li><strong>project_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of an existing project in the DB</li>
-<li><strong>instant_messaging_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of the instant messaging to import</li>
-<li><strong>before_date</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; import data before date (YYYY-mm-dd)</li>
-<li><strong>channels</strong> (<em>list str</em>) &#8211; list of channels to import</li>
-<li><strong>tokens</strong> (<em>list str</em>) &#8211; list of Slack tokens</li>
+<li><strong>instant_messaging_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of the instant messaging to import. It cannot be null</li>
+<li><strong>before_date</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; import data before date (YYYY-mm-dd). It can be null</li>
+<li><strong>channels</strong> (<em>list str</em>) &#8211; list of channels to import. It can be null or [&#8220;channel-name-1&#8221;, .., &#8220;channel-name-n&#8221;]</li>
+<li><strong>tokens</strong> (<em>list str</em>) &#8211; list of Slack tokens. It cannot be null</li>
 </ul>
 </td>
 </tr>
@@ -213,10 +251,10 @@
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>db_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of an existing DB</li>
 <li><strong>project_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of an existing project in the DB</li>
-<li><strong>forum_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of the forum to import</li>
-<li><strong>search_query</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; retrieves Stackoverflow questions labeled with a given string</li>
-<li><strong>before_date</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; import data before date (YYYY-mm-dd)</li>
-<li><strong>tokens</strong> (<em>list str</em>) &#8211; list of Stackoverflow tokens</li>
+<li><strong>forum_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of the forum to import. It cannot be null</li>
+<li><strong>search_query</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; retrieves Stackoverflow questions labeled with a given string. It cannot be null</li>
+<li><strong>before_date</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; import data before date (YYYY-mm-dd). It can be null</li>
+<li><strong>tokens</strong> (<em>list str</em>) &#8211; list of Stackoverflow tokens. It cannot be null</li>
 </ul>
 </td>
 </tr>
@@ -232,10 +270,12 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>db_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of the DB to initialize</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>db_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of the DB to initialize, cannot be null and must follow the format</td>
 </tr>
 </tbody>
 </table>
+<p>allowed in MySQL (<a class="reference external" href="http://dev.mysql.com/doc/refman/5.7/en/identifiers.html">http://dev.mysql.com/doc/refman/5.7/en/identifiers.html</a>).
+If a DB having a name equal already exists in Gitana, the existing DB will be dropped and a new one will be created</p>
 </dd></dl>
 
 <dl class="method">
@@ -265,9 +305,9 @@
 <li><strong>project_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of an existing project in the DB</li>
 <li><strong>repo_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of an existing repository in the DB</li>
 <li><strong>issue_tracker_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of an existing issue tracker in the DB to update</li>
-<li><strong>url</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the URL of the issue tracker</li>
-<li><strong>product</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of the product used in the issue tracker</li>
-<li><strong>processes</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; number of processes to import the data (default 5)</li>
+<li><strong>url</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the URL of the issue tracker. It cannot be null</li>
+<li><strong>product</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of the product used in the issue tracker. It cannot be null</li>
+<li><strong>processes</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; number of processes to import the data. If null, the default number of processes is used (5)</li>
 </ul>
 </td>
 </tr>
@@ -287,8 +327,8 @@
 <li><strong>db_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of an existing DB</li>
 <li><strong>project_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of an existing project in the DB</li>
 <li><strong>forum_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of an existing forum in the DB to update</li>
-<li><strong>eclipse_forum_url</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the URL of the forum</li>
-<li><strong>processes</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; number of processes to import the data (default 2)</li>
+<li><strong>eclipse_forum_url</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the URL of the forum. It cannot be null</li>
+<li><strong>processes</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; number of processes to import the data. If null, the default number of processes is used (2)</li>
 </ul>
 </td>
 </tr>
@@ -308,9 +348,9 @@
 <li><strong>db_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of an existing DB</li>
 <li><strong>project_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of an existing project in the DB</li>
 <li><strong>repo_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of an existing repository in the DB to update</li>
-<li><strong>git_repo_path</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the path of the repository</li>
-<li><strong>before_date</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; import data before date (YYYY-mm-dd)</li>
-<li><strong>processes</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; number of processes to import the data (default 10)</li>
+<li><strong>git_repo_path</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the path of the repository. It cannot be null</li>
+<li><strong>before_date</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; import data before date (YYYY-mm-dd). It can be null</li>
+<li><strong>processes</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; number of processes to import the data. If null, the default number of processes is used (10)</li>
 </ul>
 </td>
 </tr>
@@ -331,8 +371,8 @@
 <li><strong>project_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of an existing project in the DB</li>
 <li><strong>repo_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of an existing repository in the DB</li>
 <li><strong>issue_tracker_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of an existing issue tracker to update</li>
-<li><strong>github_repo_full_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; full name of the GitHub repository</li>
-<li><strong>tokens</strong> (<em>list str</em>) &#8211; list of GitHub tokens</li>
+<li><strong>github_repo_full_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; full name of the GitHub repository. It cannot be null</li>
+<li><strong>tokens</strong> (<em>list str</em>) &#8211; list of GitHub tokens. It cannot be null</li>
 </ul>
 </td>
 </tr>
@@ -352,7 +392,7 @@
 <li><strong>db_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of an existing DB</li>
 <li><strong>project_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of an existing project in the DB</li>
 <li><strong>instant_messaging_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of an existing instant messaging in the DB to update</li>
-<li><strong>tokens</strong> (<em>list str</em>) &#8211; list of Slack tokens</li>
+<li><strong>tokens</strong> (<em>list str</em>) &#8211; list of Slack tokens. It cannot be null</li>
 </ul>
 </td>
 </tr>
@@ -372,7 +412,7 @@
 <li><strong>db_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of an existing DB</li>
 <li><strong>project_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of an existing project in the DB</li>
 <li><strong>forum_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of an existing forum in the DB to update</li>
-<li><strong>tokens</strong> (<em>list str</em>) &#8211; list of Stackoverflow tokens</li>
+<li><strong>tokens</strong> (<em>list str</em>) &#8211; list of Stackoverflow tokens. It cannot be null</li>
 </ul>
 </td>
 </tr>

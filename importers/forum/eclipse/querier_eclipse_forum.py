@@ -36,8 +36,9 @@ class EclipseForumQuerier():
         starts the browser used to crawl
         """
         if not self._driver:
-            #self._driver = webdriver.PhantomJS(executable_path=WEB_DRIVER_PATH)
-            self._driver = webdriver.PhantomJS()
+            self._driver = webdriver.PhantomJS(executable_path=WEB_DRIVER_PATH)
+            ## uncomment the line below for linux systems
+            #self._driver = webdriver.PhantomJS()
             self._driver.maximize_window()
         self._driver.get(self._url)
 

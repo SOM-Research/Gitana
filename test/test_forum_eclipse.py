@@ -21,7 +21,7 @@ def test_1(g):
 
 def test_2(g):
     #test update
-    g.update_eclipse_forum_data("papyrus_db_test", "papyrus", "papyrus-forum", 3)
+    g.update_eclipse_forum_data("papyrus_db_test", "papyrus", "papyrus-forum", "https://www.eclipse.org/forums/index.php/f/121/", 3)
 
 
 def test_3(g):

@@ -41,8 +41,8 @@ class GitHubIssue2Db(object):
         :type config: dict
         :param config: the DB configuration file
 
-        :type log_folder_path: str
-        :param log_folder_path: the log folder path
+        :type log_root_path: str
+        :param log_root_path: the log path
         """
         self._log_root_path = log_root_path
         self._url = url
@@ -86,10 +86,10 @@ class GitHubIssue2Db(object):
             self._dao.insert_attachment(attachment_own_id, message_id, attachment_name, attachment_url)
             pos += 1
 
-    def _find_mentioner_user(self, issue_id, created_at):
+    def _find_mentioner_user(self, issue_own_id, created_at):
         #finds the mentioner user
         creator = None
-        issue = self._querier.get_issue(issue_id)
+        issue = self._querier.get_issue(issue_own_id)
         found = [c for c in self._querier.get_issue_comments(issue) if c.created_at == created_at]
 
         if len(found) == 1:
@@ -99,7 +99,7 @@ class GitHubIssue2Db(object):
 
         return creator
 
-    def _extract_history(self, issue_id, history):
+    def _extract_history(self, issue_id, issue_own_id, history):
         #inserts the history of an issue
         for event in history:
             try:
@@ -119,7 +119,7 @@ class GitHubIssue2Db(object):
                 elif action in ["mentioned"]:
                     self._dao.insert_event_type(action)
                     event_type_id = self._dao.select_event_type(action)
-                    user_mentioner = self._find_mentioner_user(issue_id, created_at)
+                    user_mentioner = self._find_mentioner_user(issue_own_id, created_at)
                     user_id = self._dao.get_user_id(self._querier.get_user_name(user_mentioner), self._querier.get_user_email(user_mentioner))
                     self._dao.insert_issue_event(issue_id, event_type_id, self._querier.get_user_name(user_mentioner), user_id, created_at, actor_id)
                 elif action in ["subscribed"]:
@@ -175,18 +175,17 @@ class GitHubIssue2Db(object):
             except Exception, e:
                 self._logger.warning("assignee (" + assignee.login + ") not inserted for issue id: " + str(issue_id) + " - tracker id " + str(self._issue_tracker_id), exc_info=True)
 
-    def _extract_first_comment(self, issue_id):
+    def _extract_first_comment(self, issue_id, issue):
         #inserts first issue comment
-        issue = self._querier.get_issue(issue_id)
         created_at = self._querier.get_issue_creation_time(issue)
         author = self._querier.get_issue_creator(issue)
         author_id = self._dao.get_user_id(self._querier.get_user_name(author), self._querier.get_user_email(author))
         body = self._querier.get_issue_body(issue)
         self._dao.insert_issue_comment(0, 0, self._dao.get_message_type_id("comment"), issue_id, body, None, author_id, created_at)
 
-    def _extract_comments(self, issue_id, comments):
+    def _extract_comments(self, issue_id, issue, comments):
         #inserts the comments of an issue
-        self._extract_first_comment(issue_id)
+        self._extract_first_comment(issue_id, issue)
         pos = 1
         for comment in comments:
             try:
@@ -261,13 +260,13 @@ class GitHubIssue2Db(object):
                 self._logger.error("GitHubError when extracting tags for issue id: " + str(issue_id) + " - tracker id " + str(self._issue_tracker_id), exc_info=True)
 
             try:
-                self._extract_comments(issue_id, self._querier.get_issue_comments(issue))
+                self._extract_comments(issue_id, issue, self._querier.get_issue_comments(issue))
             except Exception, e:
                 self._logger.error("GitHubError when extracting comments for issue id: " + str(issue_id) + " - tracker id " + str(self._issue_tracker_id), exc_info=True)
 
             try:
                 issue_history = self._querier.get_issue_history(issue)
-                self._extract_history(issue_id, issue_history)
+                self._extract_history(issue_id, issue_own_id, issue_history)
                 self._extract_subscribers(issue_id, self._querier.get_issue_subscribers(issue_history))
                 self._extract_assignees(issue_id, self._querier.get_issue_assignees(issue_history))
                 self._extract_issue_commit_dependency(issue_id, self._querier.get_commit_dependencies(issue_history))

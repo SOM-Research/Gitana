@@ -7,7 +7,7 @@ setup(
         name='gitana',
         version='1.0',
         description='Gitana: a SQL-based Project Activity Inspector',
-        long_description='Gitana exports and digests the data of a Git repository, issue trackers and Q&A web-sites to '
+        long_description='Gitana imports and digests the data of a Git repository, issue trackers and Q&A web-sites to '
                          'a relational database in order to ease browsing and querying activities with standard SQL '
                          'syntax and tools',
         url='https://github.com/SOM-Research/gitana',

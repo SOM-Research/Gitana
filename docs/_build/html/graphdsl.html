@@ -1,0 +1,159 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Graph Exporter &#8212; Gitana 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Report Exporter" href="reportdsl.html" />
+    <link rel="prev" title="Conceptual Schema" href="conceptual.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="graph-exporter">
+<h1>Graph Exporter<a class="headerlink" href="#graph-exporter" title="Permalink to this headline">¶</a></h1>
+<p>The information stored in the Gitana database can be exported to support complex networks analysis using graphs.
+The export process is driven by a Domain Specific Language (DSL) able to generate different kind of graphs from a set of parameterizable SQL
+<a class="reference external" href="https://github.com/SOM-Research/Gitana/blob/master/exporters/resources/queries.json">queries</a> to be executed against the Gitana database.
+The DSL is used to hide the database implementation details to the user, thus promoting independence with the database technology employed.</p>
+<p>The Graph exporter is in charge of generating a GEXF graph from an instance of the Graph Exporter DSL. Each DSL instance requires the name
+of the graph to export, some optional parameters that depend on the chosen graph, such as the name of the target project and tools (e.g., repository, issue tracker, etc.) to include in the export, and some mandatory ones like the type
+of graph to export (e.g., directed or undirected) and the color of edges/nodes. These parameters are used to generate and execute the SQL queries responsible
+for creating the nodes and edges of the graph based on the predefined query templates available in Gitana</p>
+<p>The figure below shows how the parametrization is achieved for the SQL query related to the nodes of the graph users-on-issues. As can be seen, the name of the graph
+is used to identify the predefined queries for nodes and edges, while the names of the parameters in the Graph Exporter DSL are used as markers in the SQL
+query template. Depending on the type of the parameter (i.e., required or optional), its value is either directly replaced in the SQL query (see node-color
+parameter) or first processed in order to retrieve its identifier (see project, repo and issue-tracker parameters). The data returned by both queries for nodes and
+edges is processed and exported to a GEXF file.</p>
+<img alt="_images/graph-exporter-2.svg" src="_images/graph-exporter-2.svg" /><div class="section" id="the-dsl">
+<h2>The DSL<a class="headerlink" href="#the-dsl" title="Permalink to this headline">¶</a></h2>
+<p>The DSL is defined using the JSON format. Below, the DSL instance templates for the currently exportable graphs are shown.</p>
+<div class="highlight-json"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;graph&quot;</span><span class="p">:</span>
+        <span class="p">{</span><span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;users-on-issues&quot;</span><span class="p">,</span>
+         <span class="nt">&quot;params&quot;</span><span class="p">:</span> <span class="p">{</span><span class="nt">&quot;project&quot;</span><span class="p">:</span> <span class="s2">&quot;NAME-OF-THE-PROJECT&quot;</span><span class="p">,</span>
+                                <span class="nt">&quot;repo&quot;</span><span class="p">:</span> <span class="s2">&quot;NAME-OF-THE-REPO&quot;</span><span class="p">,</span>
+                                <span class="nt">&quot;issuetracker&quot;</span><span class="p">:</span> <span class="s2">&quot;NAME-OF-THE-ISSUE-TRACKER&quot;</span><span class="p">,</span>
+                                <span class="nt">&quot;nodecolor&quot;</span><span class="p">:</span> <span class="s2">&quot;black|gray|white|blue|cyan|yellow|red|brown|orange|pink|purple|violet|random&quot;</span><span class="p">,</span>
+                                <span class="nt">&quot;edgecolor&quot;</span><span class="p">:</span> <span class="s2">&quot;black|gray|white|blue|cyan|yellow|red|brown|orange|pink|purple|violet|random&quot;</span><span class="p">,</span>
+                                <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;undirected|directed&quot;</span><span class="p">}</span>
+         <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="p">{</span><span class="nt">&quot;graph&quot;</span><span class="p">:</span>
+        <span class="p">{</span><span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;users-on-files&quot;</span><span class="p">,</span>
+         <span class="nt">&quot;params&quot;</span><span class="p">:</span> <span class="p">{</span><span class="nt">&quot;project&quot;</span><span class="p">:</span> <span class="s2">&quot;NAME-OF-THE-PROJECT&quot;</span><span class="p">,</span>
+                                <span class="nt">&quot;repo&quot;</span><span class="p">:</span> <span class="s2">&quot;NAME-OF-THE-REPO&quot;</span><span class="p">,</span>
+                                <span class="nt">&quot;nodecolor&quot;</span><span class="p">:</span> <span class="s2">&quot;black|gray|white|blue|cyan|yellow|red|brown|orange|pink|purple|violet|random&quot;</span><span class="p">,</span>
+                                <span class="nt">&quot;edgecolor&quot;</span><span class="p">:</span> <span class="s2">&quot;black|gray|white|blue|cyan|yellow|red|brown|orange|pink|purple|violet|random&quot;</span><span class="p">,</span>
+                                <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;undirected|directed&quot;</span><span class="p">}</span>
+         <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="p">{</span><span class="nt">&quot;graph&quot;</span><span class="p">:</span>
+        <span class="p">{</span><span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;users-on-files-for-references&quot;</span><span class="p">,</span>
+         <span class="nt">&quot;params&quot;</span><span class="p">:</span> <span class="p">{</span><span class="nt">&quot;project&quot;</span><span class="p">:</span> <span class="s2">&quot;NAME-OF-THE-PROJECT&quot;</span><span class="p">,</span>
+                                <span class="nt">&quot;repo&quot;</span><span class="p">:</span> <span class="s2">&quot;NAME-OF-THE-REPO&quot;</span><span class="p">,</span>
+                                <span class="nt">&quot;references&quot;</span><span class="p">:</span> <span class="s2">&quot;COMMA-SEPARATED-LIST-OF-REFERENCE-NAMES&quot;</span><span class="p">,</span>
+                                <span class="nt">&quot;nodecolor&quot;</span><span class="p">:</span> <span class="s2">&quot;black|gray|white|blue|cyan|yellow|red|brown|orange|pink|purple|violet|random&quot;</span><span class="p">,</span>
+                                <span class="nt">&quot;edgecolor&quot;</span><span class="p">:</span> <span class="s2">&quot;black|gray|white|blue|cyan|yellow|red|brown|orange|pink|purple|violet|random&quot;</span><span class="p">,</span>
+                                <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;undirected|directed&quot;</span><span class="p">}</span>
+         <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Graph Exporter</a><ul>
+<li><a class="reference internal" href="#the-dsl">The DSL</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="conceptual.html" title="previous chapter">Conceptual Schema</a></li>
+      <li>Next: <a href="reportdsl.html" title="next chapter">Report Exporter</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/graphdsl.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Valerio Cosentino.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/graphdsl.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
