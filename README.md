@@ -250,7 +250,7 @@ def main():
     g.import_eclipse_forum_data("papyrus_db", "papyrus", "papyrus-forum", "https://www.eclipse.org/forums/index.php/f/121/", None, False, 5)
     g.import_stackoverflow_data("papyrus_db", "papyrus", "papyrus-so", None, False, ['YOUR-TOKEN-1', 'YOUR-TOKEN-2', ...])
 	
-	g.export_to_graph("_papyrus_db", "./graph.json", "./graph.gexf")
+    g.export_to_graph("_papyrus_db", "./graph.json", "./graph.gexf")
     g.export_to_report("_papyrus_db", "./report.json", "./report.html")
 	
 if __name__ == "__main__":
