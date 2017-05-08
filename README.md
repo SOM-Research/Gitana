@@ -226,7 +226,7 @@ g.export_to_report("DB-NAME", "REPORT-EXPORTER-PATH", "OUTPUT-PATH")
 ```
 Further information about the Report Exporter DSL can be found in the [documentation](http://gitanadocs.getforge.io/reportdsl.html)
 
-### Simple Demo
+## Simple Demo
 
 ```python 
 from gitana import Gitana
