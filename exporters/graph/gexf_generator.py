@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 __author__ = 'valerio cosentino'
 
 import networkx as nx
@@ -62,7 +64,7 @@ class GexfGenerator():
         row = cursor.fetchone()
         while row:
             node_id = str(row[0])
-            node_label = str(row[1])
+            node_label = row[1]
             node_size = row[2]
             node_color = str(row[3])
 
