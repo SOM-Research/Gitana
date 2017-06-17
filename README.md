@@ -34,7 +34,7 @@ After installing MySQL Server and Python 2.7.6, execute the [setup script](https
 
 ### import Gitana
 ```python
-from gitana import Gitana
+from gitana.gitana import Gitana
 ```
 
 ### instantiate Gitana
@@ -229,7 +229,7 @@ Further information about the Report Exporter DSL can be found in the [documenta
 ## Simple Demo
 
 ```python 
-from gitana import Gitana
+from gitana.gitana import Gitana
 
 CONFIG = {
             'user': 'root',
