@@ -27,7 +27,7 @@ setup(
             'License :: OSI Approved :: MIT License'
         ],
         keywords='gitana project-information-analysis communication-channels issue-trackers version-control-systems',
-        packages=find_packages(exclude=['test', 'doc']),
+        packages=find_packages(exclude=['test', 'docs']),
 
         # List run-time dependencies here.  These will be installed by pip when
         # your project is installed. For an analysis of "install_requires" vs pip's
@@ -48,10 +48,11 @@ setup(
         # If there are data files included in your packages that need to be
         # installed, specify them here.  If using Python 2.6 or less, then these
         # have to be included in MANIFEST.in as well.
-        package_data={
-            'exporter': ['exporter/resources/queries.json', 'exporter/resources/jumbotron.png'],
-        },
         include_package_data=True,
+        package_data={
+            'exporters': ['exporters/resources/queries.json', 'exporters/resources/jumbotron.png'],
+        },
+        data_files=[('exporters/resources', ['exporters/resources/queries.json', 'exporters/resources/jumbotron.png'])]
 
         # Although 'package_data' is the preferred approach, in some case you may
         # need to place data files outside of your packages. See:
