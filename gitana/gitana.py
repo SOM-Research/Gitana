@@ -41,7 +41,7 @@ class Gitana():
     BUGZILLA_TYPE = 'bugzilla'
     SLACK_TYPE = 'slack'
 
-    def __init__(self, config, log_folder_path):
+    def __init__(self, config, log_folder_path=None):
         """
         :type config: dict
         :param config: the DB configuration file
