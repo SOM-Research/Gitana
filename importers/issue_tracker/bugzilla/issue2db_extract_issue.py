@@ -235,11 +235,12 @@ class BugzillaIssue2Db(object):
 
         if flag_insert_issue_data:
             issue_id = self._dao.select_issue_id(issue_own_id, self._issue_tracker_id, self._repo_id)
-            #tags and keywords are mapped as labels
-            try:
-                self._extract_labels(issue_id, self._querier.get_issue_tags(issue))
-            except Exception, e:
-                self._logger.error("BugzillaError when extracting tags for issue id: " + str(issue_id) + " - tracker id " + str(self._issue_tracker_id), exc_info=True)
+            ##tags are not present anymore
+            ##tags and keywords are mapped as labels
+            # try:
+            #     self._extract_labels(issue_id, self._querier.get_issue_tags(issue))
+            # except Exception, e:
+            #     self._logger.error("BugzillaError when extracting tags for issue id: " + str(issue_id) + " - tracker id " + str(self._issue_tracker_id), exc_info=True)
 
             try:
                 self._extract_labels(issue_id, self._querier.get_issue_keywords(issue))

@@ -44,9 +44,10 @@ class StackOverflowQuerier():
         :param before_date: selects questions with creation date before a given date (YYYY-mm-dd)
         """
         questions = []
+        self._token_util.wait_is_usable(self._so)
         for question in self._so.questions(tagged=[search_query], pagesize=10).fetch():
-            self._token_util.wait_is_usable(self._so)
             questions.append(question)
+            self._token_util.wait_is_usable(self._so)
 
         if before_date:
             questions = [q for q in questions if q.creation_date <= self._date_util.get_timestamp(before_date, "%Y-%m-%d")]
@@ -61,8 +62,8 @@ class StackOverflowQuerier():
         :param question_id: the data source question id
         """
         try:
-            question = self._so.question(question_id, body="True")
             self._token_util.wait_is_usable(self._so)
+            question = self._so.question(question_id, body="True")
         except:
             question = None
         return question
@@ -150,8 +151,8 @@ class StackOverflowQuerier():
         :type container: Object
         :param container: the Object representing the container
         """
-        user = self._so.user(container.owner_id).display_name
         self._token_util.wait_is_usable(self._so)
+        user = self._so.user(container.owner_id).display_name
         return user
 
     def get_comments(self, container):
@@ -163,6 +164,7 @@ class StackOverflowQuerier():
         """
         comments = []
         try:
+            self._token_util.wait_is_usable(self._so)
             for comment in container.comments.fetch():
                 comments.append(comment)
                 self._token_util.wait_is_usable(self._so)
@@ -179,6 +181,7 @@ class StackOverflowQuerier():
         :param question: the Object representing the question
         """
         answers = []
+        self._token_util.wait_is_usable(self._so)
         for answer in question.answers:
             answers.append(answer)
             self._token_util.wait_is_usable(self._so)

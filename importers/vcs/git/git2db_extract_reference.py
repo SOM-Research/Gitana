@@ -88,19 +88,6 @@ class Git2DbReference(object):
         u = str.decode('utf-8', 'ignore').lower()
         return re.sub(r'(\W|\s)+', '-', u)
 
-    def _get_ext(self, str):
-        #gets the extension of the file
-        file_name = str.split('/')[-1]
-        ext = file_name.split('.')[-1]
-        return ext
-
-    def _get_type(self, str):
-        #not used, future extension
-        type = "text"
-        if str.startswith('Binary files'):
-            type = "binary"
-        return type
-
     def _get_info_contribution_in_reference(self, reference_name, repo_id, from_sha):
         #processes Git reference data
         for reference in self._querier.get_references():
@@ -151,6 +138,13 @@ class Git2DbReference(object):
             sha = self._querier.get_commit_property(commit, "hexsha")
             authored_date = self._querier.get_commit_time(self._querier.get_commit_property(commit, "authored_date"))
             committed_date = self._querier.get_commit_time(self._querier.get_commit_property(commit, "committed_date"))
+
+            if author_name == None and author_email == None:
+                self._logger.warning("author name and email are null for commit: " + sha)
+
+            if committer_name == None and committer_email == None:
+                self._logger.warning("committer name and email are null for commit: " + sha)
+
             #insert author
             author_id = self._dao.get_user_id(author_name, author_email)
             committer_id = self._dao.get_user_id(committer_name, committer_email)
@@ -167,7 +161,7 @@ class Git2DbReference(object):
                     if self._querier.commit_has_no_parents(commit):
                         for diff in self._querier.get_diffs_no_parent_commit(commit):
                             file_path = diff[0]
-                            ext = self._get_ext(file_path)
+                            ext = self._querier.get_ext(file_path)
 
                             self._dao.insert_file(repo_id, file_path, ext)
                             file_id = self._dao.select_file_id(repo_id, file_path)
@@ -193,10 +187,10 @@ class Git2DbReference(object):
                             #self.dao.check_connection_alive()
                             if self._querier.is_renamed(diff):
                                 file_previous = self._querier.get_rename_from(diff)
-                                ext_previous = self._get_ext(file_previous)
+                                ext_previous = self._querier.get_ext(file_previous)
 
                                 file_current = self._querier.get_file_current(diff)
-                                ext_current = self._get_ext(file_current)
+                                ext_current = self._querier.get_ext(file_current)
 
                                 #insert new file
                                 self._dao.insert_file(repo_id, file_current, ext_current)
@@ -222,7 +216,7 @@ class Git2DbReference(object):
                                 try:
                                     file_path = self._querier.get_file_path(diff)
 
-                                    ext = self._get_ext(file_path)
+                                    ext = self._querier.get_ext(file_path)
 
                                     stats = self._querier.get_stats_for_file(commit_stats_files, file_path)
                                     status = self._querier.get_status_with_diff(stats, diff)

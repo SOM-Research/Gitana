@@ -184,7 +184,7 @@ class GitHubDao():
         """
         issue_ids = []
         cursor = self._cnx.cursor()
-        query = "SELECT i.id FROM issue i " \
+        query = "SELECT i.own_id FROM issue i " \
                 "JOIN issue_tracker it ON i.issue_tracker_id = it.id " \
                 "WHERE issue_tracker_id = %s AND repo_id = %s " \
                 "ORDER BY i.id ASC;"
@@ -193,7 +193,7 @@ class GitHubDao():
         row = cursor.fetchone()
 
         while row:
-            own_id = row[0]
+            own_id = int(row[0])
             issue_ids.append(own_id)
             row = cursor.fetchone()
 
@@ -337,7 +337,7 @@ class GitHubDao():
         updates an issue
 
         :type issue_id: int
-        :param issue_id: DB issue id
+        :param issue_id: data source issue id
 
         :type issue_tracker_id: int
         :param issue_tracker_id: issue tracker id
@@ -490,10 +490,16 @@ class GitHubDao():
         :type user_email: str
         :param user_email: email of the user
         """
-        if user_email:
-            user_id = self._db_util.select_user_id_by_email(self._cnx, user_email, self._logger)
-        else:
+
+        if user_email == None and user_name == None:
+            user_name = "uknonwn_user"
+            user_email = "uknonwn_user"
+
+        if user_name:
             user_id = self._db_util.select_user_id_by_name(self._cnx, user_name, self._logger)
+        else:
+            user_id = self._db_util.select_user_id_by_email(self._cnx, user_email, self._logger)
+
         if not user_id:
             self._db_util.insert_user(self._cnx, user_name, user_email, self._logger)
             if user_email:
@@ -674,7 +680,8 @@ class GitHubDao():
         cursor.execute(query, arguments)
 
     def close_connection(self):
-        self._db_util.close_connection(self._cnx)
+        if self._cnx:
+            self._db_util.close_connection(self._cnx)
 
     def restart_connection(self):
         self._cnx = self._db_util.restart_connection(self._config, self._logger)

@@ -12,7 +12,7 @@ class TokenUtil():
 
     GITHUB_TYPE = "github"
     STACKOVERFLOW_TYPE = "stackoverflow"
-    WAITING_TIME = 1800
+    WAITING_TIME = 4000
 
     def __init__(self, logger, type):
         """
@@ -39,7 +39,10 @@ class TokenUtil():
         #gets stackoverflow token requests left
         left = None
         try:
-            left = token.requests_left
+            if token.throttle_stop:
+                left = 0
+            else:
+                left = token.requests_left
         except:
             self._logger.error("TokenUtil, requests left not retrieved for Stackoverflow token")
 
@@ -59,7 +62,7 @@ class TokenUtil():
         #checks that a token has requests left
         left = self._get_requests_left(token)
         if left:
-            check = left > 0
+            check = left > 50
         else:
             check = False
 
@@ -72,8 +75,6 @@ class TokenUtil():
         :type token: str
         :param token: data source API token
         """
-        while True:
-            if self._is_usuable(token) > 0:
-                break
-            time.sleep(5)
+        if not self._is_usuable(token):
             self._logger.warning("Token expired, stand by for " + str(TokenUtil.WAITING_TIME) + " seconds")
+            time.sleep(TokenUtil.WAITING_TIME)

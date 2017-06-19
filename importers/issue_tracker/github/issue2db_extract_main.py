@@ -15,10 +15,8 @@ from util.logging_util import LoggingUtil
 
 class GitHubIssue2DbMain():
     """
-    This class handles the import of GitHub issue tracker data
+    This class handles the import of GitHub issue data
     """
-
-    NUM_PROCESSES = 1
 
     def __init__(self, db_name, project_name,
                  repo_name, type, issue_tracker_name, url, before_date, tokens,
@@ -47,9 +45,6 @@ class GitHubIssue2DbMain():
 
         :type tokens: list str
         :param token: list of GitHub tokens
-
-        :type num_processes: int
-        :param num_processes: number of processes to import the data (default 5)
 
         :type config: dict
         :param config: the DB configuration file
@@ -81,7 +76,7 @@ class GitHubIssue2DbMain():
         return '-'.join([str(e) for e in elements])
 
     def _insert_issue_data(self, repo_id, issue_tracker_id):
-        #processes issue tracker data
+        #processes issue data
         imported = self._dao.get_already_imported_issue_ids(issue_tracker_id, repo_id)
         issues = list(set(self._querier.get_issue_ids(self._before_date)) - set(imported))
 
@@ -138,11 +133,11 @@ class GitHubIssue2DbMain():
         self._insert_issue_data(repo_id, issue_tracker_id)
 
         self._dao.restart_connection()
-        self._insert_issue_dependencies(repo_id, issue_tracker_id)
+        #self._insert_issue_dependencies(repo_id, issue_tracker_id)
 
     def extract(self):
         """
-        extracts GitHub issue tracker data and stores it in the DB
+        extracts GitHub issue data and stores it in the DB
         """
         try:
             self._logger = self._logging_util.get_logger(self._log_path)
@@ -159,7 +154,7 @@ class GitHubIssue2DbMain():
             end_time = datetime.now()
             minutes_and_seconds = self._logging_util.calculate_execution_time(end_time, start_time)
             self._logger.info("GitHubIssue2DbMain finished after " + str(minutes_and_seconds[0])
-                         + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
+                            + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
             self._logging_util.remove_file_handler_logger(self._logger, self._fileHandler)
         except:
             self._logger.error("GitHubIssue2DbMain failed", exc_info=True)

@@ -175,7 +175,16 @@ class GitDao():
         :type user_name: str
         :param user_name: email of the user
         """
-        user_id = self._db_util.select_user_id_by_email(self._cnx, user_email, self._logger)
+
+        if user_email == None and user_name == None:
+            user_name = "uknonwn_user"
+            user_email = "uknonwn_user"
+
+        if user_email:
+            user_id = self._db_util.select_user_id_by_email(self._cnx, user_email, self._logger)
+        else:
+            user_id = self._db_util.select_user_id_by_name(self._cnx, user_name, self._logger)
+
         if not user_id:
             self._db_util.insert_user(self._cnx, user_name, user_email, self._logger)
             user_id = self._db_util.select_user_id_by_email(self._cnx, user_email, self._logger)
@@ -409,6 +418,33 @@ class GitDao():
         self._cnx.commit()
         cursor.close()
 
+    def select_file_id_before_date(self, repo_id, name, before_date):
+        """
+        selects id of the file before date
+
+        :type repo_id: int
+        :param repo_id: id of the repository
+
+        :type name: str
+        :param name: name of the file (full path)
+
+        :type before_date: timestamp
+        :param before_date: date
+        """
+        cursor = self._cnx.cursor()
+        query = "SELECT DISTINCT f.id " \
+                "FROM file f JOIN file_modification fm ON f.id = fm.file_id " \
+                "JOIN commit c ON c.id = fm.commit_id " \
+                "WHERE f.name = %s AND f.repo_id = %s AND fm.status = 'added' AND c.authored_date <= '" + str(before_date) + "' "
+        arguments = [name, repo_id]
+        cursor.execute(query, arguments)
+        try:
+            id = cursor.fetchone()[0]
+        except:
+            id = None
+        cursor.close()
+        return id
+
     def select_file_id(self, repo_id, name):
         """
         selects id of the file
@@ -463,15 +499,22 @@ class GitDao():
         :type ref_id: int
         :param ref_id: id of the reference
         """
+        found = None
         cursor = self._cnx.cursor()
         query = "SELECT name " \
                 "FROM reference " \
                 "WHERE id = %s and repo_id = %s"
         arguments = [ref_id, repo_id]
         cursor.execute(query, arguments)
-        name = cursor.fetchone()[0]
+
+        row = cursor.fetchone()
+
+        if row:
+            found = row[0]
+
         cursor.close()
-        return name
+
+        return found
 
     def select_reference_id(self, repo_id, ref_name):
         """
@@ -483,15 +526,20 @@ class GitDao():
         :type ref_name: str
         :param ref_name: name of the reference
         """
+        found = None
         cursor = self._cnx.cursor()
         query = "SELECT id " \
                 "FROM reference " \
                 "WHERE name = %s and repo_id = %s"
         arguments = [ref_name, repo_id]
         cursor.execute(query, arguments)
-        id = cursor.fetchone()[0]
+
+        row = cursor.fetchone()
+        if row:
+            found = row[0]
+
         cursor.close()
-        return id
+        return found
 
     def insert_commit(self, repo_id, sha, message, author_id, committer_id, authored_date, committed_date, size):
         """
@@ -596,3 +644,85 @@ class GitDao():
 
         cursor.close()
         return found
+
+    def select_commit_id_before_date(self, sha, repo_id, before_date):
+        """
+        selects id of a commit by its SHA before a given date
+
+        :type sha: str
+        :param sha: SHA of the commit
+
+        :type repo_id: int
+        :param repo_id: id of the repository
+
+        :type before_date: timestamp
+        :param before_date: date
+        """
+        found = None
+        cursor = self._cnx.cursor()
+        query = "SELECT id " \
+                "FROM commit " \
+                "WHERE sha = %s AND repo_id = %s AND authored_date <= '" + str(before_date) + "' "
+        arguments = [sha, repo_id]
+        cursor.execute(query, arguments)
+        row = cursor.fetchone()
+
+        if row:
+            found = row[0]
+
+        cursor.close()
+        return found
+
+    def select_all_developer_ids(self, repo_id):
+        """
+        selects all developers (committers or authors) of a given repo
+
+        :type repo_id: int
+        :param repo_id: id of the repository
+        """
+        user_ids = []
+        cursor = self._cnx.cursor()
+        query = "SELECT c.author_id " \
+                "FROM commit c JOIN repository r ON c.repo_id = r.id JOIN user u ON u.id = c.author_id " \
+                "WHERE repo_id = %s AND u.name IS NOT NULL AND u.email IS NOT NULL " \
+                "UNION " \
+                "SELECT c.committer_id " \
+                "FROM commit c JOIN repository r ON c.repo_id = r.id JOIN user u ON u.id = c.committer_id " \
+                "WHERE repo_id = %s AND u.name IS NOT NULL AND u.email IS NOT NULL "
+        arguments = [repo_id, repo_id]
+        cursor.execute(query, arguments)
+        row = cursor.fetchone()
+
+        while row:
+            user_id = row[0]
+            user_ids.append(user_id)
+            row = cursor.fetchone()
+
+        cursor.close()
+        return user_ids
+
+    def select_sha_commit_by_user(self, user_id, repo_id):
+        """
+        selects the SHA of the first commit (authored or committed) by a given user id
+
+        :type user_id: int
+        :param user_id: id of the user
+
+        :type repo_id: int
+        :param repo_id: id of the repository
+        """
+        found = None
+        cursor = self._cnx.cursor()
+        query = "SELECT sha " \
+                "FROM commit " \
+                "WHERE (author_id = %s OR committer_id = %s) AND repo_id = %s " \
+                "LIMIT 1"
+        arguments = [user_id, user_id, repo_id]
+        cursor.execute(query, arguments)
+        row = cursor.fetchone()
+
+        if row:
+            found = row[0]
+
+        return found
+

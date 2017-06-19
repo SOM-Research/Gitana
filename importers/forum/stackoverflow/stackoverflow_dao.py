@@ -50,6 +50,10 @@ class StackOverflowDao():
         :type user_name: str
         :param user_name: user name
         """
+
+        if user_name == None:
+            user_name = "uknonwn_user"
+
         user_id = self._db_util.select_user_id_by_name(self._cnx, user_name, self._logger)
         if not user_id:
             self._db_util.insert_user(self._cnx, user_name, None, self._logger)

@@ -16,7 +16,7 @@ class GitQuerier():
     """
 
     #python, java, html, xml, sql, javascript, c, c++, scala, php, ruby, matlab
-    ALLOWED_EXTENSION = ['py', 'java', 'html', 'xml', 'sql', 'js', 'c', 'cpp', 'cc', 'scala', 'php', 'rb', 'm']
+    ALLOWED_EXTENSIONS = ['py', 'java', 'html', 'xml', 'sql', 'js', 'c', 'cpp', 'cc', 'scala', 'php', 'rb', 'm']
 
     def __init__(self, git_repo_path, logger):
         """
@@ -34,6 +34,23 @@ class GitQuerier():
         except:
             self._logger.error("GitQuerier init failed")
             raise
+
+    def get_ext(self, filepath):
+        """
+        gets the extension of the file
+
+        :type filepath: str
+        :param filepath: local path of the file
+        """
+        ext = filepath.split('.')[-1]
+        return ext
+
+    def _get_type(self, str):
+        #not used, future extension
+        type = "text"
+        if str.startswith('Binary files'):
+            type = "binary"
+        return type
 
     def _get_diffs_manually(self, parent, commit, retrieve_patch):
         #gets diffs using the Git command
@@ -122,13 +139,31 @@ class GitQuerier():
         return self._date_util.get_time_fromtimestamp(string_time, "%Y-%m-%d %H:%M:%S")
 
     def get_files_in_ref(self, ref):
-        #not used, retrieve all the files currently present in a given branch
+        """
+        gets files in a given reference
+
+        :type ref: str
+        :param ref: name of the reference
+        """
         files = []
         git = self._repo.git
-        content = git.execute(["git", "rev-list"])
+        content = git.execute(["git", "ls-tree", "-r", ref])
         for line in content.split("\n"):
-            files.append(line)
+            files.append(line.split("\t")[-1])
         return files
+
+    def get_file_content(self, ref, file):
+        """
+        gets content of a file for a given reference
+
+        :type ref: str
+        :param ref: name of the reference
+
+        :type file: str
+        :param file: repo file path
+        """
+        git = self._repo.git
+        return git.execute(["git", "show", ref + ":" + file])
 
     def get_diffs_no_parent_commit(self, commit):
         """
@@ -524,7 +559,7 @@ class GitQuerier():
                     if self._line_is_empty(line):
                         self._add_to_details(details, "addition", new_line, False, False, True, line)
                     else:
-                        if file_extension in GitQuerier.ALLOWED_EXTENSION:
+                        if file_extension in GitQuerier.ALLOWED_EXTENSIONS:
                             #calculate if the line is commented
                             result = self._line_is_commented("addition", previous_block_comment, previous_new_line, new_line, block_comment, details, line, file_extension)
                             details = result[0]
@@ -543,7 +578,7 @@ class GitQuerier():
                     if self._line_is_empty(line):
                         self._add_to_details(details, "deletion", original_line, False, False, True, line)
                     else:
-                        if file_extension in GitQuerier.ALLOWED_EXTENSION:
+                        if file_extension in GitQuerier.ALLOWED_EXTENSIONS:
                             #calculate if the line is commented
                             result = self._line_is_commented("deletion", previous_block_comment, previous_original_line, original_line, block_comment, details, line, file_extension)
                             details = result[0]

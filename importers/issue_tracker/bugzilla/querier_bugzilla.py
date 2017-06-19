@@ -9,7 +9,7 @@ import time
 
 class BugzillaQuerier():
     """
-    This class collects the data available on the Bugizlla issue tracker via its API
+    This class collects the data available on the Bugzilla issue tracker via its API
     """
 
     WAITING_TIME = 1800
@@ -164,7 +164,7 @@ class BugzillaQuerier():
         :type issue: Object
         :param issue: the Object representing an issue
         """
-        return issue.get_history().get('bugs')[0].get('history')
+        return issue.get_history_raw().get('bugs')[0].get('history')
 
     def get_comment_property(self, comment, property):
         """

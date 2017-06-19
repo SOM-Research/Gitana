@@ -21,7 +21,7 @@ class GitHubIssue2DbUpdate():
     NUM_PROCESSES = 5
 
     def __init__(self, db_name, project_name,
-                 repo_name, issue_tracker_name, url, num_processes,
+                 repo_name, issue_tracker_name, url, tokens,
                  config, log_root_path):
         """
         :type db_name: str
@@ -39,8 +39,8 @@ class GitHubIssue2DbUpdate():
         :type url: str
         :param url: full name of the GitHub repository
 
-        :type num_processes: int
-        :param num_processes: number of processes to import the data (default 5)
+        :type tokens: list str
+        :param token: list of GitHub tokens
 
         :type config: dict
         :param config: the DB configuration file
@@ -54,11 +54,7 @@ class GitHubIssue2DbUpdate():
         self._project_name = project_name
         self._db_name = db_name
         self._repo_name = repo_name
-
-        if num_processes:
-            self._num_processes = num_processes
-        else:
-            self._num_processes = GitHubIssue2DbUpdate.NUM_PROCESSES
+        self._tokens = tokens
 
         config.update({'database': db_name})
         self._config = config
@@ -75,15 +71,17 @@ class GitHubIssue2DbUpdate():
         results = multiprocessing.Queue()
 
         # Start consumers
-        multiprocessing_util.start_consumers(self._num_processes, queue_intervals, results)
+        multiprocessing_util.start_consumers(len(self._tokens), queue_intervals, results)
 
+        pos = 0
         for interval in intervals:
-            issue_extractor = GitHubIssue2Db(self._db_name, repo_id, issue_tracker_id, url, self._product, interval,
-                                       self._config, self._log_path)
+            issue_extractor = GitHubIssue2Db(self._db_name, repo_id, issue_tracker_id, url, interval,
+                                             self._tokens[pos], self._config, self._log_path)
             queue_intervals.put(issue_extractor)
+            pos += 1
 
         # Add end-of-queue markers
-        multiprocessing_util.add_poison_pills(self._num_processes, queue_intervals)
+        multiprocessing_util.add_poison_pills(len(self._tokens), queue_intervals)
 
         # Wait for all of the tasks to finish
         queue_intervals.join()
@@ -94,15 +92,17 @@ class GitHubIssue2DbUpdate():
         results = multiprocessing.Queue()
 
         # Start consumers
-        multiprocessing_util.start_consumers(self._num_processes, queue_intervals, results)
+        multiprocessing_util.start_consumers(len(self._tokens), queue_intervals, results)
 
+        pos = 0
         for interval in intervals:
-            issue_dependency_extractor = GitHubIssueDependency2Db(self._db_name, repo_id, issue_tracker_id, url, self._product, interval,
-                                                 self._config, self._log_path)
+            issue_dependency_extractor = GitHubIssueDependency2Db(self._db_name, repo_id, issue_tracker_id, url, interval,
+                                                                  self._tokens[pos], self._config, self._log_path)
             queue_intervals.put(issue_dependency_extractor)
+            pos += 1
 
         # Add end-of-queue markers
-        multiprocessing_util.add_poison_pills(self._num_processes, queue_intervals)
+        multiprocessing_util.add_poison_pills(len(self._tokens), queue_intervals)
 
         # Wait for all of the tasks to finish
         queue_intervals.join()
@@ -115,24 +115,10 @@ class GitHubIssue2DbUpdate():
         issue_tracker_url = self._url
 
         if issue_tracker_id:
-            cursor = self._dao.get_cursor()
-            query = "SELECT i.own_id FROM issue i " \
-                    "JOIN issue_tracker it ON i.issue_tracker_id = it.id " \
-                    "WHERE issue_tracker_id = %s AND repo_id = %s " \
-                    "ORDER BY i.own_id ASC;"
-            arguments = [issue_tracker_id, repo_id]
-            self._dao.execute(cursor, query, arguments)
+            imported = self._dao.get_already_imported_issue_ids(issue_tracker_id, repo_id)
 
-            issues = []
-            row = self._dao.fetchone(cursor)
-
-            while row:
-                issues.append(row[0])
-                row = self._dao.fetchone(cursor)
-            self._dao.close_cursor(cursor)
-
-            if issues:
-                intervals = [i for i in multiprocessing_util.get_tasks_intervals(issues, self._num_processes) if len(i) > 0]
+            if imported:
+                intervals = [i for i in multiprocessing_util.get_tasks_intervals(imported, len(self._tokens)) if len(i) > 0]
 
                 self._update_issue_content(repo_id, issue_tracker_id, intervals, issue_tracker_url)
                 self._update_issue_dependency(repo_id, issue_tracker_id, intervals, issue_tracker_url)

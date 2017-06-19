@@ -23,7 +23,7 @@ class ReportExporter():
     """
 
     LOG_FOLDER_PATH = "logs"
-    INPUT_PATH = os.path.dirname(resources.__file__) + "\queries.json"
+    INPUT_PATH = os.path.join(os.path.dirname(resources.__file__), 'queries.json')
 
     def __init__(self, config, db_name, log_root_path):
         """

@@ -3,6 +3,7 @@
 __author__ = 'valerio cosentino'
 
 from github import Github
+from github import GithubException
 from util.date_util import DateUtil
 from util.token_util import TokenUtil
 import re
@@ -53,16 +54,17 @@ class GitHubQuerier():
         :param before_date: selects issues with creation date before a given date (YYYY-mm-dd)
         """
         issue_ids = []
-        page_count = 1
+        page_count = 0
+        self._token_util.wait_is_usable(self._github)
         last_page = int(self._repo.get_issues(state="all", direction="asc")._getLastPageUrl().split("page=")[-1])
 
-        while page_count != last_page:
+        while page_count != last_page + 1:
             self._token_util.wait_is_usable(self._github)
             issues = self._repo.get_issues(state="all").get_page(page_count)
             for i in issues:
                 if before_date:
-                   if i.created_at <= self._date_util.get_timestamp(before_date, "%Y-%m-%d"):
-                       issue_ids.append(i.number)
+                    if i.created_at <= self._date_util.get_timestamp(before_date, "%Y-%m-%d"):
+                        issue_ids.append(i.number)
                 else:
                     issue_ids.append(i.number)
 
@@ -181,8 +183,8 @@ class GitHubQuerier():
         :param issue: the Object representing the issue
         """
         labels = []
+        self._token_util.wait_is_usable(self._github)
         for label in issue.get_labels():
-            self._token_util.wait_is_usable(self._github)
             labels.append(label.name)
 
         return labels
@@ -195,8 +197,8 @@ class GitHubQuerier():
         :param issue: the Object representing the issue
         """
         comments = []
+        self._token_util.wait_is_usable(self._github)
         for comment in issue.get_comments():
-            self._token_util.wait_is_usable(self._github)
             comments.append(comment)
 
         return comments
@@ -334,11 +336,17 @@ class GitHubQuerier():
         :param issue: the Object representing the issue
         """
         events = []
+        self._token_util.wait_is_usable(self._github)
         for event in issue.get_events():
-            self._token_util.wait_is_usable(self._github)
             events.append(event)
 
         return events
+
+    def regenerate_token(self):
+        """
+        regenerate GitHub token
+        """
+        self._github = Github(self._token)
 
     def find_user(self, login):
         """
@@ -348,6 +356,7 @@ class GitHubQuerier():
         :param login: GitHub username
         """
         found = None
+        self._token_util.wait_is_usable(self._github)
         users = self._github.search_users(login, **{"type": "user", "in": "login"})
         for user in users:
             found = user
@@ -395,3 +404,8 @@ class GitHubQuerier():
             if event.event == "referenced":
                 commit_dependencies.append(event.commit_id)
         return commit_dependencies
+
+    def get_author_by_commit(self, sha):
+        self._token_util.wait_is_usable(self._github)
+        commit = self._repo.get_commit(sha)
+        return commit.author

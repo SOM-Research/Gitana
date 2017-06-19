@@ -86,18 +86,47 @@ class GitHubIssue2Db(object):
             self._dao.insert_attachment(attachment_own_id, message_id, attachment_name, attachment_url)
             pos += 1
 
-    def _find_mentioner_user(self, issue_own_id, created_at):
+    def _find_mentioner_user(self, issue_own_id, actor, created_at):
         #finds the mentioner user
-        creator = None
+        mentioner = None
         issue = self._querier.get_issue(issue_own_id)
-        found = [c for c in self._querier.get_issue_comments(issue) if c.created_at == created_at]
 
-        if len(found) == 1:
-            creator = found[0].user
+        candidates = []
+
+        if actor:
+            if "@" + actor in self._querier.get_issue_body(issue):
+                issue_creation = self._querier.get_issue_creation_time(issue)
+                #if issue_creation <= created_at:
+                candidates.append((self._querier.get_issue_creator(issue), issue_creation))
+
+            for c in self._querier.get_issue_comments(issue):
+                if "@" + actor in self._querier.get_issue_comment_body(c):
+                    #if c.created_at <= created_at:
+                    candidates.append((c.user, c.created_at))
+
+            if candidates:
+                found = min(candidates, key=lambda candidate: abs(candidate[1] - created_at))
+                mentioner = found[0]
+            else:
+                self._logger.warning("mentioner not found for issue " + str(issue_own_id))
+        #it may happen that the actor is not part of GitHub anymore, so in order to detect the mentioner, the datetime of the
+        #mentioned event is compared with the creation times of the issue and comments
         else:
-            self._logger.warning("multiple mentioner users")
+            if self._querier.get_issue_creation_time(issue) == created_at:
+                mentioner = self._querier.get_issue_creator(issue)
+            else:
+                found = [c for c in self._querier.get_issue_comments(issue) if c.created_at == created_at]
 
-        return creator
+                if found:
+                    if len(found) == 1:
+                        mentioner = found[0].user
+                    else:
+                        self._logger.warning("multiple mentioners for issue " + str(issue_own_id))
+
+        if not mentioner:
+            self._logger.warning("mentioner not found for issue " + str(issue_own_id))
+
+        return mentioner
 
     def _extract_history(self, issue_id, issue_own_id, history):
         #inserts the history of an issue
@@ -119,7 +148,7 @@ class GitHubIssue2Db(object):
                 elif action in ["mentioned"]:
                     self._dao.insert_event_type(action)
                     event_type_id = self._dao.select_event_type(action)
-                    user_mentioner = self._find_mentioner_user(issue_own_id, created_at)
+                    user_mentioner = self._find_mentioner_user(issue_own_id, self._querier.get_user_name(actor), created_at)
                     user_id = self._dao.get_user_id(self._querier.get_user_name(user_mentioner), self._querier.get_user_email(user_mentioner))
                     self._dao.insert_issue_event(issue_id, event_type_id, self._querier.get_user_name(user_mentioner), user_id, created_at, actor_id)
                 elif action in ["subscribed"]:
