@@ -29,17 +29,17 @@ class DbUtil():
         """
         cnx.close()
 
-    def lowercase(self, str):
+    def lowercase(self, _str):
         """
         conver str to lowercase
 
-        :type str: str
-        :param str: str to convert
+        :type _str: str
+        :param _str: str to convert
         """
-        if str:
-            str = str.lower()
+        if _str:
+            _str = _str.lower()
 
-        return str
+        return _str
 
     def select_project_id(self, cnx, project_name, logger):
         """
@@ -95,7 +95,7 @@ class DbUtil():
         cnx.commit()
         cursor.close()
 
-    def insert_issue_tracker(self, cnx, repo_id, issue_tracker_name, type, logger):
+    def insert_issue_tracker(self, cnx, repo_id, issue_tracker_name, issue_type, logger):
         """
         inserts issue tracker
 
@@ -108,8 +108,8 @@ class DbUtil():
         :type issue_tracker_name: str
         :param issue_tracker_name: name of the issue tracker
 
-        :type type: str
-        :param type: type of the issue tracker
+        :type issue_type: str
+        :param issue_type: type of the issue tracker
 
         :type logger: Object
         :param logger: logger
@@ -117,7 +117,7 @@ class DbUtil():
         cursor = cnx.cursor()
         query = "INSERT IGNORE INTO issue_tracker " \
                 "VALUES (%s, %s, %s, %s)"
-        arguments = [None, repo_id, issue_tracker_name, type]
+        arguments = [None, repo_id, issue_tracker_name, issue_type]
         cursor.execute(query, arguments)
         cnx.commit()
 
@@ -251,7 +251,7 @@ class DbUtil():
             if row:
                 found = row[0]
             else:
-                logger.warning("there is not user with this email " + email)
+                logger.debug("there is not user with this email " + email)
 
             cursor.close()
         return found
@@ -284,7 +284,7 @@ class DbUtil():
             if row:
                 found = row[0]
             else:
-                logger.warning("there is not user with this name " + name)
+                logger.debug("there is not user with this name " + name)
 
             cursor.close()
         return found
