@@ -172,7 +172,7 @@ class GitDao():
         :type user_name: str
         :param user_name: name of the user
 
-        :type user_name: str
+        :type user_email: str
         :param user_name: email of the user
         """
 
@@ -478,8 +478,8 @@ class GitDao():
         :type ref_name: str
         :param ref_name: name of the reference
 
-        :type ref_name: str
-        :param ref_name: type of the reference (branch or tag)
+        :type ref_type: str
+        :param ref_type: type of the reference (branch or tag)
         """
         cursor = self._cnx.cursor()
         query = "INSERT IGNORE INTO reference " \
