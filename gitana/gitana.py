@@ -293,7 +293,7 @@ class Gitana():
             self._config, self._log_path)
         forum2db.update()
 
-    def import_stackoverflow_data(self, db_name, project_name, forum_name, tokens, search_query=None, before_date=None):
+    def import_stackoverflow_data(self, db_name, project_name, forum_name, search_query, tokens, before_date=None):
         """
         imports Stackoverflow data to the DB
 
@@ -307,17 +307,17 @@ class Gitana():
         :param forum_name: the name of the forum to import. It cannot be null
 
         :type search_query: str
-        :param search_query: retrieves Stackoverflow questions labeled with a given string. It can be null
-
-        :type before_date: str
-        :param before_date: import data before date (YYYY-mm-dd). It can be null
+        :param search_query: retrieves Stackoverflow questions labeled with a given string.
 
         :type tokens: list str
         :param tokens: list of Stackoverflow tokens. It cannot be null
+
+        :type before_date: str
+        :param before_date: import data before date (YYYY-mm-dd). It can be null
         """
-        stackoverflow2db = StackOverflow2DbMain(db_name, project_name,
-                                                Gitana.STACKOVERFLOW_TYPE, forum_name, search_query, before_date, tokens,
-                                                self._config, self._log_path)
+        stackoverflow2db = StackOverflow2DbMain(
+            db_name, project_name, Gitana.STACKOVERFLOW_TYPE, forum_name,
+            search_query, before_date, tokens, self._config, self._log_path)
         stackoverflow2db.extract()
 
     def update_stackoverflow_data(self, db_name, project_name, forum_name, tokens):
