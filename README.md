@@ -28,7 +28,12 @@ Gitana is developed on Windows 7 and it relies on:
 
 ## Installation
 
-After installing MySQL Server and Python 2.7.6, execute the [setup script](https://github.com/SOM-Research/Gitana/blob/master/setup.py)
+After installing MySQL Server and Python 2.7.6, execute the setup script.
+```python
+$> cd Gitana
+$> python setup.py build
+$> python setup.py install
+```
    
 ## How to use Gitana
 
@@ -71,14 +76,14 @@ g.create_project("DB-NAME", "PROJECT-NAME")
 ### import Git data
 ```python
 g.import_git_data("DB-NAME", "PROJECT-NAME", "GIT-REPO-NAME", "GIT-REPO-PATH",
-                  "BEFORE-DATE", "IMPORT-TYPE", "LIST-OF-REFERENCES", "NUM-OF-PROCESSES")
+                  "IMPORT-TYPE", "LIST-OF-REFERENCES", "BEFORE-DATE", "NUM-OF-PROCESSES")
                   
 # DB-NAME and PROJECT-NAME should point to a DB and project already existing in Gitana
 # GIT-REPO-NAME, GIT-REPO-PATH cannot be null
-# BEFORE-DATE can be None or "%Y-%m-%d". It allows to import references and commits created before a given date
-# IMPORT-TYPE can be 1, 2 or 3. It allows to define the granularity of the import process. 1 does not import patches, 2 imports patches but not at line level, 3 imports patches with line detail
+# IMPORT-TYPE can be 1, 2 or 3. It allows to define the granularity of the import process. 1 does not import patches, 2 imports patches but not at line level, 3 imports patches with line detail. Defaults to type 1.
 # LIST-OF-REFERENCES can be None or ["ref-name-1", .., "ref-name-n"]. It allows to import the data of a set of repo references (tag or branches)
-# NUM-OF-PROCESSES can be None or a int number. It is the number of parallel processes used to analyse the Git repo. if None, the number of processes is 10
+# BEFORE-DATE can be None or "%Y-%m-%d". It allows to import references and commits created before a given date
+# NUM-OF-PROCESSES can be None or a int number. It is the number of parallel processes used to analyse the Git repo. if None, the number of processes is 5
 ```
 
 ### update Git data
@@ -90,7 +95,7 @@ g.update_git_data("DB-NAME", "PROJECT-NAME", "GIT-REPO-NAME", "GIT-REPO-PATH",
 # DB-NAME and PROJECT-NAME should point to a DB and project already existing in Gitana
 # GIT-REPO-NAME, GIT-REPO-PATH cannot be null
 # BEFORE-DATE can be None or "%Y-%m-%d". It allows to import references and commits created before a given date
-# NUM-OF-PROCESSES can be None or a int number. It is the number of parallel processes used to analyse the Git repo. if None, the number of processes is 10
+# NUM-OF-PROCESSES can be None or a int number. It is the number of parallel processes used to analyse the Git repo. if None, the number of processes is 5
 ```
 
 ### import Bugzilla data
@@ -143,13 +148,13 @@ g.update_eclipse_forum_data("DB-NAME", "PROJECT-NAME", "FORUM-NAME", "NUM-OF-PRO
 
 ### import Stackoverflow data
 ```python
-g.import_stackoverflow_data("DB-NAME", "PROJECT-NAME", "FORUM-NAME", "QUERY-STRING", "BEFORE-DATE", "LIST-OF-TOKENS")
+g.import_stackoverflow_data("DB-NAME", "PROJECT-NAME", "FORUM-NAME", "QUERY-STRING", "LIST-OF-TOKENS", "BEFORE-DATE")
 
 # DB-NAME, PROJECT-NAME should point to a DB and project already existing in Gitana
 # FORUM-NAME cannot be null. It is the name used to identify the forum in the DB
 # QUERY-STRING cannot be null. It is used to retrieved the Questions in Stackoverflow labelled with "QUERY-STRING"
-# BEFORE-DATE can be None or "%Y-%m-%d". It allows to import topics created before a given date
 # "LIST-OF-TOKENS" cannot be null. Each token is passed to a process to speed up the collection of StackOverflow information.
+# BEFORE-DATE can be None or "%Y-%m-%d". It allows to import topics created before a given date
 ```
 
 ### update Stackoverflow data
@@ -164,13 +169,13 @@ g.update_stackoverflow_data("DB-NAME", "PROJECT-NAME", "FORUM-NAME", ""LIST-OF-T
 
 ### import Slack data
 ```python
-g.import_slack_data("DB-NAME", "PROJECT-NAME", "INSTANT-MESSAGING-NAME", "BEFORE-DATE", "LIST-OF-CHANNELS", ""LIST-OF-TOKENS"")
+g.import_slack_data("DB-NAME", "PROJECT-NAME", "INSTANT-MESSAGING-NAME", ""LIST-OF-TOKENS"", "BEFORE-DATE", "LIST-OF-CHANNELS")
 
 # DB-NAME, PROJECT-NAME should point to a DB and project already existing in Gitana
 # INSTANT-MESSAGING-NAME cannot be null. It is the name used to identify the instant messaging service in the DB
+# "LIST-OF-TOKENS" cannot be null. Each token is passed to a process to speed up the collection of Slack information.
 # BEFORE-DATE can be None or "%Y-%m-%d". It allows to import channels created before a given date
 # LIST-OF-CHANNELS. can be None or ["channel-name-1", .., "channel-name-n"]. It allows to import the data of a set of channels
-# "LIST-OF-TOKENS" cannot be null. Each token is passed to a process to speed up the collection of Slack information.
 ```
 
 ### update Slack data
@@ -185,13 +190,13 @@ g.update_slack_data("DB-NAME", "PROJECT-NAME", "INSTANT-MESSAGING-NAME", ""LIST-
 ```python
 g.import_github_tracker_data("DB-NAME", "PROJECT-NAME", "GIT-REPO-NAME",
                              "ISSUE-TRACKER-NAME", "GITHUB-REPO-FULLNAME",
-                             "BEFORE-DATE", ""LIST-OF-TOKENS"")
+                             ""LIST-OF-TOKENS"", "BEFORE-DATE")
   
 # DB-NAME, PROJECT-NAME, GIT-REPO-NAME should point to a DB, project and repo already existing in Gitana
 # ISSUE-TRACKER-NAME cannot be null. It is the name used to identify the issue tracker in the DB
 # GITHUB-REPO-FULLNAME cannot be null. It points to the GitHub repository to import
-# BEFORE-DATE can be None or "%Y-%m-%d". It allows to import issues created before a given date
 # "LIST-OF-TOKENS" cannot be null. Each token is passed to a process to speed up the collection of GitHub information.
+# BEFORE-DATE can be None or "%Y-%m-%d". It allows to import issues created before a given date
 ```
 
 ### update GitHub-Issue-Tracker data
@@ -245,13 +250,13 @@ def main():
     g.init_db("papyrus_db")
 
     g.create_project("papyrus_db", "papyrus")
-    g.import_git_data("papyrus_db", "papyrus", "papyrus_repo", "...\\Desktop\\org.eclipse.papyrus", None, 1, None, 20)
-    g.import_bugzilla_tracker_data("papyrus_db", "papyrus", "papyrus_repo", "papyrus-bugzilla", "https://bugs.eclipse.org/bugs/xmlrpc.cgi", "papyrus", None, False, 20)
-    g.import_eclipse_forum_data("papyrus_db", "papyrus", "papyrus-forum", "https://www.eclipse.org/forums/index.php/f/121/", None, False, 5)
-    g.import_stackoverflow_data("papyrus_db", "papyrus", "papyrus-so", None, False, ['YOUR-TOKEN-1', 'YOUR-TOKEN-2', ...])
+    g.import_git_data("papyrus_db", "papyrus", "papyrus_repo", "...\\Desktop\\org.eclipse.papyrus")
+    g.import_bugzilla_tracker_data("papyrus_db", "papyrus", "papyrus_repo", "papyrus-bugzilla", "https://bugs.eclipse.org/bugs/xmlrpc.cgi", "papyrus")
+    g.import_eclipse_forum_data("papyrus_db", "papyrus", "papyrus-forum", "https://www.eclipse.org/forums/index.php/f/121/")
+    g.import_stackoverflow_data("papyrus_db", "papyrus", "papyrus-so", ['YOUR-TOKEN-1', 'YOUR-TOKEN-2', ...])
 	
-    g.export_to_graph("_papyrus_db", "./graph.json", "./graph.gexf")
-    g.export_to_report("_papyrus_db", "./report.json", "./report.html")
+    g.export_to_graph("papyrus_db", "./graph.json", "./graph.gexf")
+    g.export_to_report("papyrus_db", "./report.json", "./report.html")
 	
 if __name__ == "__main__":
     main()
