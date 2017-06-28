@@ -29,7 +29,7 @@ Gitana is developed on Windows 7 and it relies on:
 ## Installation
 
 After installing MySQL Server and Python 2.7.6, execute the setup script.
-```python
+```
 $> cd Gitana
 $> python setup.py build
 $> python setup.py install
@@ -203,7 +203,7 @@ g.import_github_tracker_data("DB-NAME", "PROJECT-NAME", "GIT-REPO-NAME",
 ```python
 g.update_github_tracker_data("DB-NAME", "PROJECT-NAME", "GIT-REPO-NAME",
                              "ISSUE-TRACKER-NAME", "GITHUB-REPO-FULLNAME",
-							 ""LIST-OF-TOKENS"")
+                             ""LIST-OF-TOKENS"")
   
 # DB-NAME, PROJECT-NAME, GIT-REPO-NAME should point to a DB, project and repo already existing in Gitana
 # ISSUE-TRACKER-NAME cannot be null. It is the name used to identify the issue tracker in the DB
