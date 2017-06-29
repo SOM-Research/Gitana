@@ -86,12 +86,10 @@ class Gitana():
         initializes the Gitana DB schema
 
         :type db_name: str
-        :param db_name: the name of the DB to initialize, cannot be null and must follow the format
-        allowed in MySQL (http://dev.mysql.com/doc/refman/5.7/en/identifiers.html).
-        If a DB having a name equal already exists in Gitana, the existing DB will be dropped and a new one will be created
+        :param db_name: the name of the DB to initialize
         """
-        db = DbSchema(self._config, self._log_path)
-        db.init_database(db_name)
+        db = DbSchema(db_name, self._config, self._log_path)
+        db.init_database()
 
     def create_project(self, db_name, project_name):
         """
@@ -103,8 +101,8 @@ class Gitana():
         :type project_name: str
         :param project_name: the name of the project to create. It cannot be null
         """
-        db = DbSchema(self._config, self._log_path)
-        db.create_project(db_name, project_name)
+        db = DbSchema(db_name, self._config, self._log_path)
+        db.create_project(project_name)
 
     def create_repository(self, db_name, project_name, repo_name):
         """
@@ -119,8 +117,8 @@ class Gitana():
         :type repo_name: str
         :param repo_name: the name of the repository to insert
         """
-        db = DbSchema(self._config, self._log_path)
-        db.create_repository(db_name, project_name, repo_name)
+        db = DbSchema(db_name, self._config, self._log_path)
+        db.create_repository(project_name, repo_name)
 
     def list_projects(self, db_name):
         """
@@ -129,8 +127,8 @@ class Gitana():
         :type db_name: str
         :param db_name: the name of the DB
         """
-        db = DbSchema(self._config, self._log_path)
-        projects = db.list_projects(db_name)
+        db = DbSchema(db_name, self._config, self._log_path)
+        projects = db.list_projects()
         for p in projects:
             print p
 

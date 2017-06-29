@@ -47,8 +47,8 @@ def _2048():
 
 
 def main():
-    _2048()
-    #_papyrus()
+    #_2048()
+    _papyrus()
 
 if __name__ == "__main__":
     main()

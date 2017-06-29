@@ -95,7 +95,7 @@ g.update_git_data("DB-NAME", "PROJECT-NAME", "GIT-REPO-NAME", "GIT-REPO-PATH",
 # DB-NAME and PROJECT-NAME should point to a DB and project already existing in Gitana
 # GIT-REPO-NAME, GIT-REPO-PATH cannot be null
 # BEFORE-DATE can be None or "%Y-%m-%d". It allows to import references and commits created before a given date
-# NUM-OF-PROCESSES can be None or a int number. It is the number of parallel processes used to analyse the Git repo. if None, the number of processes is 3
+# NUM-OF-PROCESSES can be None or a int number. It is the number of parallel processes used to analyse the Git repo. if None, the number of processes is 5
 ```
 
 ### import Bugzilla data
@@ -121,7 +121,7 @@ g.update_bugzilla_tracker_data("DB-NAME", "PROJECT-NAME", "GIT-REPO-NAME",
 # DB-NAME, PROJECT-NAME, GIT-REPO-NAME should point to a DB, project and repo already existing in Gitana
 # ISSUE-TRACKER-NAME cannot be null. It points to the issue tracker stored in the DB
 # PRODUCT-NAME cannot be null. It will update the issues already in Gitana for the input product (e.g., "MDT.MoDisco")
-# NUM-OF-PROCESSES can be None or a int number. It is the number of parallel processes used to collect issue tracker information. if None, the number of processes is 5
+# NUM-OF-PROCESSES can be None or a int number. It is the number of parallel processes used to collect issue tracker information. if None, the number of processes is 3
 ```
 
 ### import Eclipse forum data

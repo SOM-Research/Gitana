@@ -201,6 +201,9 @@ class Git2DbReference(object):
                                 #retrieve the id of the previous file
                                 previous_file_id = self._dao.select_file_id(repo_id, file_previous)
 
+                                #insert file modification
+                                self._dao.insert_file_modification(commit_found, current_file_id, "renamed", 0, 0, 0, None)
+
                                 if not previous_file_id:
                                     self._dao.insert_file(repo_id, file_previous, ext_previous)
                                     previous_file_id = self._dao.select_file_id(repo_id, file_previous)
@@ -208,8 +211,9 @@ class Git2DbReference(object):
                                 if current_file_id == previous_file_id:
                                     self._logger.warning("previous file id is equal to current file id (" + str(current_file_id) + ") " + str(sha))
                                 else:
-                                    self._dao.insert_file_renamed(repo_id, current_file_id, previous_file_id)
-                                self._dao.insert_file_modification(commit_found, current_file_id, "renamed", 0, 0, 0, None)
+                                    file_modification_id = self._dao.select_file_modification_id(commit_found, current_file_id)
+                                    self._dao.insert_file_renamed(repo_id, current_file_id, previous_file_id, file_modification_id)
+
                             else:
                                 #insert file
                                 #if the file does not have a path, it won't be inserted
