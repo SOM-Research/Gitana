@@ -156,7 +156,7 @@ class Git2DbMain():
             self._logger.info("Git2DbMain finished after " + str(minutes_and_seconds[0])
                          + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
             self._logging_util.remove_file_handler_logger(self._logger, self._fileHandler)
-        except Exception, e:
+        except Exception:
             self._logger.error("Git2DbMain failed", exc_info=True)
         finally:
             if self._dao:

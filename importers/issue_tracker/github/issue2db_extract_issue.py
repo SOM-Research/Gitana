@@ -70,7 +70,7 @@ class GitHubIssue2Db(object):
             self._querier = GitHubQuerier(self._url, self._token, self._logger)
             self._dao = GitHubDao(self._config, self._logger)
             self.extract()
-        except Exception, e:
+        except Exception:
             self._logger.error("GitHubIssue2Db failed", exc_info=True)
         finally:
             if self._dao:
@@ -176,7 +176,7 @@ class GitHubIssue2Db(object):
                     self._dao.insert_issue_event(issue_id, event_type_id, action, assigner_id, created_at, assignee_id)
 
 
-            except Exception, e:
+            except Exception:
                 self._logger.warning("event at (" + str(created_at) + ") not extracted for issue id: " + str(issue_id) + " - tracker id " + str(self._issue_tracker_id), exc_info=True)
 
     def _extract_subscribers(self, issue_id, subscribers):
@@ -185,7 +185,7 @@ class GitHubIssue2Db(object):
             try:
                 subscriber_id = self._dao.get_user_id(self._querier.get_user_name(subscriber), self._querier.get_user_email(subscriber))
                 self._dao.insert_subscriber(issue_id, subscriber_id)
-            except Exception, e:
+            except Exception:
                 self._logger.warning("subscriber (" + subscriber.login + ") not inserted for issue id: " + str(issue_id) + " - tracker id " + str(self._issue_tracker_id), exc_info=True)
 
     def _extract_assignees(self, issue_id, assignees):
@@ -201,7 +201,7 @@ class GitHubIssue2Db(object):
                     assignee_id = self._dao.get_user_id(assignee_login, None)
 
                 self._dao.insert_assignee(issue_id, assignee_id)
-            except Exception, e:
+            except Exception:
                 self._logger.warning("assignee (" + assignee.login + ") not inserted for issue id: " + str(issue_id) + " - tracker id " + str(self._issue_tracker_id), exc_info=True)
 
     def _extract_first_comment(self, issue_id, issue):
@@ -229,7 +229,7 @@ class GitHubIssue2Db(object):
                 if attachments:
                     issue_comment_id = self._dao.select_issue_comment_id(own_id, issue_id, created_at)
                     self._insert_attachments(attachments, issue_comment_id)
-            except Exception, e:
+            except Exception:
                 self._logger.warning("comment(" + str(pos) + ") not extracted for issue id: " + str(issue_id) + " - tracker id " + str(self._issue_tracker_id), exc_info=True)
                 continue
 
@@ -243,7 +243,7 @@ class GitHubIssue2Db(object):
                 self._dao.insert_label(digested_label.strip())
                 label_id = self._dao.select_label_id(digested_label)
                 self._dao.assign_label_to_issue(issue_id, label_id)
-            except Exception, e:
+            except Exception:
                 self._logger.warning("label (" + label + ") not extracted for issue id: " + str(issue_id) + " - tracker id " + str(self._issue_tracker_id), exc_info=True)
 
     def _extract_issue_commit_dependency(self, issue_id, commits):
@@ -285,12 +285,12 @@ class GitHubIssue2Db(object):
 
             try:
                 self._extract_labels(issue_id, self._querier.get_issue_tags(issue))
-            except Exception, e:
+            except Exception:
                 self._logger.error("GitHubError when extracting tags for issue id: " + str(issue_id) + " - tracker id " + str(self._issue_tracker_id), exc_info=True)
 
             try:
                 self._extract_comments(issue_id, issue, self._querier.get_issue_comments(issue))
-            except Exception, e:
+            except Exception:
                 self._logger.error("GitHubError when extracting comments for issue id: " + str(issue_id) + " - tracker id " + str(self._issue_tracker_id), exc_info=True)
 
             try:
@@ -299,7 +299,7 @@ class GitHubIssue2Db(object):
                 self._extract_subscribers(issue_id, self._querier.get_issue_subscribers(issue_history))
                 self._extract_assignees(issue_id, self._querier.get_issue_assignees(issue_history))
                 self._extract_issue_commit_dependency(issue_id, self._querier.get_commit_dependencies(issue_history))
-            except Exception, e:
+            except Exception:
                 self._logger.error("GitHubError when extracting history for issue id: " + str(issue_id) + " - tracker id " + str(self._issue_tracker_id), exc_info=True)
 
     def _get_issues(self):
@@ -307,7 +307,7 @@ class GitHubIssue2Db(object):
         for issue_id in self._interval:
             try:
                 self._get_issue_info(issue_id)
-            except Exception, e:
+            except Exception:
                 self._logger.error("something went wrong for issue id: " + str(issue_id) + " - tracker id " + str(self._issue_tracker_id), exc_info=True)
 
     def extract(self):
@@ -324,7 +324,7 @@ class GitHubIssue2Db(object):
             self._logger.info("GitHubIssue2Db finished after " + str(minutes_and_seconds[0])
                            + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
             self._logging_util.remove_file_handler_logger(self._logger, self._fileHandler)
-        except Exception, e:
+        except Exception:
             self._logger.error("GitHubIssue2Db failed", exc_info=True)
         finally:
             if self._dao:

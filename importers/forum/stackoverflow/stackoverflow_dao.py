@@ -260,7 +260,7 @@ class StackOverflowDao():
 
             cursor.close()
             return found
-        except Exception, e:
+        except Exception:
             self._logger.warning("topic " + str(own_id) + ") for forum id: " + str(forum_id) + " not inserted", exc_info=True)
 
     def insert_message_dependency(self, source_message_id, target_message_id):
@@ -303,6 +303,42 @@ class StackOverflowDao():
 
         cursor.close()
         return found
+
+    def assign_label_to_topic(self, topic_id, label_id):
+        """
+        links label to topic
+
+        :type topic_id: int
+        :param topic_id: db topic id
+
+        :type label_id: int
+        :param label_id: label id
+        """
+        cursor = self._cnx.cursor()
+        query = "INSERT IGNORE INTO topic_labelled " \
+                "VALUES (%s, %s)"
+        arguments = [topic_id, label_id]
+        cursor.execute(query, arguments)
+        self._cnx.commit()
+        cursor.close()
+
+    def select_label_id(self, name):
+        """
+        selects the label id by its name
+
+        :type name: str
+        :param name: the name of the label
+        """
+        return self._db_util.select_label_id(self._cnx, name, self._logger)
+
+    def insert_label(self, name):
+        """
+        inserts a label
+
+        :type name: str
+        :param name: the name of the label
+        """
+        self._db_util.insert_label(self._cnx, name, self._logger)
 
     def get_topic_own_ids(self, forum_id):
         """

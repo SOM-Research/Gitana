@@ -42,7 +42,10 @@ class TokenUtil():
             if token.throttle_stop:
                 left = 0
             else:
-                left = token.requests_left
+                try:
+                    left = token.requests_left
+                except:
+                    left = 100
         except:
             self._logger.error("TokenUtil, requests left not retrieved for Stackoverflow token")
 

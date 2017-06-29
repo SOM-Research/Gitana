@@ -81,15 +81,67 @@ class Gitana():
             except:
                 continue
 
-    def init_db(self, db_name):
+    def add_git_tables(self, db_name):
+        """
+        :type db_name: str
+        :param db_name: the name of the DB to initialize
+
+        initializes git tables if they do not exist
+        """
+        db = DbSchema(db_name, self._config, self._log_path)
+        db.add_git_tables()
+
+    def add_issue_tracker_tables(self, db_name):
+        """
+        :type db_name: str
+        :param db_name: the name of the DB to initialize
+
+        initializes issue tracker tables if they do not exist
+        """
+        db = DbSchema(db_name, self._config, self._log_path)
+        db.add_issue_tracker_tables()
+
+    def add_instant_messaging_tables(self, db_name):
+        """
+        :type db_name: str
+        :param db_name: the name of the DB to initialize
+
+        initializes instant messaging tables if they do not exist
+        """
+        db = DbSchema(db_name, self._config, self._log_path)
+        db.add_instant_messaging_tables()
+
+    def add_forum_tables(self, db_name):
+        """
+        :type db_name: str
+        :param db_name: the name of the DB to initialize
+
+        initializes forum tables if they do not exist
+        """
+        db = DbSchema(db_name, self._config, self._log_path)
+        db.add_forum_tables()
+
+    def init_db(self, db_name, init_git=True, init_issue_tracker=True, init_forum=True, init_instant_messaging=True):
         """
         initializes the Gitana DB schema
 
         :type db_name: str
         :param db_name: the name of the DB to initialize
+
+        :type init_git: bool
+        :param init_git: if True, it initializes the tables containing git data
+
+        :type init_issue_tracker: bool
+        :param init_issue_tracker: if True, it initializes the tables containing issue tracker data
+
+        :type init_forum: bool
+        :param init_forum: if True, it initializes the tables containing forum data
+
+        :type init_instant_messaging: bool
+        :param init_instant_messaging: if True, it initializes the tables containing instant messaging data
         """
         db = DbSchema(db_name, self._config, self._log_path)
-        db.init_database()
+        db.init_database(init_git, init_issue_tracker, init_forum, init_instant_messaging)
 
     def create_project(self, db_name, project_name):
         """

@@ -50,6 +50,9 @@ class EclipseForumDao():
         :type user_name: str
         :param user_name: user name
         """
+        if user_name == None:
+            user_name = "uknonwn_user"
+
         user_id = self._db_util.select_user_id_by_name(self._cnx, user_name, self._logger)
         if not user_id:
             self._db_util.insert_user(self._cnx, user_name, None, self._logger)
@@ -348,7 +351,7 @@ class EclipseForumDao():
 
             cursor.close()
             return found
-        except Exception, e:
+        except Exception:
             self._logger.warning("topic id " + str(own_id) + " not found for forum id: " + str(forum_id), exc_info=True)
 
     def insert_topic(self, own_id, forum_id, title, views, last_change_at):
@@ -378,7 +381,7 @@ class EclipseForumDao():
             cursor.execute(query, arguments)
             self._cnx.commit()
             cursor.close()
-        except Exception, e:
+        except Exception:
             self._logger.warning("topic with title " + title.lower() + " not inserted for forum id: " + str(forum_id), exc_info=True)
 
     def update_topic_info(self, topic_id, forum_id, views, last_change_at):

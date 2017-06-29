@@ -25,8 +25,8 @@ def _papyrus():
     g.delete_previous_logs()
     g.init_db("db_papyrus")
     g.create_project("db_papyrus", "papyrus")
-    print "import git data"
-    g.import_git_data("db_papyrus", "papyrus", "papyrus_repo", "C:\\Users\\atlanmod\\Desktop\\eclipse-git-projects\\papyrus", processes=20)
+    #print "import git data"
+    #g.import_git_data("db_papyrus", "papyrus", "papyrus_repo", "C:\\Users\\atlanmod\\Desktop\\eclipse-git-projects\\papyrus", processes=20)
     print "import bugzilla data"
     g.import_bugzilla_issue_data("_papyrus_db", "papyrus", "papyrus_repo", "bugzilla-papyrus", "https://bugs.eclipse.org/bugs/xmlrpc.cgi", "papyrus", processes=10)
     print "import eclipse forum data"

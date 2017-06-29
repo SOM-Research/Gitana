@@ -70,7 +70,7 @@ class BugzillaQuerier():
         try:
             user = self._bzapi.getuser(user_email)
             name = user.real_name.lower()
-        except Exception, e:
+        except Exception:
             self._logger.warning("BugzillaError, user with email " + user_email + " not found")
             name = user_email.split('@')[0]
 

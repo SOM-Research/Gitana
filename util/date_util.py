@@ -67,6 +67,24 @@ class DateUtil():
         """
         return datetime.strptime(str(creation_time), format)
 
+    def check_format_timestamp(self, s, format):
+        """
+        checks that a string respects a given date format
+
+        :type s: str
+        :param s: a string representation of a time
+
+        :type format: str
+        :param format: time format (e.g, YYYY-mm-dd)
+        """
+        flag = True
+        try:
+            datetime.strptime(str(s), format)
+        except:
+            flag = False
+        finally:
+            return flag
+
     def get_time_fromtimestamp(self, creation_time, format):
         """
         gets time Object from string

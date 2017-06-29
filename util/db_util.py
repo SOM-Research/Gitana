@@ -159,6 +159,55 @@ class DbUtil():
         cursor.close()
         return found
 
+    def select_label_id(self, cnx, name, logger):
+        """
+        selects the label id by its name
+
+        :type cnx: Object
+        :param cnx: DB connection
+
+        :type name: str
+        :param name: the name of the label
+
+        :type logger: Object
+        :param logger: logger
+        """
+        cursor = cnx.cursor()
+        query = "SELECT id FROM label WHERE name = %s"
+        arguments = [name]
+        cursor.execute(query, arguments)
+        row = cursor.fetchone()
+        found = None
+
+        if row:
+            found = row[0]
+        else:
+            logger.warning("no label with name " + str(name))
+        cursor.close()
+
+        return found
+
+    def insert_label(self, cnx, name, logger):
+        """
+        inserts a label
+
+        :type cnx: Object
+        :param cnx: DB connection
+
+        :type name: str
+        :param name: the name of the label
+
+        :type logger: Object
+        :param logger: logger
+        """
+        cursor = cnx.cursor()
+        query = "INSERT IGNORE INTO label " \
+                "VALUES (%s, %s)"
+        arguments = [None, name]
+        cursor.execute(query, arguments)
+        cnx.commit()
+        cursor.close()
+
     def select_repo_id(self, cnx, repo_name, logger):
         """
         selects repository id

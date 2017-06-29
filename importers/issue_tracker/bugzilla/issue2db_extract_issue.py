@@ -239,22 +239,22 @@ class BugzillaIssue2Db(object):
             ##tags and keywords are mapped as labels
             # try:
             #     self._extract_labels(issue_id, self._querier.get_issue_tags(issue))
-            # except Exception, e:
+            # except Exception:
             #     self._logger.error("BugzillaError when extracting tags for issue id: " + str(issue_id) + " - tracker id " + str(self._issue_tracker_id), exc_info=True)
 
             try:
                 self._extract_labels(issue_id, self._querier.get_issue_keywords(issue))
-            except Exception, e:
+            except Exception:
                 self._logger.error("BugzillaError when extracting keywords for issue id: " + str(issue_id) + " - tracker id " + str(self._issue_tracker_id), exc_info=True)
 
             try:
                 self._extract_comments(issue_id, self._querier.get_issue_comments(issue))
-            except Exception, e:
+            except Exception:
                 self._logger.error("BugzillaError when extracting comments for issue id: " + str(issue_id) + " - tracker id " + str(self._issue_tracker_id), exc_info=True)
 
             try:
                 self._extract_history(issue_id, self._querier.get_issue_history(issue))
-            except Exception, e:
+            except Exception:
                 self._logger.error("BugzillaError when extracting history for issue id: " + str(issue_id) + " - tracker id " + str(self._issue_tracker_id), exc_info=True)
 
             if issue.cc:
@@ -271,7 +271,7 @@ class BugzillaIssue2Db(object):
         for issue_id in self._interval:
             try:
                 self._get_issue_info(issue_id)
-            except Exception, e:
+            except Exception:
                 self._logger.error("something went wrong for issue id: " + str(issue_id) + " - tracker id " + str(self._issue_tracker_id), exc_info=True)
 
     def extract(self):
@@ -288,5 +288,5 @@ class BugzillaIssue2Db(object):
             self._logger.info("BugzillaIssue2Db finished after " + str(minutes_and_seconds[0])
                            + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
             self._logging_util.remove_file_handler_logger(self._logger, self._fileHandler)
-        except Exception, e:
+        except Exception:
             self._logger.error("BugzillaIssue2Db failed", exc_info=True)
