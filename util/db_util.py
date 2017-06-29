@@ -71,6 +71,28 @@ class DbUtil():
         cursor.close()
         return found
 
+    def insert_project(self, cnx, db_name, project_name):
+        """
+        inserts a project in the DB
+
+        :type cnx: Object
+        :param cnx: DB connection
+
+        :type db_name: str
+        :param db_name: the name of an existing DB
+
+        :type project_name: str
+        :param project_name: the name of the project to create
+        """
+        self.set_database(cnx, db_name)
+        cursor = cnx.cursor()
+        query = "INSERT IGNORE INTO project " \
+                "VALUES (%s, %s)"
+        arguments = [None, project_name]
+        cursor.execute(query, arguments)
+        cnx.commit()
+        cursor.close()
+
     def insert_repo(self, cnx, project_id, repo_name, logger):
         """
         inserts repository

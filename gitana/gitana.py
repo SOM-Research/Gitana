@@ -24,7 +24,7 @@ from importers.forum.stackoverflow.stackoverflow2db_extract_main import StackOve
 from importers.forum.stackoverflow.stackoverflow2db_update import StackOverflow2DbUpdate
 from importers.instant_messaging.slack.slack2db_extract_main import Slack2DbMain
 from importers.instant_messaging.slack.slack2db_update import Slack2DbUpdate
-from exporters.report.report_exporter import ReportExporter
+from exporters.report.report_exporter import ActivityReportExporter
 from exporters.graph.graph_exporter import GraphExporter
 
 
@@ -106,6 +106,22 @@ class Gitana():
         db = DbSchema(self._config, self._log_path)
         db.create_project(db_name, project_name)
 
+    def create_repository(self, db_name, project_name, repo_name):
+        """
+        inserts a repository in the DB
+
+        :type db_name: str
+        :param db_name: the name of an existing DB
+
+        :type project_name: str
+        :param project_name: the name of an existing project
+
+        :type repo_name: str
+        :param repo_name: the name of the repository to insert
+        """
+        db = DbSchema(self._config, self._log_path)
+        db.create_repository(db_name, project_name, repo_name)
+
     def list_projects(self, db_name):
         """
         lists all projects contained in the DB
@@ -144,11 +160,11 @@ class Gitana():
         :param before_date: import data before date (YYYY-mm-dd). It can be null
 
         :type processes: int
-        :param processes: number of processes to import the data. If null, the default number of processes is used (10)
+        :param processes: number of processes to import the data. If null, the default number of processes is used (5)
         """
         git2db = Git2DbMain(db_name, project_name,
-                                   repo_name, git_repo_path, before_date, import_type, references, processes,
-                                   self._config, self._log_path)
+            repo_name, git_repo_path, before_date, import_type, references, processes,
+            self._config, self._log_path)
         git2db.extract()
 
     def update_git_data(self, db_name, project_name, repo_name, git_repo_path, before_date=None, processes=5):
@@ -171,16 +187,16 @@ class Gitana():
         :param before_date: import data before date (YYYY-mm-dd). It can be null
 
         :type processes: int
-        :param processes: number of processes to import the data. If null, the default number of processes is used (10)
+        :param processes: number of processes to import the data. If null, the default number of processes is used (5)
         """
         git2db = Git2DbUpdate(db_name, project_name,
-                              repo_name, git_repo_path, before_date, processes,
-                              self._config, self._log_path)
+            repo_name, git_repo_path, before_date, processes,
+            self._config, self._log_path)
         git2db.update()
 
-    def import_bugzilla_tracker_data(self, db_name, project_name, repo_name, issue_tracker_name, url, product, before_date=None, processes=5):
+    def import_bugzilla_issue_data(self, db_name, project_name, repo_name, issue_tracker_name, url, product, before_date=None, processes=3):
         """
-        imports Bugzilla issue tracker data to the DB
+        imports Bugzilla issue data to the DB
 
         :type db_name: str
         :param db_name: the name of an existing DB
@@ -204,7 +220,7 @@ class Gitana():
         :param before_date: import data before date (YYYY-mm-dd). It can be null
 
         :type processes: int
-        :param processes: number of processes to import the data. If null, the default number of processes is used (5)
+        :param processes: number of processes to import the data. If null, the default number of processes is used (3)
         """
         issue2db = BugzillaIssue2DbMain(
             db_name, project_name, repo_name, Gitana.BUGZILLA_TYPE,
@@ -212,9 +228,9 @@ class Gitana():
             self._config, self._log_path)
         issue2db.extract()
 
-    def update_bugzilla_tracker_data(self, db_name, project_name, repo_name, issue_tracker_name, url, product, processes=5):
+    def update_bugzilla_issue_data(self, db_name, project_name, repo_name, issue_tracker_name, url, product, processes=3):
         """
-        updates the Bugzilla issue tracker data stored in the DB
+        updates the Bugzilla issue data stored in the DB
 
         :type db_name: str
         :param db_name: the name of an existing DB
@@ -235,7 +251,7 @@ class Gitana():
         :param product: the name of the product used in the issue tracker. It cannot be null
 
         :type processes: int
-        :param processes: number of processes to import the data. If null, the default number of processes is used (5)
+        :param processes: number of processes to import the data. If null, the default number of processes is used (3)
         """
         issue2db = BugzillaIssue2DbUpdate(
             db_name, project_name, repo_name, issue_tracker_name, url,
@@ -307,7 +323,7 @@ class Gitana():
         :param forum_name: the name of the forum to import. It cannot be null
 
         :type search_query: str
-        :param search_query: retrieves Stackoverflow questions labeled with a given string.
+        :param search_query: retrieves Stackoverflow questions labeled with a given string. It cannot be null
 
         :type tokens: list str
         :param tokens: list of Stackoverflow tokens. It cannot be null
@@ -336,8 +352,9 @@ class Gitana():
         :type tokens: list str
         :param tokens: list of Stackoverflow tokens. It cannot be null
         """
-        stackoverflow2db = StackOverflow2DbUpdate(db_name, project_name, forum_name, tokens,
-                                                  self._config, self._log_path)
+        stackoverflow2db = StackOverflow2DbUpdate(
+            db_name, project_name, forum_name, tokens,
+            self._config, self._log_path)
         stackoverflow2db.update()
 
     def import_slack_data(self, db_name, project_name, instant_messaging_name, tokens, before_date=None, channels=None):
@@ -362,9 +379,10 @@ class Gitana():
         :type channels: list str
         :param channels: list of channels to import. It can be null or ["channel-name-1", .., "channel-name-n"]
         """
-        slack2db = Slack2DbMain(db_name, project_name,
-                                Gitana.SLACK_TYPE, instant_messaging_name, before_date, channels, tokens,
-                                self._config, self._log_path)
+        slack2db = Slack2DbMain(
+            db_name, project_name,
+            Gitana.SLACK_TYPE, instant_messaging_name, before_date, channels, tokens,
+            self._config, self._log_path)
         slack2db.extract()
 
     def update_slack_data(self, db_name, project_name, instant_messaging_name, tokens):
@@ -383,13 +401,14 @@ class Gitana():
         :type tokens: list str
         :param tokens: list of Slack tokens. It cannot be null
         """
-        slack2db = Slack2DbUpdate(db_name, project_name, instant_messaging_name, tokens,
-                                  self._config, self._log_path)
+        slack2db = Slack2DbUpdate(
+            db_name, project_name, instant_messaging_name, tokens,
+            self._config, self._log_path)
         slack2db.update()
 
-    def import_github_tracker_data(self, db_name, project_name, repo_name, issue_tracker_name, github_repo_full_name, tokens, before_date=None):
+    def import_github_issue_data(self, db_name, project_name, repo_name, issue_tracker_name, github_repo_full_name, tokens, before_date=None):
         """
-        imports GitHub issue tracker data to the DB
+        imports GitHub issue data to the DB
 
         :type db_name: str
         :param db_name: the name of an existing DB
@@ -412,13 +431,14 @@ class Gitana():
         :type before_date: str
         :param before_date: import data before date (YYYY-mm-dd). It can be null
         """
-        github2db = GitHubIssue2DbMain(db_name, project_name, repo_name, Gitana.GITHUB_TYPE, issue_tracker_name, github_repo_full_name, before_date, tokens,
-                                       self._config, self._log_path)
+        github2db = GitHubIssue2DbMain(
+            db_name, project_name, repo_name, Gitana.GITHUB_TYPE, issue_tracker_name,
+            github_repo_full_name, before_date, tokens, self._config, self._log_path)
         github2db.extract()
 
-    def update_github_tracker_data(self, db_name, project_name, repo_name, issue_tracker_name, github_repo_full_name, tokens):
+    def update_github_issue_data(self, db_name, project_name, repo_name, issue_tracker_name, github_repo_full_name, tokens):
         """
-        updates GitHub issue tracker data stored in the DB
+        updates GitHub issue data stored in the DB
 
         :type db_name: str
         :param db_name: the name of an existing DB
@@ -438,38 +458,39 @@ class Gitana():
         :type tokens: list str
         :param tokens: list of GitHub tokens. It cannot be null
         """
-        github2db = GitHubIssue2DbUpdate(db_name, project_name, repo_name, issue_tracker_name, github_repo_full_name, tokens,
-                                         self._config, self._log_path)
+        github2db = GitHubIssue2DbUpdate(
+            db_name, project_name, repo_name, issue_tracker_name, github_repo_full_name, tokens,
+            self._config, self._log_path)
         github2db.update()
 
-    def export_to_graph(self, db_name, graph_json_path, output_path):
+    def export_graph(self, db_name, settings_path, output_path):
         """
         exports the data stored in the Gitana DB to a graph (gexf format)
 
         :type db_name: str
         :param db_name: the name of an existing DB
 
-        :type graph_json_path: str
-        :param graph_json_path: the path of the JSON that drives the export process
+        :type settings_path: str
+        :param settings_path: the path of the JSON that drives the export process
 
         :type output_path: str
         :param output_path: the path where to export the graph
         """
         exporter = GraphExporter(self._config, db_name, self._log_path)
-        exporter.export(output_path, graph_json_path)
+        exporter.export(output_path, settings_path)
 
-    def export_to_report(self, db_name, report_json_path, output_path):
+    def export_activity_report(self, db_name, settings_path, output_path):
         """
         exports the data stored in the Gitana DB to an HTML report
 
         :type db_name: str
         :param db_name: the name of an existing DB
 
-        :type report_json_path: str
-        :param report_json_path: the path of the JSON that drives the export process
+        :type settings_path: str
+        :param settings_path: the path of the JSON that drives the export process
 
         :type output_path: str
         :param output_path: the path where to export the report
         """
-        exporter = ReportExporter(self._config, db_name, self._log_path)
-        exporter.export(output_path, report_json_path)
+        exporter = ActivityReportExporter(self._config, db_name, self._log_path)
+        exporter.export(output_path, settings_path)

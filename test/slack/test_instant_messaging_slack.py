@@ -13,20 +13,22 @@ CONFIG = {
             'buffered': True
         }
 
+SLACK_TOKENS = ['1']
 
 def test_1():
-    g = Gitana(CONFIG, None)
+    g = Gitana(CONFIG)
     g.delete_previous_logs()
-    g.init_db("bootstrap_db_test")
-    g.create_project("bootstrap_db_test", "bootstrap")
-    g.import_slack_data("bootstrap_db_test", "bootstrap", "slack_bootstrap", "2016-08-12", ["random", "metascience", "softwareanalysis"], ['xoxp-67182691220-67204318994-110578093616-af58ccb5a30cb97455d256ee9acc0ef'])
+    g.init_db("slack_db_test")
+    g.create_project("slack_db_test", "bootstrap")
+    g.import_slack_data("slack_db_test", "bootstrap", "slack_bootstrap", SLACK_TOKENS,
+                        before_date="2017-03-12", channels=["random", "metascience", "softwareanalysis"])
 
 
 def test_2():
-    g = Gitana(CONFIG, None)
+    g = Gitana(CONFIG)
     g.delete_previous_logs()
 
-    g.update_slack_data("bootstrap_db_test", "bootstrap", "slack_bootstrap", ['xoxp-67182691220-67204318994-110578093616-af58ccb5a30cb97455d256ee9acc0ef'])
+    g.update_slack_data("slack_db_test", "bootstrap", "slack_bootstrap", SLACK_TOKENS)
 
 
 def main():

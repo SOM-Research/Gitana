@@ -95,7 +95,7 @@ g.update_git_data("DB-NAME", "PROJECT-NAME", "GIT-REPO-NAME", "GIT-REPO-PATH",
 # DB-NAME and PROJECT-NAME should point to a DB and project already existing in Gitana
 # GIT-REPO-NAME, GIT-REPO-PATH cannot be null
 # BEFORE-DATE can be None or "%Y-%m-%d". It allows to import references and commits created before a given date
-# NUM-OF-PROCESSES can be None or a int number. It is the number of parallel processes used to analyse the Git repo. if None, the number of processes is 5
+# NUM-OF-PROCESSES can be None or a int number. It is the number of parallel processes used to analyse the Git repo. if None, the number of processes is 3
 ```
 
 ### import Bugzilla data
@@ -109,7 +109,7 @@ g.import_bugzilla_tracker_data("DB-NAME", "PROJECT-NAME", "GIT-REPO-NAME",
 # BUGZILLA-URL cannot be null. It points to the URL REST API (e.g., "https://bugs.eclipse.org/bugs/xmlrpc.cgi")
 # PRODUCT-NAME cannot be null. It will collect the issues for the input product (e.g., "MDT.MoDisco")
 # BEFORE-DATE can be None or "%Y-%m-%d". It allows to import issues created before a given date
-# NUM-OF-PROCESSES can be None or a int number. It is the number of parallel processes used to collect issue tracker information. if None, the number of processes is 5
+# NUM-OF-PROCESSES can be None or a int number. It is the number of parallel processes used to collect issue tracker information. if None, the number of processes is 3
 ```
     
 ### update Bugzilla data
@@ -186,12 +186,12 @@ g.update_slack_data("DB-NAME", "PROJECT-NAME", "INSTANT-MESSAGING-NAME", ""LIST-
 # "LIST-OF-TOKENS" cannot be null. Each token is passed to a process to speed up the collection of Slack information.
 ```
 
-### import GitHub-Issue-Tracker data
+### import GitHub issue data
 ```python
-g.import_github_tracker_data("DB-NAME", "PROJECT-NAME", "GIT-REPO-NAME",
+g.import_github_issue_data("DB-NAME", "PROJECT-NAME", "GIT-REPO-NAME",
                              "ISSUE-TRACKER-NAME", "GITHUB-REPO-FULLNAME",
                              ""LIST-OF-TOKENS"", "BEFORE-DATE")
-  
+
 # DB-NAME, PROJECT-NAME, GIT-REPO-NAME should point to a DB, project and repo already existing in Gitana
 # ISSUE-TRACKER-NAME cannot be null. It is the name used to identify the issue tracker in the DB
 # GITHUB-REPO-FULLNAME cannot be null. It points to the GitHub repository to import
@@ -199,9 +199,9 @@ g.import_github_tracker_data("DB-NAME", "PROJECT-NAME", "GIT-REPO-NAME",
 # BEFORE-DATE can be None or "%Y-%m-%d". It allows to import issues created before a given date
 ```
 
-### update GitHub-Issue-Tracker data
+### update GitHub issue data
 ```python
-g.update_github_tracker_data("DB-NAME", "PROJECT-NAME", "GIT-REPO-NAME",
+g.update_github_issue_data("DB-NAME", "PROJECT-NAME", "GIT-REPO-NAME",
                              "ISSUE-TRACKER-NAME", "GITHUB-REPO-FULLNAME",
                              ""LIST-OF-TOKENS"")
   
@@ -213,20 +213,20 @@ g.update_github_tracker_data("DB-NAME", "PROJECT-NAME", "GIT-REPO-NAME",
 
 ### export Gitana data to GEXF graph
 ```python
-g.export_to_graph("DB-NAME", "GRAPH-EXPORTER-PATH", "OUTPUT-PATH")
+g.export_graph("DB-NAME", "SETTINGS-PATH", "OUTPUT-PATH")
   
 # DB-NAME should point to a DB already existing in Gitana
-# GRAPH-EXPORTER-PATH cannot be null. It points to the Graph Exporter DSL instance.
+# SETTINGS-PATH cannot be null. It points to the Graph Exporter DSL instance.
 # OUTPUT-PATH cannot be null. It points to the path of the GEXF output file 
 ```
 Further information about the Graph Exporter DSL can be found in the [documentation](http://gitanadocs.getforge.io/graphdsl.html)
 
 ### export Gitana data to HTML report
 ```python
-g.export_to_report("DB-NAME", "REPORT-EXPORTER-PATH", "OUTPUT-PATH")
+g.export_activity_report("DB-NAME", "SETTINGS-PATH", "OUTPUT-PATH")
   
 # DB-NAME should point to a DB already existing in Gitana
-# REPORT-EXPORTER-PATH cannot be null. It points to the Report Exporter DSL instance.
+# SETTINGS-PATH cannot be null. It points to the Report Exporter DSL instance.
 # OUTPUT-PATH cannot be null. It points to the path of the HTML output file 
 ```
 Further information about the Report Exporter DSL can be found in the [documentation](http://gitanadocs.getforge.io/reportdsl.html)
@@ -246,17 +246,17 @@ CONFIG = {
         }
 
 def main():
-    g = Gitana(CONFIG, None)
+    g = Gitana(CONFIG)
     g.init_db("papyrus_db")
 
     g.create_project("papyrus_db", "papyrus")
     g.import_git_data("papyrus_db", "papyrus", "papyrus_repo", "...\\Desktop\\org.eclipse.papyrus")
-    g.import_bugzilla_tracker_data("papyrus_db", "papyrus", "papyrus_repo", "papyrus-bugzilla", "https://bugs.eclipse.org/bugs/xmlrpc.cgi", "papyrus")
+    g.import_bugzilla_issue_data("papyrus_db", "papyrus", "papyrus_repo", "papyrus-bugzilla", "https://bugs.eclipse.org/bugs/xmlrpc.cgi", "papyrus")
     g.import_eclipse_forum_data("papyrus_db", "papyrus", "papyrus-forum", "https://www.eclipse.org/forums/index.php/f/121/")
     g.import_stackoverflow_data("papyrus_db", "papyrus", "papyrus-so", ['YOUR-TOKEN-1', 'YOUR-TOKEN-2', ...])
 	
-    g.export_to_graph("papyrus_db", "./graph.json", "./graph.gexf")
-    g.export_to_report("papyrus_db", "./report.json", "./report.html")
+    g.export_graph("papyrus_db", "./graph.json", "./graph.gexf")
+    g.export_activity_report("papyrus_db", "./report.json", "./report.html")
 	
 if __name__ == "__main__":
     main()

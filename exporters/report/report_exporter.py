@@ -17,7 +17,7 @@ from exporters.report.html_generator import HtmlGenerator
 from exporters import resources
 
 
-class ReportExporter():
+class ActivityReportExporter():
     """
     This class handles the generation of reports
     """
@@ -110,7 +110,7 @@ class ReportExporter():
 
     def _load_query_json(self, metric_name, parameters):
         #loads the queries in the JSON configuration file
-        with open(ReportExporter.INPUT_PATH) as json_data:
+        with open(ActivityReportExporter.INPUT_PATH) as json_data:
             data = json.load(json_data)
 
         metrics = data.get('queries')

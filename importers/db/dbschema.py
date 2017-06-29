@@ -29,7 +29,8 @@ class DbSchema():
 
     def __del__(self):
         #deletes the file handler of the logger
-        self._logging_util.remove_file_handler_logger(self._logger, self._fileHandler)
+        if self._logger:
+            self._logging_util.remove_file_handler_logger(self._logger, self._fileHandler)
 
     def init_database(self, db_name):
         """
@@ -77,14 +78,26 @@ class DbSchema():
         :param project_name: the name of the project to create
         """
         self._cnx = self._db_util.get_connection(self._config)
+        self._db_util.insert_project(self._cnx, db_name, project_name)
+        self._db_util.close_connection(self._cnx)
+
+    def create_repository(self, db_name, project_name, repo_name):
+        """
+        inserts a repository in the DB
+
+        :type db_name: str
+        :param db_name: the name of an existing DB
+
+        :type project_name: str
+        :param project_name: the name of an existing project
+
+        :type repo_name: str
+        :param repo_name: the name of the repository to insert
+        """
+        self._cnx = self._db_util.get_connection(self._config)
         self.set_database(db_name)
-        cursor = self._cnx.cursor()
-        query = "INSERT IGNORE INTO project " \
-                "VALUES (%s, %s)"
-        arguments = [None, project_name]
-        cursor.execute(query, arguments)
-        self._cnx.commit()
-        cursor.close()
+        project_id = self._db_util.select_project_id(self._cnx, project_name, self._logger)
+        self._db_util.insert_repo(self._cnx, project_id, repo_name, self._logger)
         self._db_util.close_connection(self._cnx)
 
     def list_projects(self, db_name):

@@ -2,26 +2,23 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="18e0b3fd-aa57-4fdb-aef7-064cfbea55be" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/graph.gexf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/report.html" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/importers/vcs/git/git2db_extract_main.py" afterPath="$PROJECT_DIR$/importers/vcs/git/git2db_extract_main.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/importers/vcs/git/git2db_extract_reference.py" afterPath="$PROJECT_DIR$/importers/vcs/git/git2db_extract_reference.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/importers/vcs/git/git_dao.py" afterPath="$PROJECT_DIR$/importers/vcs/git/git_dao.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/importers/issue_tracker/github/github_dao.py" afterPath="$PROJECT_DIR$/importers/issue_tracker/github/github_dao.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/exporters/graph/graph_exporter.py" afterPath="$PROJECT_DIR$/exporters/graph/graph_exporter.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/importers/issue_tracker/bugzilla/issue2db_extract_issue.py" afterPath="$PROJECT_DIR$/importers/issue_tracker/bugzilla/issue2db_extract_issue.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/importers/issue_tracker/github/issue2db_extract_issue.py" afterPath="$PROJECT_DIR$/importers/issue_tracker/github/issue2db_extract_issue.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/importers/issue_tracker/github/issue2db_extract_main.py" afterPath="$PROJECT_DIR$/importers/issue_tracker/github/issue2db_extract_main.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/importers/issue_tracker/github/issue2db_update.py" afterPath="$PROJECT_DIR$/importers/issue_tracker/github/issue2db_update.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/importers/issue_tracker/bugzilla/querier_bugzilla.py" afterPath="$PROJECT_DIR$/importers/issue_tracker/bugzilla/querier_bugzilla.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/importers/vcs/git/querier_git.py" afterPath="$PROJECT_DIR$/importers/vcs/git/querier_git.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/importers/issue_tracker/github/querier_github.py" afterPath="$PROJECT_DIR$/importers/issue_tracker/github/querier_github.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/importers/forum/stackoverflow/querier_stackoverflow.py" afterPath="$PROJECT_DIR$/importers/forum/stackoverflow/querier_stackoverflow.py" />
+      <change type="DELETED" beforePath="C:\Users\atlanmod\Desktop\gitana-env\Gitana\test\export.gexf" afterPath="" />
+      <change type="DELETED" beforePath="C:\Users\atlanmod\Desktop\gitana-env\Gitana\test\graph.json" afterPath="" />
+      <change type="DELETED" beforePath="C:\Users\atlanmod\Desktop\gitana-env\Gitana\test\report.json" afterPath="" />
+      <change type="DELETED" beforePath="C:\Users\atlanmod\Desktop\gitana-env\Gitana\test\test_exporter.py" afterPath="" />
+      <change type="DELETED" beforePath="C:\Users\atlanmod\Desktop\gitana-env\Gitana\test\test_forum_eclipse.py" afterPath="" />
+      <change type="DELETED" beforePath="C:\Users\atlanmod\Desktop\gitana-env\Gitana\test\test_forum_stackoverflow.py" afterPath="" />
+      <change type="DELETED" beforePath="C:\Users\atlanmod\Desktop\gitana-env\Gitana\test\test_instant_messaging_slack.py" afterPath="" />
+      <change type="DELETED" beforePath="C:\Users\atlanmod\Desktop\gitana-env\Gitana\test\test_issue_tracker_bugzilla.py" afterPath="" />
+      <change type="DELETED" beforePath="C:\Users\atlanmod\Desktop\gitana-env\Gitana\test\test_issue_tracker_github.py" afterPath="" />
+      <change type="DELETED" beforePath="C:\Users\atlanmod\Desktop\gitana-env\Gitana\test\test_linux.py" afterPath="" />
+      <change type="DELETED" beforePath="C:\Users\atlanmod\Desktop\gitana-env\Gitana\test\test_sequence.py" afterPath="" />
+      <change type="MOVED" beforePath="C:\Users\atlanmod\Desktop\gitana-env\Gitana\test\test_cvs_git.py" afterPath="$PROJECT_DIR$/test/vcs/test_vcs_git.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/README.md" afterPath="$PROJECT_DIR$/README.md" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/util/db_util.py" afterPath="$PROJECT_DIR$/util/db_util.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/importers/db/dbschema.py" afterPath="$PROJECT_DIR$/importers/db/dbschema.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gitana/gitana.py" afterPath="$PROJECT_DIR$/gitana/gitana.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/exporters/report/report_exporter.py" afterPath="$PROJECT_DIR$/exporters/report/report_exporter.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/importers/forum/stackoverflow/stackoverflow_dao.py" afterPath="$PROJECT_DIR$/importers/forum/stackoverflow/stackoverflow_dao.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/test/test_issue_tracker_github.py" afterPath="$PROJECT_DIR$/test/test_issue_tracker_github.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/test/test_sequence.py" afterPath="$PROJECT_DIR$/test/test_sequence.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/util/token_util.py" afterPath="$PROJECT_DIR$/util/token_util.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="Gitana.iws" />
@@ -45,46 +42,28 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="test_sequence.py" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/test/test_sequence.py">
+      <file leaf-file-name="test_sequence.py" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/test/sequence/test_sequence.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="17" column="22" selection-start="361" selection-end="361" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="646">
+            <state line="19" column="15" selection-start="413" selection-end="413" vertical-scroll-proportion="0.7307692" vertical-offset="0" max-vertical-offset="1020">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="test_exporter.py" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/test/test_exporter.py">
+      <file leaf-file-name="gitana-import-bugzilla-bugzilla_db_test-papyrus-bugzilla_papyrus-issue2db-324560-366796.log" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/test/bugzilla/logs/gitana-import-bugzilla-bugzilla_db_test-papyrus-bugzilla_papyrus-issue2db-324560-366796.log">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="11" column="9" selection-start="278" selection-end="278" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="442">
+            <state line="105" column="0" selection-start="10059" selection-end="10059" vertical-scroll-proportion="0.0" vertical-offset="1466" max-vertical-offset="1921">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="graph.gexf" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/test/graph.gexf">
+      <file leaf-file-name="test_issue_bugzilla.py" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/test/bugzilla/test_issue_bugzilla.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="180574">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="graph.json" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/test/graph.json">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="4" column="51" selection-start="58" selection-end="171" vertical-scroll-proportion="0.15813954" vertical-offset="0" max-vertical-offset="430">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="querier_stackoverflow.py" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/importers/forum/stackoverflow/querier_stackoverflow.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="46" column="0" selection-start="1329" selection-end="1329" vertical-scroll-proportion="0.0" vertical-offset="557" max-vertical-offset="4437">
+            <state line="24" column="0" selection-start="725" selection-end="725" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="884">
               <folding />
             </state>
           </provider>
@@ -103,23 +82,6 @@
   <component name="IdeDocumentHistory">
     <option name="changedFiles">
       <list>
-        <option value="$PROJECT_DIR$/extractor/issue_tracker/github/issue2db_update.py" />
-        <option value="$PROJECT_DIR$/extractor/issue_tracker/github/issue2db_extract_issue_dependency.py" />
-        <option value="$PROJECT_DIR$/util/db_util.py" />
-        <option value="$PROJECT_DIR$/extractor/issue_tracker/bugzilla/issue2db_extract_main.py" />
-        <option value="$PROJECT_DIR$/extractor/issue_tracker/github/issue2db_extract_main.py" />
-        <option value="$PROJECT_DIR$/extractor/issue_tracker/bugzilla/querier_bugzilla.py" />
-        <option value="$PROJECT_DIR$/extractor/issue_tracker/bugzilla/issue2db_extract_issue.py" />
-        <option value="$PROJECT_DIR$/extractor/issue_tracker/bugzilla/bugzilla_dao.py" />
-        <option value="$PROJECT_DIR$/test/logs/gitana-447d0-2048-issue2db-14-395.log" />
-        <option value="$USER_HOME$/.PyCharm30/system/python_stubs/-762174762/__builtin__.py" />
-        <option value="$PROJECT_DIR$/test/logs/gitana-1d3f6-2048-issue2db-134-395.log" />
-        <option value="$PROJECT_DIR$/test/logs/gitana-2b275-2048-issue2db-145-395.log" />
-        <option value="$PROJECT_DIR$/test/logs/gitana-f7bd1-2048-issue2db-148-395.log" />
-        <option value="$PROJECT_DIR$/test/logs/gitana-2a576-2048-issue2db-152-395.log" />
-        <option value="$PROJECT_DIR$/test/logs/gitana-d663c-2048-issue2db-1-395.log" />
-        <option value="$PROJECT_DIR$/test/logs/gitana-295b7-2048-issue2db-1-395.log" />
-        <option value="$PROJECT_DIR$/extractor/issue_tracker/github/github_dao.py" />
         <option value="$PROJECT_DIR$/test/logs/gitana-d958e-2048-issue2db-1-395.log" />
         <option value="$PROJECT_DIR$/test/logs/gitana-95a06-2048-issue2db-1-395.log" />
         <option value="$PROJECT_DIR$/extractor/issue_tracker/github/issue2db_extract_issue.py" />
@@ -154,6 +116,23 @@
         <option value="$PROJECT_DIR$/test/logs/gitana-import-stackoverflow-_papyrus_db-papyrus-papyrus-stackoverflow.log" />
         <option value="$PROJECT_DIR$/exporters/graph/graph_exporter.py" />
         <option value="$PROJECT_DIR$/exporters/report/report_exporter.py" />
+        <option value="$PROJECT_DIR$/README.md" />
+        <option value="$PROJECT_DIR$/__README.md" />
+        <option value="$PROJECT_DIR$/test/exporter/test_exporter.py" />
+        <option value="$PROJECT_DIR$/gitana/gitana.py" />
+        <option value="$PROJECT_DIR$/util/db_util.py" />
+        <option value="$PROJECT_DIR$/importers/db/dbschema.py" />
+        <option value="$PROJECT_DIR$/test/vcs/logs/gitana-import-git-db_2048-2048-2048_repo-git2db-origin-gh-pages.log" />
+        <option value="$PROJECT_DIR$/test/vcs/logs/gitana-import-git-db_2048-2048-2048_repo-git2db-origin-master.log" />
+        <option value="$PROJECT_DIR$/test/bugzilla/logs/gitana-import-bugzilla-papyrus_db_testx-papyrus-bugzilla_papyrus-issue2db-249750-324492.log" />
+        <option value="$PROJECT_DIR$/test/bugzilla/test_issue_bugzilla.py" />
+        <option value="$PROJECT_DIR$/test/vcs/test_vcs_git.py" />
+        <option value="$PROJECT_DIR$/test/eclipse_forum/test_forum_eclipse.py" />
+        <option value="$PROJECT_DIR$/test/github/test_issue_github.py" />
+        <option value="$PROJECT_DIR$/test/slack/test_instant_messaging_slack.py" />
+        <option value="$PROJECT_DIR$/test/bugzilla/logs/gitana-import-bugzilla-bugzilla_db_test-papyrus-bugzilla_papyrus-issue2db-249750-324492.log" />
+        <option value="$PROJECT_DIR$/test/bugzilla/logs/gitana-import-bugzilla-bugzilla_db_test-papyrus-bugzilla_papyrus-issue2db-324560-366796.log" />
+        <option value="$PROJECT_DIR$/test/sequence/test_sequence.py" />
       </list>
     </option>
   </component>
@@ -189,7 +168,6 @@
       <sortByType />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -218,20 +196,6 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="util" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Gitana" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Gitana" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
               <option name="myItemId" value="test" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
@@ -250,7 +214,7 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="logs" />
+              <option name="myItemId" value="slack" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -264,7 +228,11 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="exporters" />
+              <option name="myItemId" value="test" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="sequence" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -278,11 +246,11 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="exporters" />
+              <option name="myItemId" value="test" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="report" />
+              <option name="myItemId" value="github" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -296,16 +264,27 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="exporters" />
+              <option name="myItemId" value="importers" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Gitana" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Gitana" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="graph" />
+              <option name="myItemId" value="gitana" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -326,11 +305,11 @@
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="C:\Users\atlanmod\Desktop\gitana-env\Gitana\util" />
-      <recent name="C:\Users\atlanmod\Desktop\gitana-env\Gitana\models-paper" />
-      <recent name="C:\Users\atlanmod\Desktop\gitana-env\Gitana\extractor\issue_tracker\github" />
       <recent name="C:\Users\atlanmod\Desktop\gitana-env\Gitana\test" />
-      <recent name="C:\Users\atlanmod\Desktop\gitana-env\Gitana\exporter\graph" />
+      <recent name="C:\Users\atlanmod\Desktop\gitana-env\Gitana\test\vcs" />
+      <recent name="C:\Users\atlanmod\Desktop\gitana-env\Gitana" />
+      <recent name="C:\Users\atlanmod\Desktop\gitana-env\Gitana\gitana" />
+      <recent name="C:\Users\atlanmod\Desktop\gitana-env\Gitana\util" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\atlanmod\Desktop\gitana-env\Gitana\exporter\resources" />
@@ -340,20 +319,56 @@
       <recent name="C:\Users\atlanmod\Desktop\gitana-env\Gitana\extractor\util\selenium_driver" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.test_exporter">
-    <configuration default="false" name="get_repos_info" type="PythonConfigurationType" factoryName="Python" temporary="true">
+  <component name="RunManager" selected="Python.test_sequence">
+    <configuration default="false" name="test_issue_github" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/models-paper" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/test/github" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="Gitana" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/models-paper/get_repos_info.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/test/github/test_issue_github.py" />
+      <option name="PARAMETERS" value="" />
+      <RunnerSettings RunnerId="PythonRunner" />
+      <ConfigurationWrapper RunnerId="PythonRunner" />
+      <method />
+    </configuration>
+    <configuration default="false" name="test_forum_eclipse" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/test/eclipse_forum" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="Gitana" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/test/eclipse_forum/test_forum_eclipse.py" />
+      <option name="PARAMETERS" value="" />
+      <RunnerSettings RunnerId="PythonRunner" />
+      <ConfigurationWrapper RunnerId="PythonRunner" />
+      <method />
+    </configuration>
+    <configuration default="false" name="test_issue_bugzilla" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/test/bugzilla" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="Gitana" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/test/bugzilla/test_issue_bugzilla.py" />
       <option name="PARAMETERS" value="" />
       <RunnerSettings RunnerId="PyDebugRunner" />
       <RunnerSettings RunnerId="PythonRunner" />
@@ -361,39 +376,23 @@
       <ConfigurationWrapper RunnerId="PythonRunner" />
       <method />
     </configuration>
-    <configuration default="false" name="test_cvs_git" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration default="false" name="test_instant_messaging_slack" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/test" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/test/slack" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="Gitana" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/test/test_cvs_git.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/test/slack/test_instant_messaging_slack.py" />
       <option name="PARAMETERS" value="" />
+      <RunnerSettings RunnerId="PyDebugRunner" />
       <RunnerSettings RunnerId="PythonRunner" />
-      <ConfigurationWrapper RunnerId="PythonRunner" />
-      <method />
-    </configuration>
-    <configuration default="false" name="test_issue_tracker_github" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/test" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="Gitana" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/test/test_issue_tracker_github.py" />
-      <option name="PARAMETERS" value="" />
-      <RunnerSettings RunnerId="PythonRunner" />
+      <ConfigurationWrapper RunnerId="PyDebugRunner" />
       <ConfigurationWrapper RunnerId="PythonRunner" />
       <method />
     </configuration>
@@ -404,32 +403,12 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/test" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/test/sequence" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="Gitana" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/test/test_sequence.py" />
-      <option name="PARAMETERS" value="" />
-      <RunnerSettings RunnerId="PyDebugRunner" />
-      <RunnerSettings RunnerId="PythonRunner" />
-      <ConfigurationWrapper RunnerId="PyDebugRunner" />
-      <ConfigurationWrapper RunnerId="PythonRunner" />
-      <method />
-    </configuration>
-    <configuration default="false" name="test_exporter" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/test" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="Gitana" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/test/test_exporter.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/test/sequence/test_sequence.py" />
       <option name="PARAMETERS" value="" />
       <RunnerSettings RunnerId="PythonRunner" />
       <ConfigurationWrapper RunnerId="PythonRunner" />
@@ -578,19 +557,19 @@
     </configuration>
     <list size="6">
       <item index="0" class="java.lang.String" itemvalue="Python.gitana_gui" />
-      <item index="1" class="java.lang.String" itemvalue="Python.get_repos_info" />
-      <item index="2" class="java.lang.String" itemvalue="Python.test_cvs_git" />
-      <item index="3" class="java.lang.String" itemvalue="Python.test_issue_tracker_github" />
-      <item index="4" class="java.lang.String" itemvalue="Python.test_sequence" />
-      <item index="5" class="java.lang.String" itemvalue="Python.test_exporter" />
+      <item index="1" class="java.lang.String" itemvalue="Python.test_issue_github" />
+      <item index="2" class="java.lang.String" itemvalue="Python.test_forum_eclipse" />
+      <item index="3" class="java.lang.String" itemvalue="Python.test_issue_bugzilla" />
+      <item index="4" class="java.lang.String" itemvalue="Python.test_instant_messaging_slack" />
+      <item index="5" class="java.lang.String" itemvalue="Python.test_sequence" />
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="Python.test_exporter" />
-        <item index="1" class="java.lang.String" itemvalue="Python.test_sequence" />
-        <item index="2" class="java.lang.String" itemvalue="Python.test_issue_tracker_github" />
-        <item index="3" class="java.lang.String" itemvalue="Python.test_cvs_git" />
-        <item index="4" class="java.lang.String" itemvalue="Python.get_repos_info" />
+        <item index="0" class="java.lang.String" itemvalue="Python.test_sequence" />
+        <item index="1" class="java.lang.String" itemvalue="Python.test_instant_messaging_slack" />
+        <item index="2" class="java.lang.String" itemvalue="Python.test_issue_github" />
+        <item index="3" class="java.lang.String" itemvalue="Python.test_forum_eclipse" />
+        <item index="4" class="java.lang.String" itemvalue="Python.test_issue_bugzilla" />
       </list>
     </recent_temporary>
   </component>
@@ -621,15 +600,15 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1616" height="876" extended-state="1" />
-    <editor active="false" />
+    <frame x="-8" y="-8" width="1616" height="876" extended-state="7" />
+    <editor active="true" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32177532" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.35972133" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32615578" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.38002774" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="true" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="8" side_tool="true" content_ui="tabs" />
@@ -705,44 +684,19 @@
           <line>58</line>
           <option name="timeStamp" value="948" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" type="python-line">
+          <url>file://$PROJECT_DIR$/gitana/gitana.py</url>
+          <line>121</line>
+          <option name="timeStamp" value="957" />
+        </line-breakpoint>
       </breakpoints>
-      <option name="time" value="949" />
+      <option name="time" value="961" />
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/test/test_issue_tracker_bugzilla.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="38" column="119" selection-start="1244" selection-end="1293" vertical-scroll-proportion="0.63708085" vertical-offset="0" max-vertical-offset="1014" />
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/.PyCharm30/system/python_stubs/-762174762/__builtin__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="29" column="0" selection-start="1119" selection-end="1119" vertical-scroll-proportion="0.39534885" vertical-offset="170" max-vertical-offset="86683" />
-      </provider>
-    </entry>
-    <entry file="file://$APPLICATION_HOME_DIR$/helpers/pydev/pydevd.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="1144" column="0" selection-start="47625" selection-end="47625" vertical-scroll-proportion="0.33284023" vertical-offset="18118" max-vertical-offset="25075" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/test/test_forum_stackoverflow.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="24" column="122" selection-start="619" selection-end="619" vertical-scroll-proportion="0.39344263" vertical-offset="0" max-vertical-offset="1037" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/util/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1035" />
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/util/multiprocessing_util.py">
       <provider selected="true" editor-type-id="text-editor">
         <state line="9" column="0" selection-start="154" selection-end="154" vertical-scroll-proportion="0.0" vertical-offset="36" max-vertical-offset="1122" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/util/db_util.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="211" column="26" selection-start="5753" selection-end="5753" vertical-scroll-proportion="0.6585366" vertical-offset="3111" max-vertical-offset="4029" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/util/dsl_util.py">
@@ -750,18 +704,9 @@
         <state line="12" column="8" selection-start="192" selection-end="192" vertical-scroll-proportion="0.2195122" vertical-offset="0" max-vertical-offset="697" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/test/test_cvs_git.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="36" column="39" selection-start="830" selection-end="830" vertical-scroll-proportion="-1.6776316" vertical-offset="1377" max-vertical-offset="1853">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/importers/issue_tracker/github/issue2db_extract_issue.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="212" column="24" selection-start="9948" selection-end="9948" vertical-scroll-proportion="-5.3461537" vertical-offset="3363" max-vertical-offset="5627">
-          <folding />
-        </state>
+        <state line="212" column="24" selection-start="9948" selection-end="9948" vertical-scroll-proportion="-5.3461537" vertical-offset="3363" max-vertical-offset="5627" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/importers/issue_tracker/github/github_dao.py">
@@ -771,25 +716,14 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/test/test_issue_tracker_github.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="15" column="13" selection-start="339" selection-end="339" vertical-scroll-proportion="0.35172415" vertical-offset="102" max-vertical-offset="731">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://C:/Python27/Lib/site-packages/python_bugzilla-2.1.0-py2.7.egg!/bugzilla/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="663">
-          <folding />
-        </state>
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="663" />
       </provider>
     </entry>
     <entry file="jar://C:/Python27/Lib/site-packages/python_bugzilla-2.1.0-py2.7.egg!/bugzilla/base.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="1017" column="8" selection-start="35723" selection-end="35723" vertical-scroll-proportion="0.0" vertical-offset="76" max-vertical-offset="30719">
-          <folding />
-        </state>
+        <state line="1017" column="8" selection-start="35723" selection-end="35723" vertical-scroll-proportion="0.0" vertical-offset="76" max-vertical-offset="30719" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/setup.py">
@@ -801,9 +735,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/importers/forum/stackoverflow/stackoverflow_dao.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="214" column="60" selection-start="6033" selection-end="6033" vertical-scroll-proportion="0.0" vertical-offset="3366" max-vertical-offset="7310">
-          <folding />
-        </state>
+        <state line="214" column="60" selection-start="6033" selection-end="6033" vertical-scroll-proportion="0.0" vertical-offset="3366" max-vertical-offset="7310" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/importers/instant_messaging/slack/slack_dao.py">
@@ -815,55 +747,22 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/importers/issue_tracker/github/querier_github.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="185" column="30" selection-start="4878" selection-end="4878" vertical-scroll-proportion="7.6925" vertical-offset="0" max-vertical-offset="7021">
-          <folding />
-        </state>
+        <state line="185" column="30" selection-start="4878" selection-end="4878" vertical-scroll-proportion="7.6925" vertical-offset="0" max-vertical-offset="7021" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/importers/issue_tracker/bugzilla/issue2db_extract_issue.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="237" column="42" selection-start="11223" selection-end="11223" vertical-scroll-proportion="-13.384615" vertical-offset="3681" max-vertical-offset="5049">
-          <folding>
-            <element signature="e#80#109#0" expanded="true" />
-          </folding>
-        </state>
+        <state line="237" column="42" selection-start="11223" selection-end="11223" vertical-scroll-proportion="-13.384615" vertical-offset="3681" max-vertical-offset="5049" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/importers/issue_tracker/bugzilla/querier_bugzilla.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="14" column="23" selection-start="296" selection-end="296" vertical-scroll-proportion="-9.153846" vertical-offset="0" max-vertical-offset="5219">
-          <folding>
-            <element signature="e#80#95#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/importers/vcs/git/git_dao.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="726" column="20" selection-start="21893" selection-end="21893" vertical-scroll-proportion="-13.384615" vertical-offset="11994" max-vertical-offset="12478">
-          <folding />
-        </state>
+        <state line="14" column="23" selection-start="296" selection-end="296" vertical-scroll-proportion="-9.153846" vertical-offset="0" max-vertical-offset="5219" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/importers/forum/stackoverflow/stackoverflow2db_extract_main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="73" column="50" selection-start="2275" selection-end="2275" vertical-scroll-proportion="0.0" vertical-offset="931" max-vertical-offset="2091">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/gitana/gitana.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="318" column="29" selection-start="12567" selection-end="12567" vertical-scroll-proportion="0.0" vertical-offset="4851" max-vertical-offset="7854">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/test/logs/gitana-import-stackoverflow-_papyrus_db-papyrus-papyrus-stackoverflow.log">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="2" column="0" selection-start="123" selection-end="123" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="136">
-          <folding />
-        </state>
+        <state line="73" column="50" selection-start="2275" selection-end="2275" vertical-scroll-proportion="0.0" vertical-offset="931" max-vertical-offset="2091" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/exporters/graph/graph_exporter.py">
@@ -873,39 +772,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/exporters/report/report_exporter.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="25" column="82" selection-start="657" selection-end="657" vertical-scroll-proportion="0.5249406" vertical-offset="0" max-vertical-offset="3604">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/exporters/graph/gexf_generator.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="-0.60570073" vertical-offset="255" max-vertical-offset="2516">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/test/report.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="434">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/test/logs/gitana-export-report-_papyrus_db.log.log">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="2" column="0" selection-start="137" selection-end="137" vertical-scroll-proportion="0.078341015" vertical-offset="0" max-vertical-offset="434">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/test/test_sequence.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="17" column="22" selection-start="361" selection-end="361" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="646">
-          <folding />
-        </state>
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="-0.60570073" vertical-offset="255" max-vertical-offset="2516" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/util/token_util.py">
@@ -922,30 +791,181 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/test/test_exporter.py">
+    <entry file="file://$PROJECT_DIR$/exporters/report/report_exporter.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="11" column="9" selection-start="278" selection-end="278" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="442">
+        <state line="112" column="40" selection-start="3921" selection-end="3921" vertical-scroll-proportion="0.6115108" vertical-offset="1275" max-vertical-offset="3604">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/test/logs/gitana-export-graph-_papyrus_db.log.log">
+    <entry file="file://$PROJECT_DIR$/test/exporter/logs/gitana-export-graph-_papyrus_db.log.log">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="434">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="455">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/test/graph.gexf">
+    <entry file="file://$PROJECT_DIR$/test/exporter/logs/gitana-export-report-_papyrus_db.log.log">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="455">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/exporter/graph.gexf">
       <provider selected="true" editor-type-id="text-editor">
         <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="180574">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/test/graph.json">
+    <entry file="file://$PROJECT_DIR$/test/exporter/test_exporter.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="4" column="51" selection-start="58" selection-end="171" vertical-scroll-proportion="0.15813954" vertical-offset="0" max-vertical-offset="430">
+        <state line="12" column="0" selection-start="279" selection-end="279" vertical-scroll-proportion="0.44835165" vertical-offset="0" max-vertical-offset="510">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/README.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="97" column="154" selection-start="3863" selection-end="3863" vertical-scroll-proportion="0.0" vertical-offset="1479" max-vertical-offset="4641">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/importers/instant_messaging/slack/querier_slack.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="50" column="0" selection-start="1363" selection-end="1363" vertical-scroll-proportion="0.0" vertical-offset="663" max-vertical-offset="7310">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/importers/instant_messaging/slack/slack2db_extract_main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="91" column="0" selection-start="3107" selection-end="3107" vertical-scroll-proportion="0.0" vertical-offset="1288" max-vertical-offset="2363">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/importers/issue_tracker/bugzilla/issue2db_extract_main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="2856">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/importers/vcs/git/git2db_extract_main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="147" column="25" selection-start="5136" selection-end="5136" vertical-scroll-proportion="0.0" vertical-offset="1938" max-vertical-offset="2754">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/importers/vcs/git/git_dao.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="146" column="8" selection-start="4066" selection-end="4066" vertical-scroll-proportion="0.0" vertical-offset="2251" max-vertical-offset="12478">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/util/logging_util.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="72" column="8" selection-start="1918" selection-end="1918" vertical-scroll-proportion="0.4021978" vertical-offset="1041" max-vertical-offset="1496">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/util/db_util.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="73" column="8" selection-start="1603" selection-end="1603" vertical-scroll-proportion="0.53186816" vertical-offset="982" max-vertical-offset="7990">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/importers/db/dbschema.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="32" column="12" selection-start="806" selection-end="806" vertical-scroll-proportion="0.5504808" vertical-offset="315" max-vertical-offset="13549">
+          <folding>
+            <element signature="e#80#111#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/gitana/gitana.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="136" column="18" selection-start="4774" selection-end="4784" vertical-scroll-proportion="-0.036057692" vertical-offset="2327" max-vertical-offset="8534">
+          <folding>
+            <element signature="e#418#427#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/eclipse_forum/logs/gitana-import-eclipse-forum-ecliseforum_db_test-papyrus-papyrus-forum-topic2db-1-393.log">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="434">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/github/logs/gitana-import-github-githubissue_2048-2048-2048-tracker-issue2db-84-166.log">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="434">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/eclipse_forum/test_forum_eclipse.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="25" column="0" selection-start="706" selection-end="706" vertical-scroll-proportion="0.3846154" vertical-offset="255" max-vertical-offset="1003">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/vcs/test_vcs_git.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="80" column="11" selection-start="2174" selection-end="2174" vertical-scroll-proportion="2.9615386" vertical-offset="51" max-vertical-offset="1615">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/bugzilla/logs/gitana-import-bugzilla-bugzilla_db_test-papyrus-bugzilla_papyrus-issue2db-249750-324492.log">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="30" column="0" selection-start="2814" selection-end="2814" vertical-scroll-proportion="0.73846155" vertical-offset="174" max-vertical-offset="629">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/bugzilla/logs/gitana-import-bugzilla-bugzilla_db_test-papyrus-bugzilla_papyrus-issue2db-324560-366796.log">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="105" column="0" selection-start="10059" selection-end="10059" vertical-scroll-proportion="0.0" vertical-offset="1466" max-vertical-offset="1921">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/bugzilla/test_issue_bugzilla.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="24" column="0" selection-start="725" selection-end="725" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="884">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/github/test_issue_github.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="21" column="15" selection-start="415" selection-end="415" vertical-scroll-proportion="0.7846154" vertical-offset="0" max-vertical-offset="799">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/slack/test_instant_messaging_slack.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="15" column="18" selection-start="344" selection-end="344" vertical-scroll-proportion="0.48131868" vertical-offset="36" max-vertical-offset="799">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/sequence/test_sequence.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="19" column="15" selection-start="413" selection-end="413" vertical-scroll-proportion="0.7307692" vertical-offset="0" max-vertical-offset="1020">
           <folding />
         </state>
       </provider>
