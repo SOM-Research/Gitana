@@ -305,7 +305,7 @@ class DbSchema():
         create_table_user_alias = "CREATE TABLE IF NOT EXISTS user_alias ( " \
                                   "user_id int(20), " \
                                   "alias_id int(20), " \
-                                  "CONSTRAINT a UNIQUE (alias_id) " \
+                                  "CONSTRAINT a UNIQUE (user_id) " \
                                   ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 
         cursor.execute(create_table_project)
