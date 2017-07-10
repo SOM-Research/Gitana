@@ -414,7 +414,7 @@ class GitDao():
         query = "INSERT IGNORE INTO file " \
                 "VALUES (%s, %s, %s, %s)"
 
-        # get file extension
+        # extract file extension from file path if not passed
         if not ext:
             ext = name.split('.')[-1]
 
