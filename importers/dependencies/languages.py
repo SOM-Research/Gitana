@@ -1,4 +1,5 @@
-import logging
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import os
 import re
 
@@ -10,9 +11,9 @@ LANG_SPEC_REGEX = {
     #   from abc.lmn import pqr as xyz
     #   import abc
     #   import abc as xyz
-    '.py': r'(?m)^(?:from[ ]+(\S+)[ ]+)?import[ ]+(\S+)(?:[ ]+as[ ]+\S+)?[ ]*$',
+    'py': r'(?m)^(?:from[ ]+(\S+)[ ]+)?import[ ]+(\S+)(?:[ ]+as[ ]+\S+)?[ ]*$',
 
-    '.java': r'',
+    'java': r'',
 }
 
 
@@ -22,12 +23,23 @@ class Parser(object):
     """
 
     def __init__(self, logger):
+        """
+        initiator
+        :param logger: logger object to log messages
+        :type: logger: logging.Logger
+        """
         self._logger = logger
 
     def get_dependencies(self, file_path, extra_paths):
         """
         Parse python source files for imported module dependencies
         :return: list of imported dependency module files
+
+        :param file_path: source file path
+        :type file_path: str
+
+        :param extra_paths: list of extra directories to look for target files
+        :type extra_paths: list
         """
         modules = []
 
@@ -41,7 +53,7 @@ class Parser(object):
         for line in source_file.readlines():
 
             if regex.match(line):
-                from_module, import_module = regex.groups()
+                from_module, import_module = regex.match(line).groups()
                 module_path = self.get_module_file(from_module, import_module, extra_paths)
 
                 if module_path:
@@ -77,12 +89,12 @@ class Parser(object):
                     return '%s.py' % source_path
 
             if source_path:
-                # cover: "from module.submodule import supersubmodule"
-                # case: module/submodule/supersubmodule.py
+                # case: "from module.submodule import supersubmodule"
+                # cover: module/submodule/supersubmodule.py
                 source_path = os.path.join(source_path, '%s.py' % import_module)
             else:
-                # cover: "import module"
-                # case: module.py
+                # case: "import module"
+                # cover: module.py
                 source_path = os.path.join(source_dir, '%s.py' % import_module)
 
             if os.path.exists(source_path):

@@ -607,6 +607,18 @@ class DbSchema():
                                    "PRIMARY KEY fityli (file_modification_id, type, line_number) " \
                                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 
+        # adding it here because "file_dependency" depends on "file" table creation.
+        # @todo: find a way to move the following table creation to separate section
+        #   make "extract_dependency_relations" API interface completely independent.
+        create_table_file_dependency = "CREATE TABLE file_dependency ( " \
+                                       "repo_id int(20), " \
+                                       "source_file_id int(20), " \
+                                       "target_file_id int(20), " \
+                                       "CONSTRAINT fkrepo FOREIGN KEY (repo_id) REFERENCES repository(id), " \
+                                       "CONSTRAINT fksf FOREIGN KEY (source_file_id) REFERENCES file(id), " \
+                                       "CONSTRAINT fktf FOREIGN KEY (target_file_id) REFERENCES file(id), " \
+                                       "CONSTRAINT dep UNIQUE (repo_id, source_file_id, target_file_id) " \
+                                       ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 
         cursor.execute(create_table_repository)
         cursor.execute(create_table_reference)
@@ -617,6 +629,7 @@ class DbSchema():
         cursor.execute(create_table_file_renamed)
         cursor.execute(create_table_file_modification)
         cursor.execute(create_table_line_detail)
+        cursor.execute(create_table_file_dependency)
         cursor.close()
 
     def _init_issue_tracker_tables(self):

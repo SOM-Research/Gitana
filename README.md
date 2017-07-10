@@ -211,6 +211,17 @@ g.update_github_tracker_data("DB-NAME", "PROJECT-NAME", "GIT-REPO-NAME",
 # "LIST-OF-TOKENS" cannot be null. Each token is passed to a process to speed up the collection of GitHub information.
 ```
 
+### extract dependency relations
+```python
+g.extract_dependency_relations("DB-NAME", "PROJECT-NAME", "GIT-REPO-NAME",
+								"GIT-REPO-PATH", "EXTRA-PATHS")
+                  
+# DB-NAME and PROJECT-NAME should point to a DB and project already existing in Gitana
+# GIT-REPO-NAME, GIT-REPO-PATH cannot be null
+# EXTRA-PATHS can be None or a list. List of extra/more directory locations other than Git repo root directory
+  to look for dependency target files. By default, target files checked in git repository's root directory only.
+```
+
 ### export Gitana data to GEXF graph
 ```python
 g.export_to_graph("DB-NAME", "GRAPH-EXPORTER-PATH", "OUTPUT-PATH")
