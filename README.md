@@ -219,7 +219,7 @@ g.extract_dependency_relations("DB-NAME", "PROJECT-NAME", "GIT-REPO-NAME",
 # DB-NAME and PROJECT-NAME should point to a DB and project already existing in Gitana
 # GIT-REPO-NAME, GIT-REPO-PATH cannot be null
 # EXTRA-PATHS can be None or a list. List of extra/more directory locations other than Git repo root directory
-  to look for dependency target files. By default, target files checked in git repository's root directory only.
+#  to look for dependency target files. By default, target files checked in git repository's root directory only.
 ```
 
 ### export Gitana data to GEXF graph
@@ -265,6 +265,7 @@ def main():
     g.import_bugzilla_tracker_data("papyrus_db", "papyrus", "papyrus_repo", "papyrus-bugzilla", "https://bugs.eclipse.org/bugs/xmlrpc.cgi", "papyrus")
     g.import_eclipse_forum_data("papyrus_db", "papyrus", "papyrus-forum", "https://www.eclipse.org/forums/index.php/f/121/")
     g.import_stackoverflow_data("papyrus_db", "papyrus", "papyrus-so", ['YOUR-TOKEN-1', 'YOUR-TOKEN-2', ...])
+	g.extract_dependency_relations("papyrus_db", "papyrus", "papyrus_repo", "...\\Desktop\\org.eclipse.papyrus")
 	
     g.export_to_graph("papyrus_db", "./graph.json", "./graph.gexf")
     g.export_to_report("papyrus_db", "./report.json", "./report.html")

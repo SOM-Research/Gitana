@@ -2,14 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="18e0b3fd-aa57-4fdb-aef7-064cfbea55be" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gitana/gitana.py" afterPath="$PROJECT_DIR$/gitana/gitana.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/importers/db/dbschema.py" afterPath="$PROJECT_DIR$/importers/db/dbschema.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/importers/dependencies/extract_relations.py" afterPath="$PROJECT_DIR$/importers/dependencies/extract_relations.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/importers/dependencies/languages.py" afterPath="$PROJECT_DIR$/importers/dependencies/languages.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/importers/vcs/git/git_dao.py" afterPath="$PROJECT_DIR$/importers/vcs/git/git_dao.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/util/deps_util.py" afterPath="$PROJECT_DIR$/util/deps_util.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/README.md" afterPath="$PROJECT_DIR$/README.md" />
     </list>
     <ignored path="Gitana.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -65,7 +58,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="gitana.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="gitana.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/gitana/gitana.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="613">
@@ -73,6 +66,16 @@
               <folding>
                 <element signature="e#418#427#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="gitana_test.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/gitana_test.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="306">
+              <caret line="18" column="4" lean-forward="false" selection-start-line="18" selection-start-column="4" selection-end-line="18" selection-end-column="96" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -1009,14 +1012,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/gitana_test.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="306">
-          <caret line="18" column="17" lean-forward="false" selection-start-line="18" selection-start-column="17" selection-end-line="18" selection-end-column="17" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/importers/vcs/git/git_dao.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="346">
@@ -1062,6 +1057,14 @@
           <folding>
             <element signature="e#418#427#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/gitana_test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="306">
+          <caret line="18" column="4" lean-forward="false" selection-start-line="18" selection-start-column="4" selection-end-line="18" selection-end-column="96" />
+          <folding />
         </state>
       </provider>
     </entry>
