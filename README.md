@@ -214,7 +214,7 @@ g.update_github_tracker_data("DB-NAME", "PROJECT-NAME", "GIT-REPO-NAME",
 ### extract dependency relations
 ```python
 g.extract_dependency_relations("DB-NAME", "PROJECT-NAME", "GIT-REPO-NAME",
-								"GIT-REPO-PATH", "EXTRA-PATHS")
+                               "GIT-REPO-PATH", "EXTRA-PATHS")
                   
 # DB-NAME and PROJECT-NAME should point to a DB and project already existing in Gitana
 # GIT-REPO-NAME, GIT-REPO-PATH cannot be null
