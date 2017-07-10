@@ -18,7 +18,7 @@ class BugzillaIssue2DbMain():
     This class handles the import of Bugzilla issue tracker data
     """
 
-    NUM_PROCESSES = 5
+    NUM_PROCESSES = 3
 
     def __init__(self, db_name, project_name,
                  repo_name, type, issue_tracker_name, url, product, before_date, num_processes,
@@ -49,7 +49,7 @@ class BugzillaIssue2DbMain():
         :param before_date: import data before date (YYYY-mm-dd)
 
         :type num_processes: int
-        :param num_processes: number of processes to import the data (default 5)
+        :param num_processes: number of processes to import the data (default 3)
 
         :type config: dict
         :param config: the DB configuration file

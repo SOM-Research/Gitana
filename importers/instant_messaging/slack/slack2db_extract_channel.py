@@ -59,7 +59,7 @@ class SlackChannel2Db(object):
             self._querier = SlackQuerier(self._token, self._logger)
             self._dao = SlackDao(self._config, self._logger)
             self.extract()
-        except Exception, e:
+        except Exception:
             self._logger.error("Channel2Db failed", exc_info=True)
         finally:
             if self._dao:
@@ -204,5 +204,5 @@ class SlackChannel2Db(object):
             self._logger.info("SlackChannel2Db finished after " + str(minutes_and_seconds[0])
                            + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
             self._logging_util.remove_file_handler_logger(self._logger, self._fileHandler)
-        except Exception, e:
+        except Exception:
             self._logger.error("SlackChannel2Db failed", exc_info=True)

@@ -18,7 +18,7 @@ class BugzillaIssue2DbUpdate():
     This class handles the update of Bugzilla issue tracker data
     """
 
-    NUM_PROCESSES = 5
+    NUM_PROCESSES = 3
 
     def __init__(self, db_name, project_name,
                  repo_name, issue_tracker_name, url, product, num_processes,
@@ -43,7 +43,7 @@ class BugzillaIssue2DbUpdate():
         :param product: the name of the product to import from the issue tracker
 
         :type num_processes: int
-        :param num_processes: number of processes to import the data (default 5)
+        :param num_processes: number of processes to import the data (default 3)
 
         :type config: dict
         :param config: the DB configuration file

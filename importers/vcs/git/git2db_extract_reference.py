@@ -77,7 +77,7 @@ class Git2DbReference(object):
             self._querier = GitQuerier(self._git_repo_path, self._logger)
             self._dao = GitDao(self._config, self._logger)
             self.extract()
-        except Exception, e:
+        except Exception:
             self._logger.error("Git2Db failed", exc_info=True)
         finally:
             if self._dao:
@@ -201,6 +201,9 @@ class Git2DbReference(object):
                                 #retrieve the id of the previous file
                                 previous_file_id = self._dao.select_file_id(repo_id, file_previous)
 
+                                #insert file modification
+                                self._dao.insert_file_modification(commit_found, current_file_id, "renamed", 0, 0, 0, None)
+
                                 if not previous_file_id:
                                     self._dao.insert_file(repo_id, file_previous, ext_previous)
                                     previous_file_id = self._dao.select_file_id(repo_id, file_previous)
@@ -208,8 +211,9 @@ class Git2DbReference(object):
                                 if current_file_id == previous_file_id:
                                     self._logger.warning("previous file id is equal to current file id (" + str(current_file_id) + ") " + str(sha))
                                 else:
-                                    self._dao.insert_file_renamed(repo_id, current_file_id, previous_file_id)
-                                self._dao.insert_file_modification(commit_found, current_file_id, "renamed", 0, 0, 0, None)
+                                    file_modification_id = self._dao.select_file_modification_id(commit_found, current_file_id)
+                                    self._dao.insert_file_renamed(repo_id, current_file_id, previous_file_id, file_modification_id)
+
                             else:
                                 #insert file
                                 #if the file does not have a path, it won't be inserted
@@ -243,9 +247,9 @@ class Git2DbReference(object):
                                         line_details = self._querier.get_line_details(patch_content, ext)
                                         for line_detail in line_details:
                                             self._dao.insert_line_details(file_modification_id, line_detail)
-                                except Exception, e:
+                                except Exception:
                                     self._logger.error("Something went wrong with commit " + str(sha), exc_info=True)
-                except Exception, e:
+                except Exception:
                     self._logger.error("Git2Db failed on commit " + str(sha), exc_info=True)
 
             # insert parents of the commit
@@ -254,7 +258,7 @@ class Git2DbReference(object):
             self._dao.insert_commit_in_reference(repo_id, commit_found, ref_id)
 
             #return commit_found
-        except Exception, e:
+        except Exception:
             self._logger.error("Git2Db failed on commit " + str(sha), exc_info=True)
 
     def _analyse_commits(self, commits, ref, repo_id):
@@ -285,5 +289,5 @@ class Git2DbReference(object):
             self._logger.info("Git2DbReference finished after " + str(minutes_and_seconds[0])
                          + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
             self._logging_util.remove_file_handler_logger(self._logger, self._fileHandler)
-        except Exception, e:
+        except Exception:
             self._logger.error("Git2DbReference failed", exc_info=True)

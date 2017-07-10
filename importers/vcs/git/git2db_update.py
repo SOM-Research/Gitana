@@ -17,7 +17,7 @@ class Git2DbUpdate():
     This class handles the update of Git data
     """
 
-    NUM_PROCESSES = 10
+    NUM_PROCESSES = 5
 
     def __init__(self, db_name, project_name,
                  repo_name, git_repo_path, before_date,
@@ -39,7 +39,7 @@ class Git2DbUpdate():
         :param before_date: import data before date (YYYY-mm-dd)
 
         :type num_processes: int
-        :param num_processes: number of processes to import the data (default 10)
+        :param num_processes: number of processes to import the data (default 5)
 
         :type config: dict
         :param config: the DB configuration file

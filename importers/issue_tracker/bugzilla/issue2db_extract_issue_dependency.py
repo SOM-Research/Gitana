@@ -65,7 +65,7 @@ class BugzillaIssueDependency2Db(object):
             self._querier = BugzillaQuerier(self._url, self._product, self._logger)
             self._dao = BugzillaDao(self._config, self._logger)
             self.extract()
-        except Exception, e:
+        except Exception:
             self._logger.error("Issue2Db failed", exc_info=True)
         finally:
             if self._dao:
@@ -131,7 +131,7 @@ class BugzillaIssueDependency2Db(object):
                     if issue.dupe_of:
                         self._extract_issue_dependency(issue_id, self._querier.get_issue_dupe_of(issue), self._dao.get_issue_dependency_type_id("duplicated"))
 
-            except Exception, e:
+            except Exception:
                 self._logger.error("something went wrong with the following issue id: " + str(issue_id) + " - tracker id " + str(self._issue_tracker_id), exc_info=True)
 
             row = self._dao.fetchone(cursor)
@@ -152,5 +152,5 @@ class BugzillaIssueDependency2Db(object):
             self._logger.info("BugzillaIssueDependency2Db finished after " + str(minutes_and_seconds[0])
                            + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
             self._logging_util.remove_file_handler_logger(self._logger, self._filehandler)
-        except Exception, e:
+        except Exception:
             self._logger.error("BugzillaIssueDependency2Db failed", exc_info=True)

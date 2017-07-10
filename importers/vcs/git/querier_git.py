@@ -69,7 +69,7 @@ class GitQuerier():
                             diff = parent.diff(commit, paths=file_a, create_patch=True)
                         else:
                             diff = parent.diff(commit, paths=file_a, create_patch=False)
-                    except Exception, e:
+                    except Exception:
                         self._logger.error("diff not retrieved ", exc_info=True)
                         diff = []
 
@@ -87,7 +87,7 @@ class GitQuerier():
                     file_b = line_content.split(" b/")[1].strip()
 
                     flag = True
-                except Exception, e:
+                except Exception:
                     self._logger.error("Error when parsing diff git ", exc_info=True)
 
         return diffs

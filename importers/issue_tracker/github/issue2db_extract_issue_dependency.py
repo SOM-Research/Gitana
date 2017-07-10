@@ -66,7 +66,7 @@ class GitHubIssueDependency2Db(object):
             self._querier = GitHubQuerier(self._url, self._token, self._logger)
             self._dao = GitHubDao(self._config, self._logger)
             self.extract()
-        except Exception, e:
+        except Exception:
             self._logger.error("GitHubIssueDependency2Db failed", exc_info=True)
 
     def _extract_issue_dependencies(self):
@@ -95,7 +95,7 @@ class GitHubIssueDependency2Db(object):
                             referenced_issue_id = self._dao.select_issue_id(ri, self._issue_tracker_id, self._repo_id)
                             self._dao.insert_issue_dependency(referenced_issue_id, issue_own_id, self._dao.get_issue_dependency_type_id("related"))
 
-            except Exception, e:
+            except Exception:
                 self._logger.error("something went wrong with the following issue id: " + str(issue_id) + " - tracker id " + str(self._issue_tracker_id), exc_info=True)
 
             row = self._dao.fetchone(cursor)
@@ -117,7 +117,7 @@ class GitHubIssueDependency2Db(object):
             self._logger.info("GitHubIssueDependency2Db finished after " + str(minutes_and_seconds[0])
                            + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
             self._logging_util.remove_file_handler_logger(self._logger, self._fileHandler)
-        except Exception, e:
+        except Exception:
             self._logger.error("GitHubIssueDependency2Db failed", exc_info=True)
         finally:
             if self._dao:

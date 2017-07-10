@@ -428,13 +428,7 @@ class GitHubDao():
         :type name: str
         :param name: the name of the label
         """
-        cursor = self._cnx.cursor()
-        query = "INSERT IGNORE INTO label " \
-                "VALUES (%s, %s)"
-        arguments = [None, name]
-        cursor.execute(query, arguments)
-        self._cnx.commit()
-        cursor.close()
+        self._db_util.insert_label(self._cnx, name, self._logger)
 
     def select_label_id(self, name):
         """
@@ -443,17 +437,7 @@ class GitHubDao():
         :type name: str
         :param name: the name of the label
         """
-        cursor = self._cnx.cursor()
-        query = "SELECT id FROM label WHERE name = %s"
-        arguments = [name]
-        cursor.execute(query, arguments)
-        row = cursor.fetchone()
-        found = None
-        if row:
-            found = row[0]
-        cursor.close()
-
-        return found
+        return self._db_util.select_label_id(self._cnx, name, self._logger)
 
     def select_issue_comment_id(self, own_id, issue_id, created_at):
         """
@@ -620,7 +604,7 @@ class GitHubDao():
                         found = row[0]
 
                 cursor.close()
-            except Exception, e:
+            except Exception:
                 self._logger.warning("version (" + str(version) + ") not inserted for issue id: " + str(issue_id), exc_info=True)
 
         return found

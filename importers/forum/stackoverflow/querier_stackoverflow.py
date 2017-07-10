@@ -29,6 +29,8 @@ class StackOverflowQuerier():
             self._token_util = TokenUtil(self._logger, "stackoverflow")
             self._date_util = DateUtil()
             self._so = stackexchange.Site(stackexchange.StackOverflow, app_key = self._token)
+            self._so.impose_throttling = True
+            self._so.throttle_stop = False
         except:
             self._logger.error("StackOverflowQuerier init failed")
             raise
@@ -95,18 +97,41 @@ class StackOverflowQuerier():
         """
         return container.score
 
+    def get_topic_labels(self, question):
+        """
+        gets the topic labels
+
+        :type question: Object
+        :param question: the Object representing the question
+        """
+        try:
+            labels = question.tags
+        except:
+            labels = []
+        return labels
+
     def get_topic_views(self, question):
         """
         gets the topic view count
 
-        :type container: Object
-        :param container: the Object representing the question
+        :type question: Object
+        :param question: the Object representing the question
         """
         return question.view_count
 
     def is_accepted_answer(self, answer):
-        #TODO
-        print "here"
+        """
+        checks if the answer is the accepted one
+
+        :type answer: Object
+        :param answer: the Object representing the answer
+        """
+        try:
+            found = answer.accepted
+        except:
+            found = False
+
+        return found
 
     def get_container_created_at(self, container):
         """

@@ -16,29 +16,29 @@ CONFIG = {
 
 def test_1(g):
     #test before date
-    g.import_eclipse_forum_data("papyrus_db_test", "papyrus", "papyrus-forum", "https://www.eclipse.org/forums/index.php/f/121/", "2012-12-05", 3)
+    g.import_eclipse_forum_data("ecliseforum_db_test", "papyrus", "papyrus-forum", "https://www.eclipse.org/forums/index.php/f/121/", before_date="2012-12-05")
 
 
 def test_2(g):
     #test update
-    g.update_eclipse_forum_data("papyrus_db_test", "papyrus", "papyrus-forum", "https://www.eclipse.org/forums/index.php/f/121/", 3)
+    g.update_eclipse_forum_data("ecliseforum_db_test", "papyrus", "papyrus-forum", "https://www.eclipse.org/forums/index.php/f/121/", processes=5)
 
 
 def test_3(g):
     #test recover process
-    g.import_eclipse_forum_data("papyrus_db_test", "papyrus", "papyrus-forum", "https://www.eclipse.org/forums/index.php/f/121/", "2014-05-05", 3)
+    g.import_eclipse_forum_data("ecliseforum_db_test", "papyrus", "papyrus-forum", "https://www.eclipse.org/forums/index.php/f/121/", "2014-05-05")
 
 
 def test_4(g):
     #test recover process
-    g.import_eclipse_forum_data("papyrus_db_test", "papyrus", "papyrus-forum", "https://www.eclipse.org/forums/index.php/f/121/", None, 3)
+    g.import_eclipse_forum_data("ecliseforum_db_test", "papyrus", "papyrus-forum", "https://www.eclipse.org/forums/index.php/f/121/")
 
 
 def main():
-    g = Gitana(CONFIG, None)
+    g = Gitana(CONFIG)
     g.delete_previous_logs()
-    g.init_db("papyrus_db_test")
-    g.create_project("papyrus_db_test", "papyrus")
+    g.init_db("ecliseforum_db_test")
+    g.create_project("ecliseforum_db_test", "papyrus")
 
     print "starting 1.."
     test_1(g)

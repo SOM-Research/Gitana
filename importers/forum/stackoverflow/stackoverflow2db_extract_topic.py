@@ -74,7 +74,7 @@ class StackOverflowTopic2Db(object):
             created_at = self._querier.get_container_created_at(a)
             votes = self._querier.get_container_votes(a)
 
-            if a.accepted:
+            if self._querier.is_accepted_answer(a):
                 message_type = "accepted_answer"
             else:
                 message_type = "answer"
@@ -119,6 +119,12 @@ class StackOverflowTopic2Db(object):
         if attachments:
             self._insert_attachments(attachments, message_id)
 
+    def _insert_labels(self, labels, topic_id):
+        for l in labels:
+            self._dao.insert_label(l)
+            label_id = self._dao.select_label_id(l)
+            self._dao.assign_label_to_topic(label_id, topic_id)
+
     def _insert_attachments(self, attachments, message_id):
         #inserts attachments
         pos = 0
@@ -142,6 +148,9 @@ class StackOverflowTopic2Db(object):
 
             topic_id = self._dao.insert_topic(own_id, self._forum_id, name, votes, views, created_at, last_change_at)
             author_id = self._dao.get_user_id(self._querier.get_container_author(topic))
+
+            labels = self._querier.get_topic_labels(topic)
+            self._insert_labels(labels, topic_id)
 
             self.pos = 0
             body = self._querier.get_container_body(topic)
@@ -179,5 +188,5 @@ class StackOverflowTopic2Db(object):
             self._logger.info("StackOverflowTopic2Db finished after " + str(minutes_and_seconds[0])
                            + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
             self._logging_util.remove_file_handler_logger(self._logger, self._fileHandler)
-        except Exception, e:
+        except Exception:
             self._logger.error("StackOverflowTopic2Db failed", exc_info=True)

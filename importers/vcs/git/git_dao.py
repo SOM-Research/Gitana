@@ -173,7 +173,7 @@ class GitDao():
         :param user_name: name of the user
 
         :type user_email: str
-        :param user_name: email of the user
+        :param user_email: email of the user
         """
 
         if user_email == None and user_name == None:
@@ -375,7 +375,7 @@ class GitDao():
         self._cnx.commit()
         cursor.close()
 
-    def insert_file_renamed(self, repo_id, current_file_id, previous_file_id):
+    def insert_file_renamed(self, repo_id, current_file_id, previous_file_id, file_modification_id):
         """
         inserts file renamed information
 
@@ -387,12 +387,15 @@ class GitDao():
 
         :type previous_file_id: int
         :param previous_file_id: id of the file before renaming
+
+        :type file_modification_id: int
+        :param file_modification_id: id of the file modification
         """
         cursor = self._cnx.cursor()
 
         query = "INSERT IGNORE INTO file_renamed " \
-                "VALUES (%s, %s, %s)"
-        arguments = [repo_id, current_file_id, previous_file_id]
+                "VALUES (%s, %s, %s, %s)"
+        arguments = [repo_id, current_file_id, previous_file_id, file_modification_id]
         cursor.execute(query, arguments)
         self._cnx.commit()
         cursor.close()
