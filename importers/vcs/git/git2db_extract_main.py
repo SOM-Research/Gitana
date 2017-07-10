@@ -17,7 +17,7 @@ class Git2DbMain():
     This class handles the import of Git data
     """
 
-    NUM_PROCESSES = 10
+    NUM_PROCESSES = 5
 
     def __init__(self, db_name, project_name,
                  repo_name, git_repo_path, before_date, import_type, references, num_processes,
@@ -45,7 +45,7 @@ class Git2DbMain():
         :param references: list of references to import
 
         :type num_processes: int
-        :param num_processes: number of processes to import the data (default 10)
+        :param num_processes: number of processes to import the data (default 5)
 
         :type config: dict
         :param config: the DB configuration file
@@ -156,7 +156,7 @@ class Git2DbMain():
             self._logger.info("Git2DbMain finished after " + str(minutes_and_seconds[0])
                          + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
             self._logging_util.remove_file_handler_logger(self._logger, self._fileHandler)
-        except Exception, e:
+        except Exception:
             self._logger.error("Git2DbMain failed", exc_info=True)
         finally:
             if self._dao:

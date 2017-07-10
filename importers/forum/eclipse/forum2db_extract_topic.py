@@ -60,7 +60,7 @@ class EclipseTopic2Db(object):
             self._querier = EclipseForumQuerier(None, self._logger)
             self._dao = EclipseForumDao(self._config, self._logger)
             self.extract()
-        except Exception, e:
+        except Exception:
             self._logger.error("EclipseTopic2Db failed", exc_info=True)
         finally:
             if self._dao:

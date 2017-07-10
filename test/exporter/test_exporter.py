@@ -12,10 +12,14 @@ CONFIG = {
         }
 
 
+def _papyrus_export():
+    g = Gitana(CONFIG)
+    g.export_graph("_papyrus_db", "./graph.json", "./graph.gexf")
+    g.export_activity_report("_papyrus_db", "./report.json", "./report.html")
+
+
 def main():
-    g = Gitana(CONFIG, None)
-    g.export_to_graph("_papyrus_db", "./graph.json", "./graph.gexf")
-    g.export_to_report("_papyrus_db", "./report.json", "./report.html")
+    _papyrus_export()
 
 if __name__ == "__main__":
     main()

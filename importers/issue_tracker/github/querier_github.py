@@ -42,8 +42,8 @@ class GitHubQuerier():
         try:
             repo = self._github.get_repo(url)
             return repo
-        except Exception, e:
-            self._logger.error("GitHubQuerier error loading repository " + url + "- " + e.message)
+        except Exception:
+            self._logger.error("GitHubQuerier error loading repository " + url + "- ", exc_info=True)
             raise
 
     def get_issue_ids(self, before_date):

@@ -52,7 +52,7 @@ class StackOverflow2DbMain():
         self._log_path = log_root_path + "import-stackoverflow-" + db_name + "-" + project_name + "-" + forum_name
         self._type = type
         self._forum_name = forum_name
-        self._search_query = search_query
+        self._search_query = search_query.strip()
         self._project_name = project_name
         self._db_name = db_name
         self._before_date = before_date
