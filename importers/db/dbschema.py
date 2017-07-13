@@ -32,7 +32,7 @@ class DbSchema():
         self._db_util = DbUtil()
         self._logging_util = LoggingUtil()
 
-        log_path = self._log_root_path + "db-schema" + db_name
+        log_path = self._log_root_path + "db-schema-" + db_name
         self._logger = self._logging_util.get_logger(log_path)
         self._fileHandler = self._logging_util.get_file_handler(self._logger, log_path, "info")
         self._cnx = self._db_util.get_connection(self._config)
@@ -473,11 +473,9 @@ class DbSchema():
         #   make "extract_dependency_relations" API interface completely independent.
         create_table_file_dependency = "CREATE TABLE file_dependency ( " \
                                        "repo_id int(20), " \
+                                       "ref_id int(20), " \
                                        "source_file_id int(20), " \
                                        "target_file_id int(20), " \
-                                       "CONSTRAINT fkrepo FOREIGN KEY (repo_id) REFERENCES repository(id), " \
-                                       "CONSTRAINT fksf FOREIGN KEY (source_file_id) REFERENCES file(id), " \
-                                       "CONSTRAINT fktf FOREIGN KEY (target_file_id) REFERENCES file(id), " \
                                        "CONSTRAINT dep UNIQUE (repo_id, source_file_id, target_file_id) " \
                                        ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 

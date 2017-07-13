@@ -152,18 +152,18 @@ class GitQuerier():
             files.append(line.split("\t")[-1])
         return files
 
-    def get_file_content(self, ref, file):
+    def get_file_content(self, ref, _file):
         """
         gets content of a file for a given reference
 
         :type ref: str
         :param ref: name of the reference
 
-        :type file: str
-        :param file: repo file path
+        :type _file: str
+        :param _file: repo file path
         """
         git = self._repo.git
-        return git.execute(["git", "show", ref + ":" + file])
+        return git.execute(["git", "show", ref + ":" + _file])
 
     def get_diffs_no_parent_commit(self, commit):
         """
@@ -321,6 +321,12 @@ class GitQuerier():
             stats_for_file = (0, 0, 0)
             self._logger.warning("GitQuerier: stats for file " + file_name + " not found!")
         return stats_for_file
+
+    def get_current_reference(self):
+        """
+        :return: current/active reference name of git repo
+        """
+        return self._repo.active_branch.name
 
     def get_references(self):
         """
