@@ -152,18 +152,18 @@ class GitQuerier():
             files.append(line.split("\t")[-1])
         return files
 
-    def get_file_content(self, ref, file):
+    def get_file_content(self, ref, _file):
         """
         gets content of a file for a given reference
 
         :type ref: str
         :param ref: name of the reference
 
-        :type file: str
-        :param file: repo file path
+        :type _file: str
+        :param _file: repo file path
         """
         git = self._repo.git
-        return git.execute(["git", "show", ref + ":" + file])
+        return git.execute(["git", "show", ref + ":" + _file])
 
     def get_diffs_no_parent_commit(self, commit):
         """

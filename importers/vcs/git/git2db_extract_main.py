@@ -109,17 +109,20 @@ class Git2DbMain():
         multiprocessing_util.start_consumers(self._num_processes, queue_references, results)
 
         for reference in self._querier.get_references():
+            ref_name = reference[0]
+            ref_type = reference[1]
+
             if self._references:
-                if reference[0] in self._references:
+                if ref_name in self._references:
                     git_ref_extractor = Git2DbReference(self._db_name, repo_id, self._git_repo_path,
-                                                        self._before_date, self._import_type, reference[0], "",
+                                                        self._before_date, self._import_type, ref_name, ref_type, "",
                                                         self._config, self._log_path)
 
                     queue_references.put(git_ref_extractor)
             else:
-                if reference[0] not in existing_refs:
+                if ref_name not in existing_refs:
                     git_ref_extractor = Git2DbReference(self._db_name, repo_id, self._git_repo_path,
-                                                        self._before_date, self._import_type, reference[0], "",
+                                                        self._before_date, self._import_type, ref_name, ref_type, "",
                                                         self._config, self._log_path)
 
                     queue_references.put(git_ref_extractor)

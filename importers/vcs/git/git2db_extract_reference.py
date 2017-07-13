@@ -23,7 +23,7 @@ class Git2DbReference(object):
     FULL_IMPORT_TYPE = 3
 
     def __init__(self, db_name,
-                 repo_id, git_repo_path, before_date, import_type, ref_name, from_sha,
+                 repo_id, git_repo_path, before_date, import_type, ref_name, ref_type, from_sha,
                  config, log_root_path):
         """
         :type db_name: str
@@ -58,6 +58,7 @@ class Git2DbReference(object):
         self._repo_id = repo_id
         self._db_name = db_name
         self._ref_name = ref_name
+        self._ref_type = ref_type
         self._before_date = before_date
         self._import_type = import_type
         self._from_sha = from_sha
@@ -88,34 +89,29 @@ class Git2DbReference(object):
         u = str.decode('utf-8', 'ignore').lower()
         return re.sub(r'(\W|\s)+', '-', u)
 
-    def _get_info_contribution_in_reference(self, reference_name, repo_id, from_sha):
-        #processes Git reference data
+    def _get_info_contribution_in_reference(self, reference_name, reference_type, repo_id, from_sha):
+        if from_sha:
+            if self._before_date:
+                commits = self._querier.collect_all_commits_after_sha_before_date(reference_name, from_sha, self._before_date)
+            else:
+                commits = self._querier.collect_all_commits_after_sha(reference_name, from_sha)
+
+            self._analyse_commits(commits, reference_name, repo_id)
+        else:
+            if self._before_date:
+                commits = self._querier.collect_all_commits_before_date(reference_name, self._before_date)
+            else:
+                commits = self._querier.collect_all_commits(reference_name)
+
+            self._analyse_commits(commits, reference_name, repo_id)
+
+    def _load_all_references(self, repo_id):
+        # load all git branches and tags into database
         for reference in self._querier.get_references():
-            if reference[0] == reference_name:
-                ref_name = reference[0]
-                ref_type = reference[1]
-
-                if from_sha:
-                    if self._before_date:
-                        commits = self._querier.collect_all_commits_after_sha_before_date(reference_name, from_sha, self._before_date)
-                    else:
-                        commits = self._querier.collect_all_commits_after_sha(reference_name, from_sha)
-
-                    self._analyse_commits(commits, reference_name, repo_id)
-                else:
-                    if self._before_date:
-                        commits = self._querier.collect_all_commits_before_date(reference_name, self._before_date)
-                    else:
-                        commits = self._querier.collect_all_commits(reference_name)
-
-                    self._analyse_reference(reference_name, ref_type, repo_id)
-                    self._analyse_commits(commits, reference_name, repo_id)
-
-                break
-
-    def _analyse_reference(self, ref_name, ref_type, repo_id):
-        #inserts reference to DB
-        self._dao.insert_reference(repo_id, ref_name, ref_type)
+            ref_name = reference[0]
+            ref_type = reference[1]
+            #inserts reference to DB
+            self._dao.insert_reference(repo_id, ref_name, ref_type)
 
     def _get_diffs_from_commit(self, commit, files_in_commit):
         #calculates diffs within files in a commit
@@ -139,10 +135,10 @@ class Git2DbReference(object):
             authored_date = self._querier.get_commit_time(self._querier.get_commit_property(commit, "authored_date"))
             committed_date = self._querier.get_commit_time(self._querier.get_commit_property(commit, "committed_date"))
 
-            if author_name == None and author_email == None:
+            if author_name is None and author_email is None:
                 self._logger.warning("author name and email are null for commit: " + sha)
 
-            if committer_name == None and committer_email == None:
+            if committer_name is None and committer_email is None:
                 self._logger.warning("committer name and email are null for commit: " + sha)
 
             #insert author
@@ -282,7 +278,8 @@ class Git2DbReference(object):
         try:
             self._logger.info("Git2DbReference started")
             start_time = datetime.now()
-            self._get_info_contribution_in_reference(self._ref_name, self._repo_id, self._from_sha)
+            self._load_all_references(self._repo_id)
+            self._get_info_contribution_in_reference(self._ref_name, self._ref_type, self._repo_id, self._from_sha)
 
             end_time = datetime.now()
             minutes_and_seconds = self._logging_util.calculate_execution_time(end_time, start_time)

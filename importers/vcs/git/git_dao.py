@@ -400,7 +400,7 @@ class GitDao():
         self._cnx.commit()
         cursor.close()
 
-    def insert_file(self, repo_id, name, ext):
+    def insert_file(self, repo_id, name, ext=None):
         """
         inserts file
 
@@ -416,6 +416,11 @@ class GitDao():
         cursor = self._cnx.cursor()
         query = "INSERT IGNORE INTO file " \
                 "VALUES (%s, %s, %s, %s)"
+
+        # extract file extension from file path if not passed
+        if not ext:
+            ext = name.split('.')[-1]
+
         arguments = [None, repo_id, name, ext]
         cursor.execute(query, arguments)
         self._cnx.commit()
