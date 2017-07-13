@@ -476,7 +476,7 @@ class DbSchema():
                                        "ref_id int(20), " \
                                        "source_file_id int(20), " \
                                        "target_file_id int(20), " \
-                                       "CONSTRAINT dep UNIQUE (repo_id, source_file_id, target_file_id) " \
+                                       "CONSTRAINT dep UNIQUE (repo_id, ref_id, source_file_id, target_file_id) " \
                                        ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 
         cursor.execute(create_table_repository)

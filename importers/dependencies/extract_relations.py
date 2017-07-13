@@ -42,12 +42,15 @@ class DependencyExtractor(object):
         self._logger = self._logging_util.get_logger(log_path)
         self._fileHandler = self._logging_util.get_file_handler(self._logger, log_path, "info")
 
-    def load_dependencies(self, repo_path, extra_paths=[]):
+    def load_dependencies(self, repo_path, references, extra_paths):
         """
         Extract and load dependency info
 
         :param repo_path: directory path to git repo
         :type repo_path: str
+
+        :param references: list of git references from where source dependency info loaded. By default all.
+        :type references: list
 
         :param extra_paths: additional directory paths inside git repo to look for dependency target files
         :type extra_paths: list
@@ -60,6 +63,6 @@ class DependencyExtractor(object):
                                     repo_path, self._logger)
         dep_utils.insert_repository()
 
-        source_parser = Parser(repo_path, extra_paths, self._logger)
+        source_parser = Parser(repo_path, references, extra_paths, self._logger)
         source_to_targets = source_parser.get_all_dependencies()
         dep_utils.insert_dependencies(source_to_targets)

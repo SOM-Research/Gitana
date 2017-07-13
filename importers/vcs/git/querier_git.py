@@ -322,12 +322,6 @@ class GitQuerier():
             self._logger.warning("GitQuerier: stats for file " + file_name + " not found!")
         return stats_for_file
 
-    def get_current_reference(self):
-        """
-        :return: current/active reference name of git repo
-        """
-        return self._repo.active_branch.name
-
     def get_references(self):
         """
         gets references

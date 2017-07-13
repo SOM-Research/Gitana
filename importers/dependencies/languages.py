@@ -23,11 +23,14 @@ class Parser(object):
     Parse source file for dependency information
     """
 
-    def __init__(self, repo_path, extra_paths, logger):
+    def __init__(self, repo_path, references, extra_paths, logger):
         """
         initiator
         :param repo_path: directory path to git repo
         :type repo_path: str
+
+        :param references: list of git references from where source dependency info loaded. By default all.
+        :type references: list
 
         :param extra_paths: list of extra directories to look for target files
         :type extra_paths: list
@@ -36,6 +39,7 @@ class Parser(object):
         :type: logger: logging.Logger
         """
         self.repo_path = repo_path
+        self.references = references
         self._logger = logger
         self._git_querier = GitQuerier(repo_path, logger)
 
@@ -73,6 +77,9 @@ class Parser(object):
 
         for ref in self._git_querier.get_references():
             ref_name = ref[0]
+
+            if self.references and ref_name not in self.references:
+                continue
 
             # retrieve all files for each git reference
             self.files = self._git_querier.get_files_in_ref(ref_name)
