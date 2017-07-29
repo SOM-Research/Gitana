@@ -214,11 +214,11 @@ g.update_github_issue_data("DB-NAME", "PROJECT-NAME", "GIT-REPO-NAME",
 ### extract dependency relations
 ```python
 g.extract_dependency_relations("DB-NAME", "PROJECT-NAME", "GIT-REPO-NAME",
-                               "GIT-REPO-PATH", "REFERENCES", "EXTRA-PATHS")
+                               "GIT-REPO-PATH", "GIT-REFERENCES", "EXTRA-PATHS")
                   
 # DB-NAME and PROJECT-NAME should point to a DB and project already existing in Gitana
 # GIT-REPO-NAME, GIT-REPO-PATH cannot be null
-# REFERENCES list of git references should be considered to load dependency information. By default all.
+# GIT-REFERENCES list of git references should be considered to load dependency information. By default all.
 # EXTRA-PATHS can be None or a list. List of extra/more directory locations other than Git repo root directory
 #  to look for dependency target files. By default, target files checked in git repository's root directory only.
 ```

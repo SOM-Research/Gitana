@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 from importers.vcs.git.querier_git import GitQuerier
 import os
+import pprint
 import re
 
 # language specific regex to find all dependency target_files in the source
@@ -14,7 +15,7 @@ LANG_SPEC_REGEX = {
     #   import abc as xyz
     'py': r'(?m)^(?:from[ ]+(\S+)[ ]+)?import[ ]+(\S+)(?:[ ]+as[ ]+\S+)?[ ]*$',
 
-    'java': r'',
+    'java': r'import[ ]+(\S+)',
 }
 
 
@@ -62,8 +63,8 @@ class Parser(object):
             if os.path.exists(path):
 
                 # retrieve relative path with respect to git repo path
-                relative_path = os.path.abspath(path).replace(os.path.abspath(self.repo_path), '')
-                self._logger.info('Extra path and its relative repo path: %s %s', path, relative_path)
+                relative_path = os.path.abspath(path).replace(os.path.abspath(self.repo_path), '').lstrip('\\')
+                self._logger.debug('Extra path and its relative repo path: %s %s', path, relative_path)
                 relative_paths.append(relative_path)
 
         return relative_paths
@@ -78,6 +79,10 @@ class Parser(object):
         for ref in self._git_querier.get_references():
             ref_name = ref[0]
 
+            self._logger.info('*' * 100)
+            self._logger.info('Processing git-reference: %s', ref_name)
+            self._logger.info('*' * 100)
+
             if self.references and ref_name not in self.references:
                 continue
 
@@ -86,14 +91,14 @@ class Parser(object):
 
             for source_file in self.files:
 
-                self._logger.debug('Reference and its file: %s %s', ref_name, source_file)
-
                 target_files = self.get_dependency_for_file(ref_name, source_file)
                 # do not call insert_dependencies with a empty dependency list
                 if not target_files:
                     continue
 
-                self._logger.info('Source and its dependency files: %s %s', source_file, target_files)
+                self._logger.info('Source file: %s', source_file)
+                self._logger.info('Dependencies: %s', pprint.pformat(target_files, indent=4))
+
                 source_to_targets.append([
                     ref_name,
                     source_file,
@@ -114,7 +119,8 @@ class Parser(object):
         """
         target_files = []
 
-        lang_spec = LANG_SPEC_REGEX.get(file_path.split('.')[-1])
+        file_ext = file_path.split('.')[-1]
+        lang_spec = LANG_SPEC_REGEX.get(file_ext)
         if not lang_spec:
             self._logger.debug('File not supported: %s', file_path)
             return target_files
@@ -127,15 +133,22 @@ class Parser(object):
             line = line.strip()
 
             if regex.match(line):
-                from_module, import_module = regex.match(line).groups()
-                module_path = self.get_module_file(from_module, import_module)
+                regex_groups = regex.match(line).groups()
+
+                # Languages: java
+                if len(regex_groups) == 1:
+                    module_path = self.get_java_file(*regex_groups)
+
+                # Languages: python
+                elif len(regex_groups) == 2:
+                    module_path = self.get_python_file(*regex_groups)
 
                 if module_path:
                     target_files.append(module_path)
 
         return target_files
 
-    def get_module_file(self, from_module, import_module):
+    def get_python_file(self, from_module, import_module):
         """
         :param from_module: from module name
         :type from_module: str
@@ -146,9 +159,12 @@ class Parser(object):
         :return: return dependency source file if exists else None
         """
         # walk through all target directory paths for dependency target files
-        # @todo: replace / with seperator used in git repo to support multiple OS
+        # @todo: replace / with separator used in git repo to support multiple OS
 
         for source_dir in self.extra_paths:
+
+            # convert windows source dir path to linux one
+            source_dir = source_dir.replace('\\', '/')
 
             source_path = ''
 
@@ -159,7 +175,7 @@ class Parser(object):
 
                 # prepend relative extra path if exists
                 if source_dir:
-                    source_path = [source_dir] + source_path
+                    source_path.insert(0, source_dir)
 
                 source_path = '/'.join(source_path)
                 # making sure file exists
@@ -169,18 +185,55 @@ class Parser(object):
             # case: "from module.submodule import supersubmodule"
             # cover: module/submodule/supersubmodule.py
             if source_path:
-                source_path = source_path + '/%s.py' % import_module
+                source_path = [
+                    source_path + '/%s.py' % import_module,
+                    source_path + '/%s/__init__.py' % import_module]
 
             # case: "import module"
             # cover: module.py
             else:
                 # prepend relative extra path if exists
+
+                # case: "import module.submodule"
+                # cover: module.submodule.py
+                import_module = import_module.replace('.', '/')
+
                 if source_dir:
-                    source_path = source_dir + '/%s.py' % import_module
+                    source_path = [
+                        source_dir + '/%s.py' % import_module,
+                        source_dir + '/%s/__init__.py' % import_module]
                 else:
-                    source_path = '%s.py' % import_module
+                    source_path = [
+                        '%s.py' % import_module,
+                        '%s/__init__.py' % import_module]
 
             # making sure file exists
+            for sp in source_path:
+                if sp in self.files:
+                    return sp
+
+            self._logger.debug('Ignoring external dependency: %s', source_path)
+
+    def get_java_file(self, import_module):
+        """
+        :param import_module: import module name
+        :type import_module: str
+
+        :return: return dependency source file if exists else None
+        """
+        # walk through all target directory paths for dependency target files
+        for source_dir in self.extra_paths:
+
+            # convert windows source dir path to linux one
+            source_dir = source_dir.replace('\\', '/')
+
+            # convert import string "com.company.proj.logger.LoggerUtil;"
+            # to com/company/proj/logger/LoggerUtil.java
+            source_path = '%s.java' % import_module.replace('.', '/').replace(';', '')
+
+            # making sure file exists
+            #self._logger.info('File: %s Files: %s', source_dir + '/' + source_path, self.files)
+            source_path = source_dir + '/' + source_path
             if source_path in self.files:
                 return source_path
 
