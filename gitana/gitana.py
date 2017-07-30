@@ -514,7 +514,8 @@ class Gitana():
             self._config, self._log_path)
         github2db.update()
 
-    def extract_dependency_relations(self, db_name, project_name, repo_name, git_repo_path, references=[], extra_paths=[]):
+    def extract_dependency_relations(self, db_name, project_name, repo_name, git_repo_path,
+                                     git_references=[], extra_paths=[]):
         """
         :param db_name: the name of an existing DB. It cannot be null
         :type db_name: str
@@ -528,14 +529,14 @@ class Gitana():
         :param git_repo_path: the local path of the repository. It cannot be null
         :type git_repo_path: str
 
-        :param references: list of git references to load dependency info. By default all.
-        :type references: list
+        :param git_references: list of git references to load dependency info. By default all.
+        :type git_references: list
 
         :param extra_paths: list of additional directory paths inside git repo to look for target files.
         :type extra_paths: list
         """
         extractor = DependencyExtractor(self._config, db_name, project_name, repo_name, self._log_path)
-        extractor.load_dependencies(git_repo_path, references, extra_paths)
+        extractor.load_dependencies(git_repo_path, git_references, extra_paths)
 
     def export_graph(self, db_name, settings_path, output_path):
         """
