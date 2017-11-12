@@ -13,7 +13,7 @@ setup(
         url='https://github.com/SOM-Research/gitana',
 
         author='Valerio Cosentino',
-        author_email='valerio.cosentino@gmail.com',
+        author_email='valcos@bitergia.com',
 
         # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
         classifiers=[
