@@ -235,7 +235,8 @@ class SlackDao():
             cursor.execute(query, arguments)
             self._cnx.commit()
         except:
-            self._logger.warning("message " + str(own_id) + ") for channel id: " + str(channel_id) + " not inserted", exc_info=True)
+            self._logger.warning("message " + str(own_id) + ") for channel id: " + str(channel_id) + " not inserted",
+                                 exc_info=True)
 
     def get_user_id(self, user_name, user_email):
         """

@@ -66,7 +66,7 @@ class SlackChannel2Db(object):
                 self._dao.close_connection()
 
     def _insert_not_recognized_url_attachments(self, message_id, urls):
-        #insert not recognized url attachments
+        # insert not recognized url attachments
         pos = 0
         for url in urls:
             attachment_own_id = self._querier.generate_url_attachment_id(message_id, pos)
@@ -77,7 +77,7 @@ class SlackChannel2Db(object):
         pos += 1
 
     def _extract_file_attachment_info(self, message, message_id):
-        #insert file attachments
+        # insert file attachments
         file = self._querier.get_file_attachment(message)
         own_id = self._querier.get_file_attachment_property(file, "id")
         name = self._querier.get_file_attachment_property(file, "name")
@@ -88,7 +88,7 @@ class SlackChannel2Db(object):
         self._dao.insert_attachment(own_id, message_id, name, extension, bytes, url)
 
     def _extract_url_attachments(self, message, message_id):
-        #insert URL attachments
+        # insert URL attachments
         urls = self._querier.get_url_attachments(self._querier.get_message_body(message))
         attachments = self._querier.get_message_attachments(message)
 
@@ -106,7 +106,7 @@ class SlackChannel2Db(object):
         self._insert_not_recognized_url_attachments(message_id, urls)
 
     def _extract_file_comment(self, channel_id, comment, pos):
-        #insert file comment
+        # insert file comment
         own_id = self._querier.get_comment_id(comment)
         body = self._querier.get_comment_body(comment)
         created_at = self._querier.get_comment_created_at(comment)
@@ -114,12 +114,13 @@ class SlackChannel2Db(object):
         author_email = self._querier.get_message_author_email(comment)
         author_id = self._dao.get_user_id(author_name, author_email)
 
-        self._dao.insert_message(own_id, pos, self._dao.get_message_type_id("comment"), channel_id, body, author_id, created_at)
+        self._dao.insert_message(own_id, pos, self._dao.get_message_type_id("comment"), channel_id, body,
+                                 author_id, created_at)
         comment_id = self._dao.select_message_id(own_id, channel_id)
         return comment_id
 
     def _extract_comment(self, message, channel_id):
-        #insert comment
+        # insert comment
         pos = 0
         message_id = None
 
@@ -136,7 +137,7 @@ class SlackChannel2Db(object):
             self._dao.insert_message_dependency(comment_id, message_id)
 
     def _extract_message(self, message, channel_id, type, pos):
-        #insert message
+        # insert message
         author_name = self._querier.get_message_author_name(message)
         author_email = self._querier.get_message_author_email(message)
         author_id = self._dao.get_user_id(author_name, author_email)
@@ -149,12 +150,13 @@ class SlackChannel2Db(object):
         else:
             message_type = "info"
 
-        self._dao.insert_message(own_id, pos, self._dao.get_message_type_id(message_type), channel_id, body, author_id, created_at)
+        self._dao.insert_message(own_id, pos, self._dao.get_message_type_id(message_type), channel_id, body,
+                                 author_id, created_at)
         message_id = self._dao.select_message_id(own_id, channel_id)
         self._extract_url_attachments(message, message_id)
 
     def _extract_file_upload(self, message, channel_id, pos):
-        #insert file upload
+        # insert file upload
         own_id = self._querier.get_message_own_id(message)
         author_name = self._querier.get_message_author_name(message)
         author_email = self._querier.get_message_author_email(message)
@@ -162,7 +164,8 @@ class SlackChannel2Db(object):
         created_at = self._querier.get_message_created_at(message)
         body = self._querier.get_message_body(message).split(':')[0]
 
-        self._dao.insert_message(own_id, pos, self._dao.get_message_type_id("file_upload"), channel_id, body, author_id, created_at)
+        self._dao.insert_message(own_id, pos, self._dao.get_message_type_id("file_upload"), channel_id, body,
+                                 author_id, created_at)
         message_id = self._dao.select_message_id(own_id, channel_id)
         self._extract_file_attachment_info(message, message_id)
 
@@ -172,7 +175,7 @@ class SlackChannel2Db(object):
             self._dao.insert_message_dependency(comment_id, message_id)
 
     def _extract_messages(self, channel_id, channel_own_id):
-        #insert messages
+        # insert messages
         pos = 0
         for message in self._querier.get_channel_messages(channel_own_id):
             type = self._querier.get_message_type(message)
@@ -185,7 +188,7 @@ class SlackChannel2Db(object):
             else:
                 if not self._querier.is_bot_message(message):
                     self._extract_message(message, channel_id, type, pos)
-                #TODO deal with bot messages
+                # TODO deal with bot messages
                 pos += 1
 
     def extract(self):
@@ -201,8 +204,8 @@ class SlackChannel2Db(object):
 
             end_time = datetime.now()
             minutes_and_seconds = self._logging_util.calculate_execution_time(end_time, start_time)
-            self._logger.info("SlackChannel2Db finished after " + str(minutes_and_seconds[0])
-                           + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
+            self._logger.info("SlackChannel2Db finished after " + str(minutes_and_seconds[0]) +
+                              " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
             self._logging_util.remove_file_handler_logger(self._logger, self._fileHandler)
         except Exception:
             self._logger.error("SlackChannel2Db failed", exc_info=True)
