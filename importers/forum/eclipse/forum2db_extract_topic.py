@@ -80,12 +80,13 @@ class EclipseTopic2Db(object):
             self._dao.insert_message_attachment(url, own_id, name, extension, size, message_id)
 
     def _get_message_info(self, topic_id, message, pos):
-        #get information of topic messages
+        # get information of topic messages
         own_id = self._querier.get_message_own_id(message)
         created_at = self._date_util.get_timestamp(self._querier.get_created_at(message), "%a, %d %B %Y %H:%M")
         body = self._querier.get_message_body(message)
         author_name = self._querier.get_message_author_name(message)
-        message_id = self._dao.insert_message(own_id, pos, self._dao.get_message_type_id("reply"), topic_id, body, None, self._dao.get_user_id(author_name), created_at)
+        message_id = self._dao.insert_message(own_id, pos, self._dao.get_message_type_id("reply"), topic_id, body,
+                                              None, self._dao.get_user_id(author_name), created_at)
 
         if self._querier.message_has_attachments(message):
             self._get_message_attachments_info(message_id, message)

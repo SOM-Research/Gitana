@@ -67,7 +67,7 @@ class EclipseForum2DbUpdate():
         self._dao = None
 
     def _update_topics_info(self, forum_id):
-        #update topics of a given forum
+        # update topics of a given forum
         next_page = True
         while next_page:
             topics_on_page = self._querier.get_topics()
@@ -79,7 +79,8 @@ class EclipseForum2DbUpdate():
 
                 if topic_in_db:
                     views = self._querier.get_topic_views(topic)
-                    last_change_at = self._date_util.get_timestamp(self._querier.get_last_change_at(topic), "%a, %d %B %Y %H:%M")
+                    last_change_at = self._date_util.get_timestamp(self._querier.get_last_change_at(topic),
+                                                                   "%a, %d %B %Y %H:%M")
                     self._dao.update_topic_info(topic_in_db, forum_id, views, last_change_at)
 
             next_page = self._querier.go_next_page()
@@ -91,7 +92,8 @@ class EclipseForum2DbUpdate():
         if topic_ids:
             self._update_topics_info(forum_id)
 
-            intervals = [i for i in multiprocessing_util.get_tasks_intervals(topic_ids, self._num_processes) if len(i) > 0]
+            intervals = [i for i in multiprocessing_util.get_tasks_intervals(topic_ids, self._num_processes)
+                         if len(i) > 0]
 
             queue_extractors = multiprocessing.JoinableQueue()
             results = multiprocessing.Queue()
@@ -135,8 +137,8 @@ class EclipseForum2DbUpdate():
 
             end_time = datetime.now()
             minutes_and_seconds = self._logging_util.calculate_execution_time(end_time, start_time)
-            self._logger.info("EclipseForum2DbUpdate finished after " + str(minutes_and_seconds[0])
-                         + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
+            self._logger.info("EclipseForum2DbUpdate finished after " + str(minutes_and_seconds[0]) +
+                              " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
 
             self._logging_util.remove_file_handler_logger(self._logger, self._fileHandler)
         except:
