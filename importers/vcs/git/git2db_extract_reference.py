@@ -15,11 +15,11 @@ class Git2DbReference(object):
     This class handles the import of Git references
     """
 
-    #do not import patches
+    # do not import patches
     LIGHT_IMPORT_TYPE = 1
-    #import patches but not at line level
+    # import patches but not at line level
     MEDIUM_IMPORT_TYPE = 2
-    #import patches also at line level
+    # import patches also at line level
     FULL_IMPORT_TYPE = 3
 
     def __init__(self, db_name,
@@ -39,7 +39,10 @@ class Git2DbReference(object):
         :param before_date: import data before date (YYYY-mm-dd)
 
         :type import_type: int
-        :param import_type: 1 does not import patches, 2 imports patches but not at line level, 3 imports patches with line detail
+        :param import_type:
+        1 does not import patches,
+        2 imports patches but not at line level,
+        3 imports patches with line detail
 
         :type ref_name: str
         :param ref_name: the name of the reference to import
@@ -92,7 +95,8 @@ class Git2DbReference(object):
     def _get_info_contribution_in_reference(self, reference_name, reference_type, repo_id, from_sha):
         if from_sha:
             if self._before_date:
-                commits = self._querier.collect_all_commits_after_sha_before_date(reference_name, from_sha, self._before_date)
+                commits = self._querier.collect_all_commits_after_sha_before_date(reference_name, from_sha,
+                                                                                  self._before_date)
             else:
                 commits = self._querier.collect_all_commits_after_sha(reference_name, from_sha)
 
@@ -110,11 +114,11 @@ class Git2DbReference(object):
         for reference in self._querier.get_references():
             ref_name = reference[0]
             ref_type = reference[1]
-            #inserts reference to DB
+            # inserts reference to DB
             self._dao.insert_reference(repo_id, ref_name, ref_type)
 
     def _get_diffs_from_commit(self, commit, files_in_commit):
-        #calculates diffs within files in a commit
+        # calculates diffs within files in a commit
         if self._import_type > Git2DbReference.LIGHT_IMPORT_TYPE:
             diffs = self._querier.get_diffs(commit, files_in_commit, True)
         else:
@@ -123,7 +127,7 @@ class Git2DbReference(object):
         return diffs
 
     def _analyse_commit(self, commit, repo_id, ref_id):
-        #analyses a commit
+        # analyses a commit
         try:
             message = self._querier.get_commit_property(commit, "message")
             author_name = self._querier.get_commit_property(commit, "author.name")
@@ -141,15 +145,16 @@ class Git2DbReference(object):
             if committer_name is None and committer_email is None:
                 self._logger.warning("committer name and email are null for commit: " + sha)
 
-            #insert author
+            # insert author
             author_id = self._dao.get_user_id(author_name, author_email)
             committer_id = self._dao.get_user_id(committer_name, committer_email)
 
             commit_found = self._dao.select_commit_id(sha, repo_id)
 
             if not commit_found:
-                #insert commit
-                self._dao.insert_commit(repo_id, sha, message, author_id, committer_id, authored_date, committed_date, size)
+                # insert commit
+                self._dao.insert_commit(repo_id, sha, message, author_id, committer_id, authored_date,
+                                        committed_date, size)
                 commit_found = self._dao.select_commit_id(sha, repo_id)
 
                 commit_stats_files = commit.stats.files
@@ -170,8 +175,9 @@ class Git2DbReference(object):
                             stats = self._querier.get_stats_for_file(commit_stats_files, file_path)
                             status = self._querier.get_status_with_diff(stats, diff)
 
-                            #insert file modification
-                            self._dao.insert_file_modification(commit_found, file_id, status, stats[0], stats[1], stats[2], patch_content)
+                            # insert file modification
+                            self._dao.insert_file_modification(commit_found, file_id, status,
+                                                               stats[0], stats[1], stats[2], patch_content)
 
                             if self._import_type == Git2DbReference.FULL_IMPORT_TYPE:
                                 file_modification_id = self._dao.select_file_modification_id(commit_found, file_id)
@@ -180,7 +186,7 @@ class Git2DbReference(object):
                                     self._dao.insert_line_details(file_modification_id, line_detail)
                     else:
                         for diff in self._get_diffs_from_commit(commit, commit_stats_files.keys()):
-                            #self.dao.check_connection_alive()
+                            # self.dao.check_connection_alive()
                             if self._querier.is_renamed(diff):
                                 file_previous = self._querier.get_rename_from(diff)
                                 ext_previous = self._querier.get_ext(file_previous)
@@ -188,31 +194,35 @@ class Git2DbReference(object):
                                 file_current = self._querier.get_file_current(diff)
                                 ext_current = self._querier.get_ext(file_current)
 
-                                #insert new file
+                                # insert new file
                                 self._dao.insert_file(repo_id, file_current, ext_current)
 
-                                #get id new file
+                                # get id new file
                                 current_file_id = self._dao.select_file_id(repo_id, file_current)
 
-                                #retrieve the id of the previous file
+                                # retrieve the id of the previous file
                                 previous_file_id = self._dao.select_file_id(repo_id, file_previous)
 
-                                #insert file modification
-                                self._dao.insert_file_modification(commit_found, current_file_id, "renamed", 0, 0, 0, None)
+                                # insert file modification
+                                self._dao.insert_file_modification(commit_found, current_file_id, "renamed",
+                                                                   0, 0, 0, None)
 
                                 if not previous_file_id:
                                     self._dao.insert_file(repo_id, file_previous, ext_previous)
                                     previous_file_id = self._dao.select_file_id(repo_id, file_previous)
 
                                 if current_file_id == previous_file_id:
-                                    self._logger.warning("previous file id is equal to current file id (" + str(current_file_id) + ") " + str(sha))
+                                    self._logger.warning("previous file id is equal to current file id "
+                                                         "(" + str(current_file_id) + ") " + str(sha))
                                 else:
-                                    file_modification_id = self._dao.select_file_modification_id(commit_found, current_file_id)
-                                    self._dao.insert_file_renamed(repo_id, current_file_id, previous_file_id, file_modification_id)
+                                    file_modification_id = self._dao.select_file_modification_id(commit_found,
+                                                                                                 current_file_id)
+                                    self._dao.insert_file_renamed(repo_id, current_file_id, previous_file_id,
+                                                                  file_modification_id)
 
                             else:
-                                #insert file
-                                #if the file does not have a path, it won't be inserted
+                                # insert file
+                                # if the file does not have a path, it won't be inserted
                                 try:
                                     file_path = self._querier.get_file_path(diff)
 
@@ -236,10 +246,12 @@ class Git2DbReference(object):
                                     else:
                                         patch_content = None
 
-                                    self._dao.insert_file_modification(commit_found, file_id, status, stats[0], stats[1], stats[2], patch_content)
+                                    self._dao.insert_file_modification(commit_found, file_id, status,
+                                                                       stats[0], stats[1], stats[2], patch_content)
 
                                     if self._import_type == Git2DbReference.FULL_IMPORT_TYPE:
-                                        file_modification_id = self._dao.select_file_modification_id(commit_found, file_id)
+                                        file_modification_id = self._dao.select_file_modification_id(commit_found,
+                                                                                                     file_id)
                                         line_details = self._querier.get_line_details(patch_content, ext)
                                         for line_detail in line_details:
                                             self._dao.insert_line_details(file_modification_id, line_detail)
@@ -253,23 +265,14 @@ class Git2DbReference(object):
             # insert commits in reference
             self._dao.insert_commit_in_reference(repo_id, commit_found, ref_id)
 
-            #return commit_found
         except Exception:
             self._logger.error("Git2Db failed on commit " + str(sha), exc_info=True)
 
     def _analyse_commits(self, commits, ref, repo_id):
-        #analyses commits in references
         ref_id = self._dao.select_reference_id(repo_id, ref)
-        commits_in_reference = []
+
         for c in commits:
             self._analyse_commit(c, repo_id, ref_id)
-            # self.logger.info("analysing commit " + str(commits.index(c)+1) + "/" + str(len(commits)))
-            # to_insert = self._analyse_commit(c, repo_id, ref_id)
-            # if to_insert:
-            #     commits_in_reference.append((repo_id, to_insert, ref_id))
-            # self._analyse_commit(c, repo_id, ref_id)
-
-        #self._dao.insert_commits_in_reference(commits_in_reference)
 
     def extract(self):
         """
@@ -283,8 +286,8 @@ class Git2DbReference(object):
 
             end_time = datetime.now()
             minutes_and_seconds = self._logging_util.calculate_execution_time(end_time, start_time)
-            self._logger.info("Git2DbReference finished after " + str(minutes_and_seconds[0])
-                         + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
+            self._logger.info("Git2DbReference finished after " + str(minutes_and_seconds[0]) +
+                              " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
             self._logging_util.remove_file_handler_logger(self._logger, self._fileHandler)
         except Exception:
             self._logger.error("Git2DbReference failed", exc_info=True)
