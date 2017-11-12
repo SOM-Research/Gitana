@@ -13,7 +13,7 @@ CONFIG = {
             'buffered': True
         }
 
-SO_TOKENS = ['1']
+SO_TOKENS = ['((bLKlUAwcud8GIKAztDiA))']
 
 
 def test_1():
@@ -22,7 +22,8 @@ def test_1():
     g.delete_previous_logs()
     g.init_db("so_db_test")
     g.create_project("so_db_test", "papyrus")
-    g.import_stackoverflow_data("so_db_test", "papyrus", "papyrus-stackoverflow", "papyrus", SO_TOKENS, before_date="2014-09-01")
+    g.import_stackoverflow_data("so_db_test", "papyrus", "papyrus-stackoverflow", "papyrus",
+                                SO_TOKENS, before_date="2016-09-01")
 
 
 def test_2():
@@ -34,9 +35,9 @@ def test_2():
 
 
 def main():
-    print "starting 1.."
+    print("starting 1..")
     test_1()
-    print "starting 2.."
+    print("starting 2..")
     test_2()
 
 
