@@ -88,7 +88,7 @@ class Git2DbReference(object):
                 self._dao.close_connection()
 
     def _make_it_printable(self, str):
-        #converts string to UTF-8 and removes empty and non-alphanumeric characters
+        # converts string to UTF-8 and removes empty and non-alphanumeric characters
         u = str.decode('utf-8', 'ignore').lower()
         return re.sub(r'(\W|\s)+', '-', u)
 
@@ -231,7 +231,7 @@ class Git2DbReference(object):
                                     stats = self._querier.get_stats_for_file(commit_stats_files, file_path)
                                     status = self._querier.get_status_with_diff(stats, diff)
 
-                                    #if the file is new, add it
+                                    # if the file is new, add it
                                     if self._querier.is_new_file(diff):
                                         self._dao.insert_file(repo_id, file_path, ext)
                                     file_id = self._dao.select_file_id(repo_id, file_path)
@@ -241,7 +241,7 @@ class Git2DbReference(object):
                                         file_id = self._dao.select_file_id(repo_id, file_path)
 
                                     if self._import_type > Git2DbReference.LIGHT_IMPORT_TYPE:
-                                        #insert file modification (additions, deletions)
+                                        # insert file modification (additions, deletions)
                                         patch_content = self._querier.get_patch_content(diff)
                                     else:
                                         patch_content = None

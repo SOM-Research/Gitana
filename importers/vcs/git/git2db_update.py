@@ -71,11 +71,12 @@ class Git2DbUpdate():
         self._dao = None
 
     def _update_existing_references(self, repo_id, import_type):
-        #updates existing references in the DB
+        # updates existing references in the DB
         cursor = self._dao.get_cursor()
         query = "SELECT c.sha, lc.ref_id " \
                 "FROM commit c " \
-                "JOIN (SELECT ref_id, max(commit_id) as last_commit_id_in_ref FROM commit_in_reference WHERE repo_id = %s GROUP BY ref_id) as lc " \
+                "JOIN (SELECT ref_id, max(commit_id) as last_commit_id_in_ref " \
+                "FROM commit_in_reference WHERE repo_id = %s GROUP BY ref_id) as lc " \
                 "ON c.id = lc.last_commit_id_in_ref"
         arguments = [repo_id]
         self._dao.execute(cursor, query, arguments)
@@ -115,13 +116,14 @@ class Git2DbUpdate():
         queue_references.join()
 
     def _update_repo(self, repo_id, import_type):
-        #updates Git data
+        # updates Git data
         self._update_existing_references(repo_id, import_type)
 
     def _get_import_type(self, repo_id):
-        #gets import type
+        # gets import type
         import_type = 1
-        import_type += self._dao.line_detail_table_is_empty(repo_id) + self._dao.file_modification_patch_is_empty(repo_id)
+        import_type += \
+            self._dao.line_detail_table_is_empty(repo_id) + self._dao.file_modification_patch_is_empty(repo_id)
         return import_type
 
     def update(self):
@@ -138,7 +140,6 @@ class Git2DbUpdate():
             self._querier = GitQuerier(self._git_repo_path, self._logger)
             self._dao = GitDao(self._config, self._logger)
 
-            project_id = self._dao.select_project_id(self._project_name)
             repo_id = self._dao.select_repo_id(self._repo_name)
             self._update_repo(repo_id, self._get_import_type(repo_id))
             self._dao.restart_connection()
@@ -146,8 +147,8 @@ class Git2DbUpdate():
 
             end_time = datetime.now()
             minutes_and_seconds = self._logging_util.calculate_execution_time(end_time, start_time)
-            self._logger.info("Git2DbUpdate finished after " + str(minutes_and_seconds[0])
-                         + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
+            self._logger.info("Git2DbUpdate finished after " + str(minutes_and_seconds[0]) +
+                              " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
             self._logging_util.remove_file_handler_logger(self._logger, self._fileHandler)
         except:
             self._logger.error("Git2DbUpdate failed", exc_info=True)

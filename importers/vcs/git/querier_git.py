@@ -15,7 +15,7 @@ class GitQuerier():
     This class collects the data available on Git by using Git python library
     """
 
-    #python, java, html, xml, sql, javascript, c, c++, scala, php, ruby, matlab
+    # python, java, html, xml, sql, javascript, c, c++, scala, php, ruby, matlab
     ALLOWED_EXTENSIONS = ['py', 'java', 'html', 'xml', 'sql', 'js', 'c', 'cpp', 'cc', 'scala', 'php', 'rb', 'm']
 
     def __init__(self, git_repo_path, logger):
@@ -46,18 +46,20 @@ class GitQuerier():
         return ext
 
     def _get_type(self, str):
-        #not used, future extension
+        # not used, future extension
         type = "text"
         if str.startswith('Binary files'):
             type = "binary"
         return type
 
     def _get_diffs_manually(self, parent, commit, retrieve_patch):
-        #gets diffs using the Git command
+        # gets diffs using the Git command
         diffs = []
         content = self._repo.git.execute(["git", "show", commit.hexsha])
         lines = content.split('\n')
         flag = False
+        file_a = None
+        file_b = None
         for line in lines:
             if flag:
                 if line.startswith("similarity"):
@@ -78,7 +80,8 @@ class GitQuerier():
                 flag = False
 
                 if not diff:
-                    self._logger.warning("GitQuerier: diff empty for commit: " + commit.hexsha + " file_a: " + str(file_a) + " file_b: " + str(file_b))
+                    self._logger.warning("GitQuerier: diff empty for commit: " +
+                                         commit.hexsha + " file_a: " + str(file_a) + " file_b: " + str(file_b))
 
             if re.match("^diff \-\-git", line):
                 try:
@@ -104,14 +107,6 @@ class GitQuerier():
         """
         parent = commit.parents[0]
 
-        # a limitation in the gitpython api when working on windows causes
-        # the diff method to stop working for diffs containing more than 7000 files
-        # if len(files_in_commit) < 7000:
-        #     if retrieve_patch:
-        #         diffs = parent.diff(commit, create_patch=True)
-        #     else:
-        #         diffs = parent.diff(commit, create_patch=False)
-        # else:
         diffs = self._get_diffs_manually(parent, commit, retrieve_patch)
 
         return diffs
@@ -123,7 +118,7 @@ class GitQuerier():
         :type commit: Object
         :param commit: the Object representing the commit
         """
-        flag = False;
+        flag = False
         if not commit.parents:
             flag = True
 
@@ -180,8 +175,7 @@ class GitQuerier():
         for line in lines:
             if re.match("^diff \-\-git", line):
                 line_content = re.sub("^diff \-\-git ", "", line)
-                #if in the first commit there are more than one files, the calculated diff is added to the diffs list,
-                #and the process can start analysing the next diffs
+
                 if file_a:
                     diffs.append((file_a, content))
                     flag = False
@@ -211,14 +205,14 @@ class GitQuerier():
         :param diff: the Object representing the diff
         """
         file_path = None
-        #if it is a modification of an existing file
+        # if it is a modification of an existing file
         if diff.a_blob:
             if diff.a_blob.path:
                 file_path = diff.a_blob.path
             else:
                 file_path = diff.a_path
         else:
-            #if it is a new file
+            # if it is a new file
             if diff.b_blob.path:
                 file_path = diff.b_blob.path
             else:
@@ -293,10 +287,10 @@ class GitQuerier():
 
             if not flag:
                 try:
-                    #sometimes the library does not set the renamed value to True even if the file is actually renamed
+                    # sometimes the library does not set the renamed value to True even if the file is actually renamed
                     if (not diff.a_blob) and (not diff.b_blob):
                         if re.match(r"^(.*)\nrename from(.*)\nrename to(.*)$", diff.diff, re.M):
-                           flag = True
+                            flag = True
                 except:
                     flag = False
         return flag
@@ -337,7 +331,8 @@ class GitQuerier():
                 elif type(ref) == TagReference:
                     references.append((ref_name, 'tag'))
             else:
-                self._logger.warning("Git2Db: reference: " + ref.name + " contains unprintable chars and won't be processed!")
+                self._logger.warning("Git2Db: reference: " + ref.name +
+                                     " contains unprintable chars and won't be processed!")
         return references
 
     def get_commit_property(self, commit, prop):
@@ -371,13 +366,15 @@ class GitQuerier():
             elif prop == "committed_date":
                 found = commit.committed_date
         except:
-            #ugly but effective. GitPython may fail in retrieving properties with large content. Waiting some seconds seems to fix the problem
+            # ugly but effective. GitPython may fail in retrieving properties with large content.
+            # Waiting some seconds seems to fix the problem
             try:
                 time.sleep(5)
                 found = self.get_commit_property(commit, prop)
             except:
                 found = None
-                self._logger.error("GitQuerier: something went wrong when trying to retrieve the attribute " + prop + " from the commit " + str(commit.hexsha))
+                self._logger.error("GitQuerier: something went wrong when trying to retrieve the attribute " +
+                                   prop + " from the commit " + str(commit.hexsha))
 
         return found
 
@@ -388,7 +385,6 @@ class GitQuerier():
         :type diff: Object
         :param diff: the Object representing the diff
         """
-        #x = re.sub(r'^(\w|\W)*\n@@', '@@', diff.diff)
         return diff.diff
 
     def is_new_file(self, diff):
@@ -418,14 +414,14 @@ class GitQuerier():
         return file_previous
 
     def _get_commits(self, ref_name):
-        #gets commits from a reference
+        # gets commits from a reference
         commits = []
         for commit in self._repo.iter_commits(rev=ref_name):
             commits.append(commit)
         return commits
 
     def _get_commits_before_date(self, commits, date):
-        #gets commits before a given date
+        # gets commits before a given date
         before_date_object = self._date_util.get_timestamp(date, "%Y-%m-%d")
 
         selected_commits = []
@@ -437,7 +433,7 @@ class GitQuerier():
         return selected_commits
 
     def _get_commits_after_sha(self, commits, sha):
-        #gets commits after a commit with a given SHA
+        # gets commits after a commit with a given SHA
         selected_commits = []
 
         for commit in commits:
@@ -449,7 +445,7 @@ class GitQuerier():
         return selected_commits
 
     def _order_chronologically_commits(self, commits):
-        #order commits in chronological order
+        # order commits in chronological order
         commits.reverse()
         return commits
 
@@ -535,11 +531,9 @@ class GitQuerier():
         for line in lines:
             is_commented = False
             is_partially_commented = False
-            is_empty = False
-            is_documentation = False
-            #if the line contains diff info
+            # if the line contains diff info
             if re.match(r"^@@(\s|\+|\-|\d|,)+@@", line, re.M):
-                #re-init parameters
+                # re-init parameters
                 begin = self._get_file_modification_begin(line)
                 original_line = begin[0]
                 new_line = begin[1]
@@ -549,45 +543,50 @@ class GitQuerier():
                 else:
                     previous_block_comment = False
                 block_comment = False
-            #if the line does not contain diff info
+            # if the line does not contain diff info
             else:
-                #collect content of the line
-                #check if the line concerns an addition
+                # collect content of the line
+                # check if the line concerns an addition
                 if re.match(r"^\+.*", line, re.M):
 
-                    #check if the line is empty
+                    # check if the line is empty
                     if self._line_is_empty(line):
                         self._add_to_details(details, "addition", new_line, False, False, True, line)
                     else:
                         if file_extension in GitQuerier.ALLOWED_EXTENSIONS:
-                            #calculate if the line is commented
-                            result = self._line_is_commented("addition", previous_block_comment, previous_new_line, new_line, block_comment, details, line, file_extension)
+                            # calculate if the line is commented
+                            result = self._line_is_commented("addition", previous_block_comment, previous_new_line,
+                                                             new_line, block_comment, details, line, file_extension)
                             details = result[0]
                             previous_block_comment = result[1]
                             block_comment = result[2]
                             is_commented = result[3]
                             is_partially_commented = result[4]
 
-                        self._add_to_details(details, "addition", new_line, is_commented, is_partially_commented, False, line)
+                        self._add_to_details(details, "addition", new_line, is_commented,
+                                             is_partially_commented, False, line)
 
                     previous_new_line = new_line
                     new_line += 1
-                #check if the line concerns a deletion
+                # check if the line concerns a deletion
                 elif re.match(r"^\-.*", line, re.M):
-                    #check if the line is empty
+                    # check if the line is empty
                     if self._line_is_empty(line):
                         self._add_to_details(details, "deletion", original_line, False, False, True, line)
                     else:
                         if file_extension in GitQuerier.ALLOWED_EXTENSIONS:
-                            #calculate if the line is commented
-                            result = self._line_is_commented("deletion", previous_block_comment, previous_original_line, original_line, block_comment, details, line, file_extension)
+                            # calculate if the line is commented
+                            result = self._line_is_commented("deletion", previous_block_comment,
+                                                             previous_original_line, original_line, block_comment,
+                                                             details, line, file_extension)
                             details = result[0]
                             previous_block_comment = result[1]
                             block_comment = result[2]
                             is_commented = result[3]
                             is_partially_commented = result[4]
 
-                        self._add_to_details(details, "deletion", original_line, is_commented, is_partially_commented, False, line)
+                        self._add_to_details(details, "deletion", original_line, is_commented,
+                                             is_partially_commented, False, line)
 
                     previous_original_line = original_line
                     original_line += 1
@@ -598,12 +597,15 @@ class GitQuerier():
 
         return details
 
-    def _line_is_commented(self, type_change, previous_block_comment, previous_line_number, current_line_number, block_comment, details, line, file_extension):
-        #checks a line is commented
+    def _line_is_commented(self, type_change, previous_block_comment, previous_line_number, current_line_number,
+                           block_comment, details, line, file_extension):
+        # checks a line is commented
         is_commented = False
         is_partially_commented = False
-        #if a comment has been added in the previous block, all the lines between the previous block and the current block are marked as commented
-        #Note that, it is not possible to check whether the lines between two blocks are empty or not. By default, all these lines are set as not empty
+        # if a comment has been added in the previous block, all the lines between the previous block and the current
+        # block are marked as commented
+        # Note that, it is not possible to check whether the lines between two blocks are empty or not. By default,
+        # all these lines are set as not empty
         if previous_block_comment:
             for i in range(previous_line_number, current_line_number):
                 self._add_to_details(details, type_change, i, True, False, False, None)
@@ -611,7 +613,7 @@ class GitQuerier():
 
         block_comment = self._line_is_in_block_comment(block_comment, line, file_extension)
 
-        #check if the line is commented or it is inside a block comment
+        # check if the line is commented or it is inside a block comment
         if self._line_is_fully_commented(line, file_extension) or \
                 block_comment or previous_block_comment or \
                 self._line_contains_only_close_block_comment(line, file_extension) or \
@@ -627,7 +629,7 @@ class GitQuerier():
         return (details, previous_block_comment, block_comment, is_commented, is_partially_commented)
 
     def _get_file_modification_begin(self, line):
-        #gets the beginning of a file modification
+        # gets the beginning of a file modification
         modified_lines = line.split("@@")[1].strip().split(" ")
         original_starting = modified_lines[0]
         original_line = int(original_starting.split(',')[0].replace('-', ''))
@@ -637,19 +639,19 @@ class GitQuerier():
         return original_line, new_line
 
     def _add_to_details(self, details, type, line, is_commented, is_partially_commented, is_empty, line_content):
-        #stores line details
+        # stores line details
         details.append((type, line, is_commented, is_partially_commented, is_empty, line_content))
         return
 
     def _line_is_empty(self, line):
-        #checks that a line is empty
+        # checks that a line is empty
         flag = False
         if re.match(r"^(\+|\-)(\s*)$", line, re.M):
             flag = True
         return flag
 
     def _line_starts_with_open_block_comment(self, line, ext):
-        #checks that a line starts with a open block comment
+        # checks that a line starts with a open block comment
         flag = False
         if ext in ("java", "js", "sql", "c", "cpp", "cc", "scala", "php"):
             if re.match(r"^(\+|\-)(\s*)/\*", line) and not re.match(r"^(\+|\-)(\s*)/\*(.*)(\*/)", line):
@@ -670,7 +672,7 @@ class GitQuerier():
         return flag
 
     def _line_contains_only_open_block_comment(self, line, ext):
-        #checks that a line contains only a open block comment
+        # checks that a line contains only a open block comment
         flag = False
         if ext in ("java", "js", "sql", "c", "cpp", "cc", "scala", "php"):
             if re.match(r"^(\+|\-)(\s*)(/\*)(\s*)$", line):
@@ -691,7 +693,7 @@ class GitQuerier():
         return flag
 
     def _line_contains_open_block_comment(self, line, ext):
-        #checks that a line contains a open block comment
+        # checks that a line contains a open block comment
         flag = False
         if ext in ("java", "js", "sql", "c", "cpp", "cc", "scala", "php"):
             if re.match(r"^(\+|\-)(.*)/\*", line) and not re.match(r"^(\+|\-)(.*)/\*(.*)(\*/)", line):
@@ -712,7 +714,7 @@ class GitQuerier():
         return flag
 
     def _line_ends_with_close_block_comment(self, line, ext):
-        #checks that a line ends with a close block comment
+        # checks that a line ends with a close block comment
         flag = False
         if ext in ("java", "js", "sql", "c", "cpp", "cc", "scala", "php"):
             if re.match(r"^(\+|\-)(.*)\*/(\s*)$", line) and not re.match(r"^(\+|\-)(\s*)(/\*)(.*)\*/(\s*)$", line):
@@ -721,19 +723,22 @@ class GitQuerier():
             if re.match(r'^(\+|\-)(.*)"""(\s*)$', line) and not re.match(r'^(\+|\-)(\s*)(""")(.*)"""(\s*)$', line):
                 flag = True
         elif ext in ("xml", "html"):
-            if re.match(r"^(\+|\-)(.*)(\-\->(\s*)$)", line) and not re.match(r"^(\+|\-)(\s*)(<\!\-\-)(.*)(\-\->)(\s*)$", line):
+            if re.match(r"^(\+|\-)(.*)(\-\->(\s*)$)", line) and \
+                    not re.match(r"^(\+|\-)(\s*)(<\!\-\-)(.*)(\-\->)(\s*)$", line):
                 flag = True
         elif ext in ("rb"):
-            if re.match(r'^(\+|\-)(.*)(\=end)(\s*)$', line) and not re.match(r"^(\+|\-)(\s*)(\=begin)(.*)(\=end)(\s*)$", line):
+            if re.match(r'^(\+|\-)(.*)(\=end)(\s*)$', line) and \
+                    not re.match(r"^(\+|\-)(\s*)(\=begin)(.*)(\=end)(\s*)$", line):
                 flag = True
         elif ext in ("m"):
-            if re.match(r'^(\+|\-)(.*)(%\})(\s*)$', line) and not re.match(r"^(\+|\-)(\s*)(%\{)(.*)(%\})(\s*)$", line):
+            if re.match(r'^(\+|\-)(.*)(%\})(\s*)$', line) and \
+                    not re.match(r"^(\+|\-)(\s*)(%\{)(.*)(%\})(\s*)$", line):
                 flag = True
 
         return flag
 
     def _line_starts_with_close_block_comment(self, line, ext):
-        #checks that a line starts with a close block comment
+        # checks that a line starts with a close block comment
         flag = False
         if ext in ("java", "js", "sql", "c", "cpp", "cc", "scala", "php"):
             if re.match(r"^(\+|\-)(\s*)\*/", line):
@@ -754,7 +759,7 @@ class GitQuerier():
         return flag
 
     def _line_contains_only_close_block_comment(self, line, ext):
-        #checks that a line contains only a close block comment
+        # checks that a line contains only a close block comment
         flag = False
         if ext in ("java", "js", "sql", "c", "cpp", "cc", "scala", "php"):
             if re.match(r"^(\+|\-)(\s*)\*/(\s*)$", line):
@@ -775,7 +780,7 @@ class GitQuerier():
         return flag
 
     def _line_contains_close_block_comment(self, line, ext):
-        #checks that a line contains a close block comment
+        # checks that a line contains a close block comment
         flag = False
         if ext in ("java", "js", "sql", "c", "cpp", "cc", "scala", "php"):
             if re.match(r"^(\+|\-)(.*)\*/", line) and not re.match(r"^(\+|\-)(.*)/\*(.*)(\*/)", line):
@@ -796,7 +801,7 @@ class GitQuerier():
         return flag
 
     def _line_is_partially_commented(self, line, ext):
-        #checks that a line is partially commented
+        # checks that a line is partially commented
         flag = False
         if ext in ("java", "js", "c", "cpp", "cc", "scala"):
             if re.match(r"^(\+|\-)(.*)(/\*)(.*)\*/", line) or \
@@ -827,7 +832,7 @@ class GitQuerier():
         return flag
 
     def _line_is_fully_commented(self, line, ext):
-        #checks that a line is fully commented
+        # checks that a line is fully commented
         flag = False
         if ext in ("java", "js", "c", "cpp", "cc", "scala"):
             if re.match(r"^(\+|\-)(\s*)(/\*)(.*)\*/(\s*)$", line) or \
@@ -858,13 +863,14 @@ class GitQuerier():
         return flag
 
     def _line_is_in_block_comment(self, block_comment, line, ext):
-        #checks that a line is within a block comment
+        # checks that a line is within a block comment
         if not block_comment:
-            #check if the line starts with a block comment
-            if self._line_starts_with_open_block_comment(line, ext) or self._line_contains_only_open_block_comment(line, ext):
+            # check if the line starts with a block comment
+            if self._line_starts_with_open_block_comment(line, ext) or \
+                    self._line_contains_only_open_block_comment(line, ext):
                 block_comment = True
         else:
-            #check if the line ends with a block comment
+            # check if the line ends with a block comment
             if self._line_ends_with_close_block_comment(line, ext) or \
                     self._line_contains_only_close_block_comment(line, ext) or \
                     self._line_starts_with_close_block_comment(line, ext):
@@ -873,7 +879,7 @@ class GitQuerier():
         return block_comment
 
     def _line_is_partially_in_block_comment(self, block_comment, line, ext):
-        #checks that a line is partially in a block comment
+        # checks that a line is partially in a block comment
         if not block_comment:
             if self._line_contains_open_block_comment(line, ext):
                 block_comment = True
