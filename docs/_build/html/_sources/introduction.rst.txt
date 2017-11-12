@@ -63,38 +63,25 @@ How to use Gitana
         g.init_db("papyrus_db")
         g.create_project("papyrus_db", "papyrus")
 
-        g.import_git_data("papyrus_db", "papyrus", "papyrus_repo", "...\\Desktop\\org.eclipse.papyrus")
-        g.import_bugzilla_issue_data("papyrus_db", "papyrus", "papyrus_repo", "bugzilla-papyrus",
-                                 "https://bugs.eclipse.org/bugs/xmlrpc.cgi", "papyrus")
+        # import
+        g.import_git_data("papyrus_db", "papyrus", "papyrus_repo",
+                          "...\\Desktop\\org.eclipse.papyrus")
+        g.import_bugzilla_issue_data("papyrus_db", "papyrus", "papyrus_repo",
+                                     "bugzilla-papyrus",
+                                     "https://bugs.eclipse.org/bugs/xmlrpc.cgi",
+                                     "papyrus")
         g.import_eclipse_forum_data("papyrus_db", "papyrus", "papyrus-forum",
                                     "https://www.eclipse.org/forums/index.php/f/121/")
         g.import_stackoverflow_data("papyrus_db", "papyrus", "papyrus-so",
                                     ['YOUR-TOKEN-1', 'YOUR-TOKEN-2', ...])
         g.extract_dependency_relations("papyrus_db", "papyrus", "papyrus_repo",
                                        "...\\Desktop\\org.eclipse.papyrus")
-       if __name__ == "__main__":
-            main()
-	
 
-Example of export
------------------
-.. code-block:: python
-
-   from gitana.gitana import Gitana
-
-   CONFIG = {
-				'user': 'root',
-				'password': 'root',
-				'host': 'localhost',
-				'port': '3306',
-				'raise_on_warnings': False,
-				'buffered': True
-			}
-
-   def main():
-        g = Gitana(CONFIG, None)
+        # export
         g.export_graph("papyrus_db", "./graph.json", "./graph.gexf")
-        g.export_activity_report("papyrus_db", "./report.json", "./report.html")
+        g.export_activity_report("papyrus_db",
+        "./report.json", "./report.html")
 
-   if __name__ == "__main__":
-        main()
+        if __name__ == "__main__":
+            main()
+

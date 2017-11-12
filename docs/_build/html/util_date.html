@@ -1,13 +1,16 @@
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
     <title>Date Util &#8212; Gitana 1.0.1 documentation</title>
+    
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
@@ -32,7 +35,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body>
+  <body role="document">
   
 
     <div class="document">
@@ -40,8 +43,115 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="date-util">
-<h1>Date Util<a class="headerlink" href="#date-util" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-util.date_util">
+<span id="date-util"></span><h1>Date Util<a class="headerlink" href="#module-util.date_util" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="util.date_util.DateUtil">
+<em class="property">class </em><code class="descclassname">util.date_util.</code><code class="descname">DateUtil</code><a class="reference internal" href="_modules/util/date_util.html#DateUtil"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#util.date_util.DateUtil" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class provides date utilities</p>
+<dl class="method">
+<dt id="util.date_util.DateUtil.check_format_timestamp">
+<code class="descname">check_format_timestamp</code><span class="sig-paren">(</span><em>s</em>, <em>format</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/util/date_util.html#DateUtil.check_format_timestamp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#util.date_util.DateUtil.check_format_timestamp" title="Permalink to this definition">¶</a></dt>
+<dd><p>checks that a string respects a given date format</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>s</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; a string representation of a time</li>
+<li><strong>format</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; time format (e.g, YYYY-mm-dd)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="util.date_util.DateUtil.get_month_from_int">
+<code class="descname">get_month_from_int</code><span class="sig-paren">(</span><em>month_int</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/util/date_util.html#DateUtil.get_month_from_int"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#util.date_util.DateUtil.get_month_from_int" title="Permalink to this definition">¶</a></dt>
+<dd><p>converts int to month name</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>month_int</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; numeric representation of the month</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="util.date_util.DateUtil.get_start_time_span">
+<code class="descname">get_start_time_span</code><span class="sig-paren">(</span><em>reference_time</em>, <em>time_unit</em>, <em>format</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/util/date_util.html#DateUtil.get_start_time_span"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#util.date_util.DateUtil.get_start_time_span" title="Permalink to this definition">¶</a></dt>
+<dd><p>gets start time</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>reference_time</strong> (<a class="reference external" href="https://docs.python.org/2/library/datetime.html#module-datetime" title="(in Python v2.7)"><em>datetime</em></a>) &#8211; input time</li>
+<li><strong>time_unit</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; time unit (week, month, year)</li>
+<li><strong>format</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; time format (e.g, YYYY-mm-dd)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="util.date_util.DateUtil.get_time_fromtimestamp">
+<code class="descname">get_time_fromtimestamp</code><span class="sig-paren">(</span><em>creation_time</em>, <em>format</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/util/date_util.html#DateUtil.get_time_fromtimestamp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#util.date_util.DateUtil.get_time_fromtimestamp" title="Permalink to this definition">¶</a></dt>
+<dd><p>gets time Object from string</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>creation_time</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; creation time</li>
+<li><strong>format</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; time format (e.g, YYYY-mm-dd)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="util.date_util.DateUtil.get_timestamp">
+<code class="descname">get_timestamp</code><span class="sig-paren">(</span><em>creation_time</em>, <em>format</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/util/date_util.html#DateUtil.get_timestamp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#util.date_util.DateUtil.get_timestamp" title="Permalink to this definition">¶</a></dt>
+<dd><p>gets timestamp from string</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>creation_time</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; creation time</li>
+<li><strong>format</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; time format (e.g, YYYY-mm-dd)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="util.date_util.DateUtil.get_weekday_from_int">
+<code class="descname">get_weekday_from_int</code><span class="sig-paren">(</span><em>day_int</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/util/date_util.html#DateUtil.get_weekday_from_int"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#util.date_util.DateUtil.get_weekday_from_int" title="Permalink to this definition">¶</a></dt>
+<dd><p>converts int to week day</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>day_int</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; numeric representation of the week day</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 
@@ -87,7 +197,7 @@
       &copy;2017, Valerio Cosentino.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.5</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |

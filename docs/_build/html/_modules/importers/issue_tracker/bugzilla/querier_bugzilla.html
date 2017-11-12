@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>importers.issue_tracker.bugzilla.querier_bugzilla &#8212; Gitana 1.0 documentation</title>
+    <title>importers.issue_tracker.bugzilla.querier_bugzilla &#8212; Gitana 1.0.1 documentation</title>
     
     <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '1.0',
+        VERSION:     '1.0.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -53,7 +53,7 @@
 
 <div class="viewcode-block" id="BugzillaQuerier"><a class="viewcode-back" href="../../../../bugzilla.html#importers.issue_tracker.bugzilla.querier_bugzilla.BugzillaQuerier">[docs]</a><span class="k">class</span> <span class="nc">BugzillaQuerier</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This class collects the data available on the Bugizlla issue tracker via its API</span>
+<span class="sd">    This class collects the data available on the Bugzilla issue tracker via its API</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">WAITING_TIME</span> <span class="o">=</span> <span class="mi">1800</span>
@@ -75,7 +75,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_date_util</span> <span class="o">=</span> <span class="n">DateUtil</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_init_bzapi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
-        <span class="c1">#connect to the Bugzilla API</span>
+        <span class="c1"># connect to the Bugzilla API</span>
         <span class="n">success</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="k">while</span> <span class="ow">not</span> <span class="n">success</span><span class="p">:</span>
@@ -84,7 +84,8 @@
                 <span class="n">success</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="k">except</span><span class="p">:</span>
                 <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">BugzillaQuerier</span><span class="o">.</span><span class="n">WAITING_TIME</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;BugzillaQuerier init standby for &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">BugzillaQuerier</span><span class="o">.</span><span class="n">WAITING_TIME</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; seconds&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;BugzillaQuerier init standby for &quot;</span> <span class="o">+</span>
+                                     <span class="nb">str</span><span class="p">(</span><span class="n">BugzillaQuerier</span><span class="o">.</span><span class="n">WAITING_TIME</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; seconds&quot;</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">bzapi</span>
 
@@ -95,7 +96,7 @@
 <span class="sd">        :type before_date: str</span>
 <span class="sd">        :param before_date: selects issues with creation date before a given date (YYYY-mm-dd)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1">#TODO - include_fields seems not to work properly, http://bugzilla.readthedocs.io/en/latest/api/core/v1/bug.html</span>
+        <span class="c1"># TODO - include_fields seems not to work properly</span>
         <span class="n">query</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bzapi</span><span class="o">.</span><span class="n">build_query</span><span class="p">(</span><span class="n">product</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_product</span><span class="p">,</span> <span class="n">include_fields</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;creation_time&quot;</span><span class="p">])</span>
         <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bzapi</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
 
@@ -114,7 +115,7 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="n">user</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bzapi</span><span class="o">.</span><span class="n">getuser</span><span class="p">(</span><span class="n">user_email</span><span class="p">)</span>
             <span class="n">name</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">real_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-        <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;BugzillaError, user with email &quot;</span> <span class="o">+</span> <span class="n">user_email</span> <span class="o">+</span> <span class="s2">&quot; not found&quot;</span><span class="p">)</span>
             <span class="n">name</span> <span class="o">=</span> <span class="n">user_email</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;@&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 
@@ -208,7 +209,7 @@
 <span class="sd">        :type issue: Object</span>
 <span class="sd">        :param issue: the Object representing an issue</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">issue</span><span class="o">.</span><span class="n">get_history</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;bugs&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;history&#39;</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">issue</span><span class="o">.</span><span class="n">get_history_raw</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;bugs&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;history&#39;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="BugzillaQuerier.get_comment_property"><a class="viewcode-back" href="../../../../bugzilla.html#importers.issue_tracker.bugzilla.querier_bugzilla.BugzillaQuerier.get_comment_property">[docs]</a>    <span class="k">def</span> <span class="nf">get_comment_property</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">comment</span><span class="p">,</span> <span class="nb">property</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>

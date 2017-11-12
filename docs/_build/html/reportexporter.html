@@ -1,13 +1,16 @@
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
     <title>Report Exporter &#8212; Gitana 1.0.1 documentation</title>
+    
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
@@ -32,7 +35,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body>
+  <body role="document">
   
 
     <div class="document">
@@ -40,8 +43,82 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="report-exporter">
-<h1>Report Exporter<a class="headerlink" href="#report-exporter" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-exporters.report.report_exporter">
+<span id="report-exporter"></span><h1>Report Exporter<a class="headerlink" href="#module-exporters.report.report_exporter" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="exporters.report.report_exporter.ActivityReportExporter">
+<em class="property">class </em><code class="descclassname">exporters.report.report_exporter.</code><code class="descname">ActivityReportExporter</code><span class="sig-paren">(</span><em>config</em>, <em>db_name</em>, <em>log_root_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/exporters/report/report_exporter.html#ActivityReportExporter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#exporters.report.report_exporter.ActivityReportExporter" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class handles the generation of reports</p>
+<dl class="method">
+<dt id="exporters.report.report_exporter.ActivityReportExporter.export">
+<code class="descname">export</code><span class="sig-paren">(</span><em>file_path</em>, <em>json_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/exporters/report/report_exporter.html#ActivityReportExporter.export"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#exporters.report.report_exporter.ActivityReportExporter.export" title="Permalink to this definition">¶</a></dt>
+<dd><p>exports the Gitana data to a report</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>file_path</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the path where to export the report</li>
+<li><strong>json_path</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the path of the JSON that drives the export process</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-exporters.report.chart_generator"></span><dl class="class">
+<dt id="exporters.report.chart_generator.ChartGenerator">
+<em class="property">class </em><code class="descclassname">exporters.report.chart_generator.</code><code class="descname">ChartGenerator</code><span class="sig-paren">(</span><em>cnx</em>, <em>logger</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/exporters/report/chart_generator.html#ChartGenerator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#exporters.report.chart_generator.ChartGenerator" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class handles the generation of charts</p>
+<dl class="method">
+<dt id="exporters.report.chart_generator.ChartGenerator.create">
+<code class="descname">create</code><span class="sig-paren">(</span><em>query</em>, <em>x_label</em>, <em>y_label</em>, <em>time_dimension</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/exporters/report/chart_generator.html#ChartGenerator.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#exporters.report.chart_generator.ChartGenerator.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>creates the charts</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>query</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; SQL query</li>
+<li><strong>x_label</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; name of the x label</li>
+<li><strong>y_label</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; name of the y label</li>
+<li><strong>time_dimension</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; time dimension (week, month, year)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-exporters.report.html_generator"></span><dl class="class">
+<dt id="exporters.report.html_generator.HtmlGenerator">
+<em class="property">class </em><code class="descclassname">exporters.report.html_generator.</code><code class="descname">HtmlGenerator</code><span class="sig-paren">(</span><em>logger</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/exporters/report/html_generator.html#HtmlGenerator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#exporters.report.html_generator.HtmlGenerator" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class handles the generation of an HTML page embedding charts</p>
+<dl class="method">
+<dt id="exporters.report.html_generator.HtmlGenerator.create">
+<code class="descname">create</code><span class="sig-paren">(</span><em>project_name</em>, <em>activity2charts</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/exporters/report/html_generator.html#HtmlGenerator.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#exporters.report.html_generator.HtmlGenerator.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>creates the HTML page</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>project_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; name of the project</li>
+<li><strong>activity2charts</strong> (<a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; map of the activities and corresponding charts</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 
@@ -87,7 +164,7 @@
       &copy;2017, Valerio Cosentino.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.5</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |

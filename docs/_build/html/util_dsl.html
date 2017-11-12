@@ -1,13 +1,16 @@
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
     <title>Dsl Util &#8212; Gitana 1.0.1 documentation</title>
+    
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
@@ -32,7 +35,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body>
+  <body role="document">
   
 
     <div class="document">
@@ -40,8 +43,34 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="dsl-util">
-<h1>Dsl Util<a class="headerlink" href="#dsl-util" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-util.dsl_util">
+<span id="dsl-util"></span><h1>Dsl Util<a class="headerlink" href="#module-util.dsl_util" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="util.dsl_util.DslUtil">
+<em class="property">class </em><code class="descclassname">util.dsl_util.</code><code class="descname">DslUtil</code><a class="reference internal" href="_modules/util/dsl_util.html#DslUtil"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#util.dsl_util.DslUtil" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class provides utilities for the Domain Specific Languages used in the export processes</p>
+<dl class="method">
+<dt id="util.dsl_util.DslUtil.find_entity_id">
+<code class="descname">find_entity_id</code><span class="sig-paren">(</span><em>cnx</em>, <em>type</em>, <em>name</em>, <em>logger</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/util/dsl_util.html#DslUtil.find_entity_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#util.dsl_util.DslUtil.find_entity_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>finds id of a entity  stored in the DB (project, repository, issue tracker, forum or instant messaging)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cnx</strong> (<em>Object</em>) &#8211; DB connection</li>
+<li><strong>type</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; type of the entity</li>
+<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; name of the entity</li>
+<li><strong>logger</strong> (<em>Object</em>) &#8211; logger</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 
@@ -87,7 +116,7 @@
       &copy;2017, Valerio Cosentino.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.5</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |

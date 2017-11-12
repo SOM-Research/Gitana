@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>importers.vcs.git.git_dao &#8212; Gitana 1.0 documentation</title>
+    <title>importers.vcs.git.git_dao &#8212; Gitana 1.0.1 documentation</title>
     
     <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '1.0',
+        VERSION:     '1.0.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -53,7 +53,6 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This class handles the persistence and retrieval of Git data</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -216,10 +215,19 @@
 <span class="sd">        :type user_name: str</span>
 <span class="sd">        :param user_name: name of the user</span>
 
-<span class="sd">        :type user_name: str</span>
-<span class="sd">        :param user_name: email of the user</span>
+<span class="sd">        :type user_email: str</span>
+<span class="sd">        :param user_email: email of the user</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">user_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_util</span><span class="o">.</span><span class="n">select_user_id_by_email</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="p">,</span> <span class="n">user_email</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">user_email</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">user_name</span><span class="p">:</span>
+            <span class="n">user_name</span> <span class="o">=</span> <span class="s2">&quot;uknonwn_user&quot;</span>
+            <span class="n">user_email</span> <span class="o">=</span> <span class="s2">&quot;uknonwn_user&quot;</span>
+
+        <span class="k">if</span> <span class="n">user_email</span><span class="p">:</span>
+            <span class="n">user_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_util</span><span class="o">.</span><span class="n">select_user_id_by_email</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="p">,</span> <span class="n">user_email</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">user_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_util</span><span class="o">.</span><span class="n">select_user_id_by_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="ow">not</span> <span class="n">user_id</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_db_util</span><span class="o">.</span><span class="n">insert_user</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_email</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">)</span>
             <span class="n">user_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_util</span><span class="o">.</span><span class="n">select_user_id_by_email</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="p">,</span> <span class="n">user_email</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">)</span>
@@ -292,7 +300,8 @@
 
         <span class="k">if</span> <span class="n">to_insert</span><span class="p">:</span>
             <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
-            <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;INSERT IGNORE INTO commit_parent(repo_id, commit_id, commit_sha, parent_id, parent_sha) VALUES (</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">)&quot;</span>
+            <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;INSERT IGNORE INTO commit_parent(repo_id, commit_id, commit_sha, parent_id, parent_sha) &quot;</span> \
+                    <span class="s2">&quot;VALUES (</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">)&quot;</span>
             <span class="n">cursor</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">to_insert</span><span class="p">])</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
             <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
@@ -410,7 +419,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
         <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="GitDao.insert_file_renamed"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.git_dao.GitDao.insert_file_renamed">[docs]</a>    <span class="k">def</span> <span class="nf">insert_file_renamed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">,</span> <span class="n">current_file_id</span><span class="p">,</span> <span class="n">previous_file_id</span><span class="p">):</span>
+<div class="viewcode-block" id="GitDao.insert_file_renamed"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.git_dao.GitDao.insert_file_renamed">[docs]</a>    <span class="k">def</span> <span class="nf">insert_file_renamed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">,</span> <span class="n">current_file_id</span><span class="p">,</span> <span class="n">previous_file_id</span><span class="p">,</span> <span class="n">file_modification_id</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        inserts file renamed information</span>
 
@@ -422,17 +431,20 @@
 
 <span class="sd">        :type previous_file_id: int</span>
 <span class="sd">        :param previous_file_id: id of the file before renaming</span>
+
+<span class="sd">        :type file_modification_id: int</span>
+<span class="sd">        :param file_modification_id: id of the file modification</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
 
         <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;INSERT IGNORE INTO file_renamed &quot;</span> \
-                <span class="s2">&quot;VALUES (</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">)&quot;</span>
-        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">repo_id</span><span class="p">,</span> <span class="n">current_file_id</span><span class="p">,</span> <span class="n">previous_file_id</span><span class="p">]</span>
+                <span class="s2">&quot;VALUES (</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">)&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">repo_id</span><span class="p">,</span> <span class="n">current_file_id</span><span class="p">,</span> <span class="n">previous_file_id</span><span class="p">,</span> <span class="n">file_modification_id</span><span class="p">]</span>
         <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
         <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="GitDao.insert_file"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.git_dao.GitDao.insert_file">[docs]</a>    <span class="k">def</span> <span class="nf">insert_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">ext</span><span class="p">):</span>
+<div class="viewcode-block" id="GitDao.insert_file"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.git_dao.GitDao.insert_file">[docs]</a>    <span class="k">def</span> <span class="nf">insert_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">ext</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        inserts file</span>
 
@@ -448,10 +460,43 @@
         <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
         <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;INSERT IGNORE INTO file &quot;</span> \
                 <span class="s2">&quot;VALUES (</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">)&quot;</span>
+
+        <span class="c1"># extract file extension from file path if not passed</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">ext</span><span class="p">:</span>
+            <span class="n">ext</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
         <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">ext</span><span class="p">]</span>
         <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
         <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="GitDao.select_file_id_before_date"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.git_dao.GitDao.select_file_id_before_date">[docs]</a>    <span class="k">def</span> <span class="nf">select_file_id_before_date</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">before_date</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        selects id of the file before date</span>
+
+<span class="sd">        :type repo_id: int</span>
+<span class="sd">        :param repo_id: id of the repository</span>
+
+<span class="sd">        :type name: str</span>
+<span class="sd">        :param name: name of the file (full path)</span>
+
+<span class="sd">        :type before_date: timestamp</span>
+<span class="sd">        :param before_date: date</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;SELECT DISTINCT f.id &quot;</span> \
+                <span class="s2">&quot;FROM file f JOIN file_modification fm ON f.id = fm.file_id &quot;</span> \
+                <span class="s2">&quot;JOIN commit c ON c.id = fm.commit_id &quot;</span> \
+                <span class="s2">&quot;WHERE f.name = </span><span class="si">%s</span><span class="s2"> AND f.repo_id = </span><span class="si">%s</span><span class="s2"> AND fm.status = &#39;added&#39; &quot;</span> \
+                <span class="s2">&quot;AND c.authored_date &lt;= &#39;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">before_date</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;&#39; &quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="nb">id</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="nb">id</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="nb">id</span></div>
 
 <div class="viewcode-block" id="GitDao.select_file_id"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.git_dao.GitDao.select_file_id">[docs]</a>    <span class="k">def</span> <span class="nf">select_file_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -486,8 +531,8 @@
 <span class="sd">        :type ref_name: str</span>
 <span class="sd">        :param ref_name: name of the reference</span>
 
-<span class="sd">        :type ref_name: str</span>
-<span class="sd">        :param ref_name: type of the reference (branch or tag)</span>
+<span class="sd">        :type ref_type: str</span>
+<span class="sd">        :param ref_type: type of the reference (branch or tag)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
         <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;INSERT IGNORE INTO reference &quot;</span> \
@@ -507,15 +552,22 @@
 <span class="sd">        :type ref_id: int</span>
 <span class="sd">        :param ref_id: id of the reference</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
         <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;SELECT name &quot;</span> \
                 <span class="s2">&quot;FROM reference &quot;</span> \
                 <span class="s2">&quot;WHERE id = </span><span class="si">%s</span><span class="s2"> and repo_id = </span><span class="si">%s</span><span class="s2">&quot;</span>
         <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">ref_id</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">]</span>
         <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
         <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">name</span></div>
+
+        <span class="k">return</span> <span class="n">found</span></div>
 
 <div class="viewcode-block" id="GitDao.select_reference_id"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.git_dao.GitDao.select_reference_id">[docs]</a>    <span class="k">def</span> <span class="nf">select_reference_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">,</span> <span class="n">ref_name</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -527,15 +579,20 @@
 <span class="sd">        :type ref_name: str</span>
 <span class="sd">        :param ref_name: name of the reference</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
         <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;SELECT id &quot;</span> \
                 <span class="s2">&quot;FROM reference &quot;</span> \
                 <span class="s2">&quot;WHERE name = </span><span class="si">%s</span><span class="s2"> and repo_id = </span><span class="si">%s</span><span class="s2">&quot;</span>
         <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">ref_name</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">]</span>
         <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
-        <span class="nb">id</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
         <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-        <span class="k">return</span> <span class="nb">id</span></div>
+        <span class="k">return</span> <span class="n">found</span></div>
 
 <div class="viewcode-block" id="GitDao.insert_commit"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.git_dao.GitDao.insert_commit">[docs]</a>    <span class="k">def</span> <span class="nf">insert_commit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">,</span> <span class="n">sha</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">author_id</span><span class="p">,</span> <span class="n">committer_id</span><span class="p">,</span> <span class="n">authored_date</span><span class="p">,</span> <span class="n">committed_date</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -639,6 +696,87 @@
             <span class="n">found</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
         <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="GitDao.select_commit_id_before_date"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.git_dao.GitDao.select_commit_id_before_date">[docs]</a>    <span class="k">def</span> <span class="nf">select_commit_id_before_date</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sha</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">,</span> <span class="n">before_date</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        selects id of a commit by its SHA before a given date</span>
+
+<span class="sd">        :type sha: str</span>
+<span class="sd">        :param sha: SHA of the commit</span>
+
+<span class="sd">        :type repo_id: int</span>
+<span class="sd">        :param repo_id: id of the repository</span>
+
+<span class="sd">        :type before_date: timestamp</span>
+<span class="sd">        :param before_date: date</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;SELECT id &quot;</span> \
+                <span class="s2">&quot;FROM commit &quot;</span> \
+                <span class="s2">&quot;WHERE sha = </span><span class="si">%s</span><span class="s2"> AND repo_id = </span><span class="si">%s</span><span class="s2"> AND authored_date &lt;= &#39;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">before_date</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;&#39; &quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">sha</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">found</span></div>
+
+<div class="viewcode-block" id="GitDao.select_all_developer_ids"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.git_dao.GitDao.select_all_developer_ids">[docs]</a>    <span class="k">def</span> <span class="nf">select_all_developer_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        selects all developers (committers or authors) of a given repo</span>
+
+<span class="sd">        :type repo_id: int</span>
+<span class="sd">        :param repo_id: id of the repository</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">user_ids</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;SELECT c.author_id &quot;</span> \
+                <span class="s2">&quot;FROM commit c JOIN repository r ON c.repo_id = r.id JOIN user u ON u.id = c.author_id &quot;</span> \
+                <span class="s2">&quot;WHERE repo_id = </span><span class="si">%s</span><span class="s2"> AND u.name IS NOT NULL AND u.email IS NOT NULL &quot;</span> \
+                <span class="s2">&quot;UNION &quot;</span> \
+                <span class="s2">&quot;SELECT c.committer_id &quot;</span> \
+                <span class="s2">&quot;FROM commit c JOIN repository r ON c.repo_id = r.id JOIN user u ON u.id = c.committer_id &quot;</span> \
+                <span class="s2">&quot;WHERE repo_id = </span><span class="si">%s</span><span class="s2"> AND u.name IS NOT NULL AND u.email IS NOT NULL &quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">repo_id</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+
+        <span class="k">while</span> <span class="n">row</span><span class="p">:</span>
+            <span class="n">user_id</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">user_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">user_id</span><span class="p">)</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">user_ids</span></div>
+
+<div class="viewcode-block" id="GitDao.select_sha_commit_by_user"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.git_dao.GitDao.select_sha_commit_by_user">[docs]</a>    <span class="k">def</span> <span class="nf">select_sha_commit_by_user</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        selects the SHA of the first commit (authored or committed) by a given user id</span>
+
+<span class="sd">        :type user_id: int</span>
+<span class="sd">        :param user_id: id of the user</span>
+
+<span class="sd">        :type repo_id: int</span>
+<span class="sd">        :param repo_id: id of the repository</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;SELECT sha &quot;</span> \
+                <span class="s2">&quot;FROM commit &quot;</span> \
+                <span class="s2">&quot;WHERE (author_id = </span><span class="si">%s</span><span class="s2"> OR committer_id = </span><span class="si">%s</span><span class="s2">) AND repo_id = </span><span class="si">%s</span><span class="s2"> &quot;</span> \
+                <span class="s2">&quot;LIMIT 1&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">user_id</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
         <span class="k">return</span> <span class="n">found</span></div></div>
 </pre></div>
 

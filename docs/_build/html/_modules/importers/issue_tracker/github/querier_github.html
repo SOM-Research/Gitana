@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>importers.issue_tracker.github.querier_github &#8212; Gitana 1.0 documentation</title>
+    <title>importers.issue_tracker.github.querier_github &#8212; Gitana 1.0.1 documentation</title>
     
     <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '1.0',
+        VERSION:     '1.0.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -81,12 +81,12 @@
             <span class="k">raise</span>
 
     <span class="k">def</span> <span class="nf">_load_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
-        <span class="c1">#connect to the GitHub API</span>
+        <span class="c1"># connect to the GitHub API</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">repo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_github</span><span class="o">.</span><span class="n">get_repo</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">repo</span>
-        <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;GitHubQuerier error loading repository &quot;</span> <span class="o">+</span> <span class="n">url</span> <span class="o">+</span> <span class="s2">&quot;- &quot;</span> <span class="o">+</span> <span class="n">e</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;GitHubQuerier error loading repository &quot;</span> <span class="o">+</span> <span class="n">url</span> <span class="o">+</span> <span class="s2">&quot;- &quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="k">raise</span>
 
 <div class="viewcode-block" id="GitHubQuerier.get_issue_ids"><a class="viewcode-back" href="../../../../github.html#importers.issue_tracker.github.querier_github.GitHubQuerier.get_issue_ids">[docs]</a>    <span class="k">def</span> <span class="nf">get_issue_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">before_date</span><span class="p">):</span>
@@ -97,16 +97,17 @@
 <span class="sd">        :param before_date: selects issues with creation date before a given date (YYYY-mm-dd)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">issue_ids</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">page_count</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">page_count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_token_util</span><span class="o">.</span><span class="n">wait_is_usable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_github</span><span class="p">)</span>
         <span class="n">last_page</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_repo</span><span class="o">.</span><span class="n">get_issues</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="s2">&quot;asc&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">_getLastPageUrl</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;page=&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 
-        <span class="k">while</span> <span class="n">page_count</span> <span class="o">!=</span> <span class="n">last_page</span><span class="p">:</span>
+        <span class="k">while</span> <span class="n">page_count</span> <span class="o">!=</span> <span class="n">last_page</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_token_util</span><span class="o">.</span><span class="n">wait_is_usable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_github</span><span class="p">)</span>
             <span class="n">issues</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_repo</span><span class="o">.</span><span class="n">get_issues</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">get_page</span><span class="p">(</span><span class="n">page_count</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">issues</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">before_date</span><span class="p">:</span>
-                   <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">created_at</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_date_util</span><span class="o">.</span><span class="n">get_timestamp</span><span class="p">(</span><span class="n">before_date</span><span class="p">,</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">):</span>
-                       <span class="n">issue_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">number</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">created_at</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_date_util</span><span class="o">.</span><span class="n">get_timestamp</span><span class="p">(</span><span class="n">before_date</span><span class="p">,</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">):</span>
+                        <span class="n">issue_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">number</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">issue_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">number</span><span class="p">)</span>
 
@@ -225,8 +226,8 @@
 <span class="sd">        :param issue: the Object representing the issue</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">labels</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_token_util</span><span class="o">.</span><span class="n">wait_is_usable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_github</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">issue</span><span class="o">.</span><span class="n">get_labels</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_token_util</span><span class="o">.</span><span class="n">wait_is_usable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_github</span><span class="p">)</span>
             <span class="n">labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">label</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">labels</span></div>
@@ -239,8 +240,8 @@
 <span class="sd">        :param issue: the Object representing the issue</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">comments</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_token_util</span><span class="o">.</span><span class="n">wait_is_usable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_github</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">comment</span> <span class="ow">in</span> <span class="n">issue</span><span class="o">.</span><span class="n">get_comments</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_token_util</span><span class="o">.</span><span class="n">wait_is_usable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_github</span><span class="p">)</span>
             <span class="n">comments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">comment</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">comments</span></div>
@@ -378,11 +379,17 @@
 <span class="sd">        :param issue: the Object representing the issue</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">events</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_token_util</span><span class="o">.</span><span class="n">wait_is_usable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_github</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">issue</span><span class="o">.</span><span class="n">get_events</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_token_util</span><span class="o">.</span><span class="n">wait_is_usable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_github</span><span class="p">)</span>
             <span class="n">events</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">events</span></div>
+
+<div class="viewcode-block" id="GitHubQuerier.regenerate_token"><a class="viewcode-back" href="../../../../github.html#importers.issue_tracker.github.querier_github.GitHubQuerier.regenerate_token">[docs]</a>    <span class="k">def</span> <span class="nf">regenerate_token</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        regenerate GitHub token</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_github</span> <span class="o">=</span> <span class="n">Github</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_token</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="GitHubQuerier.find_user"><a class="viewcode-back" href="../../../../github.html#importers.issue_tracker.github.querier_github.GitHubQuerier.find_user">[docs]</a>    <span class="k">def</span> <span class="nf">find_user</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">login</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -392,6 +399,7 @@
 <span class="sd">        :param login: GitHub username</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_token_util</span><span class="o">.</span><span class="n">wait_is_usable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_github</span><span class="p">)</span>
         <span class="n">users</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_github</span><span class="o">.</span><span class="n">search_users</span><span class="p">(</span><span class="n">login</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;in&quot;</span><span class="p">:</span> <span class="s2">&quot;login&quot;</span><span class="p">})</span>
         <span class="k">for</span> <span class="n">user</span> <span class="ow">in</span> <span class="n">users</span><span class="p">:</span>
             <span class="n">found</span> <span class="o">=</span> <span class="n">user</span>
@@ -438,7 +446,12 @@
         <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">history</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">event</span> <span class="o">==</span> <span class="s2">&quot;referenced&quot;</span><span class="p">:</span>
                 <span class="n">commit_dependencies</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">commit_id</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">commit_dependencies</span></div></div>
+        <span class="k">return</span> <span class="n">commit_dependencies</span></div>
+
+    <span class="k">def</span> <span class="nf">get_author_by_commit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sha</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_token_util</span><span class="o">.</span><span class="n">wait_is_usable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_github</span><span class="p">)</span>
+        <span class="n">commit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_repo</span><span class="o">.</span><span class="n">get_commit</span><span class="p">(</span><span class="n">sha</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">commit</span><span class="o">.</span><span class="n">author</span></div>
 </pre></div>
 
           </div>

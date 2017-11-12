@@ -1,13 +1,16 @@
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
     <title>Introduction &#8212; Gitana 1.0.1 documentation</title>
+    
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
@@ -32,7 +35,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body>
+  <body role="document">
   
 
     <div class="document">
@@ -96,40 +99,27 @@ $&gt; python setup.py install
      <span class="n">g</span><span class="o">.</span><span class="n">init_db</span><span class="p">(</span><span class="s2">&quot;papyrus_db&quot;</span><span class="p">)</span>
      <span class="n">g</span><span class="o">.</span><span class="n">create_project</span><span class="p">(</span><span class="s2">&quot;papyrus_db&quot;</span><span class="p">,</span> <span class="s2">&quot;papyrus&quot;</span><span class="p">)</span>
 
-     <span class="n">g</span><span class="o">.</span><span class="n">import_git_data</span><span class="p">(</span><span class="s2">&quot;papyrus_db&quot;</span><span class="p">,</span> <span class="s2">&quot;papyrus&quot;</span><span class="p">,</span> <span class="s2">&quot;papyrus_repo&quot;</span><span class="p">,</span> <span class="s2">&quot;...</span><span class="se">\\</span><span class="s2">Desktop</span><span class="se">\\</span><span class="s2">org.eclipse.papyrus&quot;</span><span class="p">)</span>
-     <span class="n">g</span><span class="o">.</span><span class="n">import_bugzilla_issue_data</span><span class="p">(</span><span class="s2">&quot;papyrus_db&quot;</span><span class="p">,</span> <span class="s2">&quot;papyrus&quot;</span><span class="p">,</span> <span class="s2">&quot;papyrus_repo&quot;</span><span class="p">,</span> <span class="s2">&quot;bugzilla-papyrus&quot;</span><span class="p">,</span>
-                              <span class="s2">&quot;https://bugs.eclipse.org/bugs/xmlrpc.cgi&quot;</span><span class="p">,</span> <span class="s2">&quot;papyrus&quot;</span><span class="p">)</span>
+     <span class="c1"># import</span>
+     <span class="n">g</span><span class="o">.</span><span class="n">import_git_data</span><span class="p">(</span><span class="s2">&quot;papyrus_db&quot;</span><span class="p">,</span> <span class="s2">&quot;papyrus&quot;</span><span class="p">,</span> <span class="s2">&quot;papyrus_repo&quot;</span><span class="p">,</span>
+                       <span class="s2">&quot;...</span><span class="se">\\</span><span class="s2">Desktop</span><span class="se">\\</span><span class="s2">org.eclipse.papyrus&quot;</span><span class="p">)</span>
+     <span class="n">g</span><span class="o">.</span><span class="n">import_bugzilla_issue_data</span><span class="p">(</span><span class="s2">&quot;papyrus_db&quot;</span><span class="p">,</span> <span class="s2">&quot;papyrus&quot;</span><span class="p">,</span> <span class="s2">&quot;papyrus_repo&quot;</span><span class="p">,</span>
+                                  <span class="s2">&quot;bugzilla-papyrus&quot;</span><span class="p">,</span>
+                                  <span class="s2">&quot;https://bugs.eclipse.org/bugs/xmlrpc.cgi&quot;</span><span class="p">,</span>
+                                  <span class="s2">&quot;papyrus&quot;</span><span class="p">)</span>
      <span class="n">g</span><span class="o">.</span><span class="n">import_eclipse_forum_data</span><span class="p">(</span><span class="s2">&quot;papyrus_db&quot;</span><span class="p">,</span> <span class="s2">&quot;papyrus&quot;</span><span class="p">,</span> <span class="s2">&quot;papyrus-forum&quot;</span><span class="p">,</span>
                                  <span class="s2">&quot;https://www.eclipse.org/forums/index.php/f/121/&quot;</span><span class="p">)</span>
      <span class="n">g</span><span class="o">.</span><span class="n">import_stackoverflow_data</span><span class="p">(</span><span class="s2">&quot;papyrus_db&quot;</span><span class="p">,</span> <span class="s2">&quot;papyrus&quot;</span><span class="p">,</span> <span class="s2">&quot;papyrus-so&quot;</span><span class="p">,</span>
                                  <span class="p">[</span><span class="s1">&#39;YOUR-TOKEN-1&#39;</span><span class="p">,</span> <span class="s1">&#39;YOUR-TOKEN-2&#39;</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span>
      <span class="n">g</span><span class="o">.</span><span class="n">extract_dependency_relations</span><span class="p">(</span><span class="s2">&quot;papyrus_db&quot;</span><span class="p">,</span> <span class="s2">&quot;papyrus&quot;</span><span class="p">,</span> <span class="s2">&quot;papyrus_repo&quot;</span><span class="p">,</span>
                                     <span class="s2">&quot;...</span><span class="se">\\</span><span class="s2">Desktop</span><span class="se">\\</span><span class="s2">org.eclipse.papyrus&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-         <span class="n">main</span><span class="p">()</span>
-</pre></div>
-</div>
-</div>
-<div class="section" id="example-of-export">
-<h2>Example of export<a class="headerlink" href="#example-of-export" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">gitana.gitana</span> <span class="kn">import</span> <span class="n">Gitana</span>
 
-<span class="n">CONFIG</span> <span class="o">=</span> <span class="p">{</span>
-                             <span class="s1">&#39;user&#39;</span><span class="p">:</span> <span class="s1">&#39;root&#39;</span><span class="p">,</span>
-                             <span class="s1">&#39;password&#39;</span><span class="p">:</span> <span class="s1">&#39;root&#39;</span><span class="p">,</span>
-                             <span class="s1">&#39;host&#39;</span><span class="p">:</span> <span class="s1">&#39;localhost&#39;</span><span class="p">,</span>
-                             <span class="s1">&#39;port&#39;</span><span class="p">:</span> <span class="s1">&#39;3306&#39;</span><span class="p">,</span>
-                             <span class="s1">&#39;raise_on_warnings&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
-                             <span class="s1">&#39;buffered&#39;</span><span class="p">:</span> <span class="bp">True</span>
-                     <span class="p">}</span>
-
-<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
-     <span class="n">g</span> <span class="o">=</span> <span class="n">Gitana</span><span class="p">(</span><span class="n">CONFIG</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+     <span class="c1"># export</span>
      <span class="n">g</span><span class="o">.</span><span class="n">export_graph</span><span class="p">(</span><span class="s2">&quot;papyrus_db&quot;</span><span class="p">,</span> <span class="s2">&quot;./graph.json&quot;</span><span class="p">,</span> <span class="s2">&quot;./graph.gexf&quot;</span><span class="p">)</span>
-     <span class="n">g</span><span class="o">.</span><span class="n">export_activity_report</span><span class="p">(</span><span class="s2">&quot;papyrus_db&quot;</span><span class="p">,</span> <span class="s2">&quot;./report.json&quot;</span><span class="p">,</span> <span class="s2">&quot;./report.html&quot;</span><span class="p">)</span>
+     <span class="n">g</span><span class="o">.</span><span class="n">export_activity_report</span><span class="p">(</span><span class="s2">&quot;papyrus_db&quot;</span><span class="p">,</span>
+     <span class="s2">&quot;./report.json&quot;</span><span class="p">,</span> <span class="s2">&quot;./report.html&quot;</span><span class="p">)</span>
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-     <span class="n">main</span><span class="p">()</span>
+     <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+         <span class="n">main</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -148,7 +138,6 @@ $&gt; python setup.py install
 <li><a class="reference internal" href="#installation">Installation</a></li>
 <li><a class="reference internal" href="#licensing">Licensing</a></li>
 <li><a class="reference internal" href="#how-to-use-gitana">How to use Gitana</a></li>
-<li><a class="reference internal" href="#example-of-export">Example of export</a></li>
 </ul>
 </li>
 </ul>
@@ -156,7 +145,7 @@ $&gt; python setup.py install
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="index.html" title="previous chapter">Welcome to Gitana’s documentation!</a></li>
+      <li>Previous: <a href="index.html" title="previous chapter">Welcome to Gitana&#8217;s documentation!</a></li>
       <li>Next: <a href="conceptual.html" title="next chapter">Conceptual Schema</a></li>
   </ul></li>
 </ul>
@@ -186,7 +175,7 @@ $&gt; python setup.py install
       &copy;2017, Valerio Cosentino.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.5</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
