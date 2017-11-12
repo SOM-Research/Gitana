@@ -16,7 +16,6 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-import os
 import sys
 sys.path.insert(0, "C:\\Users\\atlanmod\\Desktop\\gitana-bitbucket")
 
@@ -31,9 +30,9 @@ sys.path.insert(0, "C:\\Users\\atlanmod\\Desktop\\gitana-bitbucket")
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.autosummary',
-    'sphinx.ext.intersphinx',
-    'sphinx.ext.viewcode',
-    'sphinx.ext.githubpages']
+              'sphinx.ext.intersphinx',
+              'sphinx.ext.viewcode',
+              'sphinx.ext.githubpages']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -154,8 +153,6 @@ texinfo_documents = [
      author, 'Gitana', 'One line description of project.',
      'Miscellaneous'),
 ]
-
-
 
 
 # Example configuration for intersphinx: refer to the Python standard library.
