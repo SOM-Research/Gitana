@@ -22,47 +22,60 @@ Requirements
 ------------
 Gitana is developed on Windows 7 and it relies on:
 
-    Python 2.7.6
+    Python 2.7.6 (download `<https://www.python.org/downloads/windows/>`_)
 
-    MySQL Server 5.6 (http://dev.mysql.com/downloads/installer/)
+    MySQL Server 5.6 (download `<http://dev.mysql.com/downloads/installer/>`_, select **version: 5.6.x**, **operating system: Microsoft Windows**)
 
-Download and install
---------------------
-After installing MySQL Server and Python 2.7.6, execute the setup.py script
+
+Installation
+------------
+After installing MySQL Server and Python 2.7.6, execute the setup script
+
+.. code-block:: bash
+
+    $> cd Gitana
+    $> python setup.py build
+    $> python setup.py install
+
 
 Licensing
 --------------------
 Gitana is distributed under the MIT License (https://opensource.org/licenses/MIT)
 
-Example of import
+How to use Gitana
 -----------------
 .. code-block:: python
 
-   from gitana import Gitana
+   from gitana.gitana import Gitana
 
-   CONFIG = {
-				'user': 'root',
-				'password': 'root',
-				'host': 'localhost',
-				'port': '3306',
-				'raise_on_warnings': False,
-				'buffered': True
-			}
+    CONFIG = {
+                'user': 'root',
+                'password': 'root',
+                'host': 'localhost',
+                'port': '3306',
+                'raise_on_warnings': False,
+                'buffered': True
+            }
 
-   def main():
-        g = Gitana(CONFIG, None)
+    def main():
+        g = Gitana(CONFIG)
+
         g.init_db("papyrus_db")
-
         g.create_project("papyrus_db", "papyrus")
 
-        g.import_git_data("papyrus_db", "papyrus", "papyrus_repo", "...\\Desktop\\org.eclipse.papyrus", None, 1, None, 10)
-        g.import_bugzilla_tracker_data("papyrus_db", "papyrus", "papyrus_repo", "papyrus-bugzilla", "https://bugs.eclipse.org/bugs/xmlrpc.cgi", "papyrus", None, 5)
-        g.import_eclipse_forum_data("papyrus_db", "papyrus", "papyrus-forum", "https://www.eclipse.org/forums/index.php/f/121/", None, False, 5)
-        g.import_stackoverflow_data("papyrus_db", "papyrus", "papyrus-so", "papyrus", None, ['YOUR-TOKEN-1', 'YOUR-TOKEN-2', ...])
-
-   if __name__ == "__main__":
-        main()
+        g.import_git_data("papyrus_db", "papyrus", "papyrus_repo", "...\\Desktop\\org.eclipse.papyrus")
+        g.import_bugzilla_issue_data("papyrus_db", "papyrus", "papyrus_repo", "bugzilla-papyrus",
+                                 "https://bugs.eclipse.org/bugs/xmlrpc.cgi", "papyrus")
+        g.import_eclipse_forum_data("papyrus_db", "papyrus", "papyrus-forum",
+                                    "https://www.eclipse.org/forums/index.php/f/121/")
+        g.import_stackoverflow_data("papyrus_db", "papyrus", "papyrus-so",
+                                    ['YOUR-TOKEN-1', 'YOUR-TOKEN-2', ...])
+        g.extract_dependency_relations("papyrus_db", "papyrus", "papyrus_repo",
+                                       "...\\Desktop\\org.eclipse.papyrus")
+       if __name__ == "__main__":
+            main()
 	
+
 Example of export
 -----------------
 .. code-block:: python
@@ -80,8 +93,8 @@ Example of export
 
    def main():
         g = Gitana(CONFIG, None)
-        g.export_to_graph("_papyrus_db", "./graph.json", "./graph.gexf")
-        g.export_to_report("_papyrus_db", "./report.json", "./report.html")
+        g.export_graph("papyrus_db", "./graph.json", "./graph.gexf")
+        g.export_activity_report("papyrus_db", "./report.json", "./report.html")
 
    if __name__ == "__main__":
         main()

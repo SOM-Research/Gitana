@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Graph Exporter &#8212; Gitana 1.0 documentation</title>
-    
+    <title>Graph Exporter &#8212; Gitana 1.0.1 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.0',
+        VERSION:     '1.0.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -35,7 +32,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
+  <body>
   
 
     <div class="document">
@@ -43,58 +40,8 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-exporters.graph.graph_exporter">
-<span id="graph-exporter"></span><h1>Graph Exporter<a class="headerlink" href="#module-exporters.graph.graph_exporter" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
-<dt id="exporters.graph.graph_exporter.GraphExporter">
-<em class="property">class </em><code class="descclassname">exporters.graph.graph_exporter.</code><code class="descname">GraphExporter</code><span class="sig-paren">(</span><em>config</em>, <em>db_name</em>, <em>log_root_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/exporters/graph/graph_exporter.html#GraphExporter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#exporters.graph.graph_exporter.GraphExporter" title="Permalink to this definition">¶</a></dt>
-<dd><p>This class exports the Gitana data to a graph representation</p>
-<dl class="method">
-<dt id="exporters.graph.graph_exporter.GraphExporter.export">
-<code class="descname">export</code><span class="sig-paren">(</span><em>file_path</em>, <em>json_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/exporters/graph/graph_exporter.html#GraphExporter.export"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#exporters.graph.graph_exporter.GraphExporter.export" title="Permalink to this definition">¶</a></dt>
-<dd><p>exports the Gitana data to a graph</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>file_path</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the path where to export the graph</li>
-<li><strong>json_path</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the path of the JSON that drives the export process</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-</dd></dl>
-
-<span class="target" id="module-exporters.graph.gexf_generator"></span><dl class="class">
-<dt id="exporters.graph.gexf_generator.GexfGenerator">
-<em class="property">class </em><code class="descclassname">exporters.graph.gexf_generator.</code><code class="descname">GexfGenerator</code><span class="sig-paren">(</span><em>cnx</em>, <em>logger</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/exporters/graph/gexf_generator.html#GexfGenerator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#exporters.graph.gexf_generator.GexfGenerator" title="Permalink to this definition">¶</a></dt>
-<dd><p>This class handles the generation of graphs in Gexf format</p>
-<dl class="method">
-<dt id="exporters.graph.gexf_generator.GexfGenerator.create">
-<code class="descname">create</code><span class="sig-paren">(</span><em>nodes_query</em>, <em>edges_query</em>, <em>type</em>, <em>file_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/exporters/graph/gexf_generator.html#GexfGenerator.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#exporters.graph.gexf_generator.GexfGenerator.create" title="Permalink to this definition">¶</a></dt>
-<dd><p>creates the Gexf file</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>nodes_query</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; SQL query of the nodes</li>
-<li><strong>edges_query</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; SQL query of the edges</li>
-<li><strong>type</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; type of the graph (directed, undirected)</li>
-<li><strong>file_path</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; file path where to store the output</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-</dd></dl>
-
+  <div class="section" id="graph-exporter">
+<h1>Graph Exporter<a class="headerlink" href="#graph-exporter" title="Permalink to this headline">¶</a></h1>
 </div>
 
 
@@ -140,7 +87,7 @@
       &copy;2017, Valerio Cosentino.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.5</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |

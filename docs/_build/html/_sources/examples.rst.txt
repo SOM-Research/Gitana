@@ -24,17 +24,20 @@ Importer
 
 	def main():
 		g = Gitana(CONFIG, None)
-		g.delete_previous_logs()
-		g.init_db("_papyrus_db")
-		g.create_project("_papyrus_db", "papyrus")
-		print "import git data"
-		g.import_git_data("_papyrus_db", "papyrus", "papyrus_repo", "C:\\Users\\atlanmod\\Desktop\\eclipse-git-projects\\papyrus", None, 1, ["0.7.0"], 10)
-		print "import bugzilla data"
-		g.import_bugzilla_tracker_data("_papyrus_db", "papyrus", "papyrus_repo", "bugzilla-papyrus", "https://bugs.eclipse.org/bugs/xmlrpc.cgi", "papyrus", None, 10)
-		print "import eclipse forum data"
-		g.import_eclipse_forum_data("_papyrus_db", "papyrus", "papyrus-eclipse", "https://www.eclipse.org/forums/index.php/f/121/", None, 4)
-		print "import stackoverflow data"
-		g.import_stackoverflow_data("_papyrus_db", "papyrus", "papyrus-stackoverflow", "papyrus", None, ['YOUR-STACKOVERFLOW-TOKEN'])
+
+		g.init_db("papyrus_db")
+		g.create_project("papyrus_db", "papyrus")
+
+		g.import_git_data("papyrus_db", "papyrus", "papyrus_repo", "...\\Desktop\\org.eclipse.papyrus",
+		                  references=["0.7.0"])
+		g.import_bugzilla_issue_data("papyrus_db", "papyrus", "papyrus_repo", "bugzilla-papyrus",
+                                 "https://bugs.eclipse.org/bugs/xmlrpc.cgi", "papyrus")
+        g.import_eclipse_forum_data("papyrus_db", "papyrus", "papyrus-forum",
+                                    "https://www.eclipse.org/forums/index.php/f/121/")
+        g.import_stackoverflow_data("papyrus_db", "papyrus", "papyrus-so",
+                                    ['YOUR-TOKEN-1', 'YOUR-TOKEN-2', ...])
+        g.extract_dependency_relations("papyrus_db", "papyrus", "papyrus_repo",
+                                       "...\\Desktop\\org.eclipse.papyrus")
 
 	if __name__ == "__main__":
 		main()
@@ -71,7 +74,7 @@ Graph Exporter
 
 	def main():
 		g = Gitana(CONFIG, None)
-		g.export_to_graph("_papyrus_db", "./graph.json", "./graph.gexf")
+		g.export_graph("papyrus_db", "./graph.json", "./graph.gexf")
 
 	if __name__ == "__main__":
 		main()
@@ -110,7 +113,7 @@ Report Exporter
 
 	def main():
 		g = Gitana(CONFIG, None)
-		g.export_to_report("_papyrus_db", "./report.json", "./report.html")
+		g.export_activity_report("papyrus_db", "./report.json", "./report.html")
 
 	if __name__ == "__main__":
 		main()
