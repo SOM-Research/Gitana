@@ -13,7 +13,10 @@ CONFIG = {
             'buffered': True
         }
 
-SLACK_TOKENS = ['1']
+SLACK_TOKENS = ['your-token-1',
+                'your-token-2',
+                '...']
+
 
 def test_1():
     g = Gitana(CONFIG)
@@ -32,10 +35,11 @@ def test_2():
 
 
 def main():
-    print "starting 1.."
+    print("starting 1..")
     test_1()
-    print "starting 2.."
+    print("starting 2..")
     test_2()
+
 
 if __name__ == "__main__":
     main()

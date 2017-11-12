@@ -26,7 +26,7 @@ class TokenUtil():
         self._type = type
 
     def _github_requests_left(self, token):
-        #gets github token requests left
+        # gets github token requests left
         left = None
         try:
             left = token.rate_limiting[0]
@@ -36,7 +36,7 @@ class TokenUtil():
         return left
 
     def _stackoverflow_requests_left(self, token):
-        #gets stackoverflow token requests left
+        # gets stackoverflow token requests left
         left = None
         try:
             if token.throttle_stop:
@@ -52,7 +52,7 @@ class TokenUtil():
         return left
 
     def _get_requests_left(self, token):
-        #gets token requests left
+        # gets token requests left
         left = None
         if self._type == TokenUtil.GITHUB_TYPE:
             left = self._github_requests_left(token)
@@ -62,7 +62,7 @@ class TokenUtil():
         return left
 
     def _is_usuable(self, token):
-        #checks that a token has requests left
+        # checks that a token has requests left
         left = self._get_requests_left(token)
         if left:
             check = left > 50

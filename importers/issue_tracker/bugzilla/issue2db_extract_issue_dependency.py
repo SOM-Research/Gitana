@@ -58,7 +58,8 @@ class BugzillaIssueDependency2Db(object):
 
     def __call__(self):
         try:
-            log_path = self._log_root_path + "-issue2db-dependency" + str(self._interval[0]) + "-" + str(self._interval[-1])
+            log_path = self._log_root_path + "-issue2db-dependency" + \
+                       str(self._interval[0]) + "-" + str(self._interval[-1])
             self._logger = self._logging_util.get_logger(log_path)
             self._filehandler = self._logging_util.get_file_handler(self._logger, log_path, "info")
 
@@ -72,7 +73,7 @@ class BugzillaIssueDependency2Db(object):
                 self._dao.close_connection()
 
     def _extract_single_issue_dependency(self, issue_id, data, type):
-        #inserts issue dependency
+        # inserts issue dependency
         extracted = None
         if isinstance(data, int):
             extracted = data
@@ -86,7 +87,7 @@ class BugzillaIssueDependency2Db(object):
                 self._dao.insert_issue_dependency(issue_id, dependent_issue, type)
 
     def _extract_issue_dependency(self, issue_id, obj, type):
-        #processes issue dependencies
+        # processes issue dependencies
         if isinstance(obj, list):
             for issue in obj:
                 self._extract_single_issue_dependency(issue_id, issue, type)
@@ -119,20 +120,26 @@ class BugzillaIssueDependency2Db(object):
                 issue = self._querier.get_issue(issue_own_id)
 
                 if issue.blocks:
-                    self._extract_issue_dependency(issue_id, self._querier.get_issue_blocks(issue), self._dao.get_issue_dependency_type_id("block"))
+                    self._extract_issue_dependency(issue_id, self._querier.get_issue_blocks(issue),
+                                                   self._dao.get_issue_dependency_type_id("block"))
 
                 if issue.depends_on:
-                    self._extract_issue_dependency(issue_id, self._querier.get_issue_depends_on(issue), self._dao.get_issue_dependency_type_id("depends"))
+                    self._extract_issue_dependency(issue_id, self._querier.get_issue_depends_on(issue),
+                                                   self._dao.get_issue_dependency_type_id("depends"))
 
                 if issue.see_also:
-                    self._extract_issue_dependency(issue_id, self._querier.get_issue_see_also(issue), self._dao.get_issue_dependency_type_id("related"))
+                    self._extract_issue_dependency(issue_id, self._querier.get_issue_see_also(issue),
+                                                   self._dao.get_issue_dependency_type_id("related"))
 
                 if self._is_duplicated(issue):
                     if issue.dupe_of:
-                        self._extract_issue_dependency(issue_id, self._querier.get_issue_dupe_of(issue), self._dao.get_issue_dependency_type_id("duplicated"))
+                        self._extract_issue_dependency(issue_id, self._querier.get_issue_dupe_of(issue),
+                                                       self._dao.get_issue_dependency_type_id("duplicated"))
 
             except Exception:
-                self._logger.error("something went wrong with the following issue id: " + str(issue_id) + " - tracker id " + str(self._issue_tracker_id), exc_info=True)
+                self._logger.error("something went wrong with the following issue id: " +
+                                   str(issue_id) + " - tracker id " + str(self._issue_tracker_id),
+                                   exc_info=True)
 
             row = self._dao.fetchone(cursor)
 
@@ -149,8 +156,8 @@ class BugzillaIssueDependency2Db(object):
 
             end_time = datetime.now()
             minutes_and_seconds = self._logging_util.calculate_execution_time(end_time, start_time)
-            self._logger.info("BugzillaIssueDependency2Db finished after " + str(minutes_and_seconds[0])
-                           + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
+            self._logger.info("BugzillaIssueDependency2Db finished after " + str(minutes_and_seconds[0]) +
+                              " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
             self._logging_util.remove_file_handler_logger(self._logger, self._filehandler)
         except Exception:
             self._logger.error("BugzillaIssueDependency2Db failed", exc_info=True)

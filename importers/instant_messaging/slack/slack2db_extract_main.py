@@ -68,7 +68,7 @@ class Slack2DbMain():
         self._dao = None
 
     def _get_channel_ids(self, instant_messaging_id):
-        #get data source channel ids
+        # get data source channel ids
         channel_ids = []
         channel_own_ids = self._querier.get_channel_ids(self._before_date, self._channels)
         for own_id in channel_own_ids:
@@ -80,13 +80,14 @@ class Slack2DbMain():
                 description = self._querier.get_channel_description(channel)
                 created_at = self._querier._get_channel_created_at(channel)
 
-                channel_id = self._dao.insert_channel(own_id, instant_messaging_id, name, description, created_at, last_change_at)
+                channel_id = self._dao.insert_channel(own_id, instant_messaging_id, name,
+                                                      description, created_at, last_change_at)
                 channel_ids.append(channel_id)
 
         return channel_ids
 
     def _get_channels(self, instant_messaging_id):
-        #processes Slack channels
+        # processes Slack channels
         channel_ids = self._get_channel_ids(instant_messaging_id)
 
         intervals = [i for i in multiprocessing_util.get_tasks_intervals(channel_ids, len(self._tokens)) if len(i) > 0]
@@ -99,7 +100,8 @@ class Slack2DbMain():
 
         pos = 0
         for interval in intervals:
-            topic_extractor = SlackChannel2Db(self._db_name, instant_messaging_id, interval, self._tokens[pos], self._config, self._log_path)
+            topic_extractor = SlackChannel2Db(self._db_name, instant_messaging_id, interval, self._tokens[pos],
+                                              self._config, self._log_path)
             queue_extractors.put(topic_extractor)
             pos += 1
 
@@ -124,13 +126,14 @@ class Slack2DbMain():
             self._dao = SlackDao(self._config, self._logger)
 
             project_id = self._dao.select_project_id(self._project_name)
-            instant_messaging_id = self._dao.insert_instant_messaging(project_id, self._instant_messaging_name, self._type)
+            instant_messaging_id = self._dao.insert_instant_messaging(project_id,
+                                                                      self._instant_messaging_name, self._type)
             self._get_channels(instant_messaging_id)
 
             end_time = datetime.now()
             minutes_and_seconds = self._logging_util.calculate_execution_time(end_time, start_time)
-            self._logger.info("SlackDbMain extract finished after " + str(minutes_and_seconds[0])
-                         + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
+            self._logger.info("SlackDbMain extract finished after " + str(minutes_and_seconds[0]) +
+                              " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
 
             self._logging_util.remove_file_handler_logger(self._logger, self._fileHandler)
         except:

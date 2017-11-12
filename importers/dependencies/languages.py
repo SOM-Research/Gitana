@@ -232,7 +232,7 @@ class Parser(object):
             source_path = '%s.java' % import_module.replace('.', '/').replace(';', '')
 
             # making sure file exists
-            #self._logger.info('File: %s Files: %s', source_dir + '/' + source_path, self.files)
+            # self._logger.info('File: %s Files: %s', source_dir + '/' + source_path, self.files)
             source_path = source_dir + '/' + source_path
             if source_path in self.files:
                 return source_path

@@ -2,10 +2,9 @@
 # -*- coding: utf-8 -*-
 __author__ = 'valerio cosentino'
 
+import multiprocessing
 import sys
 sys.path.insert(0, "..//..")
-
-import multiprocessing
 
 
 def start_consumers(num_consumers, task_queue, result_queue):
@@ -65,8 +64,7 @@ class Consumer(multiprocessing.Process):
                 self.task_queue.task_done()
                 break
 
-            answer = next_task()
+            next_task()
             self.task_queue.task_done()
-            #self.result_queue.put(answer)
 
         return

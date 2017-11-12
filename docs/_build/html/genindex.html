@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Index &#8212; Gitana 1.0 documentation</title>
+    <title>Index &#8212; Gitana 1.0.1 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.0',
+        VERSION:     '1.0.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -67,12 +67,42 @@
 <h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reportexporter.html#exporters.report.report_exporter.ActivityReportExporter">ActivityReportExporter (class in exporters.report.report_exporter)</a>
+</li>
+      <li><a href="gitana.html#gitana.gitana.Gitana.add_forum_tables">add_forum_tables() (gitana.gitana.Gitana method)</a>
+
+      <ul>
+        <li><a href="dbschema.html#importers.db.dbschema.DbSchema.add_forum_tables">(importers.db.dbschema.DbSchema method)</a>
+</li>
+      </ul></li>
+      <li><a href="gitana.html#gitana.gitana.Gitana.add_git_tables">add_git_tables() (gitana.gitana.Gitana method)</a>
+
+      <ul>
+        <li><a href="dbschema.html#importers.db.dbschema.DbSchema.add_git_tables">(importers.db.dbschema.DbSchema method)</a>
+</li>
+      </ul></li>
+      <li><a href="gitana.html#gitana.gitana.Gitana.add_instant_messaging_tables">add_instant_messaging_tables() (gitana.gitana.Gitana method)</a>
+
+      <ul>
+        <li><a href="dbschema.html#importers.db.dbschema.DbSchema.add_instant_messaging_tables">(importers.db.dbschema.DbSchema method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="gitana.html#gitana.gitana.Gitana.add_issue_tracker_tables">add_issue_tracker_tables() (gitana.gitana.Gitana method)</a>
+
+      <ul>
+        <li><a href="dbschema.html#importers.db.dbschema.DbSchema.add_issue_tracker_tables">(importers.db.dbschema.DbSchema method)</a>
+</li>
+      </ul></li>
       <li><a href="bugzilla.html#importers.issue_tracker.bugzilla.bugzilla_dao.BugzillaDao.assign_label_to_issue">assign_label_to_issue() (importers.issue_tracker.bugzilla.bugzilla_dao.BugzillaDao method)</a>
 
       <ul>
         <li><a href="github.html#importers.issue_tracker.github.github_dao.GitHubDao.assign_label_to_issue">(importers.issue_tracker.github.github_dao.GitHubDao method)</a>
 </li>
       </ul></li>
+      <li><a href="stackoverflow.html#importers.forum.stackoverflow.stackoverflow_dao.StackOverflowDao.assign_label_to_topic">assign_label_to_topic() (importers.forum.stackoverflow.stackoverflow_dao.StackOverflowDao method)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -103,6 +133,8 @@
 </li>
       <li><a href="reportexporter.html#exporters.report.chart_generator.ChartGenerator">ChartGenerator (class in exporters.report.chart_generator)</a>
 </li>
+      <li><a href="util_date.html#util.date_util.DateUtil.check_format_timestamp">check_format_timestamp() (util.date_util.DateUtil method)</a>
+</li>
       <li><a href="eclipseforum.html#importers.forum.eclipse.querier_eclipse_forum.EclipseForumQuerier.close_browser">close_browser() (importers.forum.eclipse.querier_eclipse_forum.EclipseForumQuerier method)</a>
 </li>
       <li><a href="eclipseforum.html#importers.forum.eclipse.eclipse_forum_dao.EclipseForumDao.close_connection">close_connection() (importers.forum.eclipse.eclipse_forum_dao.EclipseForumDao method)</a>
@@ -119,10 +151,10 @@
 </li>
       <li><a href="git.html#importers.vcs.git.querier_git.GitQuerier.collect_all_commits_after_sha">collect_all_commits_after_sha() (importers.vcs.git.querier_git.GitQuerier method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="git.html#importers.vcs.git.querier_git.GitQuerier.collect_all_commits_after_sha_before_date">collect_all_commits_after_sha_before_date() (importers.vcs.git.querier_git.GitQuerier method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="git.html#importers.vcs.git.querier_git.GitQuerier.collect_all_commits_before_date">collect_all_commits_before_date() (importers.vcs.git.querier_git.GitQuerier method)</a>
 </li>
       <li><a href="git.html#importers.vcs.git.querier_git.GitQuerier.commit_has_no_parents">commit_has_no_parents() (importers.vcs.git.querier_git.GitQuerier method)</a>
@@ -143,6 +175,12 @@
 
       <ul>
         <li><a href="dbschema.html#importers.db.dbschema.DbSchema.create_project">(importers.db.dbschema.DbSchema method)</a>
+</li>
+      </ul></li>
+      <li><a href="gitana.html#gitana.gitana.Gitana.create_repository">create_repository() (gitana.gitana.Gitana method)</a>
+
+      <ul>
+        <li><a href="dbschema.html#importers.db.dbschema.DbSchema.create_repository">(importers.db.dbschema.DbSchema method)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -182,12 +220,12 @@
       <li><a href="graphexporter.html#exporters.graph.graph_exporter.GraphExporter.export">export() (exporters.graph.graph_exporter.GraphExporter method)</a>
 
       <ul>
-        <li><a href="reportexporter.html#exporters.report.report_exporter.ReportExporter.export">(exporters.report.report_exporter.ReportExporter method)</a>
+        <li><a href="reportexporter.html#exporters.report.report_exporter.ActivityReportExporter.export">(exporters.report.report_exporter.ActivityReportExporter method)</a>
 </li>
       </ul></li>
-      <li><a href="gitana.html#gitana.gitana.Gitana.export_to_graph">export_to_graph() (gitana.gitana.Gitana method)</a>
+      <li><a href="gitana.html#gitana.gitana.Gitana.export_activity_report">export_activity_report() (gitana.gitana.Gitana method)</a>
 </li>
-      <li><a href="gitana.html#gitana.gitana.Gitana.export_to_report">export_to_report() (gitana.gitana.Gitana method)</a>
+      <li><a href="gitana.html#gitana.gitana.Gitana.export_graph">export_graph() (gitana.gitana.Gitana method)</a>
 </li>
       <li><a href="graphexporter.html#module-exporters.graph.gexf_generator">exporters.graph.gexf_generator (module)</a>
 </li>
@@ -231,6 +269,8 @@
         <li><a href="git.html#importers.vcs.git.git2db_extract_reference.Git2DbReference.extract">(importers.vcs.git.git2db_extract_reference.Git2DbReference method)</a>
 </li>
       </ul></li>
+      <li><a href="gitana.html#gitana.gitana.Gitana.extract_dependency_relations">extract_dependency_relations() (gitana.gitana.Gitana method)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -383,15 +423,21 @@
 </li>
       <li><a href="bugzilla.html#importers.issue_tracker.bugzilla.querier_bugzilla.BugzillaQuerier.get_event_property">get_event_property() (importers.issue_tracker.bugzilla.querier_bugzilla.BugzillaQuerier method)</a>
 </li>
+      <li><a href="git.html#importers.vcs.git.querier_git.GitQuerier.get_ext">get_ext() (importers.vcs.git.querier_git.GitQuerier method)</a>
+</li>
       <li><a href="slack.html#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_file_attachment">get_file_attachment() (importers.instant_messaging.slack.querier_slack.SlackQuerier method)</a>
 </li>
       <li><a href="slack.html#importers.instant_messaging.slack.querier_slack.SlackQuerier.get_file_attachment_property">get_file_attachment_property() (importers.instant_messaging.slack.querier_slack.SlackQuerier method)</a>
+</li>
+      <li><a href="git.html#importers.vcs.git.querier_git.GitQuerier.get_file_content">get_file_content() (importers.vcs.git.querier_git.GitQuerier method)</a>
 </li>
       <li><a href="git.html#importers.vcs.git.querier_git.GitQuerier.get_file_current">get_file_current() (importers.vcs.git.querier_git.GitQuerier method)</a>
 </li>
       <li><a href="util_logging.html#util.logging_util.LoggingUtil.get_file_handler">get_file_handler() (util.logging_util.LoggingUtil method)</a>
 </li>
       <li><a href="git.html#importers.vcs.git.querier_git.GitQuerier.get_file_path">get_file_path() (importers.vcs.git.querier_git.GitQuerier method)</a>
+</li>
+      <li><a href="git.html#importers.vcs.git.querier_git.GitQuerier.get_files_in_ref">get_files_in_ref() (importers.vcs.git.querier_git.GitQuerier method)</a>
 </li>
       <li><a href="bugzilla.html#importers.issue_tracker.bugzilla.querier_bugzilla.BugzillaQuerier.get_issue">get_issue() (importers.issue_tracker.bugzilla.querier_bugzilla.BugzillaQuerier method)</a>
 
@@ -469,10 +515,10 @@
         <li><a href="github.html#importers.issue_tracker.github.querier_github.GitHubQuerier.get_issue_last_change_time">(importers.issue_tracker.github.querier_github.GitHubQuerier method)</a>
 </li>
       </ul></li>
-      <li><a href="bugzilla.html#importers.issue_tracker.bugzilla.querier_bugzilla.BugzillaQuerier.get_issue_operating_system">get_issue_operating_system() (importers.issue_tracker.bugzilla.querier_bugzilla.BugzillaQuerier method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="bugzilla.html#importers.issue_tracker.bugzilla.querier_bugzilla.BugzillaQuerier.get_issue_operating_system">get_issue_operating_system() (importers.issue_tracker.bugzilla.querier_bugzilla.BugzillaQuerier method)</a>
+</li>
       <li><a href="bugzilla.html#importers.issue_tracker.bugzilla.querier_bugzilla.BugzillaQuerier.get_issue_priority">get_issue_priority() (importers.issue_tracker.bugzilla.querier_bugzilla.BugzillaQuerier method)</a>
 </li>
       <li><a href="bugzilla.html#importers.issue_tracker.bugzilla.querier_bugzilla.BugzillaQuerier.get_issue_see_also">get_issue_see_also() (importers.issue_tracker.bugzilla.querier_bugzilla.BugzillaQuerier method)</a>
@@ -585,6 +631,8 @@
         <li><a href="stackoverflow.html#importers.forum.stackoverflow.stackoverflow_dao.StackOverflowDao.get_topic_ids">(importers.forum.stackoverflow.stackoverflow_dao.StackOverflowDao method)</a>
 </li>
       </ul></li>
+      <li><a href="stackoverflow.html#importers.forum.stackoverflow.querier_stackoverflow.StackOverflowQuerier.get_topic_labels">get_topic_labels() (importers.forum.stackoverflow.querier_stackoverflow.StackOverflowQuerier method)</a>
+</li>
       <li><a href="stackoverflow.html#importers.forum.stackoverflow.querier_stackoverflow.StackOverflowQuerier.get_topic_last_change_at">get_topic_last_change_at() (importers.forum.stackoverflow.querier_stackoverflow.StackOverflowQuerier method)</a>
 
       <ul>
@@ -693,13 +741,13 @@
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="gitana.html#gitana.gitana.Gitana.import_bugzilla_tracker_data">import_bugzilla_tracker_data() (gitana.gitana.Gitana method)</a>
+      <li><a href="gitana.html#gitana.gitana.Gitana.import_bugzilla_issue_data">import_bugzilla_issue_data() (gitana.gitana.Gitana method)</a>
 </li>
       <li><a href="gitana.html#gitana.gitana.Gitana.import_eclipse_forum_data">import_eclipse_forum_data() (gitana.gitana.Gitana method)</a>
 </li>
       <li><a href="gitana.html#gitana.gitana.Gitana.import_git_data">import_git_data() (gitana.gitana.Gitana method)</a>
 </li>
-      <li><a href="gitana.html#gitana.gitana.Gitana.import_github_tracker_data">import_github_tracker_data() (gitana.gitana.Gitana method)</a>
+      <li><a href="gitana.html#gitana.gitana.Gitana.import_github_issue_data">import_github_issue_data() (gitana.gitana.Gitana method)</a>
 </li>
       <li><a href="gitana.html#gitana.gitana.Gitana.import_slack_data">import_slack_data() (gitana.gitana.Gitana method)</a>
 </li>
@@ -793,10 +841,10 @@
         <li><a href="github.html#importers.issue_tracker.github.github_dao.GitHubDao.insert_attachment">(importers.issue_tracker.github.github_dao.GitHubDao method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="slack.html#importers.instant_messaging.slack.slack_dao.SlackDao.insert_channel">insert_channel() (importers.instant_messaging.slack.slack_dao.SlackDao method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="git.html#importers.vcs.git.git_dao.GitDao.insert_commit">insert_commit() (importers.vcs.git.git_dao.GitDao method)</a>
 </li>
       <li><a href="git.html#importers.vcs.git.git_dao.GitDao.insert_commit_in_reference">insert_commit_in_reference() (importers.vcs.git.git_dao.GitDao method)</a>
@@ -863,10 +911,14 @@
         <li><a href="util_db.html#util.db_util.DbUtil.insert_issue_tracker">(util.db_util.DbUtil method)</a>
 </li>
       </ul></li>
-      <li><a href="bugzilla.html#importers.issue_tracker.bugzilla.bugzilla_dao.BugzillaDao.insert_label">insert_label() (importers.issue_tracker.bugzilla.bugzilla_dao.BugzillaDao method)</a>
+      <li><a href="stackoverflow.html#importers.forum.stackoverflow.stackoverflow_dao.StackOverflowDao.insert_label">insert_label() (importers.forum.stackoverflow.stackoverflow_dao.StackOverflowDao method)</a>
 
       <ul>
+        <li><a href="bugzilla.html#importers.issue_tracker.bugzilla.bugzilla_dao.BugzillaDao.insert_label">(importers.issue_tracker.bugzilla.bugzilla_dao.BugzillaDao method)</a>
+</li>
         <li><a href="github.html#importers.issue_tracker.github.github_dao.GitHubDao.insert_label">(importers.issue_tracker.github.github_dao.GitHubDao method)</a>
+</li>
+        <li><a href="util_db.html#util.db_util.DbUtil.insert_label">(util.db_util.DbUtil method)</a>
 </li>
       </ul></li>
       <li><a href="git.html#importers.vcs.git.git_dao.GitDao.insert_line_details">insert_line_details() (importers.vcs.git.git_dao.GitDao method)</a>
@@ -887,6 +939,8 @@
         <li><a href="slack.html#importers.instant_messaging.slack.slack_dao.SlackDao.insert_message_dependency">(importers.instant_messaging.slack.slack_dao.SlackDao method)</a>
 </li>
       </ul></li>
+      <li><a href="util_db.html#util.db_util.DbUtil.insert_project">insert_project() (util.db_util.DbUtil method)</a>
+</li>
       <li><a href="git.html#importers.vcs.git.git_dao.GitDao.insert_reference">insert_reference() (importers.vcs.git.git_dao.GitDao method)</a>
 </li>
       <li><a href="git.html#importers.vcs.git.git_dao.GitDao.insert_repo">insert_repo() (importers.vcs.git.git_dao.GitDao method)</a>
@@ -910,6 +964,8 @@
       <li><a href="slack.html#importers.instant_messaging.slack.slack_dao.SlackDao.insert_url_attachment">insert_url_attachment() (importers.instant_messaging.slack.slack_dao.SlackDao method)</a>
 </li>
       <li><a href="util_db.html#util.db_util.DbUtil.insert_user">insert_user() (util.db_util.DbUtil method)</a>
+</li>
+      <li><a href="stackoverflow.html#importers.forum.stackoverflow.querier_stackoverflow.StackOverflowQuerier.is_accepted_answer">is_accepted_answer() (importers.forum.stackoverflow.querier_stackoverflow.StackOverflowQuerier method)</a>
 </li>
       <li><a href="slack.html#importers.instant_messaging.slack.querier_slack.SlackQuerier.is_bot_message">is_bot_message() (importers.instant_messaging.slack.querier_slack.SlackQuerier method)</a>
 </li>
@@ -955,13 +1011,13 @@
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="util_logging.html#util.logging_util.LoggingUtil.remove_file_handler_logger">remove_file_handler_logger() (util.logging_util.LoggingUtil method)</a>
+      <li><a href="github.html#importers.issue_tracker.github.querier_github.GitHubQuerier.regenerate_token">regenerate_token() (importers.issue_tracker.github.querier_github.GitHubQuerier method)</a>
 </li>
-      <li><a href="stackoverflow.html#importers.forum.stackoverflow.querier_stackoverflow.StackOverflowQuerier.remove_html_tags">remove_html_tags() (importers.forum.stackoverflow.querier_stackoverflow.StackOverflowQuerier method)</a>
+      <li><a href="util_logging.html#util.logging_util.LoggingUtil.remove_file_handler_logger">remove_file_handler_logger() (util.logging_util.LoggingUtil method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reportexporter.html#exporters.report.report_exporter.ReportExporter">ReportExporter (class in exporters.report.report_exporter)</a>
+      <li><a href="stackoverflow.html#importers.forum.stackoverflow.querier_stackoverflow.StackOverflowQuerier.remove_html_tags">remove_html_tags() (importers.forum.stackoverflow.querier_stackoverflow.StackOverflowQuerier method)</a>
 </li>
       <li><a href="util_db.html#util.db_util.DbUtil.restart_connection">restart_connection() (util.db_util.DbUtil method)</a>
 </li>
@@ -973,6 +1029,8 @@
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="git.html#importers.vcs.git.git_dao.GitDao.select_all_developer_ids">select_all_developer_ids() (importers.vcs.git.git_dao.GitDao method)</a>
+</li>
       <li><a href="slack.html#importers.instant_messaging.slack.slack_dao.SlackDao.select_channel_own_id">select_channel_own_id() (importers.instant_messaging.slack.slack_dao.SlackDao method)</a>
 </li>
       <li><a href="bugzilla.html#importers.issue_tracker.bugzilla.bugzilla_dao.BugzillaDao.select_commit">select_commit() (importers.issue_tracker.bugzilla.bugzilla_dao.BugzillaDao method)</a>
@@ -983,6 +1041,8 @@
       </ul></li>
       <li><a href="git.html#importers.vcs.git.git_dao.GitDao.select_commit_id">select_commit_id() (importers.vcs.git.git_dao.GitDao method)</a>
 </li>
+      <li><a href="git.html#importers.vcs.git.git_dao.GitDao.select_commit_id_before_date">select_commit_id_before_date() (importers.vcs.git.git_dao.GitDao method)</a>
+</li>
       <li><a href="bugzilla.html#importers.issue_tracker.bugzilla.bugzilla_dao.BugzillaDao.select_event_type">select_event_type() (importers.issue_tracker.bugzilla.bugzilla_dao.BugzillaDao method)</a>
 
       <ul>
@@ -990,6 +1050,8 @@
 </li>
       </ul></li>
       <li><a href="git.html#importers.vcs.git.git_dao.GitDao.select_file_id">select_file_id() (importers.vcs.git.git_dao.GitDao method)</a>
+</li>
+      <li><a href="git.html#importers.vcs.git.git_dao.GitDao.select_file_id_before_date">select_file_id_before_date() (importers.vcs.git.git_dao.GitDao method)</a>
 </li>
       <li><a href="git.html#importers.vcs.git.git_dao.GitDao.select_file_modification_id">select_file_modification_id() (importers.vcs.git.git_dao.GitDao method)</a>
 </li>
@@ -1033,10 +1095,14 @@
         <li><a href="util_db.html#util.db_util.DbUtil.select_issue_tracker_id">(util.db_util.DbUtil method)</a>
 </li>
       </ul></li>
-      <li><a href="bugzilla.html#importers.issue_tracker.bugzilla.bugzilla_dao.BugzillaDao.select_label_id">select_label_id() (importers.issue_tracker.bugzilla.bugzilla_dao.BugzillaDao method)</a>
+      <li><a href="stackoverflow.html#importers.forum.stackoverflow.stackoverflow_dao.StackOverflowDao.select_label_id">select_label_id() (importers.forum.stackoverflow.stackoverflow_dao.StackOverflowDao method)</a>
 
       <ul>
+        <li><a href="bugzilla.html#importers.issue_tracker.bugzilla.bugzilla_dao.BugzillaDao.select_label_id">(importers.issue_tracker.bugzilla.bugzilla_dao.BugzillaDao method)</a>
+</li>
         <li><a href="github.html#importers.issue_tracker.github.github_dao.GitHubDao.select_label_id">(importers.issue_tracker.github.github_dao.GitHubDao method)</a>
+</li>
+        <li><a href="util_db.html#util.db_util.DbUtil.select_label_id">(util.db_util.DbUtil method)</a>
 </li>
       </ul></li>
       <li><a href="bugzilla.html#importers.issue_tracker.bugzilla.bugzilla_dao.BugzillaDao.select_last_change_issue">select_last_change_issue() (importers.issue_tracker.bugzilla.bugzilla_dao.BugzillaDao method)</a>
@@ -1051,6 +1117,8 @@
         <li><a href="slack.html#importers.instant_messaging.slack.slack_dao.SlackDao.select_message_id">(importers.instant_messaging.slack.slack_dao.SlackDao method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="eclipseforum.html#importers.forum.eclipse.eclipse_forum_dao.EclipseForumDao.select_project_id">select_project_id() (importers.forum.eclipse.eclipse_forum_dao.EclipseForumDao method)</a>
 
       <ul>
@@ -1067,8 +1135,6 @@
         <li><a href="util_db.html#util.db_util.DbUtil.select_project_id">(util.db_util.DbUtil method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="git.html#importers.vcs.git.git_dao.GitDao.select_reference_id">select_reference_id() (importers.vcs.git.git_dao.GitDao method)</a>
 </li>
       <li><a href="git.html#importers.vcs.git.git_dao.GitDao.select_reference_name">select_reference_name() (importers.vcs.git.git_dao.GitDao method)</a>
@@ -1083,6 +1149,8 @@
         <li><a href="util_db.html#util.db_util.DbUtil.select_repo_id">(util.db_util.DbUtil method)</a>
 </li>
       </ul></li>
+      <li><a href="git.html#importers.vcs.git.git_dao.GitDao.select_sha_commit_by_user">select_sha_commit_by_user() (importers.vcs.git.git_dao.GitDao method)</a>
+</li>
       <li><a href="eclipseforum.html#importers.forum.eclipse.eclipse_forum_dao.EclipseForumDao.select_topic_id">select_topic_id() (importers.forum.eclipse.eclipse_forum_dao.EclipseForumDao method)</a>
 </li>
       <li><a href="util_db.html#util.db_util.DbUtil.select_user_id_by_email">select_user_id_by_email() (util.db_util.DbUtil method)</a>
@@ -1149,7 +1217,7 @@
         <li><a href="git.html#importers.vcs.git.git2db_update.Git2DbUpdate.update">(importers.vcs.git.git2db_update.Git2DbUpdate method)</a>
 </li>
       </ul></li>
-      <li><a href="gitana.html#gitana.gitana.Gitana.update_bugzilla_tracker_data">update_bugzilla_tracker_data() (gitana.gitana.Gitana method)</a>
+      <li><a href="gitana.html#gitana.gitana.Gitana.update_bugzilla_issue_data">update_bugzilla_issue_data() (gitana.gitana.Gitana method)</a>
 </li>
       <li><a href="git.html#importers.vcs.git.git_dao.GitDao.update_commit_parent">update_commit_parent() (importers.vcs.git.git_dao.GitDao method)</a>
 </li>
@@ -1157,7 +1225,7 @@
 </li>
       <li><a href="gitana.html#gitana.gitana.Gitana.update_git_data">update_git_data() (gitana.gitana.Gitana method)</a>
 </li>
-      <li><a href="gitana.html#gitana.gitana.Gitana.update_github_tracker_data">update_github_tracker_data() (gitana.gitana.Gitana method)</a>
+      <li><a href="gitana.html#gitana.gitana.Gitana.update_github_issue_data">update_github_issue_data() (gitana.gitana.Gitana method)</a>
 </li>
       <li><a href="bugzilla.html#importers.issue_tracker.bugzilla.bugzilla_dao.BugzillaDao.update_issue">update_issue() (importers.issue_tracker.bugzilla.bugzilla_dao.BugzillaDao method)</a>
 

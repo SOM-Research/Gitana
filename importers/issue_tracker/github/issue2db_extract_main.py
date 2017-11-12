@@ -76,7 +76,7 @@ class GitHubIssue2DbMain():
         return '-'.join([str(e) for e in elements])
 
     def _insert_issue_data(self, repo_id, issue_tracker_id):
-        #processes issue data
+        # processes issue data
         imported = self._dao.get_already_imported_issue_ids(issue_tracker_id, repo_id)
         issues = list(set(self._querier.get_issue_ids(self._before_date)) - set(imported))
 
@@ -90,7 +90,8 @@ class GitHubIssue2DbMain():
 
         pos = 0
         for interval in intervals:
-            issue_extractor = GitHubIssue2Db(self._db_name, repo_id, issue_tracker_id, self._url, interval, self._tokens[pos],
+            issue_extractor = GitHubIssue2Db(self._db_name, repo_id, issue_tracker_id, self._url,
+                                             interval, self._tokens[pos],
                                              self._config, self._log_path)
             queue_intervals.put(issue_extractor)
             pos += 1
@@ -102,7 +103,7 @@ class GitHubIssue2DbMain():
         queue_intervals.join()
 
     def _insert_issue_dependencies(self, repo_id, issue_tracker_id):
-        #processes issue dependency data
+        # processes issue dependency data
         issues = self._dao.get_already_imported_issue_ids(issue_tracker_id, repo_id)
         intervals = [i for i in multiprocessing_util.get_tasks_intervals(issues, len(self._tokens)) if len(i) > 0]
 
@@ -114,7 +115,8 @@ class GitHubIssue2DbMain():
 
         pos = 0
         for interval in intervals:
-            issue_dependency_extractor = GitHubIssueDependency2Db(self._db_name, repo_id, issue_tracker_id, self._url, interval, self._tokens[pos],
+            issue_dependency_extractor = GitHubIssueDependency2Db(self._db_name, repo_id, issue_tracker_id, self._url,
+                                                                  interval, self._tokens[pos],
                                                                   self._config, self._log_path)
             queue_intervals.put(issue_dependency_extractor)
             pos += 1
@@ -126,14 +128,13 @@ class GitHubIssue2DbMain():
         queue_intervals.join()
 
     def _split_issue_extraction(self):
-        #splits the issues found according to the number of processes
+        # splits the issues found according to the number of processes
         project_id = self._dao.select_project_id(self._project_name)
         repo_id = self._dao.select_repo_id(project_id, self._repo_name)
         issue_tracker_id = self._dao.insert_issue_tracker(repo_id, self._issue_tracker_name, self._type)
         self._insert_issue_data(repo_id, issue_tracker_id)
 
         self._dao.restart_connection()
-        #self._insert_issue_dependencies(repo_id, issue_tracker_id)
 
     def extract(self):
         """
@@ -153,8 +154,8 @@ class GitHubIssue2DbMain():
 
             end_time = datetime.now()
             minutes_and_seconds = self._logging_util.calculate_execution_time(end_time, start_time)
-            self._logger.info("GitHubIssue2DbMain finished after " + str(minutes_and_seconds[0])
-                            + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
+            self._logger.info("GitHubIssue2DbMain finished after " + str(minutes_and_seconds[0]) +
+                              " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
             self._logging_util.remove_file_handler_logger(self._logger, self._fileHandler)
         except:
             self._logger.error("GitHubIssue2DbMain failed", exc_info=True)

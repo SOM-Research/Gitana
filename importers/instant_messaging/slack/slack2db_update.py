@@ -55,11 +55,12 @@ class Slack2DbUpdate():
         self._dao = None
 
     def _update_channels(self, instant_messaging_id):
-        #updates channels of a instant messaging
+        # updates channels of a instant messaging
         channel_ids = self._dao.get_channel_ids(instant_messaging_id)
 
         if channel_ids:
-            intervals = [i for i in multiprocessing_util.get_tasks_intervals(channel_ids, len(self._tokens)) if len(i) > 0]
+            intervals = [i for i in multiprocessing_util.get_tasks_intervals(channel_ids, len(self._tokens))
+                         if len(i) > 0]
 
             queue_extractors = multiprocessing.JoinableQueue()
             results = multiprocessing.Queue()
@@ -68,7 +69,8 @@ class Slack2DbUpdate():
             multiprocessing_util.start_consumers(len(self._tokens), queue_extractors, results)
 
             for i in range(len(intervals)):
-                channel_extractor = SlackChannel2Db(self._db_name, instant_messaging_id, intervals[i], self._tokens[i], self._config, self._log_path)
+                channel_extractor = SlackChannel2Db(self._db_name, instant_messaging_id, intervals[i], self._tokens[i],
+                                                    self._config, self._log_path)
                 queue_extractors.put(channel_extractor)
 
             # Add end-of-queue markers
@@ -99,8 +101,8 @@ class Slack2DbUpdate():
 
             end_time = datetime.now()
             minutes_and_seconds = self._logging_util.calculate_execution_time(end_time, start_time)
-            self._logger.info("SlackDbUpdate extract finished after " + str(minutes_and_seconds[0])
-                         + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
+            self._logger.info("SlackDbUpdate extract finished after " + str(minutes_and_seconds[0]) +
+                              " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
             self._logging_util.remove_file_handler_logger(self._logger, self._fileHandler)
         except:
             self._logger.error("SlackDbUpdate extract failed", exc_info=True)

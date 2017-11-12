@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>importers.issue_tracker.github.github_dao &#8212; Gitana 1.0 documentation</title>
+    <title>importers.issue_tracker.github.github_dao &#8212; Gitana 1.0.1 documentation</title>
     
     <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '1.0',
+        VERSION:     '1.0.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -228,7 +228,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">issue_ids</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
-        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;SELECT i.id FROM issue i &quot;</span> \
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;SELECT i.own_id FROM issue i &quot;</span> \
                 <span class="s2">&quot;JOIN issue_tracker it ON i.issue_tracker_id = it.id &quot;</span> \
                 <span class="s2">&quot;WHERE issue_tracker_id = </span><span class="si">%s</span><span class="s2"> AND repo_id = </span><span class="si">%s</span><span class="s2"> &quot;</span> \
                 <span class="s2">&quot;ORDER BY i.id ASC;&quot;</span>
@@ -237,7 +237,7 @@
         <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
 
         <span class="k">while</span> <span class="n">row</span><span class="p">:</span>
-            <span class="n">own_id</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">own_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
             <span class="n">issue_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">own_id</span><span class="p">)</span>
             <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
 
@@ -376,12 +376,13 @@
         <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">found</span></div>
 
-<div class="viewcode-block" id="GitHubDao.update_issue"><a class="viewcode-back" href="../../../../github.html#importers.issue_tracker.github.github_dao.GitHubDao.update_issue">[docs]</a>    <span class="k">def</span> <span class="nf">update_issue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">issue_id</span><span class="p">,</span> <span class="n">issue_tracker_id</span><span class="p">,</span> <span class="n">summary</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">version</span><span class="p">,</span> <span class="n">hardware</span><span class="p">,</span> <span class="n">priority</span><span class="p">,</span> <span class="n">severity</span><span class="p">,</span> <span class="n">reference_id</span><span class="p">,</span> <span class="n">last_change_at</span><span class="p">):</span>
+<div class="viewcode-block" id="GitHubDao.update_issue"><a class="viewcode-back" href="../../../../github.html#importers.issue_tracker.github.github_dao.GitHubDao.update_issue">[docs]</a>    <span class="k">def</span> <span class="nf">update_issue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">issue_id</span><span class="p">,</span> <span class="n">issue_tracker_id</span><span class="p">,</span> <span class="n">summary</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">version</span><span class="p">,</span> <span class="n">hardware</span><span class="p">,</span> <span class="n">priority</span><span class="p">,</span>
+                     <span class="n">severity</span><span class="p">,</span> <span class="n">reference_id</span><span class="p">,</span> <span class="n">last_change_at</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        updates an issue</span>
 
 <span class="sd">        :type issue_id: int</span>
-<span class="sd">        :param issue_id: DB issue id</span>
+<span class="sd">        :param issue_id: data source issue id</span>
 
 <span class="sd">        :type issue_tracker_id: int</span>
 <span class="sd">        :param issue_tracker_id: issue tracker id</span>
@@ -411,13 +412,18 @@
 <span class="sd">        :param last_change_at: last change date of the issue</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
-        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;UPDATE issue SET last_change_at = </span><span class="si">%s</span><span class="s2">, summary = </span><span class="si">%s</span><span class="s2">, component = </span><span class="si">%s</span><span class="s2">, version = </span><span class="si">%s</span><span class="s2">, hardware = </span><span class="si">%s</span><span class="s2">, priority = </span><span class="si">%s</span><span class="s2">, severity = </span><span class="si">%s</span><span class="s2">, reference_id = </span><span class="si">%s</span><span class="s2"> WHERE own_id = </span><span class="si">%s</span><span class="s2"> AND issue_tracker_id = </span><span class="si">%s</span><span class="s2">&quot;</span>
-        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">last_change_at</span><span class="p">,</span> <span class="n">summary</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">version</span><span class="p">,</span> <span class="n">hardware</span><span class="p">,</span> <span class="n">priority</span><span class="p">,</span> <span class="n">severity</span><span class="p">,</span> <span class="n">reference_id</span><span class="p">,</span> <span class="n">issue_id</span><span class="p">,</span> <span class="n">issue_tracker_id</span><span class="p">]</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;UPDATE issue &quot;</span> \
+                <span class="s2">&quot;SET last_change_at = </span><span class="si">%s</span><span class="s2">, summary = </span><span class="si">%s</span><span class="s2">, component = </span><span class="si">%s</span><span class="s2">, version = </span><span class="si">%s</span><span class="s2">, hardware = </span><span class="si">%s</span><span class="s2">, &quot;</span> \
+                <span class="s2">&quot;priority = </span><span class="si">%s</span><span class="s2">, severity = </span><span class="si">%s</span><span class="s2">, reference_id = </span><span class="si">%s</span><span class="s2"> &quot;</span> \
+                <span class="s2">&quot;WHERE own_id = </span><span class="si">%s</span><span class="s2"> AND issue_tracker_id = </span><span class="si">%s</span><span class="s2">&quot;</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">last_change_at</span><span class="p">,</span> <span class="n">summary</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">version</span><span class="p">,</span> <span class="n">hardware</span><span class="p">,</span> <span class="n">priority</span><span class="p">,</span> <span class="n">severity</span><span class="p">,</span> <span class="n">reference_id</span><span class="p">,</span>
+                     <span class="n">issue_id</span><span class="p">,</span> <span class="n">issue_tracker_id</span><span class="p">]</span>
         <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
         <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="GitHubDao.insert_issue"><a class="viewcode-back" href="../../../../github.html#importers.issue_tracker.github.github_dao.GitHubDao.insert_issue">[docs]</a>    <span class="k">def</span> <span class="nf">insert_issue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">issue_own_id</span><span class="p">,</span> <span class="n">issue_tracker_id</span><span class="p">,</span> <span class="n">summary</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">version</span><span class="p">,</span> <span class="n">hardware</span><span class="p">,</span> <span class="n">priority</span><span class="p">,</span> <span class="n">severity</span><span class="p">,</span> <span class="n">reference_id</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">created_at</span><span class="p">,</span> <span class="n">last_change_at</span><span class="p">):</span>
+<div class="viewcode-block" id="GitHubDao.insert_issue"><a class="viewcode-back" href="../../../../github.html#importers.issue_tracker.github.github_dao.GitHubDao.insert_issue">[docs]</a>    <span class="k">def</span> <span class="nf">insert_issue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">issue_own_id</span><span class="p">,</span> <span class="n">issue_tracker_id</span><span class="p">,</span> <span class="n">summary</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">version</span><span class="p">,</span> <span class="n">hardware</span><span class="p">,</span> <span class="n">priority</span><span class="p">,</span>
+                     <span class="n">severity</span><span class="p">,</span> <span class="n">reference_id</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">created_at</span><span class="p">,</span> <span class="n">last_change_at</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        inserts an issue</span>
 
@@ -460,7 +466,8 @@
         <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
         <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;INSERT IGNORE INTO issue &quot;</span> \
                 <span class="s2">&quot;VALUES (</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">)&quot;</span>
-        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">issue_own_id</span><span class="p">,</span> <span class="n">issue_tracker_id</span><span class="p">,</span> <span class="n">summary</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">version</span><span class="p">,</span> <span class="n">hardware</span><span class="p">,</span> <span class="n">priority</span><span class="p">,</span> <span class="n">severity</span><span class="p">,</span> <span class="n">reference_id</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">created_at</span><span class="p">,</span> <span class="n">last_change_at</span><span class="p">]</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">issue_own_id</span><span class="p">,</span> <span class="n">issue_tracker_id</span><span class="p">,</span> <span class="n">summary</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">version</span><span class="p">,</span> <span class="n">hardware</span><span class="p">,</span> <span class="n">priority</span><span class="p">,</span>
+                     <span class="n">severity</span><span class="p">,</span> <span class="n">reference_id</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">created_at</span><span class="p">,</span> <span class="n">last_change_at</span><span class="p">]</span>
         <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
         <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
@@ -472,13 +479,7 @@
 <span class="sd">        :type name: str</span>
 <span class="sd">        :param name: the name of the label</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
-        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;INSERT IGNORE INTO label &quot;</span> \
-                <span class="s2">&quot;VALUES (</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">)&quot;</span>
-        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="p">]</span>
-        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
-        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_db_util</span><span class="o">.</span><span class="n">insert_label</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="GitHubDao.select_label_id"><a class="viewcode-back" href="../../../../github.html#importers.issue_tracker.github.github_dao.GitHubDao.select_label_id">[docs]</a>    <span class="k">def</span> <span class="nf">select_label_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -487,17 +488,7 @@
 <span class="sd">        :type name: str</span>
 <span class="sd">        :param name: the name of the label</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
-        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;SELECT id FROM label WHERE name = </span><span class="si">%s</span><span class="s2">&quot;</span>
-        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span><span class="p">]</span>
-        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
-        <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
-        <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
-            <span class="n">found</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-
-        <span class="k">return</span> <span class="n">found</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_util</span><span class="o">.</span><span class="n">select_label_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="GitHubDao.select_issue_comment_id"><a class="viewcode-back" href="../../../../github.html#importers.issue_tracker.github.github_dao.GitHubDao.select_issue_comment_id">[docs]</a>    <span class="k">def</span> <span class="nf">select_issue_comment_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">own_id</span><span class="p">,</span> <span class="n">issue_id</span><span class="p">,</span> <span class="n">created_at</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -534,10 +525,16 @@
 <span class="sd">        :type user_email: str</span>
 <span class="sd">        :param user_email: email of the user</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">user_email</span><span class="p">:</span>
-            <span class="n">user_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_util</span><span class="o">.</span><span class="n">select_user_id_by_email</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="p">,</span> <span class="n">user_email</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">user_email</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">user_name</span><span class="p">:</span>
+            <span class="n">user_name</span> <span class="o">=</span> <span class="s2">&quot;uknonwn_user&quot;</span>
+            <span class="n">user_email</span> <span class="o">=</span> <span class="s2">&quot;uknonwn_user&quot;</span>
+
+        <span class="k">if</span> <span class="n">user_name</span><span class="p">:</span>
             <span class="n">user_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_util</span><span class="o">.</span><span class="n">select_user_id_by_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">user_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_util</span><span class="o">.</span><span class="n">select_user_id_by_email</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="p">,</span> <span class="n">user_email</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="ow">not</span> <span class="n">user_id</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_db_util</span><span class="o">.</span><span class="n">insert_user</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_email</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">user_email</span><span class="p">:</span>
@@ -649,8 +646,10 @@
                 <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
                     <span class="n">found</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="c1">#sometimes the version is followed by extra information such as alpha, beta, RC, M.</span>
-                    <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;SELECT id FROM reference WHERE name LIKE &#39;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">version</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;%&#39; AND repo_id = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">repo_id</span><span class="p">)</span>
+                    <span class="c1"># sometimes the version is followed by extra information such as alpha, beta, RC, M.</span>
+                    <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;SELECT id &quot;</span> \
+                            <span class="s2">&quot;FROM reference &quot;</span> \
+                            <span class="s2">&quot;WHERE name LIKE &#39;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">version</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;%&#39; AND repo_id = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">repo_id</span><span class="p">)</span>
                     <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
                     <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
 
@@ -658,8 +657,9 @@
                         <span class="n">found</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
                 <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-            <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;version (&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">version</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;) not inserted for issue id: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">issue_id</span><span class="p">),</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;version (&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">version</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;) not inserted for issue id: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">issue_id</span><span class="p">),</span>
+                                     <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">found</span></div>
 
@@ -718,7 +718,8 @@
         <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">close_connection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_db_util</span><span class="o">.</span><span class="n">close_connection</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_db_util</span><span class="o">.</span><span class="n">close_connection</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">restart_connection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_util</span><span class="o">.</span><span class="n">restart_connection</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">)</span></div>

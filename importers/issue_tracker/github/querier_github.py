@@ -3,7 +3,6 @@
 __author__ = 'valerio cosentino'
 
 from github import Github
-from github import GithubException
 from util.date_util import DateUtil
 from util.token_util import TokenUtil
 import re
@@ -38,7 +37,7 @@ class GitHubQuerier():
             raise
 
     def _load_repo(self, url):
-        #connect to the GitHub API
+        # connect to the GitHub API
         try:
             repo = self._github.get_repo(url)
             return repo

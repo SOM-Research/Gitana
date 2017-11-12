@@ -76,19 +76,18 @@ class EclipseForum2DbMain():
         self._dao = None
 
     def _get_topic_info(self, forum_id, topic):
-        #get topic information
+        # get topic information
         own_id = self._querier.get_topic_own_id(topic)
         title = self._querier.get_topic_title(topic)
         views = self._querier.get_topic_views(topic)
         last_change_at = self._date_util.get_timestamp(self._querier.get_last_change_at(topic), "%a, %d %B %Y %H:%M")
 
         topic_id = self._dao.select_topic_id(forum_id, own_id)
-        #if topic_id:
-        #    self._dao.update_topic_info(topic_id, forum_id, views, last_change_at)
         if not topic_id:
             if self._before_date:
                 topic_created_at = self._querier.get_topic_created_at(topic)
-                if self._date_util.get_timestamp(topic_created_at, "%a, %d %B %Y") <= self._date_util.get_timestamp(self._before_date, "%Y-%m-%d"):
+                if self._date_util.get_timestamp(topic_created_at, "%a, %d %B %Y") <= \
+                        self._date_util.get_timestamp(self._before_date, "%Y-%m-%d"):
                     self._dao.insert_topic(own_id, forum_id, title, views, last_change_at)
             else:
                 self._dao.insert_topic(own_id, forum_id, title, views, last_change_at)
@@ -97,7 +96,7 @@ class EclipseForum2DbMain():
         return topic_id
 
     def _get_topic_ids(self, forum_id):
-        #get list of topic ids of a forum
+        # get list of topic ids of a forum
         topic_ids = []
 
         next_page = True
@@ -113,7 +112,7 @@ class EclipseForum2DbMain():
         return [ti for ti in topic_ids if ti is not None]
 
     def _get_topics(self, forum_id):
-        #insert topics to DB
+        # insert topics to DB
         self._querier.start_browser()
         topic_ids = self._get_topic_ids(forum_id)
         self._querier.close_browser()
@@ -156,8 +155,8 @@ class EclipseForum2DbMain():
 
             end_time = datetime.now()
             minutes_and_seconds = self._logging_util.calculate_execution_time(end_time, start_time)
-            self._logger.info("EclipseForum2DbMain finished after " + str(minutes_and_seconds[0])
-                         + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
+            self._logger.info("EclipseForum2DbMain finished after " + str(minutes_and_seconds[0]) +
+                              " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
             self._logging_util.remove_file_handler_logger(self._logger, self._fileHandler)
         except:
             self._logger.error("EclipseForum2DbMain failed", exc_info=True)

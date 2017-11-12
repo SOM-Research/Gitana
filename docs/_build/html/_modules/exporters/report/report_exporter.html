@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>exporters.report.report_exporter &#8212; Gitana 1.0 documentation</title>
+    <title>exporters.report.report_exporter &#8212; Gitana 1.0.1 documentation</title>
     
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '1.0',
+        VERSION:     '1.0.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -61,13 +61,13 @@
 <span class="kn">from</span> <span class="nn">exporters</span> <span class="k">import</span> <span class="n">resources</span>
 
 
-<div class="viewcode-block" id="ReportExporter"><a class="viewcode-back" href="../../../reportexporter.html#exporters.report.report_exporter.ReportExporter">[docs]</a><span class="k">class</span> <span class="nc">ReportExporter</span><span class="p">():</span>
+<div class="viewcode-block" id="ActivityReportExporter"><a class="viewcode-back" href="../../../reportexporter.html#exporters.report.report_exporter.ActivityReportExporter">[docs]</a><span class="k">class</span> <span class="nc">ActivityReportExporter</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This class handles the generation of reports</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">LOG_FOLDER_PATH</span> <span class="o">=</span> <span class="s2">&quot;logs&quot;</span>
-    <span class="n">INPUT_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">resources</span><span class="o">.</span><span class="vm">__file__</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;\queries.json&quot;</span>
+    <span class="n">INPUT_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">resources</span><span class="o">.</span><span class="vm">__file__</span><span class="p">),</span> <span class="s1">&#39;queries.json&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">log_root_path</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -99,28 +99,28 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_html_generator</span> <span class="o">=</span> <span class="n">HtmlGenerator</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_create_log_folder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="c1">#creates the log folder</span>
+        <span class="c1"># creates the log folder</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
             <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_create_output_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
-        <span class="c1">#creates the output folder</span>
+        <span class="c1"># creates the output folder</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">filename</span><span class="p">)):</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
-            <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span> <span class="c1"># Guard against race condition</span>
+            <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># Guard against race condition</span>
                 <span class="k">if</span> <span class="n">exc</span><span class="o">.</span><span class="n">errno</span> <span class="o">!=</span> <span class="n">errno</span><span class="o">.</span><span class="n">EEXIST</span><span class="p">:</span>
                     <span class="k">raise</span>
 
     <span class="k">def</span> <span class="nf">_load_report_exporter_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">json_path</span><span class="p">):</span>
-        <span class="c1">#loads the JSON that drives the report export process</span>
+        <span class="c1"># loads the JSON that drives the report export process</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">json_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">json_data</span><span class="p">:</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">json_data</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;report&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_find_entity_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="c1">#finds the id of the tools stored in the DB</span>
+        <span class="c1"># finds the id of the tools stored in the DB</span>
         <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="k">if</span> <span class="nb">type</span> <span class="o">==</span> <span class="s2">&quot;project&quot;</span><span class="p">:</span>
@@ -140,7 +140,7 @@
         <span class="k">return</span> <span class="n">found</span>
 
     <span class="k">def</span> <span class="nf">_get_parameter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">parameters</span><span class="p">):</span>
-        <span class="c1">#gets parameters of the JSON</span>
+        <span class="c1"># gets parameters of the JSON</span>
         <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;AFTERDATE&quot;</span><span class="p">,</span> <span class="s2">&quot;INTERVAL&quot;</span><span class="p">]:</span>
             <span class="n">found</span> <span class="o">=</span> <span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
@@ -153,8 +153,8 @@
         <span class="k">return</span> <span class="n">found</span>
 
     <span class="k">def</span> <span class="nf">_load_query_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metric_name</span><span class="p">,</span> <span class="n">parameters</span><span class="p">):</span>
-        <span class="c1">#loads the queries in the JSON configuration file</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">ReportExporter</span><span class="o">.</span><span class="n">INPUT_PATH</span><span class="p">)</span> <span class="k">as</span> <span class="n">json_data</span><span class="p">:</span>
+        <span class="c1"># loads the queries in the JSON configuration file</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">ActivityReportExporter</span><span class="o">.</span><span class="n">INPUT_PATH</span><span class="p">)</span> <span class="k">as</span> <span class="n">json_data</span><span class="p">:</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">json_data</span><span class="p">)</span>
 
         <span class="n">metrics</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;queries&#39;</span><span class="p">)</span>
@@ -175,15 +175,15 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;ReportExporter: metric &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">metric_name</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; not found!&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_get_activity_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">activity</span><span class="p">):</span>
-        <span class="c1">#gets the name of the activity</span>
+        <span class="c1"># gets the name of the activity</span>
         <span class="k">return</span> <span class="n">activity</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_get_activity_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">activity</span><span class="p">):</span>
-        <span class="c1">#gets the type of the activity</span>
+        <span class="c1"># gets the type of the activity</span>
         <span class="k">return</span> <span class="n">activity</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_activity&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_generate_charts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">activity</span><span class="p">,</span> <span class="n">activity_data</span><span class="p">,</span> <span class="n">project_id</span><span class="p">,</span> <span class="n">time_span</span><span class="p">):</span>
-        <span class="c1">#generates charts</span>
+        <span class="c1"># generates charts</span>
         <span class="n">entity2charts</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">after_date</span><span class="p">,</span> <span class="n">interval</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calculate_time_information</span><span class="p">(</span><span class="n">time_span</span><span class="p">)</span>
         <span class="n">activity_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_activity_type</span><span class="p">(</span><span class="n">activity</span><span class="p">)</span>
@@ -194,7 +194,8 @@
             <span class="n">entity_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dsl_util</span><span class="o">.</span><span class="n">find_entity_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cnx</span><span class="p">,</span> <span class="n">activity_type</span><span class="p">,</span> <span class="n">entity_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">)</span>
             <span class="n">charts</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">measure</span> <span class="ow">in</span> <span class="n">measures</span><span class="p">:</span>
-                <span class="n">query</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_query_json</span><span class="p">(</span><span class="n">measure</span><span class="p">,</span> <span class="p">{</span><span class="n">activity_type</span><span class="p">:</span> <span class="n">entity_id</span><span class="p">,</span> <span class="s1">&#39;project&#39;</span><span class="p">:</span> <span class="n">project_id</span><span class="p">,</span> <span class="s1">&#39;afterdate&#39;</span><span class="p">:</span> <span class="n">after_date</span><span class="p">,</span> <span class="s1">&#39;interval&#39;</span><span class="p">:</span> <span class="n">interval</span><span class="p">})</span>
+                <span class="n">query</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_query_json</span><span class="p">(</span><span class="n">measure</span><span class="p">,</span> <span class="p">{</span><span class="n">activity_type</span><span class="p">:</span> <span class="n">entity_id</span><span class="p">,</span> <span class="s1">&#39;project&#39;</span><span class="p">:</span> <span class="n">project_id</span><span class="p">,</span>
+                                                        <span class="s1">&#39;afterdate&#39;</span><span class="p">:</span> <span class="n">after_date</span><span class="p">,</span> <span class="s1">&#39;interval&#39;</span><span class="p">:</span> <span class="n">interval</span><span class="p">})</span>
                 <span class="n">charts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_chart_generator</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">interval</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">measure</span><span class="p">,</span> <span class="n">time_span</span><span class="p">))</span>
 
             <span class="n">entity2charts</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">entity_name</span><span class="p">:</span> <span class="n">charts</span><span class="p">})</span>
@@ -202,10 +203,10 @@
         <span class="k">return</span> <span class="n">entity2charts</span>
 
     <span class="k">def</span> <span class="nf">_calculate_time_information</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_span</span><span class="p">):</span>
-        <span class="c1">#calculates the time span information</span>
+        <span class="c1"># calculates the time span information</span>
         <span class="n">start</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">interval</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">current_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="c1">#test datetime.strptime(&quot;2015-10-10&quot;, &quot;%Y-%m-%d&quot;)</span>
+        <span class="n">current_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>  <span class="c1"># test datetime.strptime(&quot;2015-10-10&quot;, &quot;%Y-%m-%d&quot;)</span>
         <span class="k">if</span> <span class="n">time_span</span> <span class="o">==</span> <span class="s2">&quot;this_week&quot;</span><span class="p">:</span>
             <span class="n">start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_date_util</span><span class="o">.</span><span class="n">get_start_time_span</span><span class="p">(</span><span class="n">current_time</span><span class="p">,</span> <span class="s2">&quot;week&quot;</span><span class="p">,</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="n">interval</span> <span class="o">=</span> <span class="s2">&quot;DAY&quot;</span>
@@ -216,11 +217,12 @@
             <span class="n">start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_date_util</span><span class="o">.</span><span class="n">get_start_time_span</span><span class="p">(</span><span class="n">current_time</span><span class="p">,</span> <span class="s2">&quot;year&quot;</span><span class="p">,</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="n">interval</span> <span class="o">=</span> <span class="s2">&quot;MONTH&quot;</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;ReportExporter: time span &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">time_span</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; not recognized! Options are: this_week, this_month, this_year&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;ReportExporter: time span &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">time_span</span><span class="p">)</span> <span class="o">+</span>
+                               <span class="s2">&quot; not recognized! Options are: this_week, this_month, this_year&quot;</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">start</span><span class="p">,</span> <span class="n">interval</span>
 
-<div class="viewcode-block" id="ReportExporter.export"><a class="viewcode-back" href="../../../reportexporter.html#exporters.report.report_exporter.ReportExporter.export">[docs]</a>    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">json_path</span><span class="p">):</span>
+<div class="viewcode-block" id="ActivityReportExporter.export"><a class="viewcode-back" href="../../../reportexporter.html#exporters.report.report_exporter.ActivityReportExporter.export">[docs]</a>    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">json_path</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        exports the Gitana data to a report</span>
 
@@ -256,8 +258,8 @@
 
             <span class="n">end_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
             <span class="n">minutes_and_seconds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logging_util</span><span class="o">.</span><span class="n">calculate_execution_time</span><span class="p">(</span><span class="n">end_time</span><span class="p">,</span> <span class="n">start_time</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;ReportExporter: process finished after &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">minutes_and_seconds</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-                             <span class="o">+</span> <span class="s2">&quot; minutes and &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">minutes_and_seconds</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot; secs&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;ReportExporter: process finished after &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">minutes_and_seconds</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span>
+                              <span class="s2">&quot; minutes and &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">minutes_and_seconds</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot; secs&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_logging_util</span><span class="o">.</span><span class="n">remove_file_handler_logger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fileHandler</span><span class="p">)</span>
         <span class="k">except</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;ReportExporter failed&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div></div>

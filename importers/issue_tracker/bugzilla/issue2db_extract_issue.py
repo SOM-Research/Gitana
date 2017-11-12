@@ -72,18 +72,18 @@ class BugzillaIssue2Db(object):
             self._querier = BugzillaQuerier(self._url, self._product, self._logger)
             self._dao = BugzillaDao(self._config, self._logger)
             self.extract()
-        except Exception, e:
+        except Exception:
             self._logger.error("BugzillaIssue2Db failed", exc_info=True)
         finally:
             if self._dao:
                 self._dao.close_connection()
 
     def _is_email(self, str):
-        #checks that a string is an email
+        # checks that a string is an email
         return parseaddr(str)[1] != '' and '@' in str
 
     def _extract_attachment(self, issue_comment_id, attachment_id):
-        #inserts an attachment
+        # inserts an attachment
         attachment_info = self._querier.get_attachment(attachment_id)
         if '.' in attachment_info.name:
             name = ('.').join(attachment_info.name.split('.')[:-1]).strip()
@@ -96,13 +96,15 @@ class BugzillaIssue2Db(object):
         self._dao.insert_attachment(attachment_id, issue_comment_id, name, extension, size, None)
 
     def _extract_issue_event(self, action, action_content, creator_id, created_at, issue_id, field_name):
-        #inserts an issue event
+        # inserts an issue event
         event_type = action + '-' + field_name
         self._dao.insert_event_type(event_type)
         event_type_id = self._dao.select_event_type(event_type)
         target_user_id = None
 
-        if ',' in action_content and field_name in ["keywords", "depends_on", "cc", "flagtypes.name", "blocks", "whiteboard", "see_also"]:
+        if ',' in action_content and field_name in ["keywords", "depends_on",
+                                                    "cc", "flagtypes.name",
+                                                    "blocks", "whiteboard", "see_also"]:
             contents = action_content.split(',')
             for content in contents:
                 content = content.strip()
@@ -114,13 +116,15 @@ class BugzillaIssue2Db(object):
             if self._is_email(action_content):
                 target_user_id = self._dao.get_user_id(self._querier.get_user_name(action_content), action_content)
 
-            self._dao.insert_issue_event(issue_id, event_type_id, action_content, creator_id, created_at, target_user_id)
+            self._dao.insert_issue_event(issue_id, event_type_id, action_content,
+                                         creator_id, created_at, target_user_id)
 
     def _extract_history(self, issue_id, history):
-        #inserts the history of an issue
+        # inserts the history of an issue
         for event in history:
             try:
-                created_at = self._date_util.get_timestamp(self._querier.get_event_property(event, 'when'), '%Y%m%dT%H:%M:%S')
+                created_at = self._date_util.get_timestamp(self._querier.get_event_property(event, 'when'),
+                                                           '%Y%m%dT%H:%M:%S')
                 creator_email = self._querier.get_event_property(event, 'who')
                 creator_id = self._dao.get_user_id(self._querier.get_user_name(creator_email), creator_email)
 
@@ -136,28 +140,33 @@ class BugzillaIssue2Db(object):
                     if added != '':
                         action = "added"
                         self._extract_issue_event(action, added, creator_id, created_at, issue_id, field_name)
-            except Exception, e:
-                self._logger.warning("event at (" + str(created_at) + ") not extracted for issue id: " + str(issue_id) + " - tracker id " + str(self._issue_tracker_id), exc_info=True)
+            except Exception:
+                self._logger.warning("event at (" + str(created_at) + ") not extracted for issue id: " +
+                                     str(issue_id) + " - tracker id " + str(self._issue_tracker_id),
+                                     exc_info=True)
 
     def _extract_subscribers(self, issue_id, subscribers):
-        #inserts subscribers of an issue
+        # inserts subscribers of an issue
         for subscriber in subscribers:
             try:
                 subscriber_id = self._dao.get_user_id(self._querier.get_user_name(subscriber), subscriber)
                 self._dao.insert_subscriber(issue_id, subscriber_id)
-            except Exception, e:
-                self._logger.warning("subscriber (" + subscriber + ") not inserted for issue id: " + str(issue_id) + " - tracker id " + str(self._issue_tracker_id), exc_info=True)
+            except Exception:
+                self._logger.warning("subscriber (" + subscriber + ") not inserted for issue id: " +
+                                     str(issue_id) + " - tracker id " + str(self._issue_tracker_id),
+                                     exc_info=True)
 
     def _extract_assignee(self, issue_id, assignee):
-        #inserts the assignee of an issue
+        # inserts the assignee of an issue
         try:
             assignee_id = self._dao.get_user_id(self._querier.get_user_name(assignee), assignee)
             self._dao.insert_assignee(issue_id, assignee_id)
-        except Exception, e:
-            self._logger.warning("assignee (" + assignee + ") not inserted for issue id: " + str(issue_id) + " - tracker id " + str(self._issue_tracker_id), exc_info=True)
+        except Exception:
+            self._logger.warning("assignee (" + assignee + ") not inserted for issue id: " + str(issue_id) +
+                                 " - tracker id " + str(self._issue_tracker_id), exc_info=True)
 
     def _extract_comments(self, issue_id, comments):
-        #inserts the comments of an issue
+        # inserts the comments of an issue
         for comment in comments:
             try:
                 own_id = self._querier.get_comment_property(comment, 'id')
@@ -165,30 +174,35 @@ class BugzillaIssue2Db(object):
                 position = self._querier.get_comment_property(comment, 'count')
                 author_email = self._querier.get_comment_property(comment, 'author')
                 author_id = self._dao.get_user_id(self._querier.get_user_name(author_email), author_email)
-                created_at = self._date_util.get_timestamp(self._querier.get_comment_property(comment, 'creation_time'), '%Y%m%dT%H:%M:%S')
-                self._dao.insert_issue_comment(own_id, position, self._dao.get_message_type_id("comment"), issue_id, body, None, author_id, created_at)
+                created_at = self._date_util.get_timestamp(self._querier.get_comment_property(comment, 'creation_time'),
+                                                           '%Y%m%dT%H:%M:%S')
+                self._dao.insert_issue_comment(own_id, position, self._dao.get_message_type_id("comment"),
+                                               issue_id, body, None, author_id, created_at)
 
                 attachment_id = self._querier.get_comment_property(comment, 'attachment_id')
                 if attachment_id:
                     issue_comment_id = self._dao.select_issue_comment_id(own_id, issue_id, created_at)
                     self._extract_attachment(issue_comment_id, attachment_id)
-            except Exception, e:
-                self._logger.warning("comment(" + str(position) + ") not extracted for issue id: " + str(issue_id) + " - tracker id " + str(self._issue_tracker_id), exc_info=True)
+            except Exception:
+                self._logger.warning("comment(" + str(position) + ") not extracted for issue id: " + str(issue_id) +
+                                     " - tracker id " + str(self._issue_tracker_id),
+                                     exc_info=True)
                 continue
 
     def _extract_labels(self, issue_id, labels):
-        #inserts the labels of an issue
+        # inserts the labels of an issue
         for label in labels:
             try:
                 digested_label = re.sub("^\W+", "", re.sub("\W+$", "", label.lower()))
                 self._dao.insert_label(digested_label.strip())
                 label_id = self._dao.select_label_id(digested_label)
                 self._dao.assign_label_to_issue(issue_id, label_id)
-            except Exception, e:
-                self._logger.warning("label (" + label + ") not extracted for issue id: " + str(issue_id) + " - tracker id " + str(self._issue_tracker_id), exc_info=True)
+            except Exception:
+                self._logger.warning("label (" + label + ") not extracted for issue id: " + str(issue_id) +
+                                     " - tracker id " + str(self._issue_tracker_id), exc_info=True)
 
     def _extract_issue_commit_dependency(self, issue_id, commits):
-        #inserts the dependencies between an issue and commits
+        # inserts the dependencies between an issue and commits
         flattened_list = [y for x in commits for y in x]
         for id in flattened_list:
             if "commit" in id:
@@ -206,7 +220,7 @@ class BugzillaIssue2Db(object):
         return flag
 
     def _get_issue_info(self, issue_own_id):
-        #processes each single issue
+        # processes each single issue
         flag_insert_issue_data = False
 
         issue = self._querier.get_issue(issue_own_id)
@@ -224,38 +238,38 @@ class BugzillaIssue2Db(object):
         issue_creator_email = self._querier.get_issue_creator(issue)
         user_id = self._dao.get_user_id(self._querier.get_user_name(issue_creator_email), issue_creator_email)
 
-        stored_issue_last_change = self._dao.select_last_change_issue(issue_own_id, self._issue_tracker_id, self._repo_id)
+        stored_issue_last_change = self._dao.select_last_change_issue(issue_own_id,
+                                                                      self._issue_tracker_id, self._repo_id)
         if stored_issue_last_change:
             if last_change_at != stored_issue_last_change:
                 flag_insert_issue_data = True
-                self._dao.update_issue(issue_own_id, self._issue_tracker_id, summary, component, version, hardware, priority, severity, reference_id, last_change_at)
+                self._dao.update_issue(issue_own_id, self._issue_tracker_id, summary, component, version, hardware,
+                                       priority, severity, reference_id, last_change_at)
         else:
             flag_insert_issue_data = True
-            self._dao.insert_issue(issue_own_id, self._issue_tracker_id, summary, component, version, hardware, priority, severity, reference_id, user_id, created_at, last_change_at)
+            self._dao.insert_issue(issue_own_id, self._issue_tracker_id, summary, component, version, hardware,
+                                   priority, severity, reference_id, user_id, created_at, last_change_at)
 
         if flag_insert_issue_data:
             issue_id = self._dao.select_issue_id(issue_own_id, self._issue_tracker_id, self._repo_id)
-            ##tags are not present anymore
-            ##tags and keywords are mapped as labels
-            # try:
-            #     self._extract_labels(issue_id, self._querier.get_issue_tags(issue))
-            # except Exception:
-            #     self._logger.error("BugzillaError when extracting tags for issue id: " + str(issue_id) + " - tracker id " + str(self._issue_tracker_id), exc_info=True)
 
             try:
                 self._extract_labels(issue_id, self._querier.get_issue_keywords(issue))
             except Exception:
-                self._logger.error("BugzillaError when extracting keywords for issue id: " + str(issue_id) + " - tracker id " + str(self._issue_tracker_id), exc_info=True)
+                self._logger.error("BugzillaError when extracting keywords for issue id: " + str(issue_id) +
+                                   " - tracker id " + str(self._issue_tracker_id), exc_info=True)
 
             try:
                 self._extract_comments(issue_id, self._querier.get_issue_comments(issue))
             except Exception:
-                self._logger.error("BugzillaError when extracting comments for issue id: " + str(issue_id) + " - tracker id " + str(self._issue_tracker_id), exc_info=True)
+                self._logger.error("BugzillaError when extracting comments for issue id: " + str(issue_id) +
+                                   " - tracker id " + str(self._issue_tracker_id), exc_info=True)
 
             try:
                 self._extract_history(issue_id, self._querier.get_issue_history(issue))
             except Exception:
-                self._logger.error("BugzillaError when extracting history for issue id: " + str(issue_id) + " - tracker id " + str(self._issue_tracker_id), exc_info=True)
+                self._logger.error("BugzillaError when extracting history for issue id: " + str(issue_id) +
+                                   " - tracker id " + str(self._issue_tracker_id), exc_info=True)
 
             if issue.cc:
                 self._extract_subscribers(issue_id, self._querier.get_issue_cc(issue))
@@ -267,12 +281,13 @@ class BugzillaIssue2Db(object):
                 self._extract_issue_commit_dependency(issue_id, [self._querier.get_issue_see_also(issue)])
 
     def _get_issues(self):
-        #processes issues
+        # processes issues
         for issue_id in self._interval:
             try:
                 self._get_issue_info(issue_id)
             except Exception:
-                self._logger.error("something went wrong for issue id: " + str(issue_id) + " - tracker id " + str(self._issue_tracker_id), exc_info=True)
+                self._logger.error("something went wrong for issue id: " + str(issue_id) + " - tracker id " +
+                                   str(self._issue_tracker_id), exc_info=True)
 
     def extract(self):
         """
@@ -285,8 +300,8 @@ class BugzillaIssue2Db(object):
 
             end_time = datetime.now()
             minutes_and_seconds = self._logging_util.calculate_execution_time(end_time, start_time)
-            self._logger.info("BugzillaIssue2Db finished after " + str(minutes_and_seconds[0])
-                           + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
+            self._logger.info("BugzillaIssue2Db finished after " + str(minutes_and_seconds[0]) +
+                              " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
             self._logging_util.remove_file_handler_logger(self._logger, self._fileHandler)
         except Exception:
             self._logger.error("BugzillaIssue2Db failed", exc_info=True)

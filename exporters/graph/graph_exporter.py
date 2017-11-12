@@ -2,12 +2,9 @@
 # -*- coding: utf-8 -*-
 __author__ = 'valerio cosentino'
 
-import logging
-import logging.handlers
 import os
 from datetime import datetime
 import json
-import uuid
 import errno
 from util.dsl_util import DslUtil
 from util.db_util import DbUtil
@@ -51,28 +48,28 @@ class GraphExporter():
         self._db_util.set_settings(self._cnx)
 
     def _create_log_folder(self, name):
-        #creates the log folder
+        # creates the log folder
         if not os.path.exists(name):
             os.makedirs(name)
 
     def _create_output_file(self, filename):
-        #creates the output folder
+        # creates the output folder
         if not os.path.exists(os.path.dirname(filename)):
             try:
                 os.makedirs(os.path.dirname(filename))
-            except OSError as exc: # Guard against race condition
+            except OSError as exc:  # Guard against race condition
                 if exc.errno != errno.EEXIST:
                     raise
 
     def _load_graph_exporter_json(self, json_path):
-        #load the JSON that drives the graph exporter process
+        # load the JSON that drives the graph exporter process
         with open(json_path) as json_data:
             data = json.load(json_data)
 
         return data.get('graph')
 
     def _get_parameter(self, key, parameters):
-        #get JSON parameters
+        # get JSON parameters
         found = None
         if key in ["EDGECOLOR", "NODECOLOR"]:
             found = parameters.get(key.lower())
@@ -87,7 +84,7 @@ class GraphExporter():
         return found
 
     def _load_query_json(self, metric_name, parameters):
-        #loads the query stored in the JSON file
+        # loads the query stored in the JSON file
         with open(GraphExporter.INPUT_PATH) as json_data:
             data = json.load(json_data)
 
@@ -140,8 +137,8 @@ class GraphExporter():
 
             end_time = datetime.now()
             minutes_and_seconds = self._logging_util.calculate_execution_time(end_time, start_time)
-            self._logger.info("GraphExporter: process finished after " + str(minutes_and_seconds[0])
-                             + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
+            self._logger.info("GraphExporter: process finished after " + str(minutes_and_seconds[0]) +
+                              " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
             self._logging_util.remove_file_handler_logger(self._logger, self._fileHandler)
         except:
             self._logger.error("GraphExporter failed", exc_info=True)

@@ -10,7 +10,6 @@ class GitDao():
     This class handles the persistence and retrieval of Git data
     """
 
-
     def __init__(self, config, logger):
         """
         :type config: dict
@@ -176,7 +175,7 @@ class GitDao():
         :param user_email: email of the user
         """
 
-        if user_email == None and user_name == None:
+        if not user_email and not user_name:
             user_name = "uknonwn_user"
             user_email = "uknonwn_user"
 
@@ -257,7 +256,8 @@ class GitDao():
 
         if to_insert:
             cursor = self._cnx.cursor()
-            query = "INSERT IGNORE INTO commit_parent(repo_id, commit_id, commit_sha, parent_id, parent_sha) VALUES (%s, %s, %s, %s, %s)"
+            query = "INSERT IGNORE INTO commit_parent(repo_id, commit_id, commit_sha, parent_id, parent_sha) " \
+                    "VALUES (%s, %s, %s, %s, %s)"
             cursor.executemany(query, [i for i in to_insert])
             self._cnx.commit()
             cursor.close()
@@ -443,7 +443,8 @@ class GitDao():
         query = "SELECT DISTINCT f.id " \
                 "FROM file f JOIN file_modification fm ON f.id = fm.file_id " \
                 "JOIN commit c ON c.id = fm.commit_id " \
-                "WHERE f.name = %s AND f.repo_id = %s AND fm.status = 'added' AND c.authored_date <= '" + str(before_date) + "' "
+                "WHERE f.name = %s AND f.repo_id = %s AND fm.status = 'added' " \
+                "AND c.authored_date <= '" + str(before_date) + "' "
         arguments = [name, repo_id]
         cursor.execute(query, arguments)
         try:
@@ -733,4 +734,3 @@ class GitDao():
             found = row[0]
 
         return found
-

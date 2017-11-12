@@ -13,7 +13,7 @@ setup(
         url='https://github.com/SOM-Research/gitana',
 
         author='Valerio Cosentino',
-        author_email='valerio.cosentino@gmail.com',
+        author_email='valcos@bitergia.com',
 
         # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
         classifiers=[
@@ -33,8 +33,9 @@ setup(
         # your project is installed. For an analysis of "install_requires" vs pip's
         # requirements files see:
         # https://packaging.python.org/en/latest/requirements.html
-        install_requires=['networkx', 'mysql-connector-python-rf', 'gitpython', 'python-bugzilla', 'pygithub', 'selenium',
-                          'py-stackexchange', 'beautifulsoup', 'slacker', 'pygal'],
+        install_requires=['networkx', 'gitpython', 'python-bugzilla', 'pygithub',
+                          'selenium', 'py-stackexchange', 'slacker', 'pygal',
+                          'mysql-connector-python-rf', 'beautifulsoup'],
 
         # List additional groups of dependencies here (e.g. development
         # dependencies). You can install these using the following syntax,

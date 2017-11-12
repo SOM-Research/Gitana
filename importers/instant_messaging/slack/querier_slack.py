@@ -49,7 +49,9 @@ class SlackQuerier():
                 selected.append(channel)
 
         if before_date:
-            selected = [c for c in selected if self._date_util.get_timestamp(self._get_channel_created_at(c), "%Y-%m-%d %H:%M:%S") <= self._date_util.get_timestamp(before_date, "%Y-%m-%d")]
+            selected = [c for c in selected
+                        if self._date_util.get_timestamp(self._get_channel_created_at(c), "%Y-%m-%d %H:%M:%S")
+                        <= self._date_util.get_timestamp(before_date, "%Y-%m-%d")]
 
         return [self._get_channel_id(c) for c in selected]
 
@@ -423,5 +425,3 @@ class SlackQuerier():
 
         messages.reverse()
         return messages
-
-

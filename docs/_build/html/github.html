@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>GitHub Issue Tracker &#8212; Gitana 1.0 documentation</title>
+    <title>GitHub Issue Tracker &#8212; Gitana 1.0.1 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.0',
+        VERSION:     '1.0.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -48,18 +48,18 @@
 <dl class="class">
 <dt id="importers.issue_tracker.github.issue2db_extract_main.GitHubIssue2DbMain">
 <em class="property">class </em><code class="descclassname">importers.issue_tracker.github.issue2db_extract_main.</code><code class="descname">GitHubIssue2DbMain</code><span class="sig-paren">(</span><em>db_name</em>, <em>project_name</em>, <em>repo_name</em>, <em>type</em>, <em>issue_tracker_name</em>, <em>url</em>, <em>before_date</em>, <em>tokens</em>, <em>config</em>, <em>log_root_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/issue_tracker/github/issue2db_extract_main.html#GitHubIssue2DbMain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.issue_tracker.github.issue2db_extract_main.GitHubIssue2DbMain" title="Permalink to this definition">¶</a></dt>
-<dd><p>This class handles the import of GitHub issue tracker data</p>
+<dd><p>This class handles the import of GitHub issue data</p>
 <dl class="method">
 <dt id="importers.issue_tracker.github.issue2db_extract_main.GitHubIssue2DbMain.extract">
 <code class="descname">extract</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/issue_tracker/github/issue2db_extract_main.html#GitHubIssue2DbMain.extract"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.issue_tracker.github.issue2db_extract_main.GitHubIssue2DbMain.extract" title="Permalink to this definition">¶</a></dt>
-<dd><p>extracts GitHub issue tracker data and stores it in the DB</p>
+<dd><p>extracts GitHub issue data and stores it in the DB</p>
 </dd></dl>
 
 </dd></dl>
 
 <span class="target" id="module-importers.issue_tracker.github.issue2db_update"></span><dl class="class">
 <dt id="importers.issue_tracker.github.issue2db_update.GitHubIssue2DbUpdate">
-<em class="property">class </em><code class="descclassname">importers.issue_tracker.github.issue2db_update.</code><code class="descname">GitHubIssue2DbUpdate</code><span class="sig-paren">(</span><em>db_name</em>, <em>project_name</em>, <em>repo_name</em>, <em>issue_tracker_name</em>, <em>url</em>, <em>num_processes</em>, <em>config</em>, <em>log_root_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/issue_tracker/github/issue2db_update.html#GitHubIssue2DbUpdate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.issue_tracker.github.issue2db_update.GitHubIssue2DbUpdate" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">importers.issue_tracker.github.issue2db_update.</code><code class="descname">GitHubIssue2DbUpdate</code><span class="sig-paren">(</span><em>db_name</em>, <em>project_name</em>, <em>repo_name</em>, <em>issue_tracker_name</em>, <em>url</em>, <em>tokens</em>, <em>config</em>, <em>log_root_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/issue_tracker/github/issue2db_update.html#GitHubIssue2DbUpdate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.issue_tracker.github.issue2db_update.GitHubIssue2DbUpdate" title="Permalink to this definition">¶</a></dt>
 <dd><p>This class handles the update of GitHub issue tracker data</p>
 <dl class="method">
 <dt id="importers.issue_tracker.github.issue2db_update.GitHubIssue2DbUpdate.update">
@@ -593,7 +593,7 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>issue_id</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; DB issue id</li>
+<li><strong>issue_id</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; data source issue id</li>
 <li><strong>issue_tracker_id</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; issue tracker id</li>
 <li><strong>summary</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; new issue description</li>
 <li><strong>component</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; component where the issue was found</li>
@@ -1010,6 +1010,12 @@
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="method">
+<dt id="importers.issue_tracker.github.querier_github.GitHubQuerier.regenerate_token">
+<code class="descname">regenerate_token</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/importers/issue_tracker/github/querier_github.html#GitHubQuerier.regenerate_token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#importers.issue_tracker.github.querier_github.GitHubQuerier.regenerate_token" title="Permalink to this definition">¶</a></dt>
+<dd><p>regenerate GitHub token</p>
 </dd></dl>
 
 </dd></dl>

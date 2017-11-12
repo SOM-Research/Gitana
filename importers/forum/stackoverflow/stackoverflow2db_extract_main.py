@@ -69,7 +69,7 @@ class StackOverflow2DbMain():
         self._dao = None
 
     def _get_topics(self, forum_id):
-        #processes Stackoverflow questions
+        # processes Stackoverflow questions
         topic_imported = self._dao.get_topic_own_ids(forum_id)
         topic_ids = list(set(self._querier.get_topic_ids(self._search_query, self._before_date)) - set(topic_imported))
         topic_ids.sort()
@@ -84,7 +84,8 @@ class StackOverflow2DbMain():
 
         pos = 0
         for interval in intervals:
-            topic_extractor = StackOverflowTopic2Db(self._db_name, forum_id, interval, self._tokens[pos], self._config, self._log_path)
+            topic_extractor = StackOverflowTopic2Db(self._db_name, forum_id, interval, self._tokens[pos],
+                                                    self._config, self._log_path)
             queue_extractors.put(topic_extractor)
             pos += 1
 
@@ -114,8 +115,8 @@ class StackOverflow2DbMain():
 
             end_time = datetime.now()
             minutes_and_seconds = self._logging_util.calculate_execution_time(end_time, start_time)
-            self._logger.info("StackOverflow2DbMain finished after " + str(minutes_and_seconds[0])
-                         + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
+            self._logger.info("StackOverflow2DbMain finished after " + str(minutes_and_seconds[0]) +
+                              " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
 
             self._logging_util.remove_file_handler_logger(self._logger, self._fileHandler)
         except:

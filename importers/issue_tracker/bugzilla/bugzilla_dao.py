@@ -332,7 +332,8 @@ class BugzillaDao():
         cursor.close()
         return found
 
-    def update_issue(self, issue_id, issue_tracker_id, summary, component, version, hardware, priority, severity, reference_id, last_change_at):
+    def update_issue(self, issue_id, issue_tracker_id, summary, component, version, hardware, priority, severity,
+                     reference_id, last_change_at):
         """
         updates an issue
 
@@ -367,13 +368,18 @@ class BugzillaDao():
         :param last_change_at: last change date of the issue
         """
         cursor = self._cnx.cursor()
-        query = "UPDATE issue SET last_change_at = %s, summary = %s, component = %s, version = %s, hardware = %s, priority = %s, severity = %s, reference_id = %s WHERE own_id = %s AND issue_tracker_id = %s"
-        arguments = [last_change_at, summary, component, version, hardware, priority, severity, reference_id, issue_id, issue_tracker_id]
+        query = "UPDATE issue SET " \
+                "last_change_at = %s, summary = %s, component = %s, version = %s, hardware = %s, " \
+                "priority = %s, severity = %s, reference_id = %s " \
+                "WHERE own_id = %s AND issue_tracker_id = %s"
+        arguments = [last_change_at, summary, component, version, hardware, priority,
+                     severity, reference_id, issue_id, issue_tracker_id]
         cursor.execute(query, arguments)
         self._cnx.commit()
         cursor.close()
 
-    def insert_issue(self, issue_own_id, issue_tracker_id, summary, component, version, hardware, priority, severity, reference_id, user_id, created_at, last_change_at):
+    def insert_issue(self, issue_own_id, issue_tracker_id, summary, component, version, hardware, priority,
+                     severity, reference_id, user_id, created_at, last_change_at):
         """
         inserts an issue
 
@@ -416,7 +422,8 @@ class BugzillaDao():
         cursor = self._cnx.cursor()
         query = "INSERT IGNORE INTO issue " \
                 "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-        arguments = [None, issue_own_id, issue_tracker_id, summary, component, version, hardware, priority, severity, reference_id, user_id, created_at, last_change_at]
+        arguments = [None, issue_own_id, issue_tracker_id, summary, component, version, hardware, priority,
+                     severity, reference_id, user_id, created_at, last_change_at]
         cursor.execute(query, arguments)
         self._cnx.commit()
         cursor.close()
@@ -475,7 +482,7 @@ class BugzillaDao():
         :param user_email: email of the user
         """
 
-        if user_email == None and user_name == None:
+        if not user_email and not user_name:
             user_name = "uknonwn_user"
             user_email = "uknonwn_user"
 
@@ -594,8 +601,10 @@ class BugzillaDao():
                 if row:
                     found = row[0]
                 else:
-                    #sometimes the version is followed by extra information such as alpha, beta, RC, M.
-                    query = "SELECT id FROM reference WHERE name LIKE '" + str(version) + "%' AND repo_id = " + str(repo_id)
+                    # sometimes the version is followed by extra information such as alpha, beta, RC, M.
+                    query = "SELECT id " \
+                            "FROM reference " \
+                            "WHERE name LIKE '" + str(version) + "%' AND repo_id = " + str(repo_id)
                     cursor.execute(query)
                     row = cursor.fetchone()
 
@@ -604,7 +613,8 @@ class BugzillaDao():
 
                 cursor.close()
             except Exception:
-                self._logger.warning("version (" + str(version) + ") not inserted for issue id: " + str(issue_id), exc_info=True)
+                self._logger.warning("version (" + str(version) + ") not inserted for issue id: " + str(issue_id),
+                                     exc_info=True)
 
         return found
 

@@ -74,7 +74,7 @@ class BugzillaIssue2DbUpdate():
         self._dao = None
 
     def _update_issue_content(self, repo_id, issue_tracker_id, intervals, url):
-        #updates issues already stored in the DB
+        # updates issues already stored in the DB
         queue_intervals = multiprocessing.JoinableQueue()
         results = multiprocessing.Queue()
 
@@ -83,7 +83,7 @@ class BugzillaIssue2DbUpdate():
 
         for interval in intervals:
             issue_extractor = BugzillaIssue2Db(self._db_name, repo_id, issue_tracker_id, url, self._product, interval,
-                                       self._config, self._log_path)
+                                               self._config, self._log_path)
             queue_intervals.put(issue_extractor)
 
         # Add end-of-queue markers
@@ -93,7 +93,7 @@ class BugzillaIssue2DbUpdate():
         queue_intervals.join()
 
     def _update_issue_dependency(self, repo_id, issue_tracker_id, intervals, url):
-        #updates issue dependencies already stored in the DB
+        # updates issue dependencies already stored in the DB
         queue_intervals = multiprocessing.JoinableQueue()
         results = multiprocessing.Queue()
 
@@ -101,8 +101,9 @@ class BugzillaIssue2DbUpdate():
         multiprocessing_util.start_consumers(self._num_processes, queue_intervals, results)
 
         for interval in intervals:
-            issue_dependency_extractor = BugzillaIssueDependency2Db(self._db_name, repo_id, issue_tracker_id, url, self._product, interval,
-                                                 self._config, self._log_path)
+            issue_dependency_extractor = BugzillaIssueDependency2Db(self._db_name, repo_id, issue_tracker_id, url,
+                                                                    self._product, interval,
+                                                                    self._config, self._log_path)
             queue_intervals.put(issue_dependency_extractor)
 
         # Add end-of-queue markers
@@ -112,7 +113,7 @@ class BugzillaIssue2DbUpdate():
         queue_intervals.join()
 
     def _update_issues(self):
-        #updates issues
+        # updates issues
         project_id = self._dao.select_project_id(self._project_name)
         repo_id = self._dao.select_repo_id(project_id, self._repo_name)
         issue_tracker_id = self._dao.select_issue_tracker_id(repo_id, self._issue_tracker_name)
@@ -136,7 +137,8 @@ class BugzillaIssue2DbUpdate():
             self._dao.close_cursor(cursor)
 
             if issues:
-                intervals = [i for i in multiprocessing_util.get_tasks_intervals(issues, self._num_processes) if len(i) > 0]
+                intervals = [i for i in multiprocessing_util.get_tasks_intervals(issues, self._num_processes)
+                             if len(i) > 0]
 
                 self._update_issue_content(repo_id, issue_tracker_id, intervals, issue_tracker_url)
                 self._update_issue_dependency(repo_id, issue_tracker_id, intervals, issue_tracker_url)
@@ -158,8 +160,8 @@ class BugzillaIssue2DbUpdate():
 
             end_time = datetime.now()
             minutes_and_seconds = self._logging_util.calculate_execution_time(end_time, start_time)
-            self._logger.info("BugzillaIssue2DbUpdate finished after " + str(minutes_and_seconds[0])
-                         + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
+            self._logger.info("BugzillaIssue2DbUpdate finished after " + str(minutes_and_seconds[0]) +
+                              " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
             self._logging_util.remove_file_handler_logger(self._logger, self._fileHandler)
         except:
             self._logger.error("BugzillaIssue2DbUpdate failed", exc_info=True)

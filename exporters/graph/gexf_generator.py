@@ -44,20 +44,20 @@ class GexfGenerator():
         self._logger = logger
 
     def _create_output_file(self, filename):
-        #creates the output file where to store the Gexf
+        # creates the output file where to store the Gexf
         if not os.path.exists(os.path.dirname(filename)):
             try:
                 os.makedirs(os.path.dirname(filename))
-            except OSError as exc: # Guard against race condition
+            except OSError as exc:  # Guard against race condition
                 if exc.errno != errno.EEXIST:
                     raise
 
     def _get_color(self, color_name):
-        #gets the color by its name
+        # gets the color by its name
         return GexfGenerator.COLORS.get(color_name)
 
     def _add_nodes(self, graph, nodes_query):
-        #adds nodes to the graph
+        # adds nodes to the graph
         cursor = self._cnx.cursor()
         cursor.execute(nodes_query)
 
@@ -79,17 +79,20 @@ class GexfGenerator():
                 graph.node[node_id]['label'] = node_label
                 graph.node[node_id]['viz'] = {'color': {'r': r, 'g': g, 'b': b, 'a': 0},
                                               'size': node_size,
-                                              'position': {'x': randint(0, 255), 'y': randint(0, 255), 'z': randint(0, 255)}}
+                                              'position': {'x': randint(0, 255),
+                                                           'y': randint(0, 255),
+                                                           'z': randint(0, 255)}}
             except:
                 self._logger.warning(
-                    "GexfExporter: problem when inserting node(id, label, size): (" + str(node_id) + "," + str(node_label) + ")")
+                    "GexfExporter: problem when inserting node(id, label, size): "
+                    "(" + str(node_id) + "," + str(node_label) + ")")
 
             row = cursor.fetchone()
 
         cursor.close()
 
     def _add_edges(self, graph, edges_query):
-        #adds edges to the graph
+        # adds edges to the graph
         cursor = self._cnx.cursor()
         cursor.execute(edges_query)
 
@@ -106,7 +109,8 @@ class GexfGenerator():
                 graph.add_edge(source_id, target_id, weight=weight)
                 graph[source_id][target_id]['viz'] = {'color': {'r': r, 'g': g, 'b': b, 'a': 0}}
             except:
-                self._logger.warning("GexfExporter: problem when inserting edge(source_id, target_id, weight): (" + str(source_id) + "," + str(target_id) + "," + str(weight) + ")")
+                self._logger.warning("GexfExporter: problem when inserting edge(source_id, target_id, weight): "
+                                     "(" + str(source_id) + "," + str(target_id) + "," + str(weight) + ")")
 
             row = cursor.fetchone()
             counter += 1
@@ -142,4 +146,3 @@ class GexfGenerator():
 
         self._create_output_file(file_path)
         nx.write_gexf(graph, file_path)
-
