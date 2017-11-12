@@ -3,8 +3,9 @@
 __author__ = 'valerio cosentino'
 
 """
-Gitana imports and digests the data of Git repositories, issue trackers, Q&A web-sites and Instant messaging services to a relational database
-in order to ease browsing and querying activities with standard SQL syntax and tools. It also provides support
+Gitana imports and digests the data of Git repositories, issue trackers, Q&A web-sites and
+Instant messaging services to a relational database in order to ease browsing and querying
+activities with standard SQL syntax and tools. It also provides support
 to generate project activity reports and perform complex network analysis.
 """
 
@@ -183,9 +184,10 @@ class Gitana():
         db = DbSchema(db_name, self._config, self._log_path)
         projects = db.list_projects()
         for p in projects:
-            print p
+            print(p)
 
-    def import_git_data(self, db_name, project_name, repo_name, git_repo_path, import_type=1, references=None, before_date=None, processes=5):
+    def import_git_data(self, db_name, project_name, repo_name, git_repo_path, import_type=1,
+                        references=None, before_date=None, processes=5):
         """
         imports Git data to the DB
 
@@ -202,10 +204,14 @@ class Gitana():
         :param git_repo_path: the local path of the repository. It cannot be null
 
         :type import_type: int
-        :param import_type: 1 = do not import patch content, 2 = import patch content but not at line level, 3 = import patch content at line level, the default type will be 1
+        :param import_type:
+               1 = do not import patch content,
+               2 = import patch content but not at line level,
+               3 = import patch content at line level, the default type will be 1
 
         :type references: list str
-        :param references: list of references (branches and tags) to import. It can be null or ["ref-name-1", .., "ref-name-n"]
+        :param references: list of references (branches and tags) to import.
+               It can be null or ["ref-name-1", .., "ref-name-n"]
 
         :type before_date: str
         :param before_date: import data before date (YYYY-mm-dd). It can be null
@@ -214,8 +220,8 @@ class Gitana():
         :param processes: number of processes to import the data. If null, the default number of processes is used (5)
         """
         git2db = Git2DbMain(db_name, project_name,
-            repo_name, git_repo_path, before_date, import_type, references, processes,
-            self._config, self._log_path)
+                            repo_name, git_repo_path, before_date, import_type, references, processes,
+                            self._config, self._log_path)
         git2db.extract()
 
     def update_git_data(self, db_name, project_name, repo_name, git_repo_path, before_date=None, processes=5):
@@ -241,11 +247,12 @@ class Gitana():
         :param processes: number of processes to import the data. If null, the default number of processes is used (5)
         """
         git2db = Git2DbUpdate(db_name, project_name,
-            repo_name, git_repo_path, before_date, processes,
-            self._config, self._log_path)
+                              repo_name, git_repo_path, before_date, processes,
+                              self._config, self._log_path)
         git2db.update()
 
-    def import_bugzilla_issue_data(self, db_name, project_name, repo_name, issue_tracker_name, url, product, before_date=None, processes=3):
+    def import_bugzilla_issue_data(self, db_name, project_name, repo_name, issue_tracker_name, url, product,
+                                   before_date=None, processes=3):
         """
         imports Bugzilla issue data to the DB
 
@@ -279,7 +286,8 @@ class Gitana():
             self._config, self._log_path)
         issue2db.extract()
 
-    def update_bugzilla_issue_data(self, db_name, project_name, repo_name, issue_tracker_name, url, product, processes=3):
+    def update_bugzilla_issue_data(self, db_name, project_name, repo_name, issue_tracker_name, url, product,
+                                   processes=3):
         """
         updates the Bugzilla issue data stored in the DB
 
@@ -309,7 +317,8 @@ class Gitana():
             product, processes, self._config, self._log_path)
         issue2db.update()
 
-    def import_eclipse_forum_data(self, db_name, project_name, forum_name, eclipse_forum_url, before_date=None, processes=2):
+    def import_eclipse_forum_data(self, db_name, project_name, forum_name, eclipse_forum_url,
+                                  before_date=None, processes=2):
         """
         imports Eclipse forum data to the DB
 
@@ -457,7 +466,8 @@ class Gitana():
             self._config, self._log_path)
         slack2db.update()
 
-    def import_github_issue_data(self, db_name, project_name, repo_name, issue_tracker_name, github_repo_full_name, tokens, before_date=None):
+    def import_github_issue_data(self, db_name, project_name, repo_name, issue_tracker_name,
+                                 github_repo_full_name, tokens, before_date=None):
         """
         imports GitHub issue data to the DB
 
@@ -487,7 +497,8 @@ class Gitana():
             github_repo_full_name, before_date, tokens, self._config, self._log_path)
         github2db.extract()
 
-    def update_github_issue_data(self, db_name, project_name, repo_name, issue_tracker_name, github_repo_full_name, tokens):
+    def update_github_issue_data(self, db_name, project_name, repo_name, issue_tracker_name,
+                                 github_repo_full_name, tokens):
         """
         updates GitHub issue data stored in the DB
 
