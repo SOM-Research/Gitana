@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>importers.forum.eclipse.querier_eclipse_forum &#8212; Gitana 1.0 documentation</title>
+    <title>importers.forum.eclipse.querier_eclipse_forum &#8212; Gitana 1.0.1 documentation</title>
     
     <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '1.0',
+        VERSION:     '1.0.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -51,6 +51,7 @@
 
 <span class="kn">from</span> <span class="nn">selenium</span> <span class="k">import</span> <span class="n">webdriver</span>
 <span class="kn">import</span> <span class="nn">util</span>
+
 <span class="n">WEB_DRIVER_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">util</span><span class="o">.</span><span class="vm">__file__</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;\selenium_driver\phantomjs.exe&quot;</span>
 
 
@@ -81,8 +82,6 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_driver</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_driver</span> <span class="o">=</span> <span class="n">webdriver</span><span class="o">.</span><span class="n">PhantomJS</span><span class="p">(</span><span class="n">executable_path</span><span class="o">=</span><span class="n">WEB_DRIVER_PATH</span><span class="p">)</span>
-            <span class="c1">## uncomment the line below for linux systems</span>
-            <span class="c1">#self._driver = webdriver.PhantomJS()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_driver</span><span class="o">.</span><span class="n">maximize_window</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_driver</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_url</span><span class="p">)</span></div>
 
@@ -120,10 +119,6 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">found</span> <span class="o">=</span> <span class="n">topic_element</span><span class="o">.</span><span class="n">find_element_by_class_name</span><span class="p">(</span><span class="s2">&quot;big&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
-        <span class="c1">#small = topic_element.find_element_by_class_name(&quot;small&quot;).text</span>
-
-        <span class="c1">#if small:</span>
-        <span class="c1">#    title = title + &quot; ( &quot; + small + &quot; )&quot;</span>
         <span class="k">except</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;EclipseForumQuerier topic title not found&quot;</span><span class="p">)</span>
             <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
@@ -255,7 +250,8 @@
 <span class="sd">        :param message: the Object representing the message</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">found</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">find_element_by_class_name</span><span class="p">(</span><span class="s2">&quot;MsgR2&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">find_element_by_class_name</span><span class="p">(</span><span class="s2">&quot;msgud&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">find_elements_by_tag_name</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">text</span>
+            <span class="n">class_content</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">find_element_by_class_name</span><span class="p">(</span><span class="s2">&quot;MsgR2&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">find_element_by_class_name</span><span class="p">(</span><span class="s2">&quot;msgud&quot;</span><span class="p">)</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="n">class_content</span><span class="o">.</span><span class="n">find_elements_by_tag_name</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">text</span>
         <span class="k">except</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;EclipseForumQuerier message author name not found&quot;</span><span class="p">)</span>
             <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
@@ -370,10 +366,11 @@
         <span class="k">return</span> <span class="n">found</span></div>
 
     <span class="k">def</span> <span class="nf">_load_next_page</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1">#loas the next page</span>
+        <span class="c1"># loads the next page</span>
         <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">found</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_driver</span><span class="o">.</span><span class="n">find_element_by_class_name</span><span class="p">(</span><span class="s2">&quot;ForumBackground&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">find_elements_by_tag_name</span><span class="p">(</span><span class="s2">&quot;table&quot;</span><span class="p">)[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">text</span>
+                <span class="n">background</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_driver</span><span class="o">.</span><span class="n">find_element_by_class_name</span><span class="p">(</span><span class="s2">&quot;ForumBackground&quot;</span><span class="p">)</span>
+                <span class="n">found</span> <span class="o">=</span> <span class="n">background</span><span class="o">.</span><span class="n">find_elements_by_tag_name</span><span class="p">(</span><span class="s2">&quot;table&quot;</span><span class="p">)[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">text</span>
                 <span class="k">if</span> <span class="n">found</span><span class="p">:</span>
                     <span class="k">break</span>
             <span class="k">except</span><span class="p">:</span>
@@ -381,10 +378,11 @@
                 <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">go_next_page</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1">#goes to the next page</span>
+        <span class="c1"># goes to the next page</span>
         <span class="n">done</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">found</span> <span class="o">=</span> <span class="p">[</span><span class="n">l</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_driver</span><span class="o">.</span><span class="n">find_elements_by_class_name</span><span class="p">(</span><span class="s2">&quot;PagerLink&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">l</span><span class="o">.</span><span class="n">get_attribute</span><span class="p">(</span><span class="s2">&quot;accesskey&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;n&quot;</span><span class="p">]</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="p">[</span><span class="n">l</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_driver</span><span class="o">.</span><span class="n">find_elements_by_class_name</span><span class="p">(</span><span class="s2">&quot;PagerLink&quot;</span><span class="p">)</span>
+                     <span class="k">if</span> <span class="n">l</span><span class="o">.</span><span class="n">get_attribute</span><span class="p">(</span><span class="s2">&quot;accesskey&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;n&quot;</span><span class="p">]</span>
         <span class="k">except</span><span class="p">:</span>
             <span class="n">found</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -394,11 +392,6 @@
             <span class="n">done</span> <span class="o">=</span> <span class="kc">True</span>
 
         <span class="k">return</span> <span class="n">done</span></div>
-
-
-
-
-
 </pre></div>
 
           </div>

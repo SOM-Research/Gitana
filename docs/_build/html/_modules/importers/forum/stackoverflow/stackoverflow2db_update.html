@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>importers.forum.stackoverflow.stackoverflow2db_update &#8212; Gitana 1.0 documentation</title>
+    <title>importers.forum.stackoverflow.stackoverflow2db_update &#8212; Gitana 1.0.1 documentation</title>
     
     <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '1.0',
+        VERSION:     '1.0.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -99,11 +99,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">_get_topics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">forum_id</span><span class="p">):</span>
-        <span class="c1">#updates topics of a forum</span>
+        <span class="c1"># updates topics of a forum</span>
         <span class="n">topic_ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">get_topic_own_ids</span><span class="p">(</span><span class="n">forum_id</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">topic_ids</span><span class="p">:</span>
-            <span class="n">intervals</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">multiprocessing_util</span><span class="o">.</span><span class="n">get_tasks_intervals</span><span class="p">(</span><span class="n">topic_ids</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tokens</span><span class="p">))</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
+            <span class="n">intervals</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">multiprocessing_util</span><span class="o">.</span><span class="n">get_tasks_intervals</span><span class="p">(</span><span class="n">topic_ids</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tokens</span><span class="p">))</span>
+                         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
 
             <span class="n">queue_extractors</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">JoinableQueue</span><span class="p">()</span>
             <span class="n">results</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
@@ -112,7 +113,8 @@
             <span class="n">multiprocessing_util</span><span class="o">.</span><span class="n">start_consumers</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tokens</span><span class="p">),</span> <span class="n">queue_extractors</span><span class="p">,</span> <span class="n">results</span><span class="p">)</span>
 
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">intervals</span><span class="p">)):</span>
-                <span class="n">topic_extractor</span> <span class="o">=</span> <span class="n">StackOverflowTopic2Db</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_db_name</span><span class="p">,</span> <span class="n">forum_id</span><span class="p">,</span> <span class="n">intervals</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tokens</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_path</span><span class="p">)</span>
+                <span class="n">topic_extractor</span> <span class="o">=</span> <span class="n">StackOverflowTopic2Db</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_db_name</span><span class="p">,</span> <span class="n">forum_id</span><span class="p">,</span> <span class="n">intervals</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tokens</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                                                        <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_path</span><span class="p">)</span>
                 <span class="n">queue_extractors</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">topic_extractor</span><span class="p">)</span>
 
             <span class="c1"># Add end-of-queue markers</span>
@@ -143,8 +145,8 @@
 
             <span class="n">end_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
             <span class="n">minutes_and_seconds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logging_util</span><span class="o">.</span><span class="n">calculate_execution_time</span><span class="p">(</span><span class="n">end_time</span><span class="p">,</span> <span class="n">start_time</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;StackOverflow2DbUpdate finished after &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">minutes_and_seconds</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-                         <span class="o">+</span> <span class="s2">&quot; minutes and &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">minutes_and_seconds</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot; secs&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;StackOverflow2DbUpdate finished after &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">minutes_and_seconds</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span>
+                              <span class="s2">&quot; minutes and &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">minutes_and_seconds</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot; secs&quot;</span><span class="p">)</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_logging_util</span><span class="o">.</span><span class="n">remove_file_handler_logger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fileHandler</span><span class="p">)</span>
         <span class="k">except</span><span class="p">:</span>

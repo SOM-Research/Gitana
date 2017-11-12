@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>importers.instant_messaging.slack.slack2db_extract_main &#8212; Gitana 1.0 documentation</title>
+    <title>importers.instant_messaging.slack.slack2db_extract_main &#8212; Gitana 1.0.1 documentation</title>
     
     <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '1.0',
+        VERSION:     '1.0.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -112,7 +112,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">_get_channel_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instant_messaging_id</span><span class="p">):</span>
-        <span class="c1">#get data source channel ids</span>
+        <span class="c1"># get data source channel ids</span>
         <span class="n">channel_ids</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">channel_own_ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_channel_ids</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_before_date</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_channels</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">own_id</span> <span class="ow">in</span> <span class="n">channel_own_ids</span><span class="p">:</span>
@@ -124,13 +124,14 @@
                 <span class="n">description</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_channel_description</span><span class="p">(</span><span class="n">channel</span><span class="p">)</span>
                 <span class="n">created_at</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">_get_channel_created_at</span><span class="p">(</span><span class="n">channel</span><span class="p">)</span>
 
-                <span class="n">channel_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">insert_channel</span><span class="p">(</span><span class="n">own_id</span><span class="p">,</span> <span class="n">instant_messaging_id</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">created_at</span><span class="p">,</span> <span class="n">last_change_at</span><span class="p">)</span>
+                <span class="n">channel_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">insert_channel</span><span class="p">(</span><span class="n">own_id</span><span class="p">,</span> <span class="n">instant_messaging_id</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span>
+                                                      <span class="n">description</span><span class="p">,</span> <span class="n">created_at</span><span class="p">,</span> <span class="n">last_change_at</span><span class="p">)</span>
                 <span class="n">channel_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">channel_id</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">channel_ids</span>
 
     <span class="k">def</span> <span class="nf">_get_channels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instant_messaging_id</span><span class="p">):</span>
-        <span class="c1">#processes Slack channels</span>
+        <span class="c1"># processes Slack channels</span>
         <span class="n">channel_ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_channel_ids</span><span class="p">(</span><span class="n">instant_messaging_id</span><span class="p">)</span>
 
         <span class="n">intervals</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">multiprocessing_util</span><span class="o">.</span><span class="n">get_tasks_intervals</span><span class="p">(</span><span class="n">channel_ids</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tokens</span><span class="p">))</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
@@ -143,7 +144,8 @@
 
         <span class="n">pos</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">for</span> <span class="n">interval</span> <span class="ow">in</span> <span class="n">intervals</span><span class="p">:</span>
-            <span class="n">topic_extractor</span> <span class="o">=</span> <span class="n">SlackChannel2Db</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_db_name</span><span class="p">,</span> <span class="n">instant_messaging_id</span><span class="p">,</span> <span class="n">interval</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tokens</span><span class="p">[</span><span class="n">pos</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_path</span><span class="p">)</span>
+            <span class="n">topic_extractor</span> <span class="o">=</span> <span class="n">SlackChannel2Db</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_db_name</span><span class="p">,</span> <span class="n">instant_messaging_id</span><span class="p">,</span> <span class="n">interval</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tokens</span><span class="p">[</span><span class="n">pos</span><span class="p">],</span>
+                                              <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_path</span><span class="p">)</span>
             <span class="n">queue_extractors</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">topic_extractor</span><span class="p">)</span>
             <span class="n">pos</span> <span class="o">+=</span> <span class="mi">1</span>
 
@@ -168,13 +170,14 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span> <span class="o">=</span> <span class="n">SlackDao</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">)</span>
 
             <span class="n">project_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">select_project_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_project_name</span><span class="p">)</span>
-            <span class="n">instant_messaging_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">insert_instant_messaging</span><span class="p">(</span><span class="n">project_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_instant_messaging_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type</span><span class="p">)</span>
+            <span class="n">instant_messaging_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">insert_instant_messaging</span><span class="p">(</span><span class="n">project_id</span><span class="p">,</span>
+                                                                      <span class="bp">self</span><span class="o">.</span><span class="n">_instant_messaging_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_get_channels</span><span class="p">(</span><span class="n">instant_messaging_id</span><span class="p">)</span>
 
             <span class="n">end_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
             <span class="n">minutes_and_seconds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logging_util</span><span class="o">.</span><span class="n">calculate_execution_time</span><span class="p">(</span><span class="n">end_time</span><span class="p">,</span> <span class="n">start_time</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;SlackDbMain extract finished after &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">minutes_and_seconds</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-                         <span class="o">+</span> <span class="s2">&quot; minutes and &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">minutes_and_seconds</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot; secs&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;SlackDbMain extract finished after &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">minutes_and_seconds</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span>
+                              <span class="s2">&quot; minutes and &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">minutes_and_seconds</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot; secs&quot;</span><span class="p">)</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_logging_util</span><span class="o">.</span><span class="n">remove_file_handler_logger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fileHandler</span><span class="p">)</span>
         <span class="k">except</span><span class="p">:</span>

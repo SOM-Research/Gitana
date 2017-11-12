@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>importers.vcs.git.git2db_extract_reference &#8212; Gitana 1.0 documentation</title>
+    <title>importers.vcs.git.git2db_extract_reference &#8212; Gitana 1.0.1 documentation</title>
     
     <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '1.0',
+        VERSION:     '1.0.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -59,15 +59,15 @@
 <span class="sd">    This class handles the import of Git references</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1">#do not import patches</span>
+    <span class="c1"># do not import patches</span>
     <span class="n">LIGHT_IMPORT_TYPE</span> <span class="o">=</span> <span class="mi">1</span>
-    <span class="c1">#import patches but not at line level</span>
+    <span class="c1"># import patches but not at line level</span>
     <span class="n">MEDIUM_IMPORT_TYPE</span> <span class="o">=</span> <span class="mi">2</span>
-    <span class="c1">#import patches also at line level</span>
+    <span class="c1"># import patches also at line level</span>
     <span class="n">FULL_IMPORT_TYPE</span> <span class="o">=</span> <span class="mi">3</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span>
-                 <span class="n">repo_id</span><span class="p">,</span> <span class="n">git_repo_path</span><span class="p">,</span> <span class="n">before_date</span><span class="p">,</span> <span class="n">import_type</span><span class="p">,</span> <span class="n">ref_name</span><span class="p">,</span> <span class="n">from_sha</span><span class="p">,</span>
+                 <span class="n">repo_id</span><span class="p">,</span> <span class="n">git_repo_path</span><span class="p">,</span> <span class="n">before_date</span><span class="p">,</span> <span class="n">import_type</span><span class="p">,</span> <span class="n">ref_name</span><span class="p">,</span> <span class="n">ref_type</span><span class="p">,</span> <span class="n">from_sha</span><span class="p">,</span>
                  <span class="n">config</span><span class="p">,</span> <span class="n">log_root_path</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :type db_name: str</span>
@@ -83,7 +83,10 @@
 <span class="sd">        :param before_date: import data before date (YYYY-mm-dd)</span>
 
 <span class="sd">        :type import_type: int</span>
-<span class="sd">        :param import_type: 1 does not import patches, 2 imports patches but not at line level, 3 imports patches with line detail</span>
+<span class="sd">        :param import_type:</span>
+<span class="sd">        1 does not import patches,</span>
+<span class="sd">        2 imports patches but not at line level,</span>
+<span class="sd">        3 imports patches with line detail</span>
 
 <span class="sd">        :type ref_name: str</span>
 <span class="sd">        :param ref_name: the name of the reference to import</span>
@@ -102,6 +105,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_repo_id</span> <span class="o">=</span> <span class="n">repo_id</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_db_name</span> <span class="o">=</span> <span class="n">db_name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_ref_name</span> <span class="o">=</span> <span class="n">ref_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ref_type</span> <span class="o">=</span> <span class="n">ref_type</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_before_date</span> <span class="o">=</span> <span class="n">before_date</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_import_type</span> <span class="o">=</span> <span class="n">import_type</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_from_sha</span> <span class="o">=</span> <span class="n">from_sha</span>
@@ -121,61 +125,44 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span> <span class="o">=</span> <span class="n">GitQuerier</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_git_repo_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span> <span class="o">=</span> <span class="n">GitDao</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">extract</span><span class="p">()</span>
-        <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Git2Db failed&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">finally</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">close_connection</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_make_it_printable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="c1">#converts string to UTF-8 and removes empty and non-alphanumeric characters</span>
+        <span class="c1"># converts string to UTF-8 and removes empty and non-alphanumeric characters</span>
         <span class="n">u</span> <span class="o">=</span> <span class="nb">str</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">,</span> <span class="s1">&#39;ignore&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(\W|\s)+&#39;</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_get_ext</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="c1">#gets the extension of the file</span>
-        <span class="n">file_name</span> <span class="o">=</span> <span class="nb">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-        <span class="n">ext</span> <span class="o">=</span> <span class="n">file_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">ext</span>
+    <span class="k">def</span> <span class="nf">_get_info_contribution_in_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference_name</span><span class="p">,</span> <span class="n">reference_type</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">,</span> <span class="n">from_sha</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">from_sha</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_before_date</span><span class="p">:</span>
+                <span class="n">commits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">collect_all_commits_after_sha_before_date</span><span class="p">(</span><span class="n">reference_name</span><span class="p">,</span> <span class="n">from_sha</span><span class="p">,</span>
+                                                                                  <span class="bp">self</span><span class="o">.</span><span class="n">_before_date</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">commits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">collect_all_commits_after_sha</span><span class="p">(</span><span class="n">reference_name</span><span class="p">,</span> <span class="n">from_sha</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_get_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="c1">#not used, future extension</span>
-        <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;text&quot;</span>
-        <span class="k">if</span> <span class="nb">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;Binary files&#39;</span><span class="p">):</span>
-            <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;binary&quot;</span>
-        <span class="k">return</span> <span class="nb">type</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_analyse_commits</span><span class="p">(</span><span class="n">commits</span><span class="p">,</span> <span class="n">reference_name</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_before_date</span><span class="p">:</span>
+                <span class="n">commits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">collect_all_commits_before_date</span><span class="p">(</span><span class="n">reference_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_before_date</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">commits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">collect_all_commits</span><span class="p">(</span><span class="n">reference_name</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_get_info_contribution_in_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference_name</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">,</span> <span class="n">from_sha</span><span class="p">):</span>
-        <span class="c1">#processes Git reference data</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_analyse_commits</span><span class="p">(</span><span class="n">commits</span><span class="p">,</span> <span class="n">reference_name</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_load_all_references</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">):</span>
+        <span class="c1"># load all git branches and tags into database</span>
         <span class="k">for</span> <span class="n">reference</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_references</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">reference</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">reference_name</span><span class="p">:</span>
-                <span class="n">ref_name</span> <span class="o">=</span> <span class="n">reference</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="n">ref_type</span> <span class="o">=</span> <span class="n">reference</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-
-                <span class="k">if</span> <span class="n">from_sha</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_before_date</span><span class="p">:</span>
-                        <span class="n">commits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">collect_all_commits_after_sha_before_date</span><span class="p">(</span><span class="n">reference_name</span><span class="p">,</span> <span class="n">from_sha</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_before_date</span><span class="p">)</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="n">commits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">collect_all_commits_after_sha</span><span class="p">(</span><span class="n">reference_name</span><span class="p">,</span> <span class="n">from_sha</span><span class="p">)</span>
-
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_analyse_commits</span><span class="p">(</span><span class="n">commits</span><span class="p">,</span> <span class="n">reference_name</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_before_date</span><span class="p">:</span>
-                        <span class="n">commits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">collect_all_commits_before_date</span><span class="p">(</span><span class="n">reference_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_before_date</span><span class="p">)</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="n">commits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">collect_all_commits</span><span class="p">(</span><span class="n">reference_name</span><span class="p">)</span>
-
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_analyse_reference</span><span class="p">(</span><span class="n">reference_name</span><span class="p">,</span> <span class="n">ref_type</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_analyse_commits</span><span class="p">(</span><span class="n">commits</span><span class="p">,</span> <span class="n">reference_name</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">)</span>
-
-                <span class="k">break</span>
-
-    <span class="k">def</span> <span class="nf">_analyse_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref_name</span><span class="p">,</span> <span class="n">ref_type</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">):</span>
-        <span class="c1">#inserts reference to DB</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">insert_reference</span><span class="p">(</span><span class="n">repo_id</span><span class="p">,</span> <span class="n">ref_name</span><span class="p">,</span> <span class="n">ref_type</span><span class="p">)</span>
+            <span class="n">ref_name</span> <span class="o">=</span> <span class="n">reference</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">ref_type</span> <span class="o">=</span> <span class="n">reference</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="c1"># inserts reference to DB</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">insert_reference</span><span class="p">(</span><span class="n">repo_id</span><span class="p">,</span> <span class="n">ref_name</span><span class="p">,</span> <span class="n">ref_type</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_get_diffs_from_commit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">commit</span><span class="p">,</span> <span class="n">files_in_commit</span><span class="p">):</span>
-        <span class="c1">#calculates diffs within files in a commit</span>
+        <span class="c1"># calculates diffs within files in a commit</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_import_type</span> <span class="o">&gt;</span> <span class="n">Git2DbReference</span><span class="o">.</span><span class="n">LIGHT_IMPORT_TYPE</span><span class="p">:</span>
             <span class="n">diffs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_diffs</span><span class="p">(</span><span class="n">commit</span><span class="p">,</span> <span class="n">files_in_commit</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -184,7 +171,7 @@
         <span class="k">return</span> <span class="n">diffs</span>
 
     <span class="k">def</span> <span class="nf">_analyse_commit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">commit</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">,</span> <span class="n">ref_id</span><span class="p">):</span>
-        <span class="c1">#analyses a commit</span>
+        <span class="c1"># analyses a commit</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">message</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_commit_property</span><span class="p">(</span><span class="n">commit</span><span class="p">,</span> <span class="s2">&quot;message&quot;</span><span class="p">)</span>
             <span class="n">author_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_commit_property</span><span class="p">(</span><span class="n">commit</span><span class="p">,</span> <span class="s2">&quot;author.name&quot;</span><span class="p">)</span>
@@ -195,15 +182,23 @@
             <span class="n">sha</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_commit_property</span><span class="p">(</span><span class="n">commit</span><span class="p">,</span> <span class="s2">&quot;hexsha&quot;</span><span class="p">)</span>
             <span class="n">authored_date</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_commit_time</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_commit_property</span><span class="p">(</span><span class="n">commit</span><span class="p">,</span> <span class="s2">&quot;authored_date&quot;</span><span class="p">))</span>
             <span class="n">committed_date</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_commit_time</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_commit_property</span><span class="p">(</span><span class="n">commit</span><span class="p">,</span> <span class="s2">&quot;committed_date&quot;</span><span class="p">))</span>
-            <span class="c1">#insert author</span>
+
+            <span class="k">if</span> <span class="n">author_name</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">author_email</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;author name and email are null for commit: &quot;</span> <span class="o">+</span> <span class="n">sha</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">committer_name</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">committer_email</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;committer name and email are null for commit: &quot;</span> <span class="o">+</span> <span class="n">sha</span><span class="p">)</span>
+
+            <span class="c1"># insert author</span>
             <span class="n">author_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">get_user_id</span><span class="p">(</span><span class="n">author_name</span><span class="p">,</span> <span class="n">author_email</span><span class="p">)</span>
             <span class="n">committer_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">get_user_id</span><span class="p">(</span><span class="n">committer_name</span><span class="p">,</span> <span class="n">committer_email</span><span class="p">)</span>
 
             <span class="n">commit_found</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">select_commit_id</span><span class="p">(</span><span class="n">sha</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="ow">not</span> <span class="n">commit_found</span><span class="p">:</span>
-                <span class="c1">#insert commit</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">insert_commit</span><span class="p">(</span><span class="n">repo_id</span><span class="p">,</span> <span class="n">sha</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">author_id</span><span class="p">,</span> <span class="n">committer_id</span><span class="p">,</span> <span class="n">authored_date</span><span class="p">,</span> <span class="n">committed_date</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
+                <span class="c1"># insert commit</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">insert_commit</span><span class="p">(</span><span class="n">repo_id</span><span class="p">,</span> <span class="n">sha</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">author_id</span><span class="p">,</span> <span class="n">committer_id</span><span class="p">,</span> <span class="n">authored_date</span><span class="p">,</span>
+                                        <span class="n">committed_date</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
                 <span class="n">commit_found</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">select_commit_id</span><span class="p">(</span><span class="n">sha</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">)</span>
 
                 <span class="n">commit_stats_files</span> <span class="o">=</span> <span class="n">commit</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">files</span>
@@ -211,7 +206,7 @@
                     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">commit_has_no_parents</span><span class="p">(</span><span class="n">commit</span><span class="p">):</span>
                         <span class="k">for</span> <span class="n">diff</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_diffs_no_parent_commit</span><span class="p">(</span><span class="n">commit</span><span class="p">):</span>
                             <span class="n">file_path</span> <span class="o">=</span> <span class="n">diff</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                            <span class="n">ext</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_ext</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+                            <span class="n">ext</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_ext</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
 
                             <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">insert_file</span><span class="p">(</span><span class="n">repo_id</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">ext</span><span class="p">)</span>
                             <span class="n">file_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">select_file_id</span><span class="p">(</span><span class="n">repo_id</span><span class="p">,</span> <span class="n">file_path</span><span class="p">)</span>
@@ -224,8 +219,9 @@
                             <span class="n">stats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_stats_for_file</span><span class="p">(</span><span class="n">commit_stats_files</span><span class="p">,</span> <span class="n">file_path</span><span class="p">)</span>
                             <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_status_with_diff</span><span class="p">(</span><span class="n">stats</span><span class="p">,</span> <span class="n">diff</span><span class="p">)</span>
 
-                            <span class="c1">#insert file modification</span>
-                            <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">insert_file_modification</span><span class="p">(</span><span class="n">commit_found</span><span class="p">,</span> <span class="n">file_id</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">stats</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">stats</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">stats</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">patch_content</span><span class="p">)</span>
+                            <span class="c1"># insert file modification</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">insert_file_modification</span><span class="p">(</span><span class="n">commit_found</span><span class="p">,</span> <span class="n">file_id</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span>
+                                                               <span class="n">stats</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">stats</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">stats</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">patch_content</span><span class="p">)</span>
 
                             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_import_type</span> <span class="o">==</span> <span class="n">Git2DbReference</span><span class="o">.</span><span class="n">FULL_IMPORT_TYPE</span><span class="p">:</span>
                                 <span class="n">file_modification_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">select_file_modification_id</span><span class="p">(</span><span class="n">commit_found</span><span class="p">,</span> <span class="n">file_id</span><span class="p">)</span>
@@ -234,44 +230,52 @@
                                     <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">insert_line_details</span><span class="p">(</span><span class="n">file_modification_id</span><span class="p">,</span> <span class="n">line_detail</span><span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="k">for</span> <span class="n">diff</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_diffs_from_commit</span><span class="p">(</span><span class="n">commit</span><span class="p">,</span> <span class="n">commit_stats_files</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
-                            <span class="c1">#self.dao.check_connection_alive()</span>
+                            <span class="c1"># self.dao.check_connection_alive()</span>
                             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">is_renamed</span><span class="p">(</span><span class="n">diff</span><span class="p">):</span>
                                 <span class="n">file_previous</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_rename_from</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span>
-                                <span class="n">ext_previous</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_ext</span><span class="p">(</span><span class="n">file_previous</span><span class="p">)</span>
+                                <span class="n">ext_previous</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_ext</span><span class="p">(</span><span class="n">file_previous</span><span class="p">)</span>
 
                                 <span class="n">file_current</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_file_current</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span>
-                                <span class="n">ext_current</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_ext</span><span class="p">(</span><span class="n">file_current</span><span class="p">)</span>
+                                <span class="n">ext_current</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_ext</span><span class="p">(</span><span class="n">file_current</span><span class="p">)</span>
 
-                                <span class="c1">#insert new file</span>
+                                <span class="c1"># insert new file</span>
                                 <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">insert_file</span><span class="p">(</span><span class="n">repo_id</span><span class="p">,</span> <span class="n">file_current</span><span class="p">,</span> <span class="n">ext_current</span><span class="p">)</span>
 
-                                <span class="c1">#get id new file</span>
+                                <span class="c1"># get id new file</span>
                                 <span class="n">current_file_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">select_file_id</span><span class="p">(</span><span class="n">repo_id</span><span class="p">,</span> <span class="n">file_current</span><span class="p">)</span>
 
-                                <span class="c1">#retrieve the id of the previous file</span>
+                                <span class="c1"># retrieve the id of the previous file</span>
                                 <span class="n">previous_file_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">select_file_id</span><span class="p">(</span><span class="n">repo_id</span><span class="p">,</span> <span class="n">file_previous</span><span class="p">)</span>
+
+                                <span class="c1"># insert file modification</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">insert_file_modification</span><span class="p">(</span><span class="n">commit_found</span><span class="p">,</span> <span class="n">current_file_id</span><span class="p">,</span> <span class="s2">&quot;renamed&quot;</span><span class="p">,</span>
+                                                                   <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
                                 <span class="k">if</span> <span class="ow">not</span> <span class="n">previous_file_id</span><span class="p">:</span>
                                     <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">insert_file</span><span class="p">(</span><span class="n">repo_id</span><span class="p">,</span> <span class="n">file_previous</span><span class="p">,</span> <span class="n">ext_previous</span><span class="p">)</span>
                                     <span class="n">previous_file_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">select_file_id</span><span class="p">(</span><span class="n">repo_id</span><span class="p">,</span> <span class="n">file_previous</span><span class="p">)</span>
 
                                 <span class="k">if</span> <span class="n">current_file_id</span> <span class="o">==</span> <span class="n">previous_file_id</span><span class="p">:</span>
-                                    <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;previous file id is equal to current file id (&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">current_file_id</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;) &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">sha</span><span class="p">))</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;previous file id is equal to current file id &quot;</span>
+                                                         <span class="s2">&quot;(&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">current_file_id</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;) &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">sha</span><span class="p">))</span>
                                 <span class="k">else</span><span class="p">:</span>
-                                    <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">insert_file_renamed</span><span class="p">(</span><span class="n">repo_id</span><span class="p">,</span> <span class="n">current_file_id</span><span class="p">,</span> <span class="n">previous_file_id</span><span class="p">)</span>
-                                <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">insert_file_modification</span><span class="p">(</span><span class="n">commit_found</span><span class="p">,</span> <span class="n">current_file_id</span><span class="p">,</span> <span class="s2">&quot;renamed&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                                    <span class="n">file_modification_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">select_file_modification_id</span><span class="p">(</span><span class="n">commit_found</span><span class="p">,</span>
+                                                                                                 <span class="n">current_file_id</span><span class="p">)</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">insert_file_renamed</span><span class="p">(</span><span class="n">repo_id</span><span class="p">,</span> <span class="n">current_file_id</span><span class="p">,</span> <span class="n">previous_file_id</span><span class="p">,</span>
+                                                                  <span class="n">file_modification_id</span><span class="p">)</span>
+
                             <span class="k">else</span><span class="p">:</span>
-                                <span class="c1">#insert file</span>
-                                <span class="c1">#if the file does not have a path, it won&#39;t be inserted</span>
+                                <span class="c1"># insert file</span>
+                                <span class="c1"># if the file does not have a path, it won&#39;t be inserted</span>
                                 <span class="k">try</span><span class="p">:</span>
                                     <span class="n">file_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_file_path</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span>
 
-                                    <span class="n">ext</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_ext</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+                                    <span class="n">ext</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_ext</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
 
                                     <span class="n">stats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_stats_for_file</span><span class="p">(</span><span class="n">commit_stats_files</span><span class="p">,</span> <span class="n">file_path</span><span class="p">)</span>
                                     <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_status_with_diff</span><span class="p">(</span><span class="n">stats</span><span class="p">,</span> <span class="n">diff</span><span class="p">)</span>
 
-                                    <span class="c1">#if the file is new, add it</span>
+                                    <span class="c1"># if the file is new, add it</span>
                                     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">is_new_file</span><span class="p">(</span><span class="n">diff</span><span class="p">):</span>
                                         <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">insert_file</span><span class="p">(</span><span class="n">repo_id</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">ext</span><span class="p">)</span>
                                     <span class="n">file_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">select_file_id</span><span class="p">(</span><span class="n">repo_id</span><span class="p">,</span> <span class="n">file_path</span><span class="p">)</span>
@@ -281,21 +285,23 @@
                                         <span class="n">file_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">select_file_id</span><span class="p">(</span><span class="n">repo_id</span><span class="p">,</span> <span class="n">file_path</span><span class="p">)</span>
 
                                     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_import_type</span> <span class="o">&gt;</span> <span class="n">Git2DbReference</span><span class="o">.</span><span class="n">LIGHT_IMPORT_TYPE</span><span class="p">:</span>
-                                        <span class="c1">#insert file modification (additions, deletions)</span>
+                                        <span class="c1"># insert file modification (additions, deletions)</span>
                                         <span class="n">patch_content</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_patch_content</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span>
                                     <span class="k">else</span><span class="p">:</span>
                                         <span class="n">patch_content</span> <span class="o">=</span> <span class="kc">None</span>
 
-                                    <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">insert_file_modification</span><span class="p">(</span><span class="n">commit_found</span><span class="p">,</span> <span class="n">file_id</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">stats</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">stats</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">stats</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">patch_content</span><span class="p">)</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">insert_file_modification</span><span class="p">(</span><span class="n">commit_found</span><span class="p">,</span> <span class="n">file_id</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span>
+                                                                       <span class="n">stats</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">stats</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">stats</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">patch_content</span><span class="p">)</span>
 
                                     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_import_type</span> <span class="o">==</span> <span class="n">Git2DbReference</span><span class="o">.</span><span class="n">FULL_IMPORT_TYPE</span><span class="p">:</span>
-                                        <span class="n">file_modification_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">select_file_modification_id</span><span class="p">(</span><span class="n">commit_found</span><span class="p">,</span> <span class="n">file_id</span><span class="p">)</span>
+                                        <span class="n">file_modification_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">select_file_modification_id</span><span class="p">(</span><span class="n">commit_found</span><span class="p">,</span>
+                                                                                                     <span class="n">file_id</span><span class="p">)</span>
                                         <span class="n">line_details</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_querier</span><span class="o">.</span><span class="n">get_line_details</span><span class="p">(</span><span class="n">patch_content</span><span class="p">,</span> <span class="n">ext</span><span class="p">)</span>
                                         <span class="k">for</span> <span class="n">line_detail</span> <span class="ow">in</span> <span class="n">line_details</span><span class="p">:</span>
                                             <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">insert_line_details</span><span class="p">(</span><span class="n">file_modification_id</span><span class="p">,</span> <span class="n">line_detail</span><span class="p">)</span>
-                                <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+                                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                                     <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Something went wrong with commit &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">sha</span><span class="p">),</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-                <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Git2Db failed on commit &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">sha</span><span class="p">),</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
             <span class="c1"># insert parents of the commit</span>
@@ -303,23 +309,14 @@
             <span class="c1"># insert commits in reference</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">insert_commit_in_reference</span><span class="p">(</span><span class="n">repo_id</span><span class="p">,</span> <span class="n">commit_found</span><span class="p">,</span> <span class="n">ref_id</span><span class="p">)</span>
 
-            <span class="c1">#return commit_found</span>
-        <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Git2Db failed on commit &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">sha</span><span class="p">),</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_analyse_commits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">commits</span><span class="p">,</span> <span class="n">ref</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">):</span>
-        <span class="c1">#analyses commits in references</span>
         <span class="n">ref_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dao</span><span class="o">.</span><span class="n">select_reference_id</span><span class="p">(</span><span class="n">repo_id</span><span class="p">,</span> <span class="n">ref</span><span class="p">)</span>
-        <span class="n">commits_in_reference</span> <span class="o">=</span> <span class="p">[]</span>
+
         <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">commits</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_analyse_commit</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">,</span> <span class="n">ref_id</span><span class="p">)</span>
-            <span class="c1"># self.logger.info(&quot;analysing commit &quot; + str(commits.index(c)+1) + &quot;/&quot; + str(len(commits)))</span>
-            <span class="c1"># to_insert = self._analyse_commit(c, repo_id, ref_id)</span>
-            <span class="c1"># if to_insert:</span>
-            <span class="c1">#     commits_in_reference.append((repo_id, to_insert, ref_id))</span>
-            <span class="c1"># self._analyse_commit(c, repo_id, ref_id)</span>
-
-        <span class="c1">#self._dao.insert_commits_in_reference(commits_in_reference)</span>
 
 <div class="viewcode-block" id="Git2DbReference.extract"><a class="viewcode-back" href="../../../../git.html#importers.vcs.git.git2db_extract_reference.Git2DbReference.extract">[docs]</a>    <span class="k">def</span> <span class="nf">extract</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -328,14 +325,15 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Git2DbReference started&quot;</span><span class="p">)</span>
             <span class="n">start_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_get_info_contribution_in_reference</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ref_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_repo_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_from_sha</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_load_all_references</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_repo_id</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_info_contribution_in_reference</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ref_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ref_type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_repo_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_from_sha</span><span class="p">)</span>
 
             <span class="n">end_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
             <span class="n">minutes_and_seconds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logging_util</span><span class="o">.</span><span class="n">calculate_execution_time</span><span class="p">(</span><span class="n">end_time</span><span class="p">,</span> <span class="n">start_time</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Git2DbReference finished after &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">minutes_and_seconds</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-                         <span class="o">+</span> <span class="s2">&quot; minutes and &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">minutes_and_seconds</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot; secs&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Git2DbReference finished after &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">minutes_and_seconds</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span>
+                              <span class="s2">&quot; minutes and &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">minutes_and_seconds</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot; secs&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_logging_util</span><span class="o">.</span><span class="n">remove_file_handler_logger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fileHandler</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Git2DbReference failed&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div></div>
 </pre></div>
 

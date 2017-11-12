@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Main class: Gitana &#8212; Gitana 1.0 documentation</title>
+    <title>Main class: Gitana &#8212; Gitana 1.0.1 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.0',
+        VERSION:     '1.0.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -47,8 +47,64 @@
 <span id="main-class-gitana"></span><h1>Main class: Gitana<a class="headerlink" href="#module-gitana.gitana" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="gitana.gitana.Gitana">
-<em class="property">class </em><code class="descclassname">gitana.gitana.</code><code class="descname">Gitana</code><span class="sig-paren">(</span><em>config</em>, <em>log_folder_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gitana/gitana.html#Gitana"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gitana.gitana.Gitana" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">gitana.gitana.</code><code class="descname">Gitana</code><span class="sig-paren">(</span><em>config</em>, <em>log_folder_path=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gitana/gitana.html#Gitana"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gitana.gitana.Gitana" title="Permalink to this definition">¶</a></dt>
 <dd><p>This is the main class you instanciate to use Gitana functionalities</p>
+<dl class="method">
+<dt id="gitana.gitana.Gitana.add_forum_tables">
+<code class="descname">add_forum_tables</code><span class="sig-paren">(</span><em>db_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gitana/gitana.html#Gitana.add_forum_tables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gitana.gitana.Gitana.add_forum_tables" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>db_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of the DB to initialize</td>
+</tr>
+</tbody>
+</table>
+<p>initializes forum tables if they do not exist</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gitana.gitana.Gitana.add_git_tables">
+<code class="descname">add_git_tables</code><span class="sig-paren">(</span><em>db_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gitana/gitana.html#Gitana.add_git_tables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gitana.gitana.Gitana.add_git_tables" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>db_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of the DB to initialize</td>
+</tr>
+</tbody>
+</table>
+<p>initializes git tables if they do not exist</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gitana.gitana.Gitana.add_instant_messaging_tables">
+<code class="descname">add_instant_messaging_tables</code><span class="sig-paren">(</span><em>db_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gitana/gitana.html#Gitana.add_instant_messaging_tables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gitana.gitana.Gitana.add_instant_messaging_tables" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>db_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of the DB to initialize</td>
+</tr>
+</tbody>
+</table>
+<p>initializes instant messaging tables if they do not exist</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gitana.gitana.Gitana.add_issue_tracker_tables">
+<code class="descname">add_issue_tracker_tables</code><span class="sig-paren">(</span><em>db_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gitana/gitana.html#Gitana.add_issue_tracker_tables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gitana.gitana.Gitana.add_issue_tracker_tables" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>db_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of the DB to initialize</td>
+</tr>
+</tbody>
+</table>
+<p>initializes issue tracker tables if they do not exist</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="gitana.gitana.Gitana.create_log_folder">
 <code class="descname">create_log_folder</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gitana/gitana.html#Gitana.create_log_folder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gitana.gitana.Gitana.create_log_folder" title="Permalink to this definition">¶</a></dt>
@@ -82,23 +138,17 @@
 </dd></dl>
 
 <dl class="method">
-<dt id="gitana.gitana.Gitana.delete_previous_logs">
-<code class="descname">delete_previous_logs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gitana/gitana.html#Gitana.delete_previous_logs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gitana.gitana.Gitana.delete_previous_logs" title="Permalink to this definition">¶</a></dt>
-<dd><p>deletes the content of the log folder</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="gitana.gitana.Gitana.export_to_graph">
-<code class="descname">export_to_graph</code><span class="sig-paren">(</span><em>db_name</em>, <em>graph_json_path</em>, <em>output_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gitana/gitana.html#Gitana.export_to_graph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gitana.gitana.Gitana.export_to_graph" title="Permalink to this definition">¶</a></dt>
-<dd><p>exports the data stored in the Gitana DB to a graph (gexf format)</p>
+<dt id="gitana.gitana.Gitana.create_repository">
+<code class="descname">create_repository</code><span class="sig-paren">(</span><em>db_name</em>, <em>project_name</em>, <em>repo_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gitana/gitana.html#Gitana.create_repository"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gitana.gitana.Gitana.create_repository" title="Permalink to this definition">¶</a></dt>
+<dd><p>inserts a repository in the DB</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>db_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of an existing DB</li>
-<li><strong>graph_json_path</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the path of the JSON that drives the export process</li>
-<li><strong>output_path</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the path where to export the graph</li>
+<li><strong>project_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of an existing project</li>
+<li><strong>repo_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of the repository to insert</li>
 </ul>
 </td>
 </tr>
@@ -107,8 +157,14 @@
 </dd></dl>
 
 <dl class="method">
-<dt id="gitana.gitana.Gitana.export_to_report">
-<code class="descname">export_to_report</code><span class="sig-paren">(</span><em>db_name</em>, <em>report_json_path</em>, <em>output_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gitana/gitana.html#Gitana.export_to_report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gitana.gitana.Gitana.export_to_report" title="Permalink to this definition">¶</a></dt>
+<dt id="gitana.gitana.Gitana.delete_previous_logs">
+<code class="descname">delete_previous_logs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gitana/gitana.html#Gitana.delete_previous_logs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gitana.gitana.Gitana.delete_previous_logs" title="Permalink to this definition">¶</a></dt>
+<dd><p>deletes the content of the log folder</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gitana.gitana.Gitana.export_activity_report">
+<code class="descname">export_activity_report</code><span class="sig-paren">(</span><em>db_name</em>, <em>settings_path</em>, <em>output_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gitana/gitana.html#Gitana.export_activity_report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gitana.gitana.Gitana.export_activity_report" title="Permalink to this definition">¶</a></dt>
 <dd><p>exports the data stored in the Gitana DB to an HTML report</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -116,7 +172,7 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>db_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of an existing DB</li>
-<li><strong>report_json_path</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the path of the JSON that drives the export process</li>
+<li><strong>settings_path</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the path of the JSON that drives the export process</li>
 <li><strong>output_path</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the path where to export the report</li>
 </ul>
 </td>
@@ -126,9 +182,49 @@
 </dd></dl>
 
 <dl class="method">
-<dt id="gitana.gitana.Gitana.import_bugzilla_tracker_data">
-<code class="descname">import_bugzilla_tracker_data</code><span class="sig-paren">(</span><em>db_name</em>, <em>project_name</em>, <em>repo_name</em>, <em>issue_tracker_name</em>, <em>url</em>, <em>product</em>, <em>before_date</em>, <em>processes</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gitana/gitana.html#Gitana.import_bugzilla_tracker_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gitana.gitana.Gitana.import_bugzilla_tracker_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>imports Bugzilla issue tracker data to the DB</p>
+<dt id="gitana.gitana.Gitana.export_graph">
+<code class="descname">export_graph</code><span class="sig-paren">(</span><em>db_name</em>, <em>settings_path</em>, <em>output_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gitana/gitana.html#Gitana.export_graph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gitana.gitana.Gitana.export_graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>exports the data stored in the Gitana DB to a graph (gexf format)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>db_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of an existing DB</li>
+<li><strong>settings_path</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the path of the JSON that drives the export process</li>
+<li><strong>output_path</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the path where to export the graph</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gitana.gitana.Gitana.extract_dependency_relations">
+<code class="descname">extract_dependency_relations</code><span class="sig-paren">(</span><em>db_name</em>, <em>project_name</em>, <em>repo_name</em>, <em>git_repo_path</em>, <em>git_references=[]</em>, <em>extra_paths=[]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gitana/gitana.html#Gitana.extract_dependency_relations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gitana.gitana.Gitana.extract_dependency_relations" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>db_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of an existing DB. It cannot be null</li>
+<li><strong>project_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of an existing project in the DB</li>
+<li><strong>repo_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of an existing repository in the DB. It cannot be null</li>
+<li><strong>git_repo_path</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the local path of the repository. It cannot be null</li>
+<li><strong>git_references</strong> (<em>list</em>) &#8211; list of git references to load dependency info. By default all.</li>
+<li><strong>extra_paths</strong> (<em>list</em>) &#8211; list of additional directory paths inside git repo to look for target files.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gitana.gitana.Gitana.import_bugzilla_issue_data">
+<code class="descname">import_bugzilla_issue_data</code><span class="sig-paren">(</span><em>db_name</em>, <em>project_name</em>, <em>repo_name</em>, <em>issue_tracker_name</em>, <em>url</em>, <em>product</em>, <em>before_date=None</em>, <em>processes=3</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gitana/gitana.html#Gitana.import_bugzilla_issue_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gitana.gitana.Gitana.import_bugzilla_issue_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>imports Bugzilla issue data to the DB</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -141,7 +237,7 @@
 <li><strong>url</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the URL of the issue tracker. It cannot be null</li>
 <li><strong>product</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of the product used in the issue tracker. It cannot be null</li>
 <li><strong>before_date</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; import data before date (YYYY-mm-dd). It can be null</li>
-<li><strong>processes</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; number of processes to import the data. If null, the default number of processes is used (5)</li>
+<li><strong>processes</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; number of processes to import the data. If null, the default number of processes is used (3)</li>
 </ul>
 </td>
 </tr>
@@ -151,7 +247,7 @@
 
 <dl class="method">
 <dt id="gitana.gitana.Gitana.import_eclipse_forum_data">
-<code class="descname">import_eclipse_forum_data</code><span class="sig-paren">(</span><em>db_name</em>, <em>project_name</em>, <em>forum_name</em>, <em>eclipse_forum_url</em>, <em>before_date</em>, <em>processes</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gitana/gitana.html#Gitana.import_eclipse_forum_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gitana.gitana.Gitana.import_eclipse_forum_data" title="Permalink to this definition">¶</a></dt>
+<code class="descname">import_eclipse_forum_data</code><span class="sig-paren">(</span><em>db_name</em>, <em>project_name</em>, <em>forum_name</em>, <em>eclipse_forum_url</em>, <em>before_date=None</em>, <em>processes=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gitana/gitana.html#Gitana.import_eclipse_forum_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gitana.gitana.Gitana.import_eclipse_forum_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>imports Eclipse forum data to the DB</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -173,7 +269,7 @@
 
 <dl class="method">
 <dt id="gitana.gitana.Gitana.import_git_data">
-<code class="descname">import_git_data</code><span class="sig-paren">(</span><em>db_name</em>, <em>project_name</em>, <em>repo_name</em>, <em>git_repo_path</em>, <em>before_date</em>, <em>import_type</em>, <em>references</em>, <em>processes</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gitana/gitana.html#Gitana.import_git_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gitana.gitana.Gitana.import_git_data" title="Permalink to this definition">¶</a></dt>
+<code class="descname">import_git_data</code><span class="sig-paren">(</span><em>db_name</em>, <em>project_name</em>, <em>repo_name</em>, <em>git_repo_path</em>, <em>import_type=1</em>, <em>references=None</em>, <em>before_date=None</em>, <em>processes=5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gitana/gitana.html#Gitana.import_git_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gitana.gitana.Gitana.import_git_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>imports Git data to the DB</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -184,10 +280,13 @@
 <li><strong>project_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of an existing project in the DB</li>
 <li><strong>repo_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of the repository to import. It cannot be null</li>
 <li><strong>git_repo_path</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the local path of the repository. It cannot be null</li>
+<li><strong>import_type</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; 1 = do not import patch content,
+2 = import patch content but not at line level,
+3 = import patch content at line level, the default type will be 1</li>
+<li><strong>references</strong> (<em>list str</em>) &#8211; list of references (branches and tags) to import.
+It can be null or [&#8220;ref-name-1&#8221;, .., &#8220;ref-name-n&#8221;]</li>
 <li><strong>before_date</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; import data before date (YYYY-mm-dd). It can be null</li>
-<li><strong>import_type</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; 1 = do not import patch content, 2 = import patch content but not at line level, 3 = import patch content at line level</li>
-<li><strong>references</strong> (<em>list str</em>) &#8211; list of references (branches and tags) to import. It can be null or [&#8220;ref-name-1&#8221;, .., &#8220;ref-name-n&#8221;]</li>
-<li><strong>processes</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; number of processes to import the data. If null, the default number of processes is used (10)</li>
+<li><strong>processes</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; number of processes to import the data. If null, the default number of processes is used (5)</li>
 </ul>
 </td>
 </tr>
@@ -196,9 +295,9 @@
 </dd></dl>
 
 <dl class="method">
-<dt id="gitana.gitana.Gitana.import_github_tracker_data">
-<code class="descname">import_github_tracker_data</code><span class="sig-paren">(</span><em>db_name</em>, <em>project_name</em>, <em>repo_name</em>, <em>issue_tracker_name</em>, <em>github_repo_full_name</em>, <em>before_date</em>, <em>tokens</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gitana/gitana.html#Gitana.import_github_tracker_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gitana.gitana.Gitana.import_github_tracker_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>imports GitHub issue tracker data to the DB</p>
+<dt id="gitana.gitana.Gitana.import_github_issue_data">
+<code class="descname">import_github_issue_data</code><span class="sig-paren">(</span><em>db_name</em>, <em>project_name</em>, <em>repo_name</em>, <em>issue_tracker_name</em>, <em>github_repo_full_name</em>, <em>tokens</em>, <em>before_date=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gitana/gitana.html#Gitana.import_github_issue_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gitana.gitana.Gitana.import_github_issue_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>imports GitHub issue data to the DB</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -209,8 +308,8 @@
 <li><strong>repo_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of an existing repository in the DB</li>
 <li><strong>issue_tracker_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of the issue tracker to import. It cannot be null</li>
 <li><strong>github_repo_full_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; full name of the GitHub repository. It cannot be null</li>
-<li><strong>before_date</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; import data before date (YYYY-mm-dd). It can be null</li>
 <li><strong>tokens</strong> (<em>list str</em>) &#8211; list of GitHub tokens. It cannot be null</li>
+<li><strong>before_date</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; import data before date (YYYY-mm-dd). It can be null</li>
 </ul>
 </td>
 </tr>
@@ -220,7 +319,7 @@
 
 <dl class="method">
 <dt id="gitana.gitana.Gitana.import_slack_data">
-<code class="descname">import_slack_data</code><span class="sig-paren">(</span><em>db_name</em>, <em>project_name</em>, <em>instant_messaging_name</em>, <em>before_date</em>, <em>channels</em>, <em>tokens</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gitana/gitana.html#Gitana.import_slack_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gitana.gitana.Gitana.import_slack_data" title="Permalink to this definition">¶</a></dt>
+<code class="descname">import_slack_data</code><span class="sig-paren">(</span><em>db_name</em>, <em>project_name</em>, <em>instant_messaging_name</em>, <em>tokens</em>, <em>before_date=None</em>, <em>channels=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gitana/gitana.html#Gitana.import_slack_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gitana.gitana.Gitana.import_slack_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>imports Slack data to the DB</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -230,9 +329,9 @@
 <li><strong>db_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of an existing DB</li>
 <li><strong>project_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of an existing project in the DB</li>
 <li><strong>instant_messaging_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of the instant messaging to import. It cannot be null</li>
+<li><strong>tokens</strong> (<em>list str</em>) &#8211; list of Slack tokens. It cannot be null</li>
 <li><strong>before_date</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; import data before date (YYYY-mm-dd). It can be null</li>
 <li><strong>channels</strong> (<em>list str</em>) &#8211; list of channels to import. It can be null or [&#8220;channel-name-1&#8221;, .., &#8220;channel-name-n&#8221;]</li>
-<li><strong>tokens</strong> (<em>list str</em>) &#8211; list of Slack tokens. It cannot be null</li>
 </ul>
 </td>
 </tr>
@@ -242,7 +341,7 @@
 
 <dl class="method">
 <dt id="gitana.gitana.Gitana.import_stackoverflow_data">
-<code class="descname">import_stackoverflow_data</code><span class="sig-paren">(</span><em>db_name</em>, <em>project_name</em>, <em>forum_name</em>, <em>search_query</em>, <em>before_date</em>, <em>tokens</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gitana/gitana.html#Gitana.import_stackoverflow_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gitana.gitana.Gitana.import_stackoverflow_data" title="Permalink to this definition">¶</a></dt>
+<code class="descname">import_stackoverflow_data</code><span class="sig-paren">(</span><em>db_name</em>, <em>project_name</em>, <em>forum_name</em>, <em>search_query</em>, <em>tokens</em>, <em>before_date=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gitana/gitana.html#Gitana.import_stackoverflow_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gitana.gitana.Gitana.import_stackoverflow_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>imports Stackoverflow data to the DB</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -253,8 +352,8 @@
 <li><strong>project_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of an existing project in the DB</li>
 <li><strong>forum_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of the forum to import. It cannot be null</li>
 <li><strong>search_query</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; retrieves Stackoverflow questions labeled with a given string. It cannot be null</li>
-<li><strong>before_date</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; import data before date (YYYY-mm-dd). It can be null</li>
 <li><strong>tokens</strong> (<em>list str</em>) &#8211; list of Stackoverflow tokens. It cannot be null</li>
+<li><strong>before_date</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; import data before date (YYYY-mm-dd). It can be null</li>
 </ul>
 </td>
 </tr>
@@ -264,18 +363,23 @@
 
 <dl class="method">
 <dt id="gitana.gitana.Gitana.init_db">
-<code class="descname">init_db</code><span class="sig-paren">(</span><em>db_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gitana/gitana.html#Gitana.init_db"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gitana.gitana.Gitana.init_db" title="Permalink to this definition">¶</a></dt>
+<code class="descname">init_db</code><span class="sig-paren">(</span><em>db_name</em>, <em>init_git=True</em>, <em>init_issue_tracker=True</em>, <em>init_forum=True</em>, <em>init_instant_messaging=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gitana/gitana.html#Gitana.init_db"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gitana.gitana.Gitana.init_db" title="Permalink to this definition">¶</a></dt>
 <dd><p>initializes the Gitana DB schema</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>db_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of the DB to initialize, cannot be null and must follow the format</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>db_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of the DB to initialize</li>
+<li><strong>init_git</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; if True, it initializes the tables containing git data</li>
+<li><strong>init_issue_tracker</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; if True, it initializes the tables containing issue tracker data</li>
+<li><strong>init_forum</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; if True, it initializes the tables containing forum data</li>
+<li><strong>init_instant_messaging</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; if True, it initializes the tables containing instant messaging data</li>
+</ul>
+</td>
 </tr>
 </tbody>
 </table>
-<p>allowed in MySQL (<a class="reference external" href="http://dev.mysql.com/doc/refman/5.7/en/identifiers.html">http://dev.mysql.com/doc/refman/5.7/en/identifiers.html</a>).
-If a DB having a name equal already exists in Gitana, the existing DB will be dropped and a new one will be created</p>
 </dd></dl>
 
 <dl class="method">
@@ -293,9 +397,9 @@ If a DB having a name equal already exists in Gitana, the existing DB will be dr
 </dd></dl>
 
 <dl class="method">
-<dt id="gitana.gitana.Gitana.update_bugzilla_tracker_data">
-<code class="descname">update_bugzilla_tracker_data</code><span class="sig-paren">(</span><em>db_name</em>, <em>project_name</em>, <em>repo_name</em>, <em>issue_tracker_name</em>, <em>url</em>, <em>product</em>, <em>processes</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gitana/gitana.html#Gitana.update_bugzilla_tracker_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gitana.gitana.Gitana.update_bugzilla_tracker_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>updates the Bugzilla issue tracker data stored in the DB</p>
+<dt id="gitana.gitana.Gitana.update_bugzilla_issue_data">
+<code class="descname">update_bugzilla_issue_data</code><span class="sig-paren">(</span><em>db_name</em>, <em>project_name</em>, <em>repo_name</em>, <em>issue_tracker_name</em>, <em>url</em>, <em>product</em>, <em>processes=3</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gitana/gitana.html#Gitana.update_bugzilla_issue_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gitana.gitana.Gitana.update_bugzilla_issue_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>updates the Bugzilla issue data stored in the DB</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -307,7 +411,7 @@ If a DB having a name equal already exists in Gitana, the existing DB will be dr
 <li><strong>issue_tracker_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of an existing issue tracker in the DB to update</li>
 <li><strong>url</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the URL of the issue tracker. It cannot be null</li>
 <li><strong>product</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of the product used in the issue tracker. It cannot be null</li>
-<li><strong>processes</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; number of processes to import the data. If null, the default number of processes is used (5)</li>
+<li><strong>processes</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; number of processes to import the data. If null, the default number of processes is used (3)</li>
 </ul>
 </td>
 </tr>
@@ -317,7 +421,7 @@ If a DB having a name equal already exists in Gitana, the existing DB will be dr
 
 <dl class="method">
 <dt id="gitana.gitana.Gitana.update_eclipse_forum_data">
-<code class="descname">update_eclipse_forum_data</code><span class="sig-paren">(</span><em>db_name</em>, <em>project_name</em>, <em>forum_name</em>, <em>eclipse_forum_url</em>, <em>processes</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gitana/gitana.html#Gitana.update_eclipse_forum_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gitana.gitana.Gitana.update_eclipse_forum_data" title="Permalink to this definition">¶</a></dt>
+<code class="descname">update_eclipse_forum_data</code><span class="sig-paren">(</span><em>db_name</em>, <em>project_name</em>, <em>forum_name</em>, <em>eclipse_forum_url</em>, <em>processes=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gitana/gitana.html#Gitana.update_eclipse_forum_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gitana.gitana.Gitana.update_eclipse_forum_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>updates the Eclipse forum data stored in the DB</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -338,7 +442,7 @@ If a DB having a name equal already exists in Gitana, the existing DB will be dr
 
 <dl class="method">
 <dt id="gitana.gitana.Gitana.update_git_data">
-<code class="descname">update_git_data</code><span class="sig-paren">(</span><em>db_name</em>, <em>project_name</em>, <em>repo_name</em>, <em>git_repo_path</em>, <em>before_date</em>, <em>processes</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gitana/gitana.html#Gitana.update_git_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gitana.gitana.Gitana.update_git_data" title="Permalink to this definition">¶</a></dt>
+<code class="descname">update_git_data</code><span class="sig-paren">(</span><em>db_name</em>, <em>project_name</em>, <em>repo_name</em>, <em>git_repo_path</em>, <em>before_date=None</em>, <em>processes=5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gitana/gitana.html#Gitana.update_git_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gitana.gitana.Gitana.update_git_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>updates the Git data stored in the DB</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -350,7 +454,7 @@ If a DB having a name equal already exists in Gitana, the existing DB will be dr
 <li><strong>repo_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the name of an existing repository in the DB to update</li>
 <li><strong>git_repo_path</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the path of the repository. It cannot be null</li>
 <li><strong>before_date</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; import data before date (YYYY-mm-dd). It can be null</li>
-<li><strong>processes</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; number of processes to import the data. If null, the default number of processes is used (10)</li>
+<li><strong>processes</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; number of processes to import the data. If null, the default number of processes is used (5)</li>
 </ul>
 </td>
 </tr>
@@ -359,9 +463,9 @@ If a DB having a name equal already exists in Gitana, the existing DB will be dr
 </dd></dl>
 
 <dl class="method">
-<dt id="gitana.gitana.Gitana.update_github_tracker_data">
-<code class="descname">update_github_tracker_data</code><span class="sig-paren">(</span><em>db_name</em>, <em>project_name</em>, <em>repo_name</em>, <em>issue_tracker_name</em>, <em>github_repo_full_name</em>, <em>tokens</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gitana/gitana.html#Gitana.update_github_tracker_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gitana.gitana.Gitana.update_github_tracker_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>updates GitHub issue tracker data stored in the DB</p>
+<dt id="gitana.gitana.Gitana.update_github_issue_data">
+<code class="descname">update_github_issue_data</code><span class="sig-paren">(</span><em>db_name</em>, <em>project_name</em>, <em>repo_name</em>, <em>issue_tracker_name</em>, <em>github_repo_full_name</em>, <em>tokens</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gitana/gitana.html#Gitana.update_github_issue_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gitana.gitana.Gitana.update_github_issue_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>updates GitHub issue data stored in the DB</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
