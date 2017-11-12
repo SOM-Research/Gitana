@@ -17,7 +17,8 @@ class DbSchema():
         :type db_name: str
         :param db_name: the name of the DB to initialize/connect to, it cannot be null and must follow the format
         allowed in MySQL (http://dev.mysql.com/doc/refman/5.7/en/identifiers.html).
-        If a DB having a name equal already exists in Gitana, the existing DB will be dropped and a new one will be created
+        If a DB having a name equal already exists in Gitana, the existing DB will
+        be dropped and a new one will be created
 
 
         :type config: dict
@@ -41,7 +42,7 @@ class DbSchema():
         if self._cnx:
             self._db_util.close_connection(self._cnx)
         if self._logger:
-            #deletes the file handler of the logger
+            # deletes the file handler of the logger
             self._logging_util.remove_file_handler_logger(self._logger, self._fileHandler)
 
     def add_git_tables(self):
@@ -121,8 +122,8 @@ class DbSchema():
             end_time = datetime.now()
 
             minutes_and_seconds = self._logging_util.calculate_execution_time(end_time, start_time)
-            self._logger.info("Init database finished after " + str(minutes_and_seconds[0])
-                         + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
+            self._logger.info("Init database finished after " + str(minutes_and_seconds[0]) +
+                              " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
         except Exception:
             self._logger.error("init database failed", exc_info=True)
 
@@ -191,11 +192,11 @@ class DbSchema():
             self._logger.error("set database failed", exc_info=True)
 
     def _set_settings(self):
-        #sets the settings (max connections, charset, file format, ...) used by the DB
+        # sets the settings (max connections, charset, file format, ...) used by the DB
         self._db_util.set_settings(self._cnx)
 
     def _create_database(self):
-        #creates the database
+        # creates the database
         cursor = self._cnx.cursor()
 
         drop_database_if_exists = "DROP DATABASE IF EXISTS " + self._db_name
@@ -207,11 +208,12 @@ class DbSchema():
         cursor.close()
 
     def _init_functions(self):
-        #initializes functions
+        # initializes functions
         cursor = self._cnx.cursor()
 
         levenshtein_distance = """
-        CREATE DEFINER=`root`@`localhost` FUNCTION `levenshtein_distance`(s1 VARCHAR(255) CHARACTER SET utf8, s2 VARCHAR(255) CHARACTER SET utf8) RETURNS int(11)
+        CREATE DEFINER=`root`@`localhost` FUNCTION `levenshtein_distance`
+            (s1 VARCHAR(255) CHARACTER SET utf8, s2 VARCHAR(255) CHARACTER SET utf8) RETURNS int(11)
             DETERMINISTIC
         BEGIN
             DECLARE s1_len, s2_len, i, j, c, c_temp, cost INT;
@@ -271,7 +273,8 @@ class DbSchema():
         END"""
 
         soundex_match = """
-        CREATE DEFINER=`root`@`localhost` FUNCTION `soundex_match`(s1 VARCHAR(255) CHARACTER SET utf8, s2 VARCHAR(255) CHARACTER SET utf8) RETURNS int(1)
+        CREATE DEFINER=`root`@`localhost` FUNCTION `soundex_match`
+            (s1 VARCHAR(255) CHARACTER SET utf8, s2 VARCHAR(255) CHARACTER SET utf8) RETURNS int(1)
             DETERMINISTIC
         BEGIN
             DECLARE _result INT DEFAULT 0;
@@ -286,7 +289,7 @@ class DbSchema():
         cursor.close()
 
     def _init_common_tables(self):
-        #initializes common tables used by tables modeling git, issue tracker, forum and instant messaging data
+        # initializes common tables used by tables modeling git, issue tracker, forum and instant messaging data
         cursor = self._cnx.cursor()
 
         create_table_project = "CREATE TABLE IF NOT EXISTS project( " \
@@ -313,7 +316,7 @@ class DbSchema():
         cursor.execute(create_table_user_alias)
 
     def _init_shared_tables_issue_tracker_communication_channels(self):
-        #initializes shared tables used by tables modeling issue tracker, forum and instant messaging data
+        # initializes shared tables used by tables modeling issue tracker, forum and instant messaging data
         cursor = self._cnx.cursor()
 
         create_table_label = "CREATE TABLE IF NOT EXISTS label ( " \
@@ -350,12 +353,12 @@ class DbSchema():
                                     ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 
         insert_message_types = "INSERT IGNORE INTO message_type VALUES (NULL, 'question'), " \
-                                                               "(NULL, 'answer'), " \
-                                                               "(NULL, 'comment'), " \
-                                                               "(NULL, 'accepted_answer'), " \
-                                                               "(NULL, 'reply'), " \
-                                                               "(NULL, 'file_upload'), " \
-                                                               "(NULL, 'info');"
+                               "(NULL, 'answer'), " \
+                               "(NULL, 'comment'), " \
+                               "(NULL, 'accepted_answer'), " \
+                               "(NULL, 'reply'), " \
+                               "(NULL, 'file_upload'), " \
+                               "(NULL, 'info');"
 
         create_table_attachment = "CREATE TABLE IF NOT EXISTS attachment ( " \
                                   "id int(20) AUTO_INCREMENT PRIMARY KEY, " \
@@ -378,7 +381,7 @@ class DbSchema():
         cursor.close()
 
     def _init_git_tables(self):
-        #initializes tables used to model git data
+        # initializes tables used to model git data
         cursor = self._cnx.cursor()
 
         create_table_repository = "CREATE TABLE IF NOT EXISTS repository( " \
@@ -470,7 +473,7 @@ class DbSchema():
 
         # adding it here because "file_dependency" depends on "file" table creation.
         # @todo: find a way to move the following table creation to separate section
-        #   make "extract_dependency_relations" API interface completely independent.
+        # make "extract_dependency_relations" API interface completely independent.
         create_table_file_dependency = "CREATE TABLE file_dependency ( " \
                                        "repo_id int(20), " \
                                        "ref_id int(20), " \
@@ -492,7 +495,7 @@ class DbSchema():
         cursor.close()
 
     def _init_issue_tracker_tables(self):
-        #initializes tables used to model issue tracker data
+        # initializes tables used to model issue tracker data
         cursor = self._cnx.cursor()
 
         create_table_issue_tracker = "CREATE TABLE IF NOT EXISTS issue_tracker ( " \
@@ -577,9 +580,9 @@ class DbSchema():
                                        ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;"
 
         insert_issue_dependency_type = "INSERT IGNORE INTO issue_dependency_type VALUES (NULL, 'block'), " \
-                                                                                "(NULL, 'depends'), " \
-                                                                                "(NULL, 'related'), " \
-                                                                                "(NULL, 'duplicated');"
+                                       "(NULL, 'depends'), " \
+                                       "(NULL, 'related'), " \
+                                       "(NULL, 'duplicated');"
 
         cursor.execute(create_table_issue_tracker)
         cursor.execute(create_table_issue)
@@ -595,7 +598,7 @@ class DbSchema():
         cursor.close()
 
     def _init_forum_tables(self):
-        #initializes tables used to model forum data
+        # initializes tables used to model forum data
         cursor = self._cnx.cursor()
 
         create_table_forum = "CREATE TABLE IF NOT EXISTS forum ( " \
@@ -631,7 +634,7 @@ class DbSchema():
         cursor.close()
 
     def _init_instant_messaging_tables(self):
-        #initializes tables used to model instant messaging data
+        # initializes tables used to model instant messaging data
         cursor = self._cnx.cursor()
 
         create_table_instant_messaging = "CREATE TABLE IF NOT EXISTS instant_messaging ( " \
