@@ -31,21 +31,22 @@ class HtmlGenerator():
         return grouped
 
     def _add_head(self, project_name, html_string):
-        #adds the HTML header
+        # adds the HTML header
         html_string += """<head>
-                    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-                    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-                    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css">
-                    <title>Activity Report - """ + project_name + """</title>
+            <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+            <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+            <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css">
+            <title>Activity Report - """ + project_name + """</title>
             </head>"""
         return html_string
 
     def _add_css(self, html_string):
-        #adds CSS information
+        # adds CSS information
         html_string += """<style>
                 .jumbotron {
                     position: relative;
-                    background: #000 url(\'""" + os.path.dirname(resources.__file__).replace("\\", "/") + "/jumbotron.png" + """\') center center;
+                    background: #000 url(\'""" + os.path.dirname(resources.__file__).replace("\\", "/") + \
+                       "/jumbotron.png" + """\') center center;
                     width: 100%;
                     height: 100%;
                     background-size: cover;
@@ -95,7 +96,7 @@ class HtmlGenerator():
         return html_string
 
     def _add_jumbotron(self, project_name, html_string):
-        #adds the jumbotron
+        # adds the jumbotron
         html_string += """
                 <div class="jumbotron">
                   <div class="container">
@@ -107,12 +108,16 @@ class HtmlGenerator():
         return html_string
 
     def _add_footer(self, html_string):
-        #adds the footer
+        # adds the footer
         html_string += """
                         <footer>
                           <div class="row">
                             <div class="col-md-12">
-                              <p class="text-center"><small>Report generated with <a href="https://github.com/SOM-Research/Gitana">Gitana</a>.</small></p>
+                              <p class="text-center">
+                                <small>
+                                    Report generated with <a href="https://github.com/SOM-Research/Gitana">Gitana</a>.
+                                </small>
+                              </p>
                             </div>
                           </div>
                         </footer>
@@ -121,7 +126,7 @@ class HtmlGenerator():
         return html_string
 
     def _add_activity_name(self, activity_name, html_string):
-        #adds the name of the activity
+        # adds the name of the activity
         html_string += """<div class="col-sm-12 img-rounded activity">
                                 <h2><span class="label label-warning">""" + activity_name + """</span></h2>
                           </div>
@@ -129,7 +134,7 @@ class HtmlGenerator():
         return html_string
 
     def _add_tool_name(self, tool_name, html_string):
-        #adds the name of the tool (git, issue tracker, etc.)
+        # adds the name of the tool (git, issue tracker, etc.)
         html_string += """<div class="col-sm-12">
                                 <h3><span class="label label-warning">""" + tool_name + """</span></h3>
                           </div>
@@ -173,9 +178,12 @@ class HtmlGenerator():
 
                     for chart in grouped_chart:
                         if not chart:
-                            html_string += """<div class="col-sm-""" + str(HtmlGenerator.BOOTSTRAP_COLUMNS/HtmlGenerator.CHARTS_PER_LINE) + """\"></div>"""
+                            html_string += """<div class="col-sm-""" + \
+                                           str(HtmlGenerator.BOOTSTRAP_COLUMNS/HtmlGenerator.CHARTS_PER_LINE) \
+                                           + """\"></div>"""
                         else:
-                            html_string += """<div class="col-sm-""" + str(HtmlGenerator.BOOTSTRAP_COLUMNS/HtmlGenerator.CHARTS_PER_LINE) + """\">
+                            html_string += """<div class="col-sm-""" + \
+                                           str(HtmlGenerator.BOOTSTRAP_COLUMNS/HtmlGenerator.CHARTS_PER_LINE) + """\">
                                                 <div>""" + chart.decode('utf-8') + """</div>
                                               </div>"""
 
@@ -193,4 +201,3 @@ class HtmlGenerator():
         html_string += """</body>
                             </html>"""
         return html_string
-

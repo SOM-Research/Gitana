@@ -25,7 +25,7 @@ class ChartGenerator():
         self._date_util = DateUtil()
 
     def _get_db_data(self, query):
-        #queries the database
+        # queries the database
         cursor = self._cnx.cursor()
         cursor.execute(query)
 
