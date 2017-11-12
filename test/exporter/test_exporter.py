@@ -21,5 +21,6 @@ def _papyrus_export():
 def main():
     _papyrus_export()
 
+
 if __name__ == "__main__":
     main()

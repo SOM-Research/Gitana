@@ -17,6 +17,7 @@ SLACK_TOKENS = ['your-token-1',
                 'your-token-2',
                 '...']
 
+
 def test_1():
     g = Gitana(CONFIG)
     g.delete_previous_logs()
@@ -38,6 +39,7 @@ def main():
     test_1()
     print("starting 2..")
     test_2()
+
 
 if __name__ == "__main__":
     main()

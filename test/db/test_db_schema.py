@@ -28,6 +28,7 @@ def test_create_db_parts():
 
     g.init_db("dbschema_test", init_forum=False, init_instant_messaging=False, init_issue_tracker=False)
 
+
 def test_list_projects():
     g = Gitana(CONFIG)
     g.list_projects("db_2048")
@@ -47,11 +48,11 @@ def test_add_repository():
 
 
 def main():
-    #test_create_db()
+    # test_create_db()
     test_create_db_parts()
-    #test_list_projects()
-    #test_add_project()
-    #test_add_repository()
+    # test_list_projects()
+    # test_add_project()
+    # test_add_repository()
 
 
 if __name__ == "__main__":

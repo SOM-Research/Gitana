@@ -15,13 +15,13 @@ CONFIG = {
 
 
 def test_1(g):
-    #test before date
+    # test before date
     g.import_bugzilla_issue_data("bugzilla_db_test", "papyrus", "papyrus_repo", "bugzilla_papyrus",
                                  "https://bugs.eclipse.org/bugs/xmlrpc.cgi", "papyrus", "2013-05-05", 3)
 
 
 def test_2(g):
-    #test update
+    # test update
     g.update_bugzilla_issue_data("bugzilla_db_test", "papyrus", "papyrus_repo", "bugzilla_papyrus",
                                  "https://bugs.eclipse.org/bugs/xmlrpc.cgi", "papyrus")
 
@@ -44,6 +44,7 @@ def main():
     test_2(g)
     print("starting 3..")
     test_3(g)
+
 
 if __name__ == "__main__":
     main()

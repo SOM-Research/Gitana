@@ -17,7 +17,7 @@ SO_TOKENS = ['((bLKlUAwcud8GIKAztDiA))']
 
 
 def test_1():
-    #test simple
+    # test simple
     g = Gitana(CONFIG)
     g.delete_previous_logs()
     g.init_db("so_db_test")
@@ -27,7 +27,7 @@ def test_1():
 
 
 def test_2():
-    #test update
+    # test update
     g = Gitana(CONFIG)
     g.delete_previous_logs()
 
