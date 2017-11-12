@@ -31,7 +31,7 @@ class BugzillaQuerier():
         self._date_util = DateUtil()
 
     def _init_bzapi(self, url):
-        #connect to the Bugzilla API
+        # connect to the Bugzilla API
         success = False
 
         while not success:
@@ -40,7 +40,8 @@ class BugzillaQuerier():
                 success = True
             except:
                 time.sleep(BugzillaQuerier.WAITING_TIME)
-                self._logger.warning("BugzillaQuerier init standby for " + str(BugzillaQuerier.WAITING_TIME) + " seconds")
+                self._logger.warning("BugzillaQuerier init standby for " +
+                                     str(BugzillaQuerier.WAITING_TIME) + " seconds")
 
         return bzapi
 
@@ -51,7 +52,7 @@ class BugzillaQuerier():
         :type before_date: str
         :param before_date: selects issues with creation date before a given date (YYYY-mm-dd)
         """
-        #TODO - include_fields seems not to work properly, http://bugzilla.readthedocs.io/en/latest/api/core/v1/bug.html
+        # TODO - include_fields seems not to work properly
         query = self._bzapi.build_query(product=self._product, include_fields=["id", "creation_time"])
         result = self._bzapi.query(query)
 
