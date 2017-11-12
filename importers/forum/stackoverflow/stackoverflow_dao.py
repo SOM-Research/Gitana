@@ -51,7 +51,7 @@ class StackOverflowDao():
         :param user_name: user name
         """
 
-        if user_name == None:
+        if not user_name:
             user_name = "uknonwn_user"
 
         user_id = self._db_util.select_user_id_by_name(self._cnx, user_name, self._logger)
@@ -179,7 +179,8 @@ class StackOverflowDao():
             cursor.execute(query, arguments)
             self._cnx.commit()
         except:
-            self._logger.warning("message " + str(own_id) + ") for topic id: " + str(topic_id) + " not inserted", exc_info=True)
+            self._logger.warning("message " + str(own_id) + ") for topic id: " + str(topic_id) + " not inserted",
+                                 exc_info=True)
 
     def insert_message(self, own_id, pos, type, topic_id, body, votes, author_id, created_at):
         """
@@ -217,7 +218,8 @@ class StackOverflowDao():
             cursor.execute(query, arguments)
             self._cnx.commit()
         except:
-            self._logger.warning("message " + str(own_id) + ") for topic id: " + str(topic_id) + " not inserted", exc_info=True)
+            self._logger.warning("message " + str(own_id) + ") for topic id: " + str(topic_id) + " not inserted",
+                                 exc_info=True)
 
     def insert_topic(self, own_id, forum_id, name, votes, views, created_at, last_change_at):
         """
@@ -261,7 +263,8 @@ class StackOverflowDao():
             cursor.close()
             return found
         except Exception:
-            self._logger.warning("topic " + str(own_id) + ") for forum id: " + str(forum_id) + " not inserted", exc_info=True)
+            self._logger.warning("topic " + str(own_id) + ") for forum id: " + str(forum_id) + " not inserted",
+                                 exc_info=True)
 
     def insert_message_dependency(self, source_message_id, target_message_id):
         """

@@ -55,11 +55,12 @@ class StackOverflow2DbUpdate():
         self._dao = None
 
     def _get_topics(self, forum_id):
-        #updates topics of a forum
+        # updates topics of a forum
         topic_ids = self._dao.get_topic_own_ids(forum_id)
 
         if topic_ids:
-            intervals = [i for i in multiprocessing_util.get_tasks_intervals(topic_ids, len(self._tokens)) if len(i) > 0]
+            intervals = [i for i in multiprocessing_util.get_tasks_intervals(topic_ids, len(self._tokens))
+                         if len(i) > 0]
 
             queue_extractors = multiprocessing.JoinableQueue()
             results = multiprocessing.Queue()
@@ -68,7 +69,8 @@ class StackOverflow2DbUpdate():
             multiprocessing_util.start_consumers(len(self._tokens), queue_extractors, results)
 
             for i in range(len(intervals)):
-                topic_extractor = StackOverflowTopic2Db(self._db_name, forum_id, intervals[i], self._tokens[i], self._config, self._log_path)
+                topic_extractor = StackOverflowTopic2Db(self._db_name, forum_id, intervals[i], self._tokens[i],
+                                                        self._config, self._log_path)
                 queue_extractors.put(topic_extractor)
 
             # Add end-of-queue markers
@@ -99,8 +101,8 @@ class StackOverflow2DbUpdate():
 
             end_time = datetime.now()
             minutes_and_seconds = self._logging_util.calculate_execution_time(end_time, start_time)
-            self._logger.info("StackOverflow2DbUpdate finished after " + str(minutes_and_seconds[0])
-                         + " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
+            self._logger.info("StackOverflow2DbUpdate finished after " + str(minutes_and_seconds[0]) +
+                              " minutes and " + str(round(minutes_and_seconds[1], 1)) + " secs")
 
             self._logging_util.remove_file_handler_logger(self._logger, self._fileHandler)
         except:
