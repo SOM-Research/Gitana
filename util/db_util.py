@@ -3,7 +3,6 @@
 __author__ = 'valerio cosentino'
 
 import mysql.connector
-from mysql.connector import errorcode
 
 
 class DbUtil():
