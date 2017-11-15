@@ -23,14 +23,22 @@ Gitana is distributed under the MIT License (https://opensource.org/licenses/MIT
 ## Requirements
 
 Gitana is developed on Windows 7 and it relies on:
+- Git 2.9.3 ([download](https://git-scm.com/downloads))
+- MySQL Server 5.6 ([download](http://dev.mysql.com/downloads/installer/))
 - Python 2.7.6 ([download](https://www.python.org/downloads/windows/))
-- MySQL Server 5.6 ([download](http://dev.mysql.com/downloads/installer/), select **version: 5.6.x**, **operating system: Microsoft Windows**)
+
+Python and pip package manager can be set to be executed from Windows command line by adding to the Path environment variable
+the paths where Python and its scripts are installed. By default, these paths are:
+```
+C:\Python27
+C:\Python27\Scripts
+```
 
 ##  Installation
 
-After installing MySQL Server and Python 2.7.6, execute the setup script.
+Installation of Gitana is achieved by executing the setup script.
 ```
-$> cd Gitana
+$> cd <...>/Gitana
 $> python setup.py build
 $> python setup.py install
 ```
