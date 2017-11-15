@@ -63,14 +63,21 @@ with the latest modifications available on the data sources.</p>
 <h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h2>
 <p>Gitana is developed on Windows 7 and it relies on:</p>
 <blockquote>
-<div><p>Python 2.7.6 (download <a class="reference external" href="https://www.python.org/downloads/windows/">https://www.python.org/downloads/windows/</a>)</p>
-<p>MySQL Server 5.6 (download <a class="reference external" href="http://dev.mysql.com/downloads/installer/">http://dev.mysql.com/downloads/installer/</a>, select <strong>version: 5.6.x</strong>, <strong>operating system: Microsoft Windows</strong>)</p>
+<div><p><a class="reference external" href="https://git-scm.com/downloads">Git 2.9.3</a></p>
+<p><a class="reference external" href="http://dev.mysql.com/downloads/installer/">MySQL Server 5.6</a></p>
+<p><a class="reference external" href="https://www.python.org/downloads/windows/">Python 2.7.6</a></p>
 </div></blockquote>
+<p>Python and pip package manager can be set to be executed from Windows command line by adding to the Path environment variable
+the paths where Python and its scripts are installed. By default, these paths are:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>C:<span class="se">\P</span>ython27
+C:<span class="se">\P</span>ython27<span class="se">\S</span>cripts
+</pre></div>
+</div>
 </div>
 <div class="section" id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
-<p>After installing MySQL Server and Python 2.7.6, execute the setup script</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$&gt; <span class="nb">cd</span> Gitana
+<p>Installation of Gitana is achieved by executing the setup script.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$&gt; <span class="nb">cd</span> &lt;...&gt;/Gitana
 $&gt; python setup.py build
 $&gt; python setup.py install
 </pre></div>

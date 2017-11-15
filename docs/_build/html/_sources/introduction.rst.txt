@@ -18,22 +18,33 @@ mechanisms between them to enable a complete project analysis. Gitana provides a
 To ensure efficiency, our approach comes with an incremental propagation mechanism that refreshes the database content
 with the latest modifications available on the data sources.
 
+
 Requirements
 ------------
 Gitana is developed on Windows 7 and it relies on:
 
-    Python 2.7.6 (download `<https://www.python.org/downloads/windows/>`_)
+	`Git 2.9.3 <https://git-scm.com/downloads>`_
+	
+	`MySQL Server 5.6 <http://dev.mysql.com/downloads/installer/>`_
+	
+	`Python 2.7.6 <https://www.python.org/downloads/windows/>`_
 
-    MySQL Server 5.6 (download `<http://dev.mysql.com/downloads/installer/>`_, select **version: 5.6.x**, **operating system: Microsoft Windows**)
+Python and pip package manager can be set to be executed from Windows command line by adding to the Path environment variable
+the paths where Python and its scripts are installed. By default, these paths are:
+
+.. code-block:: bash
+	
+	C:\Python27
+	C:\Python27\Scripts
 
 
 Installation
 ------------
-After installing MySQL Server and Python 2.7.6, execute the setup script
+Installation of Gitana is achieved by executing the setup script.
 
 .. code-block:: bash
 
-    $> cd Gitana
+    $> cd <...>/Gitana
     $> python setup.py build
     $> python setup.py install
 
