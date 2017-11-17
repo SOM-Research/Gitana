@@ -178,7 +178,10 @@ class StackOverflowQuerier():
         :param container: the Object representing the container
         """
         self._token_util.wait_is_usable(self._so)
-        user = self._so.user(container.owner_id).display_name
+        try:
+            user = self._so.user(container.owner_id).display_name
+        except:
+            user = None
         return user
 
     def get_comments(self, container):

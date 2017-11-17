@@ -13,13 +13,9 @@ CONFIG = {
             'buffered': True
         }
 
-GH_TOKENS = ['your-token-1',
-             'your-token-2',
-             '...']
+GH_TOKENS = ['4e6560ede99ff11b926a411b590a8b51a1e98a0e']
 
-SO_TOKENS = ['your-token-1',
-             'your-token-2',
-             '...']
+SO_TOKENS = ['MxTbS3KBl76SP6KCyT*DsA((']
 
 
 def _papyrus():
@@ -29,15 +25,18 @@ def _papyrus():
     g.create_project("db_papyrus", "papyrus")
     print("import git data")
     g.import_git_data("db_papyrus", "papyrus", "papyrus_repo",
-                      "C:\\Users\\atlanmod\\Desktop\\eclipse-git-projects\\papyrus", processes=20)
+                      "C:\\Users\\atlanmod\\Desktop\\eclipse-git-projects\\papyrus",
+                      references=["0.7.0", "0.8.0", "0.9.0", "0.10.0", "1.0.0", "2.0.0"],
+                      import_type=2,
+                      processes=20)
     print("import bugzilla data")
-    g.import_bugzilla_issue_data("_papyrus_db", "papyrus", "papyrus_repo", "bugzilla-papyrus",
+    g.import_bugzilla_issue_data("db_papyrus", "papyrus", "papyrus_repo", "bugzilla-papyrus",
                                  "https://bugs.eclipse.org/bugs/xmlrpc.cgi", "papyrus", processes=10)
     print("import eclipse forum data")
-    g.import_eclipse_forum_data("_papyrus_db", "papyrus", "papyrus-eclipse",
-                                "https://www.eclipse.org/forums/index.php/f/121/", processes=4)
+    g.import_eclipse_forum_data("db_papyrus", "papyrus", "papyrus-eclipse",
+                                "https://www.eclipse.org/forums/index.php/f/121/", processes=2)
     print("import stackoverflow data")
-    g.import_stackoverflow_data("_papyrus_db", "papyrus", "papyrus-stackoverflow", "papyrus", SO_TOKENS)
+    g.import_stackoverflow_data("db_papyrus", "papyrus", "papyrus-stackoverflow", "papyrus", SO_TOKENS)
 
 
 def _2048():
