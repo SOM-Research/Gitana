@@ -42,7 +42,9 @@ class GitQuerier():
         :type filepath: str
         :param filepath: local path of the file
         """
-        ext = filepath.split('.')[-1]
+        ext = None
+        if filepath:
+            ext = filepath.split('.')[-1]
         return ext
 
     def _get_type(self, str):
@@ -205,18 +207,20 @@ class GitQuerier():
         :param diff: the Object representing the diff
         """
         file_path = None
-        # if it is a modification of an existing file
-        if diff.a_blob:
-            if diff.a_blob.path:
-                file_path = diff.a_blob.path
+        try:
+            if diff.a_blob:
+                if diff.a_blob.path:
+                    file_path = diff.a_blob.path
+                else:
+                    file_path = diff.a_path
             else:
-                file_path = diff.a_path
-        else:
-            # if it is a new file
-            if diff.b_blob.path:
-                file_path = diff.b_blob.path
-            else:
-                file_path = diff.b_path
+                # if it is a new file
+                if diff.b_blob.path:
+                    file_path = diff.b_blob.path
+                else:
+                    file_path = diff.b_path
+        except:
+            pass
 
         return file_path
 
