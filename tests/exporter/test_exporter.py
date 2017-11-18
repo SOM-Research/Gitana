@@ -14,8 +14,8 @@ CONFIG = {
 
 def _papyrus_export():
     g = Gitana(CONFIG)
-    g.export_graph("_papyrus_db", "./graph.json", "./graph.gexf")
-    g.export_activity_report("_papyrus_db", "./report.json", "./report.html")
+    g.export_graph("db_papyrus", "./graph.json", "./graph.gexf")
+    g.export_activity_report("db_papyrus", "./report.json", "./report.html")
 
 
 def main():
