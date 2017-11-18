@@ -55,6 +55,10 @@ Gitana is distributed under the MIT License (https://opensource.org/licenses/MIT
 
 How to use Gitana
 -----------------
+Gitana is developed and tested on Windows, thus the user mileage in other platforms may vary.
+Nevertheless, Gitana has been successfully executed on Linux (i.e., all its exporters and Git, GitHub, StackOverflow, Bugzilla importers).
+
+
 .. code-block:: python
 
    from gitana.gitana import Gitana

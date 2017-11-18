@@ -45,6 +45,9 @@ $> python setup.py install
    
 ## How to use Gitana
 
+Gitana is developed and tested on Windows, thus the user mileage in other platforms may vary.
+Nevertheless, Gitana has been successfully executed on Linux (i.e., all its exporters and Git, GitHub, StackOverflow, Bugzilla importers).
+
 ### Data gathering from an Eclipse project and report generation
 
 ```python 
