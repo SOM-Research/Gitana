@@ -130,7 +130,7 @@ if __name__ == "__main__":
 - Gamification of OSS projects (http://som-research.uoc.edu/tools/papygamus/)
 
 ## Publications
-
 - V. Cosentino, J. L. Cánovas Izquierdo, J. Cabot, Gitana: A SQL-Based Git Repository Inspector, in: ER conf., 2015, pp. 329–343.
 - V. Cosentino, J. L. Cánovas Izquierdo, J. Cabot, Assessing the bus factor of git repositories, in: SANER conf., 2015, pp. 499–503.
 - J. L. Cánovas Izquierdo, V. Cosentino, J. Cabot, An Empirical Study on the Maturity of the Eclipse Modeling Ecosystem, in: MODELS conf., 2017, p. in press.
+- V. Cosentino, J. L. Cánovas Izquierdo, J. Cabot, Gitana: a Software Project Inspector. Science of Computer Programming, Vol. 153, pp. 30–33.
