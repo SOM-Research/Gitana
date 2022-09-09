@@ -1,3 +1,5 @@
+> NOTE: Gitana has been archived and is not maintained anymore. We have deactivated the issue tracker as we cannot offer support either. The development status of our tools is declared [here](https://som-research.uoc.edu/research-tools/). Feel free to contact us for further information.
+
 # Gitana: a SQL-based Project Activity Inspector
  
 Gitana imports and digests the data of Git repositories, issue trackers, Q&A web-sites and Instant messaging services to a relational database
